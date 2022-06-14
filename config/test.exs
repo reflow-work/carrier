@@ -10,6 +10,7 @@ config :carrier, Carrier.Repo,
   password: "postgres",
   hostname: "localhost",
   database: "carrier_test#{System.get_env("MIX_TEST_PARTITION")}",
+  port: 48140,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
