@@ -61,7 +61,12 @@ config :carrier, Oban,
 config :carrier_worker, Oban,
   name: CarrierWorker.Oban,
   repo: Carrier.Repo,
-  queues: [default: 10]
+  plugins: [
+    {Oban.Plugins.Lifeline, interval: :timer.minutes(1), rescue_after: :timer.minutes(5)},
+    Oban.Plugins.Reindexer,
+    Oban.Plugins.Stager
+  ],
+  queues: [default: 10, sample: 10]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
