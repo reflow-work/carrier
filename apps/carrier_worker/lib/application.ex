@@ -5,7 +5,9 @@ defmodule CarrierWorker.Application do
 
   @impl true
   def start(_type, _args) do
-    children = []
+    children = [
+      {Oban, Application.fetch_env!(:carrier_worker, Oban)}
+    ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: CarrierWorker.Supervisor)
   end
