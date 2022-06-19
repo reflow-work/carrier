@@ -1,0 +1,21 @@
+# Query with Dynamic Repo PoC
+
+## Postgres
+
+```elixir
+credential = [
+  hostname: "localhost",
+  username: "postgres",
+  password: "customer_db",
+  port: 48141,
+  database: "postgres"
+]
+
+query = """
+SELECT 1;
+"""
+
+Carrier.Dynamic.PostgresRepo.with_dynamic_repo(credential, fn repo ->
+  Ecto.Adapters.SQL.query!(repo, query)
+end)
+```
