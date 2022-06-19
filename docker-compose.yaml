@@ -7,3 +7,9 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - '48140:5432'
+  customer_db:
+    image: postgres:14.2
+    environment:
+      POSTGRES_PASSWORD: customer_db
+    ports:
+      - '48141:5432'
