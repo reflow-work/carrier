@@ -3,6 +3,7 @@
 ## Setup Project
 
 ```shell
+docker compose up -d
 mix deps.get
 mix setup
 ```
@@ -10,7 +11,6 @@ mix setup
 ## Run Applications
 
 ```shell
-docker compose up -d
 iex -S mix phx.server
 ```
 
