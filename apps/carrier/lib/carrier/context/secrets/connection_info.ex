@@ -1,0 +1,23 @@
+defmodule Carrier.Secrets.ConnectionInfo do
+  use Carrier.Schema
+  alias Carrier.Secrets.Types
+
+  schema "connection_infos" do
+    field :org_id, :integer
+    field :name, :string
+    field :type, :string
+    field :info, Types.Map, source: :encrypted_info
+  end
+
+  @required_for_create [:org_id, :name, :type, :info]
+  def changeset_for_create(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create)
+    |> validate_required(@required_for_create)
+  end
+
+  def create(attrs) do
+    %__MODULE__{}
+    |> changeset_for_create(attrs)
+  end
+end
