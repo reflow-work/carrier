@@ -41,7 +41,8 @@ defmodule Carrier.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.3"},
-      {:oban, "~> 2.12"}
+      {:oban, "~> 2.12"},
+      {:cloak_ecto, "~> 1.2.0"}
     ]
   end
 
