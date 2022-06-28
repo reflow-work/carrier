@@ -54,6 +54,8 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :ecto_sql, migration_module: Carrier.Migration
+
 config :carrier, Oban,
   name: Carrier.Oban,
   repo: Carrier.Repo
