@@ -1,8 +1,8 @@
-defmodule Carrier.Secrets.ConnectionInfo do
+defmodule Carrier.Secrets.ConnInfo do
   use Carrier.Schema
   alias Carrier.Secrets.Types
 
-  schema "connection_infos" do
+  schema "conn_infos" do
     field :org_id, :integer
     field :name, :string
     field :type, :string

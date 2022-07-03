@@ -1,9 +1,9 @@
 defmodule Carrier.SecretsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Secrets
-  alias Carrier.Secrets.ConnectionInfo
+  alias Carrier.Secrets.ConnInfo
 
-  describe "create_connection_info/1" do
+  describe "create_conn_info/1" do
     setup do
       org = insert(:org)
 
@@ -24,10 +24,9 @@ defmodule Carrier.SecretsTest do
         }
       }
 
-      assert {:ok, %ConnectionInfo{} = created_connection_info} =
-               Secrets.create_connection_info(params)
+      assert {:ok, %ConnInfo{} = created_conn_info} = Secrets.create_conn_info(params)
 
-      assert same_fields?(created_connection_info, params, [:org_id, :name, :type, :info])
+      assert same_fields?(created_conn_info, params, [:org_id, :name, :type, :info])
     end
   end
 end
