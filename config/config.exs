@@ -54,6 +54,8 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :ecto_sql, migration_module: Carrier.Migration
+
 config :carrier, Oban,
   name: Carrier.Oban,
   repo: Carrier.Repo
@@ -67,6 +69,8 @@ config :carrier_worker, Oban,
     Oban.Plugins.Stager
   ],
   queues: [default: 10, sample: 10]
+
+config :carrier, Carrier.Vault, json_library: Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

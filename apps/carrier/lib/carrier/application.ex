@@ -10,7 +10,8 @@ defmodule Carrier.Application do
     children = [
       Carrier.Repo,
       {Phoenix.PubSub, name: Carrier.PubSub},
-      {Oban, Application.fetch_env!(:carrier, Oban)}
+      {Oban, Application.fetch_env!(:carrier, Oban)},
+      Carrier.Vault
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Carrier.Supervisor)

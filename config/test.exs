@@ -32,3 +32,10 @@ config :carrier_worker, Oban, testing: :inline
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :carrier, Carrier.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM,
+       tag: "AES.GCM.V1", key: Base.decode64!("mO9HUeIWNsMuVoLRcHB9UdPtdZ9PVDZSwUzT8jIIAxI=")}
+  ]
