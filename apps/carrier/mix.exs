@@ -42,7 +42,9 @@ defmodule Carrier.MixProject do
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.3"},
       {:oban, "~> 2.12"},
-      {:cloak_ecto, "~> 1.2.0"}
+      {:cloak_ecto, "~> 1.2.0"},
+      {:ex_machina, "~> 2.7"},
+      {:doumi, "~> 0.2.2", only: :test}
     ]
   end
 
