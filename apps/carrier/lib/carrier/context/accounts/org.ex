@@ -3,6 +3,6 @@ defmodule Carrier.Accounts.Org do
 
   @primary_key {:org_id, :id, autogenerate: true}
   schema "orgs" do
-    field :name
+    field :name, :string
   end
 end
