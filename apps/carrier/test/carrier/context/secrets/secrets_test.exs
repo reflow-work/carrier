@@ -3,9 +3,11 @@ defmodule Carrier.SecretsTest do
   alias Carrier.Secrets
   alias Carrier.Secrets.ConnInfo
 
+  @moduletag repo: TenantRepo
+
   describe "create_conn_info/1" do
     setup do
-      org = insert(:org)
+      org = TenantFactory.insert(:org)
 
       %{org: org}
     end
