@@ -20,4 +20,9 @@ defmodule Carrier.Secrets.ConnInfo do
     %__MODULE__{}
     |> changeset_for_create(attrs)
   end
+
+  def fetch(id) do
+    __MODULE__
+    |> where([ci], ci.id == ^id)
+  end
 end

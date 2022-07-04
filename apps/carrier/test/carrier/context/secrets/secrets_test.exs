@@ -31,4 +31,20 @@ defmodule Carrier.SecretsTest do
       assert same_fields?(created_conn_info, params, [:org_id, :name, :type, :info])
     end
   end
+
+  describe "fetch_conn_info/1" do
+    setup do
+      conn_info = TenantFactory.insert(:conn_info)
+
+      TenantRepo.put_org_id(conn_info.org_id)
+
+      %{conn_info: conn_info}
+    end
+
+    test "with valid id", %{conn_info: conn_info} do
+      assert {:ok, %ConnInfo{} = fetched_conn_info} = Secrets.fetch_conn_info(conn_info.id)
+
+      assert same_records?(fetched_conn_info, conn_info)
+    end
+  end
 end

@@ -6,4 +6,17 @@ defmodule Carrier.Secrets do
     ConnInfo.create(%{org_id: org_id, name: name, type: type, info: info})
     |> TenantRepo.insert()
   end
+
+  def fetch_conn_info(conn_info_id) do
+    ConnInfo.fetch(conn_info_id)
+    |> TenantRepo.one()
+    |> case do
+      %ConnInfo{} = conn_info ->
+        {:ok, conn_info}
+
+      nil ->
+        {:error,
+         {:resource_not_found, %{target: "conn_info", conditions: %{conn_info_id: conn_info_id}}}}
+    end
+  end
 end
