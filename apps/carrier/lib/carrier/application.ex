@@ -9,6 +9,7 @@ defmodule Carrier.Application do
   def start(_type, _args) do
     children = [
       Carrier.Repo,
+      Carrier.TenantRepo,
       {Phoenix.PubSub, name: Carrier.PubSub},
       {Oban, Application.fetch_env!(:carrier, Oban)},
       Carrier.Vault,
