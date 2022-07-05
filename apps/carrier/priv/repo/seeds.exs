@@ -9,3 +9,26 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+alias Carrier.Accounts.Org
+alias Carrier.Secrets.ConnInfo
+alias Carrier.Repo
+
+Repo.transaction(fn ->
+  {_, [org0]} = Repo.insert_all(Org, [%{name: "org0"}], returning: true)
+
+  Repo.insert_all(ConnInfo, [
+    %{
+      org_id: org0.org_id,
+      name: "conn0",
+      type: "postgres",
+      info: %{
+        "hostname" => "localhost",
+        "port" => 48141,
+        "username" => "customer",
+        "password" => "password",
+        "database" => "customer_db"
+      }
+    }
+  ])
+end)
