@@ -10,6 +10,8 @@ services:
   customer_db:
     image: postgres:14.2
     environment:
-      POSTGRES_PASSWORD: customer_db
+      POSTGRES_USER: customer
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: customer_db
     ports:
       - '48141:5432'
