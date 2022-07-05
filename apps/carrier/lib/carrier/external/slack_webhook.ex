@@ -1,7 +1,7 @@
 defmodule Carrier.External.SlackWebhook do
   use Tesla
 
-  def send_webhook_message(url, message) do
+  def send_message(url, message) do
     Tesla.post(client(url), "", %{"text" => message})
   end
 
