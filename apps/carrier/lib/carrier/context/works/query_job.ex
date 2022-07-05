@@ -6,6 +6,7 @@ defmodule Carrier.Works.QueryJob do
   alias Carrier.TenantRepo
   alias Carrier.Dynamic.PostgresRepo
   alias Carrier.External.SlackWebhook
+  alias TableRex.Table
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args} = job) do
@@ -40,8 +41,10 @@ defmodule Carrier.Works.QueryJob do
           |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
           |> Keyword.new()
 
+        query = "SELECT * FROM unnest(ARRAY[1, 2]) AS count, unnest(ARRAY[1, 2]) AS value"
+
         PostgresRepo.with_dynamic_repo(credentials, fn ->
-          %{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(PostgresRepo, "SELECT 1")
+          %{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(PostgresRepo, query)
 
           {:ok, %{header: columns, rows: rows}}
         end)
@@ -49,7 +52,17 @@ defmodule Carrier.Works.QueryJob do
   end
 
   defp make_message(%{header: header, rows: rows}) do
-    {:ok, inspect([header, rows])}
+    table_str =
+      Table.new(rows, header)
+      |> Table.render!(
+        top_frame_symbol: "",
+        bottom_frame_symbol: "",
+        vertical_symbol: " ",
+        intersection_symbol: " "
+      )
+      |> String.trim_leading("\n")
+
+    {:ok, table_str}
   end
 
   defp schedule_next(%Oban.Job{args: %{"scheduled_at" => scheduled_at_str} = args, meta: meta}) do
