@@ -9,9 +9,11 @@ defmodule Carrier.Application do
   def start(_type, _args) do
     children = [
       Carrier.Repo,
+      Carrier.TenantRepo,
       {Phoenix.PubSub, name: Carrier.PubSub},
       {Oban, Application.fetch_env!(:carrier, Oban)},
-      Carrier.Vault
+      Carrier.Vault,
+      {Finch, name: Carrier.Finch, pools: %{default: [size: 100]}}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Carrier.Supervisor)
