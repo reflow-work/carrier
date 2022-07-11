@@ -47,7 +47,8 @@ defmodule Carrier.MixProject do
       {:doumi, "~> 0.2.2", only: :test},
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.12"},
-      {:table_rex, "~> 3.1"}
+      {:table_rex, "~> 3.1"},
+      {:timex, "~> 3.7"}
     ]
   end
 
