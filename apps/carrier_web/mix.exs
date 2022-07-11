@@ -50,7 +50,8 @@ defmodule CarrierWeb.MixProject do
       {:gettext, "~> 0.18"},
       {:carrier, in_umbrella: true},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"}
+      {:plug_cowboy, "~> 2.5"},
+      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev}
     ]
   end
 
