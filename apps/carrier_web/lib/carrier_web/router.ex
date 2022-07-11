@@ -18,6 +18,9 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    live "/conn_info", ConnInfoLive.Index, :index
+    live "/conn_info/new", ConnInfoLive.New, :new
   end
 
   # Other scopes may use custom stacks.
