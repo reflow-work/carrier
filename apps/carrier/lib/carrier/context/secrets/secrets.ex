@@ -7,6 +7,11 @@ defmodule Carrier.Secrets do
     |> TenantRepo.insert()
   end
 
+  def list_conn_infos() do
+    ConnInfo.list()
+    |> TenantRepo.all()
+  end
+
   def fetch_conn_info(conn_info_id) do
     ConnInfo.fetch(conn_info_id)
     |> TenantRepo.one()
