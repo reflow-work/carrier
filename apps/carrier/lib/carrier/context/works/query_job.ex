@@ -44,14 +44,12 @@ defmodule Carrier.Works.QueryJob do
           |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
           |> Keyword.new()
 
-        query =
-          "SELECT *, $1::timestamp FROM unnest(ARRAY[1, 2]) AS count, unnest(ARRAY[1, 2]) AS value"
+        query = """
+        SELECT * FROM orders LIMIT 10;
+        """
 
         PostgresRepo.with_dynamic_repo(credentials, fn ->
-          %{columns: columns, rows: rows} =
-            Ecto.Adapters.SQL.query!(PostgresRepo, query, [
-              datetime
-            ])
+          %{columns: columns, rows: rows} = PostgresRepo.query!(query, [])
 
           {:ok, %{header: columns, rows: rows}}
         end)
