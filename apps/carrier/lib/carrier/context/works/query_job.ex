@@ -44,16 +44,20 @@ defmodule Carrier.Works.QueryJob do
           |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
           |> Keyword.new()
 
+        period = 28
+        t_unit = 7
+
         query = """
         SELECT DATE(datetime) as date, SUM(price)
           FROM orders
+          WHERE datetime >= $1::TIMESTAMP - ($2::INTEGER + $3::INTEGER) * interval '1 days' AND datetime < $1::TIMESTAMP
           GROUP BY date
           ORDER BY date;
         """
 
         %{columns: columns, rows: rows} =
           PostgresRepo.with_dynamic_repo(credentials, fn ->
-            PostgresRepo.query!(query, [])
+            PostgresRepo.query!(query, [datetime, period, t_unit])
           end)
 
         {:ok, %{header: columns, rows: rows}}
