@@ -45,14 +45,18 @@ defmodule Carrier.Works.QueryJob do
           |> Keyword.new()
 
         query = """
-        SELECT * FROM orders LIMIT 10;
+        SELECT DATE(datetime) as date, SUM(price)
+          FROM orders
+          GROUP BY date
+          ORDER BY date;
         """
 
-        PostgresRepo.with_dynamic_repo(credentials, fn ->
-          %{columns: columns, rows: rows} = PostgresRepo.query!(query, [])
+        %{columns: columns, rows: rows} =
+          PostgresRepo.with_dynamic_repo(credentials, fn ->
+            PostgresRepo.query!(query, [])
+          end)
 
-          {:ok, %{header: columns, rows: rows}}
-        end)
+        {:ok, %{header: columns, rows: rows}}
     end
   end
 
