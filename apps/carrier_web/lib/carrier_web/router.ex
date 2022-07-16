@@ -1,5 +1,6 @@
 defmodule CarrierWeb.Router do
   use CarrierWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -19,8 +20,7 @@ defmodule CarrierWeb.Router do
 
     get "/", PageController, :index
 
-    live "/conn_info", ConnInfoLive.Index, :index
-    live "/conn_info/new", ConnInfoLive.New, :new
+    live "/chart_live", ChartLive
   end
 
   # Other scopes may use custom stacks.
