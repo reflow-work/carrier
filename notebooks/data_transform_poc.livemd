@@ -1,58 +1,28 @@
 # Data Transform PoC
 
 ```elixir
-Mix.install([:explorer])
+Mix.install([:timex, :explorer, :vega_lite, :kino_vega_lite])
 ```
 
 ## Section
 
 ```elixir
-%{columns: columns, rows: rows} = %{
-  columns: ["date", "price_sum"],
-  rows: [
-    [~D[2022-06-07], 7_043_819],
-    [~D[2022-06-08], 7_043_819],
-    [~D[2022-06-09], 7_043_819],
-    [~D[2022-06-10], 7_043_819],
-    [~D[2022-06-11], 7_043_819],
-    [~D[2022-06-12], 7_043_819],
-    [~D[2022-06-13], 7_043_819],
-    [~D[2022-06-14], 7_532_883],
-    [~D[2022-06-15], 7_424_157],
-    [~D[2022-06-16], 7_400_892],
-    [~D[2022-06-17], 7_519_230],
-    [~D[2022-06-18], 7_121_886],
-    [~D[2022-06-19], 7_326_898],
-    [~D[2022-06-20], 7_284_943],
-    [~D[2022-06-21], 6_999_117],
-    [~D[2022-06-22], 7_100_803],
-    [~D[2022-06-23], 7_175_507],
-    [~D[2022-06-24], 7_732_289],
-    [~D[2022-06-25], 7_210_634],
-    [~D[2022-06-26], 7_618_470],
-    [~D[2022-06-27], 7_795_069],
-    [~D[2022-06-28], 6_692_610],
-    [~D[2022-06-29], 7_670_170],
-    [~D[2022-06-30], 7_493_816],
-    [~D[2022-07-01], 7_136_646],
-    [~D[2022-07-02], 7_272_444],
-    [~D[2022-07-03], 7_056_820],
-    [~D[2022-07-04], 7_189_324],
-    [~D[2022-07-05], 6_550_706],
-    [~D[2022-07-06], 7_608_607],
-    [~D[2022-07-07], 7_385_789],
-    [~D[2022-07-08], 7_084_472],
-    [~D[2022-07-09], 6_960_574],
-    [~D[2022-07-10], 7_341_577],
-    [~D[2022-07-11], 6_776_392]
-  ]
-}
-
 period = 28
 t_unit = 7
-[data_start_date, _] = rows |> List.first()
-[end_date, _] = rows |> List.last()
 date_column_name = "date"
+
+end_date = ~D[2022-07-11]
+start_date = end_date |> Timex.shift(days: -(period - 1))
+data_start_date = start_date |> Timex.shift(days: -t_unit * 2)
+
+columns = ["date", "price_sum"]
+
+rows =
+  Date.range(data_start_date, end_date)
+  |> Enum.with_index()
+  |> Enum.map(fn {date, i} -> [date, i] end)
+
+[data_start_date: data_start_date, start_date: start_date, end_date: end_date]
 ```
 
 ```elixir
@@ -67,7 +37,8 @@ map =
     {key, map}
   end)
   |> Map.new()
-  |> Map.delete(~D[2022-07-02])
+  # to check fill_missing works
+  |> Map.delete(~D[2022-07-05])
 
 map =
   date_range
@@ -94,6 +65,7 @@ map =
 df =
   map
   |> Map.values()
+  |> Enum.sort_by(fn %{"date" => date} -> date end, {:asc, Date})
   |> Explorer.DataFrame.new()
 
 columns =
@@ -106,7 +78,7 @@ columns =
   |> Explorer.DataFrame.mutate(%{
     "t7_sum-7d" => fn df ->
       Explorer.Series.concat(Explorer.Series.from_list(List.duplicate(nil, t_unit)), df["t7_sum"])
-      |> Explorer.Series.head(Explorer.Series.size(df["date"]))
+      |> Explorer.Series.head(Explorer.Series.size(df["t7_sum"]))
     end
   })
   |> Explorer.DataFrame.mutate(%{
@@ -121,4 +93,20 @@ headers = ["date", "price_sum", "t7_sum", "t7_sum-7d", "t7_sum_wow"]
 data = headers |> Enum.map(&(columns |> Map.get(&1)))
 
 %{headers: headers, data: data}
+```
+
+```elixir
+alias VegaLite, as: Vl
+
+dates = data |> Enum.at(0) |> Enum.map(&(&1 |> Date.to_iso8601()))
+t7_sum = data |> Enum.at(2)
+t7_sum_7d = data |> Enum.at(3)
+
+Vl.new()
+|> Vl.data_from_values(date: dates, t7_sum: t7_sum, t7_sum_7d: t7_sum_7d)
+|> Vl.transform(fold: ["t7_sum", "t7_sum_7d"])
+|> Vl.mark(:line)
+|> Vl.encode_field(:x, "date")
+|> Vl.encode_field(:y, "value", type: :quantitative)
+|> Vl.encode_field(:color, "key", type: :nominal, title: nil)
 ```
