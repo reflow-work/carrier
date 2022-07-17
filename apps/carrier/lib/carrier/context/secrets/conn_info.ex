@@ -6,7 +6,7 @@ defmodule Carrier.Secrets.ConnInfo do
     field :org_id, :integer
     field :name, :string
     field :type, :string
-    field :info, Types.Map, source: :encrypted_info
+    field :info, Types.Map, source: :encrypted_info, redact: true
   end
 
   @required_for_create [:org_id, :name, :type, :info]
