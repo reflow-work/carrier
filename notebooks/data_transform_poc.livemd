@@ -105,8 +105,16 @@ t7_sum_7d = data |> Enum.at(3)
 Vl.new()
 |> Vl.data_from_values(date: dates, t7_sum: t7_sum, t7_sum_7d: t7_sum_7d)
 |> Vl.transform(fold: ["t7_sum", "t7_sum_7d"])
-|> Vl.mark(:line)
 |> Vl.encode_field(:x, "date")
-|> Vl.encode_field(:y, "value", type: :quantitative)
-|> Vl.encode_field(:color, "key", type: :nominal, title: nil)
+|> Vl.layers([
+  Vl.new()
+  |> Vl.encode_field(:y, "value", type: :quantitative)
+  |> Vl.encode_field(:color, "key", type: :nominal, title: nil)
+  |> Vl.layers([
+    Vl.new()
+    |> Vl.mark(:line),
+    Vl.new()
+    |> Vl.mark(:point, tooltip: true)
+  ])
+])
 ```
