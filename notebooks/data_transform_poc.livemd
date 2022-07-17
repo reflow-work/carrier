@@ -1,0 +1,124 @@
+# Data Transform PoC
+
+```elixir
+Mix.install([:explorer])
+```
+
+## Section
+
+```elixir
+%{columns: columns, rows: rows} = %{
+  columns: ["date", "price_sum"],
+  rows: [
+    [~D[2022-06-07], 7_043_819],
+    [~D[2022-06-08], 7_043_819],
+    [~D[2022-06-09], 7_043_819],
+    [~D[2022-06-10], 7_043_819],
+    [~D[2022-06-11], 7_043_819],
+    [~D[2022-06-12], 7_043_819],
+    [~D[2022-06-13], 7_043_819],
+    [~D[2022-06-14], 7_532_883],
+    [~D[2022-06-15], 7_424_157],
+    [~D[2022-06-16], 7_400_892],
+    [~D[2022-06-17], 7_519_230],
+    [~D[2022-06-18], 7_121_886],
+    [~D[2022-06-19], 7_326_898],
+    [~D[2022-06-20], 7_284_943],
+    [~D[2022-06-21], 6_999_117],
+    [~D[2022-06-22], 7_100_803],
+    [~D[2022-06-23], 7_175_507],
+    [~D[2022-06-24], 7_732_289],
+    [~D[2022-06-25], 7_210_634],
+    [~D[2022-06-26], 7_618_470],
+    [~D[2022-06-27], 7_795_069],
+    [~D[2022-06-28], 6_692_610],
+    [~D[2022-06-29], 7_670_170],
+    [~D[2022-06-30], 7_493_816],
+    [~D[2022-07-01], 7_136_646],
+    [~D[2022-07-02], 7_272_444],
+    [~D[2022-07-03], 7_056_820],
+    [~D[2022-07-04], 7_189_324],
+    [~D[2022-07-05], 6_550_706],
+    [~D[2022-07-06], 7_608_607],
+    [~D[2022-07-07], 7_385_789],
+    [~D[2022-07-08], 7_084_472],
+    [~D[2022-07-09], 6_960_574],
+    [~D[2022-07-10], 7_341_577],
+    [~D[2022-07-11], 6_776_392]
+  ]
+}
+
+period = 28
+t_unit = 7
+[data_start_date, _] = rows |> List.first()
+[end_date, _] = rows |> List.last()
+date_column_name = "date"
+```
+
+```elixir
+date_range = Date.range(data_start_date, end_date)
+
+map =
+  rows
+  |> Enum.map(fn row ->
+    map = Enum.zip([columns, row]) |> Map.new()
+    key = map[date_column_name]
+
+    {key, map}
+  end)
+  |> Map.new()
+  |> Map.delete(~D[2022-07-02])
+
+map =
+  date_range
+  |> Enum.reduce(map, fn date, map ->
+    case Map.has_key?(map, date) do
+      true ->
+        map
+
+      false ->
+        empty_data =
+          columns
+          |> Enum.map(fn column ->
+            case column do
+              ^date_column_name -> {date_column_name, date}
+              _ -> {column, nil}
+            end
+          end)
+          |> Map.new()
+
+        map |> Map.put(date, empty_data)
+    end
+  end)
+
+df =
+  map
+  |> Map.values()
+  |> Explorer.DataFrame.new()
+
+columns =
+  df
+  |> Explorer.DataFrame.mutate(%{
+    "price_sum" => &Explorer.Series.fill_missing(&1["price_sum"], :forward)
+  })
+  |> Explorer.DataFrame.mutate(%{"price_sum" => &Explorer.Series.fill_missing(&1["price_sum"], 0)})
+  |> Explorer.DataFrame.mutate(%{"t7_sum" => &Explorer.Series.window_sum(&1["price_sum"], 7)})
+  |> Explorer.DataFrame.mutate(%{
+    "t7_sum-7d" => fn df ->
+      Explorer.Series.concat(Explorer.Series.from_list(List.duplicate(nil, t_unit)), df["t7_sum"])
+      |> Explorer.Series.head(Explorer.Series.size(df["date"]))
+    end
+  })
+  |> Explorer.DataFrame.mutate(%{
+    "t7_sum_wow" => fn df ->
+      Explorer.Series.divide(df["t7_sum"], df["t7_sum-7d"])
+    end
+  })
+  |> Explorer.DataFrame.tail(period)
+  |> Explorer.DataFrame.to_columns()
+
+headers = ["date", "price_sum", "t7_sum", "t7_sum-7d", "t7_sum_wow"]
+data = headers |> Enum.map(&(columns |> Map.get(&1)))
+
+%{headers: headers, data: data}
+```
