@@ -18,6 +18,15 @@ repo_envs = [
 config :carrier, Carrier.Repo, repo_envs
 config :carrier, Carrier.TenantRepo, repo_envs
 
+config :carrier, Carrier.Dynamic.PostgresRepo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "carrier_test#{System.get_env("MIX_TEST_PARTITION")}",
+  port: 48140,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :carrier_web, CarrierWeb.Endpoint,

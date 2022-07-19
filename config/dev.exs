@@ -14,6 +14,15 @@ repo_envs = [
 config :carrier, Carrier.Repo, repo_envs
 config :carrier, Carrier.TenantRepo, repo_envs
 
+config :carrier, Carrier.Dynamic.PostgresRepo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "carrier_dev",
+  port: 48140,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
