@@ -48,7 +48,8 @@ defmodule Carrier.MixProject do
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.12"},
       {:table_rex, "~> 3.1"},
-      {:timex, "~> 3.7"}
+      {:timex, "~> 3.7"},
+      {:tzdata, "~> 1.1"}
     ]
   end
 
