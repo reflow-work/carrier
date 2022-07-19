@@ -49,7 +49,8 @@ defmodule Carrier.MixProject do
       {:finch, "~> 0.12"},
       {:table_rex, "~> 3.1"},
       {:timex, "~> 3.7"},
-      {:tzdata, "~> 1.1"}
+      {:tzdata, "~> 1.1"},
+      {:explorer, "~> 0.2.0"}
     ]
   end
 
