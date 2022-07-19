@@ -1,23 +1,48 @@
 defmodule CarrierWeb.ChartLive do
   use CarrierWeb, :live_view
+  alias Carrier.Data.QueryData
 
   @impl true
   def mount(_params, _session, socket) do
-    schedule_update()
-    {:ok, socket}
+    {:ok, current_date } = Date.from_iso8601("2022-05-11")
+    {:ok, socket |> assign(date: current_date)}
   end
 
   @impl true
-  def handle_info(:update, socket) do
-    schedule_update()
-    {:noreply, socket |> push_event("votes", %{votes: get_votes})}
+  def handle_event("prev", _, socket) do
+    current_date = socket.assigns.date
+    new_date = Date.add(current_date, -1)
+    sql = sql(current_date |> to_string(), current_date |> Date.add(30) |> to_string())
+    socket =
+      socket
+      |> assign(date: new_date)
+    {:ok, %{header: header, rows: rows}} = QueryData.query(%{org_id: 1, conn_info_id: 1, sql: sql})
+    {:noreply,
+     socket
+     |> push_event("input_data", %{labels: header, data: rows})}
   end
 
   @impl true
   def handle_event("next", _, socket) do
-    {:noreply, socket |> push_event("votes", %{votes: get_votes})}
+    current_date = socket.assigns.date
+    new_date = Date.add(current_date, 1)
+    sql = sql(current_date |> to_string(), current_date |> Date.add(30) |> to_string())
+    socket =
+      socket
+      |> assign(date: new_date)
+    {:ok, %{header: header, rows: rows}} = QueryData.query(%{org_id: 1, conn_info_id: 1, sql: sql})
+    {:noreply,
+     socket
+     |> push_event("input_data", %{labels: header, data: rows})}
   end
 
-  defp schedule_update, do: self() |> Process.send_after(:update, 5000)
-  defp get_votes, do: 1..7 |> Enum.map(fn _ -> :rand.uniform(100) end)
+  defp sql(date1, date2) do
+    """
+    SELECT DATE(datetime) as date, SUM(price) AS price_sum
+    FROM orders
+    WHERE datetime >= '#{date1}'::TIMESTAMP AND datetime < '#{date2}'::TIMESTAMP
+    GROUP BY date
+    ORDER BY date;
+    """
+  end
 end

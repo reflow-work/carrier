@@ -24,7 +24,7 @@ defmodule Carrier.Works.QueryJob do
          "datetime" => datetime_str,
          "slack_webhook_url" => slack_webhook_url
        }) do
-    TenantRepo.put_org_id(org_id)
+    TenantRepo.put_org_id(1)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
