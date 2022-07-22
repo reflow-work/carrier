@@ -19,14 +19,10 @@ defmodule Carrier.Data.QueryData do
     end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
     data_start_datetime = end_datetime |> Timex.shift(days: -(period - 1 + window_size * 2))
 
-    sql =
-      sql_template
-      |> String.replace("{{start_datetime}}", "$1::TIMESTAMP")
-      |> String.replace("{{end_datetime}}", "$2::TIMESTAMP")
-
     sql_params = [data_start_datetime, end_datetime]
 
-    with :ok <- is_valid_sql?(sql),
+    with :ok <- is_valid_sql?(sql_template),
+         sql = sql_template |> change_sql_template_to_sql(),
          {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
          {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, sql, sql_params) do
       data = DataHelper.rows_to_map(columns, rows)
@@ -35,6 +31,12 @@ defmodule Carrier.Data.QueryData do
     else
       error -> error
     end
+  end
+
+  defp change_sql_template_to_sql(sql_template) do
+    sql_template
+    |> String.replace("{{start_datetime}}", "$1::TIMESTAMP")
+    |> String.replace("{{end_datetime}}", "$2::TIMESTAMP")
   end
 
   defp is_valid_sql?(sql_template) do
