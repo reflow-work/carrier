@@ -27,8 +27,10 @@ defmodule Carrier.Data.QueryData do
     sql_params = [data_start_datetime, end_datetime]
 
     with {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
-         {:ok, results} <- run_query(conn_info, sql, sql_params) do
-      {:ok, results}
+         {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, sql, sql_params) do
+      data = DataHelper.rows_to_map(columns, rows)
+
+      {:ok, data}
     end
   end
 
@@ -45,9 +47,7 @@ defmodule Carrier.Data.QueryData do
             PostgresRepo.query!(sql, sql_params)
           end)
 
-        results = DataHelper.rows_to_map(columns, rows)
-
-        {:ok, results}
+        {:ok, %{columns: columns, rows: rows}}
     end
   end
 end
