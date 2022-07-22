@@ -27,3 +27,7 @@ SELECT DATE(datetime) as date, SUM(price) AS price_sum
     limit: 5
   })
 ```
+
+```elixir
+Kino.DataTable.new(data)
+```
