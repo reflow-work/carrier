@@ -1,0 +1,29 @@
+# QueryData Example
+
+```elixir
+nil
+```
+
+## Section
+
+```elixir
+sql_template = """
+SELECT DATE(datetime) as date, SUM(price) AS price_sum
+    FROM orders
+    WHERE datetime >= {{start_datetime}} AND datetime < {{end_datetime}}
+    GROUP BY date
+    ORDER BY date
+"""
+
+{:ok, data} =
+  Carrier.Data.QueryData.query(%{
+    org_id: 1,
+    conn_info_id: 1,
+    sql_template: sql_template,
+    datetime: DateTime.utc_now(),
+    timezone: "Asia/Seoul",
+    period: 28,
+    window_size: 7,
+    limit: 5
+  })
+```
