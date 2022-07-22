@@ -26,11 +26,22 @@ defmodule Carrier.Data.QueryData do
 
     sql_params = [data_start_datetime, end_datetime]
 
-    with {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
+    with :ok <- is_valid_sql?(sql),
+         {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
          {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, sql, sql_params) do
       data = DataHelper.rows_to_map(columns, rows)
 
       {:ok, data}
+    else
+      error -> error
+    end
+  end
+
+  defp is_valid_sql?(sql_template) do
+    with true <- Regex.match?(~r/^select\s/i, sql_template) do
+      :ok
+    else
+      _ -> {:error, :invalid_sql}
     end
   end
 
