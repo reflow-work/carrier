@@ -36,6 +36,14 @@ defmodule CarrierWeb.ChartLive do
      |> push_event("input_data", %{labels: header, data: rows})}
   end
 
+  @impl true
+  def handle_event("run_query", %{"query_editor" => query}, socket) do
+    {:ok, %{header: header, rows: rows}} = QueryData.query(%{org_id: 1, conn_info_id: 1, sql: query})
+    {:noreply,
+     socket
+     |> push_event("input_data", %{labels: header, data: rows})}
+  end
+
   defp sql(date1, date2) do
     """
     SELECT DATE(datetime) as date, SUM(price) AS price_sum

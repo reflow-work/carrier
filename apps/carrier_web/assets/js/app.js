@@ -81,3 +81,6 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+window.addEventListener("run_query", (e) => {
+  const query = document.getElementById("query_editor").value
+})
