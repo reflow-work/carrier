@@ -11,6 +11,7 @@ defmodule CarrierWorker.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
+      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -27,6 +28,12 @@ defmodule CarrierWorker.MixProject do
   defp deps do
     [
       {:carrier, in_umbrella: true}
+    ]
+  end
+
+  defp aliases do
+    [
+      setup: ["deps.get"],
     ]
   end
 end
