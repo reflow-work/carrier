@@ -10,7 +10,7 @@ nil
 sql_template = """
 SELECT DATE(datetime) as date, SUM(price) AS price_sum --, AVG(price) AS price_avg
     FROM orders
-    WHERE datetime >= {{start_datetime}} AND datetime < {{end_datetime}}
+    WHERE datetime >= {{start}} AND datetime < {{end}}
       AND datetime 
     GROUP BY date
     ORDER BY date
