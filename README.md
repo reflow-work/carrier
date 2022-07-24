@@ -3,6 +3,7 @@
 ## Setup Project
 
 ```shell
+asdf install
 docker compose up -d
 mix deps.get
 mix setup
