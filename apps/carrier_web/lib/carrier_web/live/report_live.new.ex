@@ -24,12 +24,36 @@ defmodule CarrierWeb.ReportLive.New do
   def render(assigns) do
     ~H"""
     <div>
-      <.form let={f} for={:report} id="report_form" phx-hook="ReportForm">
-        <%= textarea(f, :sql_template, class: "textarea textarea-bordered", placeholder: "SQL here", value: @sql_template) %>
+      <div>
+        <.form let={f} for={:report} id="report_form" phx-hook="ReportForm">
+          <%= textarea(f, :sql_template, class: "textarea textarea-bordered", placeholder: "SQL here", value: @sql_template) %>
 
-        <%= submit "sample", type: "button", name: "sample" %>
-        <%= submit "analyze", type: "button", name: "analyze" %>
-      </.form>
+          <%= submit "sample", type: "button", name: "sample" %>
+          <%= submit "analyze", type: "button", name: "analyze" %>
+        </.form>
+      </div>
+      <div>
+        <%= if @sample do %>
+          <table>
+            <thead>
+              <tr>
+                <%= for column <- @sample.columns do %>
+                  <th><%= column %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for datum <- @sample.data do %>
+                <tr>
+                  <%= for column <- @sample.columns do %>
+                    <td><%= datum[column] %></td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </div>
     </div>
     """
   end
