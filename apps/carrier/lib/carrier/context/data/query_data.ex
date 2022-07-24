@@ -61,6 +61,7 @@ defmodule Carrier.Data.QueryData do
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
          data = DataHelper.rows_to_map(columns, rows),
+         data = fill_missing_dates(data, columns, data_start_datetime, end_datetime),
          {:ok, analyzed_date} <-
            data
            |> analyze(%{
@@ -159,6 +160,48 @@ defmodule Carrier.Data.QueryData do
 
         {:ok, %{columns: columns, rows: rows}}
     end
+  end
+
+  defp fill_missing_dates(
+         data,
+         [date_column | value_columns],
+         %DateTime{} = start_datetime,
+         %DateTime{} = end_datetime
+       ) do
+    start_date = start_datetime |> DateTime.to_date()
+    end_date = end_datetime |> DateTime.to_date()
+
+    date_range = Date.range(start_date, end_date |> Date.add(-1))
+
+    date_datum_map =
+      data
+      |> Enum.map(fn datum -> {datum[date_column], datum} end)
+      |> Map.new()
+
+    filled_date_datum_map =
+      date_range
+      |> Enum.reduce(date_datum_map, fn date, date_datum_map ->
+        case Map.has_key?(date_datum_map, date) do
+          true ->
+            date_datum_map
+
+          false ->
+            empty_data = empty_datum(date, date_column, value_columns)
+
+            date_datum_map |> Map.put(date, empty_data)
+        end
+      end)
+
+    filled_date_datum_map
+    |> Map.values()
+    |> Enum.sort_by(fn %{"date" => date} -> date end, {:asc, Date})
+  end
+
+  defp empty_datum(%Date{} = date, date_column, value_columns) do
+    value_columns
+    |> Enum.reduce(%{date_column => date}, fn value_column, datum ->
+      datum |> Map.put(value_column, 0)
+    end)
   end
 
   defp window_sum_column(column) do
