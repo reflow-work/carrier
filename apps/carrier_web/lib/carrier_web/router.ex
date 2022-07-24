@@ -21,6 +21,7 @@ defmodule CarrierWeb.Router do
     get "/", PageController, :index
 
     live "/chart_live", ChartLive
+    live "/data-source", DataSourceLive, :new
   end
 
   # Other scopes may use custom stacks.
