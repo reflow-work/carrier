@@ -16,6 +16,7 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
       |> assign_new(:sample, fn -> nil end)
+      |> assign_new(:analyze, fn -> nil end)
 
     {:ok, socket}
   end
@@ -87,7 +88,28 @@ defmodule CarrierWeb.ReportLive.New do
 
   @impl true
   def handle_event("analyze", params, socket) do
-    params |> parse_form_data() |> IO.inspect()
+    %{"report" => %{"sql_template" => sql_template}} = params |> parse_form_data()
+
+    socket = socket |> assign(:sql_template, sql_template)
+
+    socket =
+      QueryData.query(%{
+        org_id: 1,
+        conn_info_id: 1,
+        sql_template: sql_template,
+        datetime: DateTime.utc_now(),
+        timezone: "Asia/Seoul",
+        period: 28,
+        window_size: 7,
+        comparing_period: 7
+      })
+      |> case do
+        {:ok, %{columns: columns, data: data}} ->
+          socket |> assign(:analyze, %{columns: columns, data: data})
+
+        {:error, error} ->
+          socket |> put_flash(:error, error)
+      end
 
     {:noreply, socket}
   end
