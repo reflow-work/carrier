@@ -1,10 +1,10 @@
 const ReportFormHook = {
   mounted() {
-    const testButton = this.el.querySelector('button[name="test"]')
+    const sampleButton = this.el.querySelector('button[name="sample"]')
     const analyzeButton = this.el.querySelector('button[name="analyze"]')
 
-    testButton.addEventListener('click', () => {
-      this.pushEvent("test", this.formData())
+    sampleButton.addEventListener('click', () => {
+      this.pushEvent("sample", this.formData())
     })
     analyzeButton.addEventListener('click', () => {
       this.pushEvent("analyze", this.formData())
