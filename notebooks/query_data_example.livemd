@@ -8,9 +8,10 @@ nil
 
 ```elixir
 sql_template = """
-SELECT DATE(datetime) as date, SUM(price) AS price_sum, AVG(price) AS price_avg
+SELECT DATE(datetime) as date, SUM(price) AS price_sum --, AVG(price) AS price_avg
     FROM orders
     WHERE datetime >= {{start_datetime}} AND datetime < {{end_datetime}}
+      AND datetime 
     GROUP BY date
     ORDER BY date
 """
@@ -20,7 +21,27 @@ timezone = "Asia/Seoul"
 period = 28
 window_size = 7
 comparing_period = 7
+limit = 5
+```
 
+```elixir
+{:ok, %{columns: columns, data: data}} =
+  Carrier.Data.QueryData.query_sample(%{
+    org_id: 1,
+    conn_info_id: 1,
+    sql_template: sql_template,
+    datetime: datetime,
+    timezone: timezone,
+    period: period,
+    limit: limit
+  })
+```
+
+```elixir
+Kino.DataTable.new(data)
+```
+
+```elixir
 {:ok, %{columns: columns, data: data}} =
   Carrier.Data.QueryData.query(%{
     org_id: 1,
@@ -30,23 +51,12 @@ comparing_period = 7
     timezone: timezone,
     period: period,
     window_size: window_size,
-    comparing_period: comparing_period,
-    limit: 5
+    comparing_period: comparing_period
   })
 ```
 
 ```elixir
 Kino.DataTable.new(data)
-```
-
-```elixir
-{:ok, data} =
-  Carrier.Data.QueryData.analyze(data, %{
-    columns: columns,
-    period: period,
-    window_size: window_size,
-    comparing_period: comparing_period
-  })
 ```
 
 ```elixir
@@ -58,7 +68,7 @@ data =
 
 Vl.new()
 |> Vl.data_from_values(data)
-|> Vl.transform(fold: ["price_sum_window_sum", "price_sum_window_sum_over"])
+|> Vl.transform(fold: ["price_sum_window_sum", "price_sum_window_sum_offset"])
 |> Vl.encode_field(:x, "date")
 |> Vl.layers([
   Vl.new()
