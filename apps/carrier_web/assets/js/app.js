@@ -25,47 +25,10 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
-const hooks = {}
-hooks.chart = {
-  mounted() {
-    const ctx = this.el.getContext('2d')
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        datasets: [{
-          label: 'Data',
-          data: [],
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            title: {
-              display: true,
-            },
-          },
-          x: {
-            title: {
-              display: true,
-            },
-          }
-        }
-      }
-    })
-    this.handleEvent("input_data", ({ labels, data }) => {
-      chart.data.datasets[0].data = data
-      chart.options.scales['x'].title.text = labels[0]
-      chart.options.scales['y'].title.text = labels[1]
-      chart.update()
-    })
-  }
-}
+import Hooks from "./hooks"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks })
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })
 
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })

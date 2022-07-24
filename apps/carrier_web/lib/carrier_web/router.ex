@@ -22,6 +22,7 @@ defmodule CarrierWeb.Router do
 
     live "/chart_live", ChartLive
     live "/data-source", DataSourceLive, :new
+    live "/reports/new", ReportLive.New, :new
   end
 
   # Other scopes may use custom stacks.

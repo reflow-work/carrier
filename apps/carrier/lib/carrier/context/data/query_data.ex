@@ -5,8 +5,8 @@ defmodule Carrier.Data.QueryData do
   alias Carrier.Dynamic.PostgresRepo
   alias Carrier.Core.DataHelper
 
-  # Assumptions
-  # - results are ordered by date
+  @start_template "{{start}}"
+  @end_template "{{end}}"
 
   def query_sample(%{
         org_id: org_id,
@@ -25,7 +25,7 @@ defmodule Carrier.Data.QueryData do
     sql_params = [data_start_datetime, end_datetime, limit]
 
     with :ok <- is_valid_sql?(sql_template),
-         sql = sql_template |> change_sql_template_to_sql() |> append_limit(),
+         sql = sql_template |> convert_sql_template_to_sql() |> append_limit(),
          {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
@@ -56,7 +56,7 @@ defmodule Carrier.Data.QueryData do
     sql_params = [data_start_datetime, end_datetime]
 
     with :ok <- is_valid_sql?(sql_template),
-         sql = sql_template |> change_sql_template_to_sql(),
+         sql = sql_template |> convert_sql_template_to_sql(),
          {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
@@ -127,10 +127,11 @@ defmodule Carrier.Data.QueryData do
     {:ok, data}
   end
 
-  defp change_sql_template_to_sql(sql_template) do
+  defp convert_sql_template_to_sql(sql_template) do
     sql_template
-    |> String.replace("{{start_datetime}}", "$1::TIMESTAMP")
-    |> String.replace("{{end_datetime}}", "$2::TIMESTAMP")
+    |> String.trim_trailing(";")
+    |> String.replace(@start_template, "$1::TIMESTAMP")
+    |> String.replace(@end_template, "$2::TIMESTAMP")
   end
 
   defp append_limit(sql) do
@@ -138,10 +139,25 @@ defmodule Carrier.Data.QueryData do
   end
 
   defp is_valid_sql?(sql_template) do
-    with true <- Regex.match?(~r/^\s*select\s*/i, sql_template) do
+    with :ok <- is_select_query?(sql_template),
+         :ok <- is_contains_required_templates?(sql_template) do
       :ok
     else
-      _ -> {:error, :invalid_sql}
+      error -> error
+    end
+  end
+
+  defp is_select_query?(sql_template) do
+    case Regex.match?(~r/^\s*select\s*/i, sql_template) do
+      true -> :ok
+      false -> {:error, :sql_not_a_select_query}
+    end
+  end
+
+  defp is_contains_required_templates?(sql_template) do
+    case sql_template |> String.contains?([@start_template, @end_template]) do
+      true -> :ok
+      false -> {:error, :sql_missing_template_keys}
     end
   end
 
@@ -160,6 +176,11 @@ defmodule Carrier.Data.QueryData do
 
         {:ok, %{columns: columns, rows: rows}}
     end
+  rescue
+    error in Postgrex.Error ->
+      %Postgrex.Error{postgres: %{code: code, message: message, hint: hint}} = error
+
+      {:error, [code, message, hint] |> Enum.join("\n")}
   end
 
   defp fill_missing_dates(
