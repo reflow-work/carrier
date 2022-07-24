@@ -7,7 +7,33 @@ defmodule Carrier.Data.QueryData do
 
   # Assumptions
   # - results are ordered by date
-  # - no missing dates
+
+  def query_sample(%{
+        org_id: org_id,
+        conn_info_id: conn_info_id,
+        sql_template: sql_template,
+        datetime: datetime,
+        timezone: timezone,
+        period: period
+      }) do
+    TenantRepo.put_org_id(org_id)
+
+    end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
+    data_start_datetime = end_datetime |> Timex.shift(days: -(period - 1))
+
+    sql_params = [data_start_datetime, end_datetime]
+
+    with :ok <- is_valid_sql?(sql_template),
+         sql = sql_template |> change_sql_template_to_sql(),
+         {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
+         {:ok, %{columns: columns, rows: rows}} <-
+           run_query(conn_info, sql, sql_params),
+         data = DataHelper.rows_to_map(columns, rows) do
+      {:ok, %{columns: columns, data: data}}
+    else
+      error -> error
+    end
+  end
 
   def query(%{
         org_id: org_id,
@@ -31,21 +57,29 @@ defmodule Carrier.Data.QueryData do
     with :ok <- is_valid_sql?(sql_template),
          sql = sql_template |> change_sql_template_to_sql(),
          {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
-         {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, sql, sql_params) do
-      data = DataHelper.rows_to_map(columns, rows)
-
-      {:ok, %{columns: columns, data: data}}
+         {:ok, %{columns: columns, rows: rows}} <-
+           run_query(conn_info, sql, sql_params),
+         data = DataHelper.rows_to_map(columns, rows),
+         {:ok, analyzed_date} <-
+           data
+           |> analyze(%{
+             columns: columns,
+             period: period,
+             window_size: window_size,
+             comparing_period: comparing_period
+           }) do
+      {:ok, %{columns: columns, data: analyzed_date}}
     else
       error -> error
     end
   end
 
-  def analyze(data, %{
-        columns: columns,
-        period: period,
-        window_size: window_size,
-        comparing_period: comparing_period
-      }) do
+  defp analyze(data, %{
+         columns: columns,
+         period: period,
+         window_size: window_size,
+         comparing_period: comparing_period
+       }) do
     [_date_column | value_columns] = columns
 
     df = data |> Explorer.DataFrame.new()
