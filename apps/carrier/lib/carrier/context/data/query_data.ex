@@ -14,17 +14,18 @@ defmodule Carrier.Data.QueryData do
         sql_template: sql_template,
         datetime: datetime,
         timezone: timezone,
-        period: period
+        period: period,
+        limit: limit
       }) do
     TenantRepo.put_org_id(org_id)
 
     end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
     data_start_datetime = end_datetime |> Timex.shift(days: -(period - 1))
 
-    sql_params = [data_start_datetime, end_datetime]
+    sql_params = [data_start_datetime, end_datetime, limit]
 
     with :ok <- is_valid_sql?(sql_template),
-         sql = sql_template |> change_sql_template_to_sql(),
+         sql = sql_template |> change_sql_template_to_sql() |> append_limit(),
          {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
@@ -129,6 +130,10 @@ defmodule Carrier.Data.QueryData do
     sql_template
     |> String.replace("{{start_datetime}}", "$1::TIMESTAMP")
     |> String.replace("{{end_datetime}}", "$2::TIMESTAMP")
+  end
+
+  defp append_limit(sql) do
+    sql <> " LIMIT $3"
   end
 
   defp is_valid_sql?(sql_template) do
