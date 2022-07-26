@@ -15,7 +15,6 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
-      |> assign_new(:sample, fn -> nil end)
       |> assign_new(:analyze, fn -> nil end)
 
     {:ok, socket}
@@ -26,27 +25,26 @@ defmodule CarrierWeb.ReportLive.New do
     ~H"""
     <div>
       <div>
-        <.form let={f} for={:report} id="report_form" phx-hook="ReportForm">
-          <%= textarea(f, :sql_template, class: "textarea textarea-bordered", placeholder: "SQL here", value: @sql_template) %>
+        <.form let={f} for={:report} id="report_form" phx-submit="analyze">
+          <%= textarea f, :sql_template, class: "textarea textarea-bordered", placeholder: "SQL here", value: @sql_template %>
 
-          <%= submit "sample", type: "button", name: "sample" %>
-          <%= submit "analyze", type: "button", name: "analyze" %>
+          <%= submit "analyze"%>
         </.form>
       </div>
       <div>
-        <%= if @sample do %>
+        <%= if @analyze do %>
           <table>
             <thead>
               <tr>
-                <%= for column <- @sample.columns do %>
+                <%= for column <- @analyze.columns do %>
                   <th><%= column %></th>
                 <% end %>
               </tr>
             </thead>
             <tbody>
-              <%= for datum <- @sample.data do %>
+              <%= for datum <- @analyze.data |> Enum.take(-5) do %>
                 <tr>
-                  <%= for column <- @sample.columns do %>
+                  <%= for column <- @analyze.columns do %>
                     <td><%= datum[column] %></td>
                   <% end %>
                 </tr>
@@ -60,35 +58,8 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   @impl true
-  def handle_event("sample", params, socket) do
-    %{"report" => %{"sql_template" => sql_template}} = params |> parse_form_data()
-
-    socket = socket |> assign(:sql_template, sql_template)
-
-    socket =
-      QueryData.query_sample(%{
-        org_id: 1,
-        conn_info_id: 1,
-        sql_template: sql_template,
-        datetime: DateTime.utc_now(),
-        timezone: "Asia/Seoul",
-        period: 28,
-        limit: 5
-      })
-      |> case do
-        {:ok, %{columns: columns, data: data}} ->
-          socket |> assign(:sample, %{columns: columns, data: data})
-
-        {:error, error} ->
-          socket |> put_flash(:error, error)
-      end
-
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_event("analyze", params, socket) do
-    %{"report" => %{"sql_template" => sql_template}} = params |> parse_form_data()
+    %{"report" => %{"sql_template" => sql_template}} = params
 
     socket = socket |> assign(:sql_template, sql_template)
 
@@ -112,18 +83,5 @@ defmodule CarrierWeb.ReportLive.New do
       end
 
     {:noreply, socket}
-  end
-
-  defp parse_form_data(form_data) do
-    form_data
-    |> Enum.reduce(%{}, fn {key, value}, map ->
-      [key0, key1] = parse_form_data_key(key)
-
-      map |> put_in([Access.key(key0, %{}), key1], value)
-    end)
-  end
-
-  defp parse_form_data_key(key) do
-    key |> String.split(["[", "]"], trim: true)
   end
 end
