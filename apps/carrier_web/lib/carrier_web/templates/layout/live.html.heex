@@ -1,4 +1,4 @@
-<main class="container">
+<main>
   <p class="alert alert-info" role="alert"
     phx-click="lv:clear-flash"
     phx-value-key="info"><%= live_flash(@flash, :info) %></p>
@@ -7,5 +7,17 @@
     phx-click="lv:clear-flash"
     phx-value-key="error"><%= live_flash(@flash, :error) %></p>
 
-  <%= @inner_content %>
+  <div class="flex bg-slate-100 w-full">
+    <div class="w-20 h-screen bg-white">
+      <ul>
+        <li class="p-3"><a>REFLOW</a></li>
+        <li class="p-3"><a><img src={Routes.static_path(@socket, "/icons/bar-chart.svg")} /></a></li>
+        <li class="p-3"><a><img src={Routes.static_path(@socket, "/icons/settings.svg")} /></a></li>
+      </ul>
+    </div>
+
+    <div class="p-10 flex-1">  
+      <%= @inner_content %>
+    </div> 
+  </div>
 </main>
