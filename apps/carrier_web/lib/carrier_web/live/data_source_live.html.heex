@@ -10,13 +10,19 @@
     <div class="text-sm breadcrumbs">
       <ul>
         <li>
-          <a>
+          <a
+            phx-click="change_step"
+            phx-value-step="step-1"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 mr-2 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
             1. Select Data Source
           </a>
         </li> 
         <li>
-          <a>
+          <a
+            phx-click="change_step"
+            phx-value-step="step-2"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 mr-2 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
             2. Set up Connection
           </a>
@@ -24,7 +30,7 @@
       </ul>
     </div>
 
-    <div class="mt-10 space-y-4">
+    <div class={"mt-10 space-y-4 #{if @step == "step-2" do "hidden" end}"}>
       <div 
         phx-click="select_source" 
         phx-value-source="mysql" 
@@ -35,6 +41,56 @@
       <div phx-click="select_source" phx-value-source="postgresql" class={"border p-4 cursor-pointer rounded hover:bg-gray-100 #{if @source == "postgresql" do "border-cyan-500 bg-cyan-50 hover:bg-cyan-100" end}"}>
         PostgreSQL
       </div>
+    </div>
+
+    <div class={"mt-10 #{if @step == "step-1" do "hidden" end}"}>
+      <.form let={f} for={:data_source} phx-submit="connect_data_source" phx-change="change_data_source" class="space-y-2">
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Name</span>
+          </label>
+          <%= text_input(f, :name, value: @name, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+        </div>
+        
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Host</span>
+          </label>
+          <%= text_input(f, :host, value: @host, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+        </div>
+        
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Port</span>
+          </label>
+          <%= text_input(f, :port, value: @port, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+        </div>
+        
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Database</span>
+          </label>
+          <%= text_input(f, :database, value: @database, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+        </div>
+        
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Username</span>
+          </label>
+          <%= text_input(f, :username, value: @username, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+        </div>
+
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Password</span>
+          </label>
+          <%= password_input(f, :password, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+        </div>
+
+        <div class="flex justify-end pt-4">
+          <button type="submit" class="btn">Connect</button>
+        </div>
+      </.form>
     </div>
   </div>
 </section>
