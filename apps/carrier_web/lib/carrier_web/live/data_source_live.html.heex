@@ -45,46 +45,46 @@
 
     <div class={"mt-10 #{if @step == "step-1" do "hidden" end}"}>
       <.form let={f} for={:data_source} phx-submit="connect_data_source" phx-change="change_data_source" class="space-y-2">
-        <div class="form-control w-full max-w-xs">
+        <div>
           <label class="label">
             <span class="label-text">Name</span>
           </label>
-          <%= text_input(f, :name, value: @name, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+          <%= text_input(f, :name, value: @name, class: "data-source-input", placeholder: "Type here") %>
         </div>
         
-        <div class="form-control w-full max-w-xs">
+        <div>
           <label class="label">
             <span class="label-text">Host</span>
           </label>
-          <%= text_input(f, :host, value: @host, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+          <%= text_input(f, :host, value: @host, class: "data-source-input", placeholder: "Type here") %>
         </div>
         
-        <div class="form-control w-full max-w-xs">
+        <div>
           <label class="label">
             <span class="label-text">Port</span>
           </label>
-          <%= text_input(f, :port, value: @port, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+          <%= text_input(f, :port, value: @port, class: "data-source-input", placeholder: "Type here") %>
         </div>
         
-        <div class="form-control w-full max-w-xs">
+        <div>
           <label class="label">
             <span class="label-text">Database</span>
           </label>
-          <%= text_input(f, :database, value: @database, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+          <%= text_input(f, :database, value: @database, class: "data-source-input", placeholder: "Type here") %>
         </div>
         
-        <div class="form-control w-full max-w-xs">
+        <div>
           <label class="label">
             <span class="label-text">Username</span>
           </label>
-          <%= text_input(f, :username, value: @username, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+          <%= text_input(f, :username, value: @username, class: "data-source-input", placeholder: "Type here") %>
         </div>
 
-        <div class="form-control w-full max-w-xs">
+        <div>
           <label class="label">
             <span class="label-text">Password</span>
           </label>
-          <%= password_input(f, :password, class: "input input-bordered w-full max-w-xs", placeholder: "Type here") %>
+          <%= password_input(f, :password, class: "data-source-input", placeholder: "Type here") %>
         </div>
 
         <div class="flex justify-end pt-4">
