@@ -17,7 +17,7 @@
             <Icon.folder />
             1. Select Data Source
           </a>
-        </li> 
+        </li>
         <li>
           <a
             phx-click="change_step"
@@ -26,19 +26,19 @@
             <Icon.folder />
             2. Set up Connection
           </a>
-        </li> 
+        </li>
       </ul>
     </div>
 
     <div class={"mt-10 space-y-4 #{if @step == "step-2" do "hidden" end}"}>
-      <div 
-        phx-click="select_source" 
-        phx-value-source="mysql" 
-        class={"border p-4 cursor-pointer rounded hover:bg-gray-100 #{if @source == "mysql" do "border-cyan-500 bg-cyan-50 hover:bg-cyan-100" end}"}
+      <div
+        phx-click="select_source"
+        phx-value-source="mysql"
+        class="border p-4 cursor-pointer rounded hover:bg-gray-100"
       >
         MySQL
       </div>
-      <div phx-click="select_source" phx-value-source="postgresql" class={"border p-4 cursor-pointer rounded hover:bg-gray-100 #{if @source == "postgresql" do "border-cyan-500 bg-cyan-50 hover:bg-cyan-100" end}"}>
+      <div phx-click="select_source" phx-value-source="postgresql" class="border p-4 cursor-pointer rounded hover:bg-gray-100"}>
         PostgreSQL
       </div>
     </div>
@@ -49,35 +49,35 @@
           <label class="label">
             <span class="label-text">Name</span>
           </label>
-          <%= text_input(f, :name, value: @name, class: "data-source-input", placeholder: "Type here") %>
+          <%= text_input(f, :name, class: "data-source-input", placeholder: "Type here") %>
         </div>
-        
+
         <div>
           <label class="label">
             <span class="label-text">Host</span>
           </label>
-          <%= text_input(f, :host, value: @host, class: "data-source-input", placeholder: "Type here") %>
+          <%= text_input(f, :host, class: "data-source-input", placeholder: "Type here") %>
         </div>
-        
+
         <div>
           <label class="label">
             <span class="label-text">Port</span>
           </label>
-          <%= text_input(f, :port, value: @port, class: "data-source-input", placeholder: "Type here") %>
+          <%= text_input(f, :port, class: "data-source-input", placeholder: "Type here") %>
         </div>
-        
+
         <div>
           <label class="label">
             <span class="label-text">Database</span>
           </label>
-          <%= text_input(f, :database, value: @database, class: "data-source-input", placeholder: "Type here") %>
+          <%= text_input(f, :database, class: "data-source-input", placeholder: "Type here") %>
         </div>
-        
+
         <div>
           <label class="label">
             <span class="label-text">Username</span>
           </label>
-          <%= text_input(f, :username, value: @username, class: "data-source-input", placeholder: "Type here") %>
+          <%= text_input(f, :username, class: "data-source-input", placeholder: "Type here") %>
         </div>
 
         <div>

@@ -7,13 +7,7 @@ defmodule CarrierWeb.DataSourceLive do
     socket =
       socket
       |> assign(:step, "step-1")
-      |> assign(:source, nil)
-      |> assign(:name, nil)
-      |> assign(:host, nil)
-      |> assign(:port, nil)
-      |> assign(:database, nil)
-      |> assign(:username, nil)
-      |> assign(:password, nil)
+      |> assign(:type, nil)
 
     {:ok, socket}
   end
@@ -44,15 +38,6 @@ defmodule CarrierWeb.DataSourceLive do
       "username" => username,
       "password" => password
     } = data_source
-
-    socket =
-      socket
-      |> assign(:name, name)
-      |> assign(:host, host)
-      |> assign(:port, port)
-      |> assign(:database, database)
-      |> assign(:username, username)
-      |> assign(:password, password)
 
     {:noreply, socket}
   end
