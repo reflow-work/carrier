@@ -30,67 +30,71 @@
       </ul>
     </div>
 
-    <div class={"mt-10 space-y-4 #{if @step == "step-2" do "hidden" end}"}>
-      <div
-        phx-click="select_source"
-        phx-value-source="mysql"
-        class="border p-4 cursor-pointer rounded hover:bg-gray-100"
-      >
-        MySQL
+    <%= if @step == "step-1" do %>
+      <div class="mt-10 space-y-4">
+        <div
+          phx-click="select_source"
+          phx-value-source="mysql"
+          class="border p-4 cursor-pointer rounded hover:bg-gray-100"
+        >
+          MySQL
+        </div>
+        <div phx-click="select_source" phx-value-source="postgresql" class="border p-4 cursor-pointer rounded hover:bg-gray-100"}>
+          PostgreSQL
+        </div>
       </div>
-      <div phx-click="select_source" phx-value-source="postgresql" class="border p-4 cursor-pointer rounded hover:bg-gray-100"}>
-        PostgreSQL
+    <% end %>
+
+    <%= if @step == "step-2" do %>
+      <div class="mt-10">
+        <.form let={f} for={:data_source} phx-submit="connect_data_source" phx-change="change_data_source" class="space-y-2">
+          <div>
+            <label class="label">
+              <span class="label-text">Name</span>
+            </label>
+            <%= text_input(f, :name, class: "data-source-input", placeholder: "Type here") %>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text">Host</span>
+            </label>
+            <%= text_input(f, :host, class: "data-source-input", placeholder: "Type here") %>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text">Port</span>
+            </label>
+            <%= text_input(f, :port, class: "data-source-input", placeholder: "Type here") %>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text">Database</span>
+            </label>
+            <%= text_input(f, :database, class: "data-source-input", placeholder: "Type here") %>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text">Username</span>
+            </label>
+            <%= text_input(f, :username, class: "data-source-input", placeholder: "Type here") %>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text">Password</span>
+            </label>
+            <%= password_input(f, :password, class: "data-source-input", placeholder: "Type here") %>
+          </div>
+
+          <div class="flex justify-end pt-4">
+            <button type="submit" class="btn">Connect</button>
+          </div>
+        </.form>
       </div>
-    </div>
-
-    <div class={"mt-10 #{if @step == "step-1" do "hidden" end}"}>
-      <.form let={f} for={:data_source} phx-submit="connect_data_source" phx-change="change_data_source" class="space-y-2">
-        <div>
-          <label class="label">
-            <span class="label-text">Name</span>
-          </label>
-          <%= text_input(f, :name, class: "data-source-input", placeholder: "Type here") %>
-        </div>
-
-        <div>
-          <label class="label">
-            <span class="label-text">Host</span>
-          </label>
-          <%= text_input(f, :host, class: "data-source-input", placeholder: "Type here") %>
-        </div>
-
-        <div>
-          <label class="label">
-            <span class="label-text">Port</span>
-          </label>
-          <%= text_input(f, :port, class: "data-source-input", placeholder: "Type here") %>
-        </div>
-
-        <div>
-          <label class="label">
-            <span class="label-text">Database</span>
-          </label>
-          <%= text_input(f, :database, class: "data-source-input", placeholder: "Type here") %>
-        </div>
-
-        <div>
-          <label class="label">
-            <span class="label-text">Username</span>
-          </label>
-          <%= text_input(f, :username, class: "data-source-input", placeholder: "Type here") %>
-        </div>
-
-        <div>
-          <label class="label">
-            <span class="label-text">Password</span>
-          </label>
-          <%= password_input(f, :password, class: "data-source-input", placeholder: "Type here") %>
-        </div>
-
-        <div class="flex justify-end pt-4">
-          <button type="submit" class="btn">Connect</button>
-        </div>
-      </.form>
-    </div>
+    <% end %>
   </div>
 </section>
