@@ -12,7 +12,8 @@ defmodule CarrierWeb.Components.Icon do
 
   for path <- paths do
     name = Path.basename(path, ".svg") |> String.replace("-", "_")
-    content = File.read!(path)
+    "<svg " <> remains = File.read!(path)
+    content = "<svg " <> " {assigns} " <> remains
 
     def unquote(String.to_atom(name))(assigns) do
       sigil_H(<<unquote(content)>>, [])
