@@ -1,9 +1,25 @@
 defmodule CarrierWeb.Components.Icon do
   use Phoenix.Component
+  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
-  def folder(assigns) do
-    ~H"""
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 mr-2 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-    """
+  @icon_paths "priv/static/icons/*"
+  paths = Path.wildcard(@icon_paths)
+  paths_hash = :erlang.md5(paths)
+
+  for path <- paths do
+    @external_resource path
+  end
+
+  for path <- paths do
+    name = Path.basename(path, ".svg") |> String.replace("-", "_")
+    content = File.read!(path)
+
+    def unquote(String.to_atom(name))(assigns) do
+      sigil_H(<<unquote(content)>>, [])
+    end
+  end
+
+  def __mix_recompile__?() do
+    unquote(paths) |> :erlang.md5() != unquote(paths_hash)
   end
 end
