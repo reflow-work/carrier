@@ -11,13 +11,13 @@
     <div class="w-20 h-screen bg-white">
       <ul>
         <li class="p-3"><a>REFLOW</a></li>
-        <li class="p-3"><a><img src={Routes.static_path(@socket, "/icons/bar-chart.svg")} /></a></li>
-        <li class="p-3"><a><img src={Routes.static_path(@socket, "/icons/settings.svg")} /></a></li>
+        <li class="p-3"><a><Icon.bar_chart /></a></li>
+        <li class="p-3"><a><Icon.settings /></a></li>
       </ul>
     </div>
 
-    <div class="p-10 flex-1">  
+    <div class="p-10 flex-1">
       <%= @inner_content %>
-    </div> 
+    </div>
   </div>
 </main>
