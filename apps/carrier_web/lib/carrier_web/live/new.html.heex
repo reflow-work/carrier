@@ -1,0 +1,43 @@
+<section class="p-8 bg-slate-200 w-full">
+  <h1 class="text-5xl font-bold">Create New Report</h1>
+  <section class="mt-10">
+    <section class="rounded drop-shadow p-6 bg-white">
+      <label>
+        <span class="text-2xl block font-bold">Name</span>
+        <input placeholder="Daily User Metric" class="border border-black rounded mt-2 p-2"/>
+      </label>
+    </section>
+    <section class="rounded drop-shadow p-6 mt-6 bg-white">
+      <.form let={f} for={:report} id="report_form" phx-submit="analyze">
+        <label>
+          <span class="text-2xl block font-bold">Type Query</span>
+          <%= textarea(f, :sql_template, class: "border border-black rounded mt-2 p-2 w-full", placeholder: "SQL here", value: @sql_template) %>
+        </label>
+        <%= submit "Submit", class: "p-2 border rounded" %>
+      </.form>
+    </section>
+  </section>
+  <section id="chart-container" phx-update="ignore" class="rounded drop-shadow p-6 bg-white mt-6">
+    <canvas id="chart" phx-hook="Chart"></canvas>
+  </section>
+  <%= if @analyze do %>
+    <table>
+      <thead>
+        <tr>
+          <%= for column <- @analyze.columns do %>
+            <th><%= column %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for datum <- @analyze.data |> Enum.take(-5) do %>
+          <tr>
+            <%= for column <- @analyze.columns do %>
+              <td><%= datum[column] %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>

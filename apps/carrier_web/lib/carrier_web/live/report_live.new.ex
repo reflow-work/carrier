@@ -21,43 +21,6 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   @impl true
-  def render(assigns) do
-    ~H"""
-    <div>
-      <div>
-        <.form let={f} for={:report} id="report_form" phx-submit="analyze">
-          <%= textarea f, :sql_template, class: "textarea textarea-bordered", placeholder: "SQL here", value: @sql_template %>
-
-          <%= submit "analyze"%>
-        </.form>
-      </div>
-      <div>
-        <%= if @analyze do %>
-          <table>
-            <thead>
-              <tr>
-                <%= for column <- @analyze.columns do %>
-                  <th><%= column %></th>
-                <% end %>
-              </tr>
-            </thead>
-            <tbody>
-              <%= for datum <- @analyze.data |> Enum.take(-5) do %>
-                <tr>
-                  <%= for column <- @analyze.columns do %>
-                    <td><%= datum[column] %></td>
-                  <% end %>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        <% end %>
-      </div>
-    </div>
-    """
-  end
-
-  @impl true
   def handle_event("analyze", params, socket) do
     %{"report" => %{"sql_template" => sql_template}} = params
 
@@ -76,12 +39,37 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> case do
         {:ok, %{columns: columns, data: data}} ->
-          socket |> assign(:analyze, %{columns: columns, data: data})
+          socket
+          |> assign(:analyze, %{columns: columns, data: data})
+          |> push_event("input_data", %{columns: columns, data: data})
 
         {:error, error} ->
           socket |> put_flash(:error, error)
-      end
+         end
 
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("run_query", %{"query_editor" => query}, socket) do
+    socket =
+      QueryData.query(
+        %{
+          org_id: 1,
+          conn_info_id: 1,
+          sql_template: query,
+          datetime: DateTime.utc_now(),
+          timezone: "Asia/Seoul",
+          period: 28,
+          window_size: 7,
+          comparing_period: 7
+        })
+        |> case do
+             {:ok, %{columns: columns, data: data}} ->
+               socket |> push_event("input_data", %{columns: columns, data: data})
+             {:error, error} ->
+               socket |> put_flash(:error, error)
+           end
     {:noreply, socket}
   end
 end
