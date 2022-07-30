@@ -6,14 +6,14 @@ defmodule CarrierWeb.DataSourceLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign_new(:step, fn -> "step-1" end)
-      |> assign_new(:source, fn -> nil end)
-      |> assign_new(:name, fn -> nil end)
-      |> assign_new(:host, fn -> nil end)
-      |> assign_new(:port, fn -> nil end)
-      |> assign_new(:database, fn -> nil end)
-      |> assign_new(:username, fn -> nil end)
-      |> assign_new(:password, fn -> nil end)
+      |> assign(:step, "step-1")
+      |> assign(:source, nil)
+      |> assign(:name, nil)
+      |> assign(:host, nil)
+      |> assign(:port, nil)
+      |> assign(:database, nil)
+      |> assign(:username, nil)
+      |> assign(:password, nil)
 
     {:ok, socket}
   end
