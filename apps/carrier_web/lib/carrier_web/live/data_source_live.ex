@@ -1,5 +1,6 @@
 defmodule CarrierWeb.DataSourceLive do
   use CarrierWeb, :live_view
+  alias CarrierWeb.Components.Icon
 
   @impl true
   def mount(_params, _session, socket) do
