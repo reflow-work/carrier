@@ -60,6 +60,8 @@ defmodule CarrierWeb.DataSourceLive do
   end
 
   defp create_conn_info(socket, params) do
+    params = params |> Map.put(:org_id, socket.assigns.org_id)
+
     case do_create_conn_info(params) do
       {:ok, %ConnInfo{}} ->
         socket
@@ -72,6 +74,7 @@ defmodule CarrierWeb.DataSourceLive do
   end
 
   defp do_create_conn_info(%{
+         org_id: org_id,
          name: name,
          source: source,
          host: host,
@@ -81,7 +84,7 @@ defmodule CarrierWeb.DataSourceLive do
          database: database
        }) do
     Secrets.create_conn_info(%{
-      org_id: 1,
+      org_id: org_id,
       name: name,
       source: source,
       info: %{
