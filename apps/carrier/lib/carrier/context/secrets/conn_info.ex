@@ -21,12 +21,7 @@ defmodule Carrier.Secrets.ConnInfo do
 
   defp validate_info(%Ecto.Changeset{changes: %{source: source}} = changeset) do
     validate_change(changeset, :info, fn :info, info ->
-      info_module =
-        case source do
-          :postgres -> ConnInfo.Postgres
-          :mysql -> ConnInfo.MySQL
-        end
-
+      info_module = get_info_module(source)
       info_changeset = info_module.changeset(info)
 
       case info_changeset.valid? do
@@ -48,5 +43,12 @@ defmodule Carrier.Secrets.ConnInfo do
   def fetch(id) do
     __MODULE__
     |> where([ci], ci.id == ^id)
+  end
+
+  def get_info_module(source) do
+    case source do
+      :postgres -> ConnInfo.Postgres
+      :mysql -> ConnInfo.MySQL
+    end
   end
 end
