@@ -1,6 +1,7 @@
 defmodule Carrier.Secrets.ConnInfo do
   use Carrier.Schema
   alias Carrier.Secrets.Types
+  alias Carrier.Secrets.ConnInfo
 
   schema "conn_infos" do
     field :org_id, :integer
@@ -14,6 +15,23 @@ defmodule Carrier.Secrets.ConnInfo do
     struct
     |> cast(attrs, @required_for_create)
     |> validate_required(@required_for_create)
+    |> validate_info()
+  end
+
+  defp validate_info(%Ecto.Changeset{changes: %{source: source}} = changeset) do
+    validate_change(changeset, :info, fn :info, info ->
+      info_module =
+        case source do
+          "postgres" -> ConnInfo.Postgres
+        end
+
+      info_changeset = info_module.changeset(info)
+
+      case info_changeset.valid? do
+        true -> []
+        false -> info_changeset.errors
+      end
+    end)
   end
 
   def create(attrs) do

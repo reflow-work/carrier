@@ -30,6 +30,25 @@ defmodule Carrier.SecretsTest do
 
       assert same_fields?(created_conn_info, params, [:org_id, :name, :source, :info])
     end
+
+    test "with invalid info", %{org: org} do
+      params = %{
+        org_id: org.org_id,
+        name: "main",
+        source: "postgres",
+        info: %{
+          "hostname" => "localhost",
+          "port" => 5432,
+          "username" => "username0",
+          "password" => "password0",
+          "database" => nil
+        }
+      }
+
+      assert_changeset_error(:database, "can't be blank", fn ->
+        Secrets.create_conn_info(params)
+      end)
+    end
   end
 
   describe "fetch_conn_info/1" do

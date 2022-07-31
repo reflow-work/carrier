@@ -25,6 +25,7 @@ defmodule Carrier.DataCase do
       import Ecto.Query
       import Carrier.DataCase
       import Doumi.CaseHelper
+      import Doumi.EctoCaseHelper
 
       alias Carrier.{Factory, TenantFactory}
     end
