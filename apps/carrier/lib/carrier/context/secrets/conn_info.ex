@@ -15,6 +15,7 @@ defmodule Carrier.Secrets.ConnInfo do
     struct
     |> cast(attrs, @required_for_create)
     |> validate_required(@required_for_create)
+    |> unique_constraint([:org_id, :name], name: :conn_infos_org_id_name_index, error_key: :name)
     |> validate_info()
   end
 

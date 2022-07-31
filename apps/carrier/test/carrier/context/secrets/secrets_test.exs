@@ -9,11 +9,7 @@ defmodule Carrier.SecretsTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      %{org: org}
-    end
-
-    test "with valid params", %{org: org} do
-      params = %{
+      valid_params = %{
         org_id: org.org_id,
         name: "main",
         source: "postgres",
@@ -26,27 +22,28 @@ defmodule Carrier.SecretsTest do
         }
       }
 
-      assert {:ok, %ConnInfo{} = created_conn_info} = Secrets.create_conn_info(params)
-
-      assert same_fields?(created_conn_info, params, [:org_id, :name, :source, :info])
+      %{org: org, valid_params: valid_params}
     end
 
-    test "with invalid info", %{org: org} do
-      params = %{
-        org_id: org.org_id,
-        name: "main",
-        source: "postgres",
-        info: %{
-          "hostname" => "localhost",
-          "port" => 5432,
-          "username" => "username0",
-          "password" => "password0",
-          "database" => nil
-        }
-      }
+    test "with valid params", %{valid_params: valid_params} do
+      assert {:ok, %ConnInfo{} = created_conn_info} = Secrets.create_conn_info(valid_params)
+
+      assert same_fields?(created_conn_info, valid_params, [:org_id, :name, :source, :info])
+    end
+
+    test "with not unique {org_id, name}", %{org: org, valid_params: valid_params} do
+      TenantFactory.insert(:conn_info, org_id: org.org_id, name: valid_params.name)
+
+      assert_changeset_error(:name, "has already been taken", fn ->
+        Secrets.create_conn_info(valid_params)
+      end)
+    end
+
+    test "with invalid info", %{valid_params: valid_params} do
+      invalid_params = valid_params |> put_in([:info, "database"], nil)
 
       assert_changeset_error(:database, "can't be blank", fn ->
-        Secrets.create_conn_info(params)
+        Secrets.create_conn_info(invalid_params)
       end)
     end
   end
