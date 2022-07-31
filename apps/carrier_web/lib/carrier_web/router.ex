@@ -20,9 +20,11 @@ defmodule CarrierWeb.Router do
 
     get "/", PageController, :index
 
-    live "/chart_live", ChartLive
-    live "/data-source", DataSourceLive, :new
-    live "/reports/new", ReportLive.New, :new
+    live_session :user, on_mount: CarrierWeb.UserHook do
+      live "/chart_live", ChartLive
+      live "/data-source", DataSourceLive, :new
+      live "/reports/new", ReportLive.New, :new
+    end
   end
 
   # Other scopes may use custom stacks.

@@ -5,7 +5,7 @@ defmodule Carrier.Repo.Migrations.CreateConnInfos do
     create table(:conn_infos) do
       add :org_id, references(:orgs, column: :org_id), null: false
       add :name, :string, null: false
-      add :type, :string, null: false
+      add :source, :string, null: false
       add :encrypted_info, :binary, null: false
 
       add_tstz()

@@ -21,7 +21,7 @@ Repo.transaction(fn ->
     %{
       org_id: org0.org_id,
       name: "conn0",
-      type: "postgres",
+      source: "postgres",
       info: %{
         "hostname" => "localhost",
         "port" => 48141,

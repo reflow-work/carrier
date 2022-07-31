@@ -1,6 +1,8 @@
 defmodule CarrierWeb.DataSourceLive do
   use CarrierWeb, :live_view
   alias CarrierWeb.Components.Icon
+  alias Carrier.Secrets
+  alias Carrier.Secrets.ConnInfo
 
   @impl true
   def mount(_params, _session, socket) do
@@ -32,15 +34,66 @@ defmodule CarrierWeb.DataSourceLive do
   def handle_event("create_conn_info", %{"conn_info" => conn_info}, socket) do
     %{
       "name" => name,
-      "host" => host,
+      "hostname" => hostname,
       "port" => port,
       "username" => username,
       "password" => password,
       "database" => database
     } = conn_info
 
-    conn_info |> IO.inspect()
+    # test connection
+
+    # create conn_info
+    socket =
+      socket
+      |> create_conn_info(%{
+        name: name,
+        source: socket.assigns.source,
+        hostname: hostname,
+        port: port,
+        username: username,
+        password: password,
+        database: database
+      })
 
     {:noreply, socket}
+  end
+
+  defp create_conn_info(socket, params) do
+    params = params |> Map.put(:org_id, socket.assigns.org_id)
+
+    case do_create_conn_info(params) do
+      {:ok, %ConnInfo{}} ->
+        socket
+        |> push_redirect(to: Routes.report_new_path(socket, :new))
+
+      error ->
+        socket
+        |> put_flash(:error, inspect(error))
+    end
+  end
+
+  defp do_create_conn_info(%{
+         org_id: org_id,
+         name: name,
+         source: source,
+         hostname: hostname,
+         port: port,
+         username: username,
+         password: password,
+         database: database
+       }) do
+    Secrets.create_conn_info(%{
+      org_id: org_id,
+      name: name,
+      source: source,
+      info: %{
+        hostname: hostname,
+        port: port,
+        username: username,
+        password: password,
+        database: database
+      }
+    })
   end
 end

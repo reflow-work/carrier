@@ -15,7 +15,7 @@ defmodule Carrier.TenantFactory do
     %ConnInfo{
       org_id: org_id,
       name: seq(:conn_info_name),
-      type: ["postgres"] |> Enum.random(),
+      source: ["postgres", "mysql"] |> Enum.random(),
       info: %{}
     }
     |> merge_attributes(attrs)
