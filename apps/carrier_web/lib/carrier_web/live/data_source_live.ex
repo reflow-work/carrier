@@ -9,7 +9,7 @@ defmodule CarrierWeb.DataSourceLive do
     socket =
       socket
       |> assign(:step, "step-1")
-      |> assign(:type, nil)
+      |> assign(:conn_info, %{})
 
     {:ok, socket}
   end
@@ -25,13 +25,13 @@ defmodule CarrierWeb.DataSourceLive do
     socket =
       socket
       |> assign(:step, "step-2")
-      |> assign(:source, source)
+      |> update(:conn_info, fn conn_info -> conn_info |> Map.put(:source, source) end)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("create_conn_info", %{"conn_info" => conn_info}, socket) do
+  def handle_event("create_conn_info", %{"conn_info" => conn_info_input}, socket) do
     %{
       "name" => name,
       "hostname" => hostname,
@@ -39,22 +39,24 @@ defmodule CarrierWeb.DataSourceLive do
       "username" => username,
       "password" => password,
       "database" => database
-    } = conn_info
+    } = conn_info_input
+
+    conn_info_params = %{
+      name: name,
+      source: socket.assigns.conn_info.source,
+      hostname: hostname,
+      port: port,
+      username: username,
+      password: password,
+      database: database
+    }
+
+    socket = socket |> assign(:conn_info, conn_info_params)
 
     # test connection
 
     # create conn_info
-    socket =
-      socket
-      |> create_conn_info(%{
-        name: name,
-        source: socket.assigns.source,
-        hostname: hostname,
-        port: port,
-        username: username,
-        password: password,
-        database: database
-      })
+    socket = socket |> create_conn_info(conn_info_params)
 
     {:noreply, socket}
   end
