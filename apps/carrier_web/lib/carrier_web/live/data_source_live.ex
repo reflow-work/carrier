@@ -9,7 +9,15 @@ defmodule CarrierWeb.DataSourceLive do
     socket =
       socket
       |> assign(:step, "step-1")
-      |> assign(:conn_info, %{})
+      |> assign(:conn_info, %{
+        name: nil,
+        source: nil,
+        hostname: nil,
+        port: nil,
+        username: nil,
+        password: nil,
+        database: nil
+      })
 
     {:ok, socket}
   end
