@@ -1,6 +1,5 @@
 defmodule Carrier.Secrets.ConnInfo.Postgres do
-  use Ecto.Schema
-  import Ecto.Changeset
+  use Carrier.Secrets.ConnInfo.Info
 
   embedded_schema do
     field :hostname, :string
@@ -10,6 +9,7 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
     field :database, :string
   end
 
+  @impl true
   @required [:hostname, :port, :username, :password, :database]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
