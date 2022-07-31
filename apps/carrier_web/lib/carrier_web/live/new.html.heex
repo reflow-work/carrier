@@ -17,27 +17,36 @@
       </.form>
     </section>
   </section>
-  <section id="chart-container" phx-update="ignore" class="rounded drop-shadow p-6 bg-white mt-6">
-    <canvas id="chart" phx-hook="Chart"></canvas>
+  <section class="rounded drop-shadow p-6 bg-white mt-6">
+    <%= if @parsed_data do %>
+    <section>
+      <h2><%= @parsed_data.label %></h2>
+      <p>Yesterday: <%= @parsed_data.current_raw %> (WoW <%= @parsed_data.raw_wow %>%)</p>
+      <p>Last 7 Days: <%= @parsed_data.current_period_raw %> (WoW <%= @parsed_data.period_wow %>%)</p>
+    </section>
+    <% end %>
+    <section id="chart-container" phx-update="ignore">
+      <canvas id="chart" phx-hook="Chart"></canvas>
+    </section>
   </section>
   <%= if @analyze do %>
-    <table>
-      <thead>
-        <tr>
-          <%= for column <- @analyze.columns do %>
+  <table>
+    <thead>
+      <tr>
+        <%= for column <- @analyze.columns do %>
             <th><%= column %></th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <%= for datum <- @analyze.data |> Enum.take(-5) do %>
-          <tr>
-            <%= for column <- @analyze.columns do %>
-              <td><%= datum[column] %></td>
             <% end %>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for datum <- @analyze.data |> Enum.take(-5) do %>
+      <tr>
+        <%= for column <- @analyze.columns do %>
+            <td><%= datum[column] %></td>
+            <% end %>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
   <% end %>
 </section>

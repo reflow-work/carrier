@@ -16,6 +16,7 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
       |> assign_new(:analyze, fn -> nil end)
+      |> assign_new(:parsed_data, fn -> nil end)
 
     {:ok, socket}
   end
@@ -26,12 +27,14 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket = socket |> assign(:sql_template, sql_template)
 
+    {:ok, datetime, _n} = DateTime.from_iso8601("2022-07-14T00:00:00Z")
+
     socket =
       QueryData.query(%{
         org_id: 1,
         conn_info_id: 1,
         sql_template: sql_template,
-        datetime: DateTime.utc_now(),
+        datetime: datetime,
         timezone: "Asia/Seoul",
         period: 28,
         window_size: 7,
@@ -39,8 +42,11 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> case do
         {:ok, %{columns: columns, data: data}} ->
+             IO.inspect(parse_data(%{columns: columns, data: data}))
+
           socket
           |> assign(:analyze, %{columns: columns, data: data})
+          |> assign(:parsed_data, parse_data(%{columns: columns, data: data}))
           |> push_event("input_data", %{columns: columns, data: data})
 
         {:error, error} ->
@@ -71,5 +77,24 @@ defmodule CarrierWeb.ReportLive.New do
                socket |> put_flash(:error, error)
            end
     {:noreply, socket}
+  end
+
+  defp parse_data(%{columns: columns, data: data}) do
+    raw_key = List.last(columns)
+    sum_key = raw_key <> "_window_sum"
+    percentage_diff_key = raw_key <> "_window_sum_over"
+    current_datum = List.last(data)
+    previous_datum = Enum.at(data, -8)
+    with {:ok, current_raw} <- Access.fetch(current_datum, raw_key),
+         {:ok, previous_raw} <- Access.fetch(previous_datum, raw_key),
+         {:ok, current_period_raw} <- Access.fetch(current_datum, sum_key),
+         {:ok, percentage_diff} <- Access.fetch(current_datum, percentage_diff_key)
+    do
+    raw_wow = (((current_raw / previous_raw) - 1) * 100) |> Float.round(2) |> to_string()
+    period_wow = ((percentage_diff - 1) * 100) |> Float.round(2) |> to_string()
+      %{label: raw_key, current_raw: current_raw, current_period_raw: current_period_raw, raw_wow: raw_wow, period_wow: period_wow}
+    else
+      err -> {:err, err}
+    end
   end
 end
