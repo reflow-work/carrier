@@ -6,7 +6,7 @@ defmodule Carrier.Secrets.ConnInfo do
   schema "conn_infos" do
     field :org_id, :integer
     field :name, :string
-    field :source, :string
+    field :source, Ecto.Enum, values: [:postgres, :mysql]
     field :info, Types.Map, source: :encrypted_info, redact: true
   end
 
@@ -23,8 +23,8 @@ defmodule Carrier.Secrets.ConnInfo do
     validate_change(changeset, :info, fn :info, info ->
       info_module =
         case source do
-          "postgres" -> ConnInfo.Postgres
-          "mysql" -> ConnInfo.MySQL
+          :postgres -> ConnInfo.Postgres
+          :mysql -> ConnInfo.MySQL
         end
 
       info_changeset = info_module.changeset(info)
