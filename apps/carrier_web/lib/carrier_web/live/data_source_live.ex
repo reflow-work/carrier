@@ -34,7 +34,7 @@ defmodule CarrierWeb.DataSourceLive do
   def handle_event("create_conn_info", %{"conn_info" => conn_info}, socket) do
     %{
       "name" => name,
-      "host" => host,
+      "hostname" => hostname,
       "port" => port,
       "username" => username,
       "password" => password,
@@ -49,7 +49,7 @@ defmodule CarrierWeb.DataSourceLive do
       |> create_conn_info(%{
         name: name,
         source: socket.assigns.source,
-        host: host,
+        hostname: hostname,
         port: port,
         username: username,
         password: password,
@@ -77,7 +77,7 @@ defmodule CarrierWeb.DataSourceLive do
          org_id: org_id,
          name: name,
          source: source,
-         host: host,
+         hostname: hostname,
          port: port,
          username: username,
          password: password,
@@ -88,7 +88,7 @@ defmodule CarrierWeb.DataSourceLive do
       name: name,
       source: source,
       info: %{
-        host: host,
+        hostname: hostname,
         port: port,
         username: username,
         password: password,

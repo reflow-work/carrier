@@ -39,7 +39,7 @@
         >
           MySQL
         </div>
-        <div phx-click="select_source" phx-value-source="postgresql" class="border p-4 cursor-pointer rounded hover:bg-gray-100"}>
+        <div phx-click="select_source" phx-value-source="postgres" class="border p-4 cursor-pointer rounded hover:bg-gray-100"}>
           PostgreSQL
         </div>
       </div>
@@ -59,7 +59,7 @@
             <label class="label">
               <span class="label-text">Host</span>
             </label>
-            <%= text_input(f, :host, class: "data-source-input", placeholder: "Type here") %>
+            <%= text_input(f, :hostname, class: "data-source-input", placeholder: "Type here") %>
           </div>
 
           <div>
