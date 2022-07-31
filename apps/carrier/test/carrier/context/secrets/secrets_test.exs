@@ -16,7 +16,7 @@ defmodule Carrier.SecretsTest do
       params = %{
         org_id: org.org_id,
         name: "main",
-        type: "postgres",
+        source: "postgres",
         info: %{
           "hostname" => "localhost",
           "port" => 5432,
@@ -28,7 +28,7 @@ defmodule Carrier.SecretsTest do
 
       assert {:ok, %ConnInfo{} = created_conn_info} = Secrets.create_conn_info(params)
 
-      assert same_fields?(created_conn_info, params, [:org_id, :name, :type, :info])
+      assert same_fields?(created_conn_info, params, [:org_id, :name, :source, :info])
     end
   end
 

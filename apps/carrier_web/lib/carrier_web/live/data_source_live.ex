@@ -48,6 +48,7 @@ defmodule CarrierWeb.DataSourceLive do
       socket
       |> create_conn_info(%{
         name: name,
+        source: socket.assigns.source,
         host: host,
         port: port,
         username: username,
@@ -72,6 +73,7 @@ defmodule CarrierWeb.DataSourceLive do
 
   defp do_create_conn_info(%{
          name: name,
+         source: source,
          host: host,
          port: port,
          username: username,
@@ -81,7 +83,7 @@ defmodule CarrierWeb.DataSourceLive do
     Secrets.create_conn_info(%{
       org_id: 1,
       name: name,
-      type: "postgres",
+      source: source,
       info: %{
         host: host,
         port: port,

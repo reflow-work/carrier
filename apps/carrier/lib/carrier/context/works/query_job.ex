@@ -24,7 +24,7 @@ defmodule Carrier.Works.QueryJob do
          "datetime" => datetime_str,
          "slack_webhook_url" => slack_webhook_url
        }) do
-    TenantRepo.put_org_id(1)
+    TenantRepo.put_org_id(org_id)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
@@ -36,8 +36,8 @@ defmodule Carrier.Works.QueryJob do
     end
   end
 
-  defp run_query(%ConnInfo{type: type, info: info}, datetime) do
-    case type do
+  defp run_query(%ConnInfo{source: source, info: info}, datetime) do
+    case source do
       "postgres" ->
         credentials =
           info

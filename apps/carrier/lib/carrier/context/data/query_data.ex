@@ -161,8 +161,8 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp run_query(%ConnInfo{type: type, info: info}, sql, sql_params) do
-    case type do
+  defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params) do
+    case source do
       "postgres" ->
         credentials =
           info

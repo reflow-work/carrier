@@ -5,11 +5,11 @@ defmodule Carrier.Secrets.ConnInfo do
   schema "conn_infos" do
     field :org_id, :integer
     field :name, :string
-    field :type, :string
+    field :source, :string
     field :info, Types.Map, source: :encrypted_info, redact: true
   end
 
-  @required_for_create [:org_id, :name, :type, :info]
+  @required_for_create [:org_id, :name, :source, :info]
   def changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create)
