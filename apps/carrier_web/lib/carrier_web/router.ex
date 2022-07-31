@@ -24,6 +24,7 @@ defmodule CarrierWeb.Router do
       live "/chart_live", ChartLive
       live "/data-source", DataSourceLive, :new
       live "/reports/new", ReportLive.New, :new
+      live "/login", LoginLive, :new
     end
   end
 
