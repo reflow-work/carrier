@@ -6,14 +6,8 @@ defmodule CarrierWeb.DataSourceLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign_new(:step, fn -> "step-1" end)
-      |> assign_new(:source, fn -> nil end)
-      |> assign_new(:name, fn -> nil end)
-      |> assign_new(:host, fn -> nil end)
-      |> assign_new(:port, fn -> nil end)
-      |> assign_new(:database, fn -> nil end)
-      |> assign_new(:username, fn -> nil end)
-      |> assign_new(:password, fn -> nil end)
+      |> assign(:step, "step-1")
+      |> assign(:type, nil)
 
     {:ok, socket}
   end
@@ -35,31 +29,18 @@ defmodule CarrierWeb.DataSourceLive do
   end
 
   @impl true
-  def handle_event("change_data_source", %{"data_source" => data_source}, socket) do
+  def handle_event("create_conn_info", %{"conn_info" => conn_info}, socket) do
     %{
       "name" => name,
       "host" => host,
       "port" => port,
-      "database" => database,
       "username" => username,
-      "password" => password
-    } = data_source
+      "password" => password,
+      "database" => database
+    } = conn_info
 
-    socket =
-      socket
-      |> assign(:name, name)
-      |> assign(:host, host)
-      |> assign(:port, port)
-      |> assign(:database, database)
-      |> assign(:username, username)
-      |> assign(:password, password)
+    conn_info |> IO.inspect()
 
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("connect_data_source", %{"data_source" => _data_source}, socket) do
-    "TODO: connect!" |> IO.inspect()
     {:noreply, socket}
   end
 end
