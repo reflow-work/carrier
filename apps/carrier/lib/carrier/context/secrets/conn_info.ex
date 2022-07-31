@@ -24,6 +24,7 @@ defmodule Carrier.Secrets.ConnInfo do
       info_module =
         case source do
           "postgres" -> ConnInfo.Postgres
+          "mysql" -> ConnInfo.MySQL
         end
 
       info_changeset = info_module.changeset(info)
