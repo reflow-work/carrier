@@ -65,7 +65,7 @@ defmodule CarrierWeb.DataSourceLive do
     case do_create_conn_info(params) do
       {:ok, %ConnInfo{}} ->
         socket
-        |> put_flash(:info, "succeeded")
+        |> push_redirect(to: Routes.report_new_path(socket, :new))
 
       error ->
         socket
