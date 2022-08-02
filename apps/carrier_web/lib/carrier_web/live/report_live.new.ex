@@ -11,9 +11,10 @@ defmodule CarrierWeb.ReportLive.New do
   """
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"conn_info_id" => conn_info_id}, _session, socket) do
     socket =
       socket
+      |> assign(:conn_info_id, conn_info_id)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
       |> assign_new(:analyze, fn -> nil end)
       |> assign_new(:parsed_data, fn -> nil end)
@@ -31,8 +32,8 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       QueryData.query(%{
-        org_id: 1,
-        conn_info_id: 1,
+        org_id: socket.assigns.org_id,
+        conn_info_id: socket.assigns.conn_info_id,
         sql_template: sql_template,
         datetime: datetime,
         timezone: "Asia/Seoul",
@@ -42,7 +43,7 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> case do
         {:ok, %{columns: columns, data: data}} ->
-             IO.inspect(parse_data(%{columns: columns, data: data}))
+          IO.inspect(parse_data(%{columns: columns, data: data}))
 
           socket
           |> assign(:analyze, %{columns: columns, data: data})
@@ -51,7 +52,7 @@ defmodule CarrierWeb.ReportLive.New do
 
         {:error, error} ->
           socket |> put_flash(:error, error)
-         end
+      end
 
     {:noreply, socket}
   end
@@ -59,23 +60,24 @@ defmodule CarrierWeb.ReportLive.New do
   @impl true
   def handle_event("run_query", %{"query_editor" => query}, socket) do
     socket =
-      QueryData.query(
-        %{
-          org_id: 1,
-          conn_info_id: 1,
-          sql_template: query,
-          datetime: DateTime.utc_now(),
-          timezone: "Asia/Seoul",
-          period: 28,
-          window_size: 7,
-          comparing_period: 7
-        })
-        |> case do
-             {:ok, %{columns: columns, data: data}} ->
-               socket |> push_event("input_data", %{columns: columns, data: data})
-             {:error, error} ->
-               socket |> put_flash(:error, error)
-           end
+      QueryData.query(%{
+        org_id: socket.assigns.org_id,
+        conn_info_id: socket.assigns.conn_info_id,
+        sql_template: query,
+        datetime: DateTime.utc_now(),
+        timezone: "Asia/Seoul",
+        period: 28,
+        window_size: 7,
+        comparing_period: 7
+      })
+      |> case do
+        {:ok, %{columns: columns, data: data}} ->
+          socket |> push_event("input_data", %{columns: columns, data: data})
+
+        {:error, error} ->
+          socket |> put_flash(:error, error)
+      end
+
     {:noreply, socket}
   end
 
@@ -85,14 +87,21 @@ defmodule CarrierWeb.ReportLive.New do
     percentage_diff_key = raw_key <> "_window_sum_over"
     current_datum = List.last(data)
     previous_datum = Enum.at(data, -8)
+
     with {:ok, current_raw} <- Access.fetch(current_datum, raw_key),
          {:ok, previous_raw} <- Access.fetch(previous_datum, raw_key),
          {:ok, current_period_raw} <- Access.fetch(current_datum, sum_key),
-         {:ok, percentage_diff} <- Access.fetch(current_datum, percentage_diff_key)
-    do
-    raw_wow = (((current_raw / previous_raw) - 1) * 100) |> Float.round(2) |> to_string()
-    period_wow = ((percentage_diff - 1) * 100) |> Float.round(2) |> to_string()
-      %{label: raw_key, current_raw: current_raw, current_period_raw: current_period_raw, raw_wow: raw_wow, period_wow: period_wow}
+         {:ok, percentage_diff} <- Access.fetch(current_datum, percentage_diff_key) do
+      raw_wow = ((current_raw / previous_raw - 1) * 100) |> Float.round(2) |> to_string()
+      period_wow = ((percentage_diff - 1) * 100) |> Float.round(2) |> to_string()
+
+      %{
+        label: raw_key,
+        current_raw: current_raw,
+        current_period_raw: current_period_raw,
+        raw_wow: raw_wow,
+        period_wow: period_wow
+      }
     else
       err -> {:err, err}
     end
