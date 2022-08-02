@@ -88,6 +88,8 @@ config :tailwind,
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :tzdata, :autoupdate, :disabled
 
+config :carrier, :slack, bot_token: "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
