@@ -5,7 +5,7 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
     field :hostname, :string
     field :port, :integer, default: 5432
     field :username, :string
-    field :password, :string
+    field :password, :string, redact: true
     field :database, :string
   end
 

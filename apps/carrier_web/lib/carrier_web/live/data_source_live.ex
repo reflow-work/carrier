@@ -29,7 +29,9 @@ defmodule CarrierWeb.DataSourceLive do
   end
 
   @impl true
-  def handle_event("select_source", %{"source" => source}, socket) do
+  def handle_event("select_source", %{"source" => source_str}, socket) do
+    source = String.to_existing_atom(source_str)
+
     socket =
       socket
       |> assign(:step, "step-2")

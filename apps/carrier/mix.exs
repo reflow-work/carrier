@@ -39,6 +39,7 @@ defmodule Carrier.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
+      {:myxql, "~> 0.6.2"},
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.3"},
       {:oban, "~> 2.12"},

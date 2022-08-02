@@ -1,10 +1,15 @@
 defmodule Carrier.Secrets do
+  alias Carrier.Secrets.ConnValidator
   alias Carrier.Secrets.ConnInfo
   alias Carrier.TenantRepo
 
   def create_conn_info(%{org_id: org_id, name: name, source: source, info: info}) do
-    ConnInfo.create(%{org_id: org_id, name: name, source: source, info: info})
-    |> TenantRepo.insert()
+    with :ok <- ConnValidator.validate(source, info),
+         {:ok, %ConnInfo{} = conn_info} <-
+           ConnInfo.create(%{org_id: org_id, name: name, source: source, info: info})
+           |> TenantRepo.insert() do
+      {:ok, conn_info}
+    end
   end
 
   def list_conn_infos() do
