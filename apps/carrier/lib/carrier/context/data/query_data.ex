@@ -163,7 +163,7 @@ defmodule Carrier.Data.QueryData do
 
   defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params) do
     case source do
-      "postgres" ->
+      :postgres ->
         credentials =
           info
           |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
