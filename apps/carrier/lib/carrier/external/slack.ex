@@ -7,7 +7,7 @@ defmodule Carrier.External.Slack do
   plug Tesla.Middleware.BearerAuth, token: get_token()
   plug Tesla.Middleware.JSON
 
-  def send_msg(channel_id, message) do
+  def post_message(channel_id, message) do
     %URI{
       path: "/chat.postMessage",
       query: %{channel: channel_id, text: message} |> URI.encode_query()
