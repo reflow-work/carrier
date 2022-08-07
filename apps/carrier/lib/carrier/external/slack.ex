@@ -17,12 +17,18 @@ defmodule Carrier.External.Slack do
   end
 
   def post_message(channel_id, args) when is_map(args) do
-    %URI{ path: "/chat.postMessage", }
+    %URI{path: "/chat.postMessage"}
     |> URI.to_string()
-    |> post(%{ channel: channel_id, blocks: template(args) })
+    |> post(%{channel: channel_id, blocks: template(args)})
   end
 
-  defp template(%{title: title, yesterday: %{raw: draw, wow: dwow}, last_week: %{raw: wraw, wow: wwow}, img_url: img_url}) do
+
+  defp template(%{
+         title: title,
+         yesterday: %{raw: draw, wow: dwow},
+         last_week: %{raw: wraw, wow: wwow},
+         img_url: img_url
+       }) do
     [
       %{
         "text" => %{"text" => ":chart: *#{title}*", "type" => "mrkdwn"},
@@ -53,7 +59,19 @@ defmodule Carrier.External.Slack do
   end
   
   def sample_args() do
-    %{title: "total_sales", yesterday: %{raw: "123,456", wow: "1.5%"}, last_week: %{raw: "901,552", wow: "-8.3%"}, img_url: "https://www.investopedia.com/thmb/MCCSOI-i2RokZiuwSSDNae1xt8I=/660x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_INV_Final_Line_Chart_Jan_2021-01-d2dc4eb9a59c43468e48c03e15501ebe.jpg"}
+    %{
+      title: "total_sales",
+      yesterday: %{
+        raw: "123,456",
+        wow: "1.5%"
+      },
+      last_week: %{
+        raw: "901,552",
+        wow: "-8.3%"
+      },
+      img_url:
+        "https://www.investopedia.com/thmb/MCCSOI-i2RokZiuwSSDNae1xt8I=/660x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_INV_Final_Line_Chart_Jan_2021-01-d2dc4eb9a59c43468e48c03e15501ebe.jpg"
+    }
   end
 
   defp get_token() do
