@@ -6,8 +6,15 @@ defmodule CarrierWeb.AuthController do
   plug Ueberauth
 
   def login(conn, _params) do
-    conn
-    |> render("login.html")
+    case get_session(conn, "user_id") do
+      nil ->
+        conn
+        |> render("login.html")
+
+      _ ->
+        conn
+        |> redirect(to: Routes.data_source_path(conn, :new))
+    end
   end
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
