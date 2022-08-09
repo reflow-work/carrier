@@ -20,6 +20,11 @@ defmodule CarrierWeb.Router do
 
     get "/", PageController, :index
 
+    scope "/auth" do
+      get "/:provider", AuthController, :request
+      get "/:provider/callback", AuthController, :callback
+    end
+
     live_session :user, on_mount: CarrierWeb.UserHook do
       live "/chart_live", ChartLive
       live "/data-source", DataSourceLive, :new
