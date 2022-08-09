@@ -12,4 +12,12 @@ defmodule CarrierWeb.UserHook do
 
     {:cont, socket}
   end
+
+  def on_mount(:default, _params, _session, socket) do
+    socket =
+      socket
+      |> redirect(to: Routes.auth_path(socket, :login))
+
+    {:halt, socket}
+  end
 end
