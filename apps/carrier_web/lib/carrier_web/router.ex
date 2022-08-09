@@ -20,7 +20,6 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    # TODO: change to static
     get "/login", AuthController, :login
 
     scope "/auth" do
