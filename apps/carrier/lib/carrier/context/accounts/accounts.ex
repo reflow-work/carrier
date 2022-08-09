@@ -1,6 +1,11 @@
 defmodule Carrier.Accounts do
-  alias Carrier.Accounts.User
+  alias Carrier.Accounts.{Org, User}
   alias Carrier.Repo
+
+  def create_org(%{name: name}) do
+    Org.create(%{name: name})
+    |> Repo.insert()
+  end
 
   def fetch_user_by_email(email) do
     User.get_by_email(email)

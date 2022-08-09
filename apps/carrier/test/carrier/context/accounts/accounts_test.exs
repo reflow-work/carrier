@@ -1,9 +1,20 @@
 defmodule Carrier.AccountsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Accounts
-  alias Carrier.Accounts.User
+  alias Carrier.Accounts.{Org, User}
 
   @moduletag repo: Repo
+
+  describe "create_org/1" do
+    test "with valid attrs" do
+      params = %{
+        name: "organization"
+      }
+
+      assert {:ok, %Org{} = created_org} = Accounts.create_org(params)
+      assert same_fields?(created_org, params, [:name])
+    end
+  end
 
   describe "fetch_user_by_email/1" do
     setup do
