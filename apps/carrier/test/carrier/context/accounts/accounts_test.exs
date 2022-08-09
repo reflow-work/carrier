@@ -5,6 +5,23 @@ defmodule Carrier.AccountsTest do
 
   @moduletag repo: Repo
 
+  describe "auth/1" do
+    test "with already signed up user" do
+      user = Factory.insert(:user)
+
+      assert {:ok, {:signed_in, signed_in_user}} = Accounts.auth(user.email)
+      assert same_records?(signed_in_user, user)
+    end
+
+    test "with not signed up user" do
+      email = "json@reflow.work"
+
+      assert {:ok, {:signed_up, signed_up_user}} = Accounts.auth(email)
+      assert signed_up_user.email == email
+      assert signed_up_user.org_id != nil
+    end
+  end
+
   describe "create_org/1" do
     test "with valid attrs" do
       params = %{

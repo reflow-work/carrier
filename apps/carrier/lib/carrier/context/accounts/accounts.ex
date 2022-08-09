@@ -2,6 +2,23 @@ defmodule Carrier.Accounts do
   alias Carrier.Accounts.{Org, User}
   alias Carrier.Repo
 
+  def auth(email) do
+    case fetch_user_by_email(email) do
+      {:ok, %User{} = user} ->
+        {:ok, {:signed_in, user}}
+
+      _ ->
+        org_name = "organization"
+
+        Repo.wrap_transaction(fn ->
+          with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
+               {:ok, %User{} = user} <- signup(%{org_id: org_id, email: email}) do
+            {:ok, {:signed_up, user}}
+          end
+        end)
+    end
+  end
+
   def create_org(%{name: name}) do
     Org.create(%{name: name})
     |> Repo.insert()
