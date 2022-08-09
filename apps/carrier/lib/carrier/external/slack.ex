@@ -22,7 +22,6 @@ defmodule Carrier.External.Slack do
     |> post(%{channel: channel_id, blocks: template(args)})
   end
 
-
   defp template(%{
          title: title,
          yesterday: %{raw: draw, wow: dwow},
@@ -57,7 +56,7 @@ defmodule Carrier.External.Slack do
       %{"alt_text" => "Sample chart", "image_url" => img_url, "type" => "image"}
     ]
   end
-  
+
   def sample_args() do
     %{
       title: "total_sales",
