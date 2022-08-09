@@ -10,4 +10,9 @@ defmodule Carrier.Accounts do
       nil -> {:error, {:resource_not_found, target: User, conditions: %{email: email}}}
     end
   end
+
+  def signup(%{org_id: org_id, email: email}) do
+    User.create(%{org_id: org_id, email: email})
+    |> Repo.insert()
+  end
 end
