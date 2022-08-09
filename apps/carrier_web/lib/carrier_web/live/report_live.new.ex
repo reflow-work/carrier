@@ -3,11 +3,11 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.Data.QueryData
 
   @sample_sql_template """
-  SELECT DATE(datetime) as date, SUM(sales) AS total_sales
-    FROM orders
-    WHERE datetime >= {{start}} AND datetime < {{end}}
-    GROUP BY date
-    ORDER BY date
+  SELECT DATE(order_date) as date, SUM(amount) AS total_amount
+    FROM sample_data_simple
+    WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
+    GROUP BY order_date
+    ORDER BY order_date
   """
 
   @impl true

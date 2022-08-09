@@ -20,14 +20,14 @@ Repo.transaction(fn ->
   Repo.insert_all(ConnInfo, [
     %{
       org_id: org0.org_id,
-      name: "conn0",
+      name: "test DB",
       source: :postgres,
       info: %{
-        "hostname" => "localhost",
-        "port" => 48141,
-        "username" => "customer",
-        "password" => "password",
-        "database" => "customer_db"
+        "hostname" => "test-db.cdw6skjbo8fk.ap-northeast-2.rds.amazonaws.com",
+        "port" => 5432,
+        "username" => "postgres",
+        "password" => "JJJxcv7MUzaFct9R6vEB",
+        "database" => "test_db"
       }
     }
   ])
