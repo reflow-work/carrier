@@ -5,6 +5,11 @@ defmodule CarrierWeb.AuthController do
 
   plug Ueberauth
 
+  def login(conn, _params) do
+    conn
+    |> render("login.html")
+  end
+
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     %Ueberauth.Auth{
       info: %Ueberauth.Auth.Info{

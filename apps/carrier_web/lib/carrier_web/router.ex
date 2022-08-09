@@ -21,7 +21,7 @@ defmodule CarrierWeb.Router do
 
     get "/", PageController, :index
     # TODO: change to static
-    live "/login", LoginLive, :new
+    get "/login", AuthController, :login
 
     scope "/auth" do
       get "/:provider", AuthController, :request
