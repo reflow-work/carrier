@@ -15,21 +15,28 @@ defmodule CarrierWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Without Auth
   scope "/", CarrierWeb do
     pipe_through :browser
 
     get "/", PageController, :index
+    # TODO: change to static
+    get "/login", AuthController, :login
 
     scope "/auth" do
       get "/:provider", AuthController, :request
       get "/:provider/callback", AuthController, :callback
     end
+  end
+
+  # With Auth
+  scope "/", CarrierWeb do
+    pipe_through :browser
 
     live_session :user, on_mount: CarrierWeb.UserHook do
       live "/chart_live", ChartLive
       live "/data-source", DataSourceLive, :new
       live "/reports/new", ReportLive.New, :new
-      live "/login", LoginLive, :new
     end
   end
 
