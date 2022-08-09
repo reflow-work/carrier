@@ -90,6 +90,15 @@ config :tzdata, :autoupdate, :disabled
 
 config :carrier, :slack, bot_token: "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
 
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [default_scope: "email"]}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: "136111128651-a4h5k0m79mn64ipar78rspim0kt2d2fj.apps.googleusercontent.com",
+  client_secret: "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"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

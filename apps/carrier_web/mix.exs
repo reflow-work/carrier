@@ -51,7 +51,9 @@ defmodule CarrierWeb.MixProject do
       {:carrier, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
+      {:ueberauth, "~> 0.7"},
+      {:ueberauth_google, "~> 0.10"}
     ]
   end
 
