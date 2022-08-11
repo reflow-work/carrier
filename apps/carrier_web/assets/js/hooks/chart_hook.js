@@ -34,7 +34,6 @@ const ChartHook = {
     })
     this.handleEvent("input_data", ({ columns, data }) => {
       chart.data.datasets = []
-      const parsedData = {}
       const nonDateKeys = Object.keys(data[0]).filter((k) => k !== "date")
       const currentPeriodKey = nonDateKeys.find((k) => k.endsWith("sum"))
       const previousPeriodKey = nonDateKeys.find((k) => k.endsWith("offset"))
