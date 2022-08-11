@@ -7,4 +7,8 @@ defmodule Carrier.Reports.Report do
 
     timestamps()
   end
+
+  def list() do
+    __MODULE__
+  end
 end
