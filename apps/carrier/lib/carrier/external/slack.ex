@@ -22,6 +22,12 @@ defmodule Carrier.External.Slack do
     |> post(%{channel: channel_id, blocks: template(args)})
   end
 
+  def get_public_channels() do
+    %URI{path: "/conversations.list"}
+    |> URI.to_string()
+    |> get()
+  end
+
   defp template(%{
          title: title,
          yesterday: %{raw: draw, wow: dwow},
