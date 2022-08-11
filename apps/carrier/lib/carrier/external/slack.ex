@@ -28,6 +28,12 @@ defmodule Carrier.External.Slack do
     |> get()
   end
 
+  def get_access_token() do
+    %URI{path: "/oauth.v2.access"}
+    |> URI.to_string()
+    |> get()
+  end
+
   defp template(%{
          title: title,
          yesterday: %{raw: draw, wow: dwow},

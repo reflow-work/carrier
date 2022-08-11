@@ -98,16 +98,24 @@ config :tailwind,
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :tzdata, :autoupdate, :disabled
 
-config :carrier, :slack, bot_token: "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+config :carrier, :slack,
+  client_id: "3700242262145.3907206908336",
+  client_secret: "ea1926306433ead67eea5f55a6855f67",
+  bot_token: "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
 
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, [default_scope: "email"]}
+    google: {Ueberauth.Strategy.Google, [default_scope: "email"]},
+    slack: {Ueberauth.Strategy.SlackV2, []}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Google.OAuth,
   client_id: "136111128651-a4h5k0m79mn64ipar78rspim0kt2d2fj.apps.googleusercontent.com",
   client_secret: "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"
+
+config :ueberauth, Ueberauth.Strategy.SlackV2.OAuth,
+  client_id: "3700242262145.3907206908336",
+  client_secret: "ea1926306433ead67eea5f55a6855f67"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
