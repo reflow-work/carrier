@@ -35,7 +35,7 @@ defmodule CarrierWeb.Router do
     live_session :user, on_mount: CarrierWeb.UserHook do
       live "/chart_live", ChartLive
       live "/data-source", DataSourceLive, :new
-      live "/reports/new", ReportLive.New, :new
+      live "/reports", ReportLive, :new
     end
   end
 

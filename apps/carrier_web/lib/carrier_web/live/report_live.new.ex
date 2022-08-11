@@ -1,4 +1,4 @@
-defmodule CarrierWeb.ReportLive.New do
+defmodule CarrierWeb.ReportLive do
   use CarrierWeb, :live_view
   alias Carrier.Data.QueryData
 
