@@ -40,8 +40,19 @@ config :carrier_web, CarrierWeb.Endpoint,
 config :esbuild,
   version: "0.14.0",
   default: [
-    args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/* --external:/icons/*),
+    args: ~w(
+      js/app.js 
+      vendor/fonts/Lato/lato.css 
+      --loader:.woff2=file 
+      --loader:.woff=file
+      --loader:.ttf=file
+      --bundle 
+      --target=es2017 
+      --outdir=../priv/static/assets 
+      --external:/fonts/* 
+      --external:/images/* 
+      --external:/icons/*
+    ),
     cd: Path.expand("../apps/carrier_web/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
