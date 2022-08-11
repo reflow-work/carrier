@@ -33,7 +33,6 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     live_session :user, on_mount: CarrierWeb.UserHook do
-      live "/chart_live", ChartLive
       live "/data-source", DataSourceLive, :new
       live "/reports", ReportLive, :new
     end
