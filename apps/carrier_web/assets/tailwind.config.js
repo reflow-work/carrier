@@ -19,9 +19,11 @@ module.exports = {
         h2: ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
         h3: ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
         h4: ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+        slackHeader: ["22px", { "lineHeight": "30px", "fontWeight": "700" }],
         body1: ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
         body2: ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
         body3: ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+        slackBody: ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
       },
       animation: {
         "spin-slow": "spin 18s linear infinite",
