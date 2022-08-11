@@ -9,7 +9,7 @@ defmodule Carrier.Migration do
   import Ecto.Migration
 
   def add_tstz() do
-    add(:inserted_at, :timestamptz, null: false, default: fragment("now()"))
+    add(:created_at, :timestamptz, null: false, default: fragment("now()"))
     add(:updated_at, :timestamptz, null: false, default: fragment("now()"))
   end
 end
