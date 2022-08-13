@@ -16,15 +16,14 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:conn_info_id, conn_info_id)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
-      |> assign_new(:analyze, fn -> nil end)
-      |> assign_new(:parsed_data, fn -> nil end)
+      |> assign_new(:query_result, fn -> nil end)
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("analyze", params, socket) do
-    %{"report" => %{"sql_template" => sql_template}} = params
+  def handle_event("run_query", params, socket) do
+    %{"query" => %{"sql_template" => sql_template}} = params
 
     socket = socket |> assign(:sql_template, sql_template)
 
@@ -43,36 +42,9 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> case do
         {:ok, %{columns: columns, data: data}} ->
-          IO.inspect(parse_data(%{columns: columns, data: data}))
-
           socket
-          |> assign(:analyze, %{columns: columns, data: data})
-          |> assign(:parsed_data, parse_data(%{columns: columns, data: data}))
+          |> assign(:query_result, parse_data(%{columns: columns, data: data}))
           |> push_event("input_data", %{columns: columns, data: data})
-
-        {:error, error} ->
-          socket |> put_flash(:error, error)
-      end
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("run_query", %{"query_editor" => query}, socket) do
-    socket =
-      QueryData.query(%{
-        org_id: socket.assigns.org_id,
-        conn_info_id: socket.assigns.conn_info_id,
-        sql_template: query,
-        datetime: DateTime.utc_now(),
-        timezone: "Asia/Seoul",
-        period: 28,
-        window_size: 7,
-        comparing_period: 7
-      })
-      |> case do
-        {:ok, %{columns: columns, data: data}} ->
-          socket |> push_event("input_data", %{columns: columns, data: data})
 
         {:error, error} ->
           socket |> put_flash(:error, error)

@@ -7,20 +7,20 @@
     </section>
     <section class="rounded drop-shadow p-6 mt-6 bg-white">
       <h2 class="text-h2">Type Query</h2>
-      <.form let={f} for={:report} id="report_form" phx-submit="analyze">
+      <.form let={f} for={:query} id="query_form" phx-submit="run_query">
         <%= textarea(f, :sql_template, class: "border border-black rounded mt-2 p-2 w-full", placeholder: "SQL here", value: @sql_template) %>
-        <%= submit "Submit", class: "p-2 border rounded" %>
+        <%= submit "Run Query", class: "p-2 border rounded" %>
       </.form>
     </section>
   </section>
   <section class="flex gap-x-8 mt-6">
     <section class="rounded drop-shadow p-6 bg-white w-full">
       <h2 class="text-h2">Set up Report</h2>
-      <%= if @parsed_data do %>
+      <%= if @query_result do %>
         <section class="mt-6">
-          <h3 class="text-h3"><%= @parsed_data.label %></h3>
-          <p>Yesterday: <%= @parsed_data.current_raw %> (WoW <%= @parsed_data.raw_wow %>%)</p>
-          <p>Last 7 Days: <%= @parsed_data.current_period_raw %> (WoW <%= @parsed_data.period_wow %>%)</p>
+          <h3 class="text-h3"><%= @query_result.label %></h3>
+          <p>Yesterday: <%= @query_result.current_raw %> (WoW <%= @query_result.raw_wow %>%)</p>
+          <p>Last 7 Days: <%= @query_result.current_period_raw %> (WoW <%= @query_result.period_wow %>%)</p>
         </section>
       <section id="chart-container-1" phx-update="ignore">
         <canvas id="chart-1" phx-hook="Chart"></canvas>
@@ -31,9 +31,9 @@
     </section>
     <section class="rounded drop-shadow p-6 bg-white w-full">
       <h2 class="text-h2">Slack Preview</h2>
-      <%= if @parsed_data do %>
+      <%= if @query_result do %>
         <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
-          <h3 class="font-bold pb-2">📊 <%= @parsed_data.label %></h3>
+          <h3 class="font-bold pb-2">📊 <%= @query_result.label %></h3>
           <section class="divide-y divide-gray-200">
             <section>
               <p class="font-bold py-2">Yesterday</p>
