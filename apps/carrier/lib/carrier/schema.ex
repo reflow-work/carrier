@@ -5,7 +5,7 @@ defmodule Carrier.Schema do
       import Ecto.Changeset
       import Ecto.Query
 
-      @timestamps_opts [type: :utc_datetime_usec]
+      @timestamps_opts [type: :utc_datetime_usec, inserted_at: :created_at]
     end
   end
 end
