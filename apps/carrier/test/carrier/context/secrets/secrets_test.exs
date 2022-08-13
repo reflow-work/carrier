@@ -12,13 +12,13 @@ defmodule Carrier.SecretsTest do
       valid_params = %{
         org_id: org.org_id,
         name: "main",
-        source: "postgres",
+        source: :postgres,
         info: %{
-          "hostname" => "localhost",
-          "port" => 5432,
-          "username" => "username0",
-          "password" => "password0",
-          "database" => "database0"
+          hostname: "localhost",
+          port: 48140,
+          username: "postgres",
+          password: "postgres",
+          database: "postgres"
         }
       }
 
@@ -40,11 +40,9 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with invalid info", %{valid_params: valid_params} do
-      invalid_params = valid_params |> put_in([:info, "database"], nil)
+      invalid_params = valid_params |> put_in([:info, :database], "invalid_database")
 
-      assert_changeset_error(:database, "can't be blank", fn ->
-        Secrets.create_conn_info(invalid_params)
-      end)
+      assert {:error, :invalid_conn_info} = Secrets.create_conn_info(invalid_params)
     end
   end
 
