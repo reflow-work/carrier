@@ -2,7 +2,7 @@ defmodule CarrierWeb.Components.Icon do
   use Phoenix.Component
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
-  @icon_paths "priv/static/icons/*"
+  @icon_paths "priv/icons/*"
   paths = Path.wildcard(@icon_paths)
   paths_hash = :erlang.md5(paths)
 
