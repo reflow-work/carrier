@@ -10,8 +10,9 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :carrier_web, CarrierWeb.Endpoint,
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [scheme: "https", host: "reflow.work", port: 443],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  server: true
 
 # ## SSL Support
 #
