@@ -77,7 +77,7 @@ defmodule CarrierWeb.DataSourceLive do
     case do_create_conn_info(params) do
       {:ok, %ConnInfo{id: conn_info_id}} ->
         socket
-        |> push_redirect(to: Routes.report_path(socket, :new, %{conn_info_id: conn_info_id}))
+        |> push_redirect(to: Routes.report_new_path(socket, :new, %{conn_info_id: conn_info_id}))
 
       error ->
         socket
