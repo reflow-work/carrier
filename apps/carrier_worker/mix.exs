@@ -33,7 +33,8 @@ defmodule CarrierWorker.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get"]
+      setup: ["deps.get"],
+      "release.setup": []
     ]
   end
 end

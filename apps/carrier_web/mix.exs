@@ -64,7 +64,13 @@ defmodule CarrierWeb.MixProject do
     [
       setup: ["deps.get"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.deploy": [
+        "cmd npm install --prefix assets",
+        "tailwind default --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ],
+      "release.setup": ["assets.deploy"]
     ]
   end
 end

@@ -7,7 +7,8 @@ defmodule Carrier.Umbrella.MixProject do
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      releases: releases()
     ]
   end
 
@@ -40,7 +41,21 @@ defmodule Carrier.Umbrella.MixProject do
     [
       # run `mix setup` in all child apps
       setup: ["cmd mix setup"],
-      "ecto.reset": ["cmd --app carrier mix ecto.reset"]
+      "ecto.reset": ["cmd --app carrier mix ecto.reset"],
+      "release.setup": ["cmd mix release.setup"]
+    ]
+  end
+
+  defp releases() do
+    [
+      carrier_app: [
+        applications: [
+          carrier: :permanent,
+          carrier_worker: :permanent,
+          carrier_web: :permanent
+        ],
+        steps: [:assemble, :tar]
+      ]
     ]
   end
 end
