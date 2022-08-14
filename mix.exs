@@ -54,6 +54,7 @@ defmodule Carrier.Umbrella.MixProject do
           carrier_worker: :permanent,
           carrier_web: :permanent
         ],
+        include_executables_for: [:unix],
         steps: [:assemble, :tar]
       ]
     ]
