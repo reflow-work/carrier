@@ -55,7 +55,8 @@ defmodule Carrier.Umbrella.MixProject do
           carrier_web: :permanent
         ],
         include_executables_for: [:unix],
-        steps: [:assemble, :tar]
+        steps: [:assemble, :tar],
+        config_providers: [{Config.Reader, {:system, "RELEASE_ROOT", "/config_#{Mix.env()}.exs"}}]
       ]
     ]
   end
