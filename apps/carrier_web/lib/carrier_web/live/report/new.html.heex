@@ -1,64 +1,84 @@
 <section class="p-8 bg-slate-200 w-full">
   <h1 class="text-h1">Create New Report</h1>
-  <section class="mt-10">
+  <section class="mt-10 space-y-6">
     <section class="rounded drop-shadow p-6 bg-white">
-      <h2 class="text-h2">Name</h2>
-      <input placeholder="Daily User Metric" class="border border-black rounded mt-2 p-2"/>
-    </section>
-    <section class="rounded drop-shadow p-6 mt-6 bg-white">
       <h2 class="text-h2">Type Query</h2>
       <.form let={f} for={:query} id="query_form" phx-submit="run_query">
         <%= textarea(f, :sql_template, class: "border border-black rounded mt-2 p-2 w-full", placeholder: "SQL here", value: @sql_template) %>
         <%= submit "Run Query", class: "p-2 border rounded" %>
       </.form>
     </section>
-  </section>
-  <section class="flex gap-x-8 mt-6">
-    <section class="rounded drop-shadow p-6 bg-white w-full">
-      <h2 class="text-h2">Set up Report</h2>
-      <%= if @query_result do %>
-        <section class="mt-6">
-          <h3 class="text-h3"><%= @query_result.label %></h3>
-          <p>Yesterday: <%= @query_result.current_raw %> (WoW <%= @query_result.raw_wow %>%)</p>
-          <p>Last 7 Days: <%= @query_result.current_period_raw %> (WoW <%= @query_result.period_wow %>%)</p>
+    <section class="flex gap-x-8">
+      <section class="rounded drop-shadow p-6 bg-white w-full">
+        <h2 class="text-h2">Set up Report</h2>
+        <%= if @query_result do %>
+          <section class="mt-6">
+            <h3 class="text-h3"><%= @query_result.label %></h3>
+            <p>Yesterday: <%= @query_result.current_raw %> (WoW <%= @query_result.raw_wow %>%)</p>
+            <p>Last 7 Days: <%= @query_result.current_period_raw %> (WoW <%= @query_result.period_wow %>%)</p>
+          </section>
+        <section id="chart-container-1" phx-update="ignore">
+          <canvas id="chart-1" phx-hook="Chart"></canvas>
         </section>
-      <section id="chart-container-1" phx-update="ignore">
-        <canvas id="chart-1" phx-hook="Chart"></canvas>
+        <% else %>
+          <p>Need data!</p>
+        <% end %>
       </section>
-      <% else %>
-        <p>Need data!</p>
-      <% end %>
-    </section>
-    <section class="rounded drop-shadow p-6 bg-white w-full">
-      <h2 class="text-h2">Slack Preview</h2>
-      <%= if @query_result do %>
-        <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
-          <h3 class="font-bold pb-2">📊 <%= @query_result.label %></h3>
-          <section class="divide-y divide-gray-200">
-            <section>
-              <p class="font-bold py-2">Yesterday</p>
-              <section class="grid grid-cols-2 grid-rows-2 py-2">
-                <p class="font-bold">Raw</p>
-                <p class="font-bold">Week over Week</p>
-                <p>55</p>
-                <p>-1.5%</p>
+      <section class="rounded drop-shadow p-6 bg-white w-full">
+        <h2 class="text-h2">Slack Preview</h2>
+        <%= if @query_result do %>
+          <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
+            <h3 class="font-bold pb-2">📊 <%= @query_result.label %></h3>
+            <section class="divide-y divide-gray-200">
+              <section>
+                <p class="font-bold py-2">Yesterday</p>
+                <section class="grid grid-cols-2 grid-rows-2 py-2">
+                  <p class="font-bold">Raw</p>
+                  <p class="font-bold">Week over Week</p>
+                  <p>55</p>
+                  <p>-1.5%</p>
+                </section>
+                <p class="font-bold py-2">Last Week</p>
+                <section class="grid grid-cols-2 grid-rows-2 py-2">
+                  <p class="font-bold">Raw</p>
+                  <p class="font-bold">Week over Week</p>
+                  <p>377</p>
+                  <p>5.5%</p>
+                </section>
               </section>
-              <p class="font-bold py-2">Last Week</p>
-              <section class="grid grid-cols-2 grid-rows-2 py-2">
-                <p class="font-bold">Raw</p>
-                <p class="font-bold">Week over Week</p>
-                <p>377</p>
-                <p>5.5%</p>
+              <section id="chart-container" phx-update="ignore" class="pt-2">
+                <canvas id="chart-2" class="border border-gray-200 rounded-lg" phx-hook="Chart"></canvas>
               </section>
-            </section>
-            <section id="chart-container" phx-update="ignore" class="pt-2">
-              <canvas id="chart-2" class="border border-gray-200 rounded-lg" phx-hook="Chart"></canvas>
             </section>
           </section>
-        </section>
-      <% else %>
-        <p>Need data!</p>
-      <% end %>
+        <% else %>
+          <p>Need data!</p>
+        <% end %>
+      </section>
+    </section>
+    <section class="rounded drop-shadow p-6 bg-white w-full">
+      <h2 class="text-h2">Report Details</h2>
+      <.form let={f} for={:report} id="report_form" phx-submit="save_report">
+        <div>
+          <%= label f, :name, "Name" %>
+          <%= text_input f, :name, placeholder: "Daily User Metric", class: "border border-black rounded mt-2 p-2" %>
+          <%= error_tag f, :name %>
+        </div>
+
+        <div>
+          <%= label f, :hour, "Hour" %>
+          <%= select f, :hour, @hours, class: "border border-black rounded mt-2" %>
+          <%= error_tag f, :hour %>
+        </div>
+
+        <div>
+          <%= label f, :channel, "Channel" %>
+          <%= select f, :channel, @channels, class: "border border-black rounded mt-2" %>
+          <%= error_tag f, :channel %>
+        </div>
+
+        <%= submit "Save", class: "p-2 border rounded" %>
+      </.form>
     </section>
   </section>
 </section>

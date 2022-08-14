@@ -1,6 +1,7 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   alias Carrier.Data.QueryData
+  alias Carrier.Reports.Report
 
   @sample_sql_template """
   SELECT DATE(order_date) as date, SUM(amount) AS total_amount
@@ -17,6 +18,8 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:conn_info_id, conn_info_id)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
       |> assign_new(:query_result, fn -> nil end)
+      |> assign_new(:channels, fn -> ["a", "b", "c"] end)
+      |> assign_new(:hours, fn -> 0..23 end)
 
     {:ok, socket}
   end
@@ -45,6 +48,26 @@ defmodule CarrierWeb.ReportLive.New do
           socket
           |> assign(:query_result, parse_data(%{columns: columns, data: data}))
           |> push_event("input_data", %{columns: columns, data: data})
+
+        {:error, error} ->
+          socket |> put_flash(:error, error)
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("save_report", params, socket) do
+    %{"report" => %{"name" => name, "channel" => _channel, "hour" => _hour}} = params
+
+    socket =
+      Report.create(%{org_id: socket.assigns.org_id, name: name})
+      |> case do
+        {:ok, report} ->
+          IO.inspect(report)
+
+          socket
+          |> assign(:report_id, report.id)
 
         {:error, error} ->
           socket |> put_flash(:error, error)
