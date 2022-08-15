@@ -20,6 +20,7 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/health", HealthController, :index
     get "/login", AuthController, :login
 
     scope "/auth" do
