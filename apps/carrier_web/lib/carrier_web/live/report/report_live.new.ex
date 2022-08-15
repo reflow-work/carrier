@@ -64,10 +64,8 @@ defmodule CarrierWeb.ReportLive.New do
       Report.create(%{org_id: socket.assigns.org_id, name: name})
       |> case do
         {:ok, report} ->
-          IO.inspect(report)
-
           socket
-          |> assign(:report_id, report.id)
+          |> put_flash(:info, "Report \"#{report.name}\" has been saved!")
 
         {:error, error} ->
           socket |> put_flash(:error, error)
