@@ -47,7 +47,7 @@
 
     <%= if @step == "step-2" do %>
       <div class="mt-10">
-        <.form let={f} for={:conn_info} phx-submit="create_conn_info" class="space-y-2">
+        <.form let={f} for={:conn_info} phx-submit="create_conn_info" class="space-y-2" autocomplete="off">
           <div>
             <label class="label">
               <span class="label-text">Name</span>

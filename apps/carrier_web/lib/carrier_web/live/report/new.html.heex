@@ -3,7 +3,7 @@
   <section class="mt-10 space-y-6">
     <section class="rounded drop-shadow p-6 bg-white">
       <h2 class="text-h2">Type Query</h2>
-      <.form let={f} for={:query} id="query_form" phx-submit="run_query">
+      <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
         <%= textarea(f, :sql_template, class: "border border-black rounded mt-2 p-2 w-full", placeholder: "SQL here", value: @sql_template) %>
         <%= submit "Run Query", class: "p-2 border rounded" %>
       </.form>
@@ -58,7 +58,7 @@
     </section>
     <section class="rounded drop-shadow p-6 bg-white w-full">
       <h2 class="text-h2">Report Details</h2>
-      <.form let={f} for={:report} id="report_form" phx-submit="save_report">
+      <.form let={f} for={:report} id="report_form" phx-submit="save_report" autocomplete="off">
         <div>
           <%= label f, :name, "Name" %>
           <%= text_input f, :name, placeholder: "Daily User Metric", class: "border border-black rounded mt-2 p-2" %>
