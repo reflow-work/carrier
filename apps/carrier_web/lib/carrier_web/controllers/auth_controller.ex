@@ -17,6 +17,13 @@ defmodule CarrierWeb.AuthController do
     end
   end
 
+  def logout(conn, _params) do
+    conn
+    |> clear_session()
+    |> configure_session(drop: true)
+    |> redirect(to: Routes.page_path(conn, :index))
+  end
+
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     auth |> IO.inspect()
 

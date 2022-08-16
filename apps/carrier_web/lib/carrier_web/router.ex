@@ -22,6 +22,7 @@ defmodule CarrierWeb.Router do
     get "/", PageController, :index
     get "/health", HealthController, :index
     get "/login", AuthController, :login
+    get "/logout", AuthController, :logout
 
     scope "/auth" do
       get "/:provider", AuthController, :request

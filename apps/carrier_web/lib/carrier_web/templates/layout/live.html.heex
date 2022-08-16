@@ -13,6 +13,11 @@
         <li class="p-3"><a>REFLOW</a></li>
         <li class="p-3"><a><Icon.bar_chart /></a></li>
         <li class="p-3"><a><Icon.settings /></a></li>
+        <li class="p-3">
+          <%= link to: Routes.auth_path(@socket, :logout) do %>
+            Logout
+          <% end %>
+        </li>
       </ul>
     </div>
 
