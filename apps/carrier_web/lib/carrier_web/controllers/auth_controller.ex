@@ -18,6 +18,8 @@ defmodule CarrierWeb.AuthController do
   end
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+    auth |> IO.inspect()
+
     %Ueberauth.Auth{
       info: %Ueberauth.Auth.Info{
         email: email
@@ -39,7 +41,9 @@ defmodule CarrierWeb.AuthController do
     end
   end
 
-  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
+  def callback(%{assigns: %{ueberauth_failure: fails}} = conn, _params) do
+    fails |> IO.inspect()
+
     conn
     |> put_flash(:error, "Failed to authenticate.")
     |> redirect(to: "/")
