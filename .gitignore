@@ -24,3 +24,5 @@ erl_crash.dump
 
 # LSP log files
 /.log
+
+/config/*.secret.exs
