@@ -19,7 +19,6 @@ defmodule Carrier.Reports.Report do
   def create(%{org_id: org_id, name: name}) do
     %__MODULE__{}
     |> changeset_for_create(%{org_id: org_id, name: name})
-    |> TenantRepo.insert()
   end
 
   def list() do

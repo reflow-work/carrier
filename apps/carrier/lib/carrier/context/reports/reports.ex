@@ -2,6 +2,11 @@ defmodule Carrier.Reports do
   alias Carrier.Reports.Report
   alias Carrier.TenantRepo
 
+  def create_reports(%{org_id: org_id, name: name}) do
+    Report.create(%{org_id: org_id, name: name})
+    |> TenantRepo.insert()
+  end
+
   def list_reports() do
     Report.list()
     |> TenantRepo.all()

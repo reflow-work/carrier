@@ -60,18 +60,22 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("save_report", params, socket) do
     %{"report" => %{"name" => name, "channel" => _channel, "hour" => _hour}} = params
 
-    socket =
-      Report.create(%{org_id: socket.assigns.org_id, name: name})
-      |> case do
-        {:ok, report} ->
-          socket
-          |> put_flash(:info, "Report \"#{report.name}\" has been saved!")
-
-        {:error, error} ->
-          socket |> put_flash(:error, error)
-      end
+    socket = socket |> create_report(params)
 
     {:noreply, socket}
+  end
+
+  defp create_report(socket, params) do
+    params = params |> Map.put(:org_id, socket.assigns.org_id)
+
+    case Report.create(params) do
+      {:ok, report} ->
+        socket
+        |> put_flash(:info, "Report \"#{report.name}\" has been saved!")
+
+      {:error, error} ->
+        socket |> put_flash(:error, error)
+    end
   end
 
   defp parse_data(%{columns: columns, data: data}) do
