@@ -4,8 +4,12 @@
     <section class="rounded drop-shadow p-6 bg-white">
       <h2 class="text-h2">Type Query</h2>
       <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
-        <%= textarea(f, :sql_template, class: "border border-black rounded mt-2 p-2 w-full", placeholder: "SQL here", value: @sql_template) %>
-        <%= submit "Run Query", class: "p-2 border rounded" %>
+        <%= textarea(f, :sql_template,
+          class: "border border-black rounded mt-2 p-2 w-full",
+          placeholder: "SQL here",
+          value: @sql_template
+        ) %>
+        <%= submit("Run Query", class: "p-2 border rounded") %>
       </.form>
     </section>
     <section class="flex gap-x-8">
@@ -15,11 +19,13 @@
           <section class="mt-6">
             <h3 class="text-h3"><%= @query_result.label %></h3>
             <p>Yesterday: <%= @query_result.current_raw %> (WoW <%= @query_result.raw_wow %>%)</p>
-            <p>Last 7 Days: <%= @query_result.current_period_raw %> (WoW <%= @query_result.period_wow %>%)</p>
+            <p>
+              Last 7 Days: <%= @query_result.current_period_raw %> (WoW <%= @query_result.period_wow %>%)
+            </p>
           </section>
-        <section id="chart-container-1" phx-update="ignore">
-          <canvas id="chart-1" phx-hook="Chart"></canvas>
-        </section>
+          <section id="chart-container-1" phx-update="ignore">
+            <canvas id="chart-1" phx-hook="Chart"></canvas>
+          </section>
         <% else %>
           <p>Need data!</p>
         <% end %>
@@ -47,7 +53,8 @@
                 </section>
               </section>
               <section id="chart-container" phx-update="ignore" class="pt-2">
-                <canvas id="chart-2" class="border border-gray-200 rounded-lg" phx-hook="Chart"></canvas>
+                <canvas id="chart-2" class="border border-gray-200 rounded-lg" phx-hook="Chart">
+                </canvas>
               </section>
             </section>
           </section>
@@ -60,29 +67,53 @@
       <h2 class="text-h2">Report Details</h2>
       <.form let={f} for={:report} id="report_form" phx-submit="save_report" autocomplete="off">
         <div>
-          <%= label f, :name, "Name" %>
-          <%= text_input f, :name, placeholder: "Daily User Metric", class: "border border-black rounded mt-2 p-2" %>
-          <%= error_tag f, :name %>
+          <%= label(f, :name, "Name") %>
+          <%= text_input(f, :name,
+            placeholder: "Daily User Metric",
+            class: "border border-black rounded mt-2 p-2"
+          ) %>
+          <%= error_tag(f, :name) %>
         </div>
 
         <div>
-          <%= label f, :hour, "Hour" %>
-          <%= select f, :hour, @hours, class: "border border-black rounded mt-2" %>
-          <%= error_tag f, :hour %>
+          <%= label(f, :hour, "Hour") %>
+          <%= select(f, :hour, @hours, class: "border border-black rounded mt-2") %>
+          <%= error_tag(f, :hour) %>
         </div>
 
         <div>
-          <%= label f, :channel, "Channel" %>
-          <%= select f, :channel, @channels, class: "border border-black rounded mt-2" %>
-          <%= error_tag f, :channel %>
+          <%= label(f, :channel, "Channel") %>
+          <%= select(f, :channel, @channels, class: "border border-black rounded mt-2") %>
+          <%= error_tag(f, :channel) %>
         </div>
 
-        <%= submit "Save", class: "p-2 border rounded" %>
+        <%= submit("Save", class: "p-2 border rounded") %>
       </.form>
     </section>
   </section>
 
   <div>
-    <a href="https://slack.com/oauth/v2/authorize?scope=channels%3Aread&amp;user_scope=&amp;redirect_uri=&amp;client_id=3700242262145.3907206908336" style="align-items:center;color:#000;background-color:#fff;border:1px solid #ddd;border-radius:4px;display:inline-flex;font-family:Lato, sans-serif;font-size:14px;font-weight:600;height:44px;justify-content:center;text-decoration:none;width:204px"><svg xmlns="http://www.w3.org/2000/svg" style="height:16px;width:16px;margin-right:12px" viewBox="0 0 122.8 122.8"><path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" fill="#e01e5a"></path><path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" fill="#36c5f0"></path><path d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zm-6.5 0c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z" fill="#2eb67d"></path><path d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zm0-6.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z" fill="#ecb22e"></path></svg>Add to Slack</a>
+    <a
+      href="https://slack.com/oauth/v2/authorize?scope=channels%3Aread&amp;user_scope=&amp;redirect_uri=&amp;client_id=3700242262145.3907206908336"
+      style="align-items:center;color:#000;background-color:#fff;border:1px solid #ddd;border-radius:4px;display:inline-flex;font-family:Lato, sans-serif;font-size:14px;font-weight:600;height:44px;justify-content:center;text-decoration:none;width:204px"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        style="height:16px;width:16px;margin-right:12px"
+        viewBox="0 0 122.8 122.8"
+      ><path
+  d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z"
+  fill="#e01e5a"
+></path><path
+  d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z"
+  fill="#36c5f0"
+></path><path
+  d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zm-6.5 0c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z"
+  fill="#2eb67d"
+></path><path
+  d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zm0-6.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z"
+  fill="#ecb22e"
+></path></svg>Add to Slack
+    </a>
   </div>
 </section>

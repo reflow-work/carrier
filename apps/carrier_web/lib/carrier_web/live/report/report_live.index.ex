@@ -22,8 +22,11 @@ defmodule CarrierWeb.ReportLive.Index do
     ~H"""
     <section class="p-8 bg-slate-200 w-full">
       <header>
-      <h1 class="text-h1">Report List</h1>
-      <%= live_redirect "Create New Report", to: Routes.report_new_path(@socket, :new), class: "border p-2 rounded" %>
+        <h1 class="text-h1">Report List</h1>
+        <%= live_redirect("Create New Report",
+          to: Routes.report_new_path(@socket, :new),
+          class: "border p-2 rounded"
+        ) %>
       </header>
       <ul class="mt-10 space-y-2 rounded">
         <li class="grid grid-cols-4 border bg-white p-4 items-center rounded">
@@ -42,7 +45,7 @@ defmodule CarrierWeb.ReportLive.Index do
               <button class="border p-2 rounded">Delete</button>
             </div>
           </li>
-          <% end %>
+        <% end %>
       </ul>
     </section>
     """
