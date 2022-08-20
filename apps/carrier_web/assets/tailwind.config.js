@@ -39,6 +39,26 @@ module.exports = {
     plugin(({ addVariant }) => addVariant('phx-change-loading', ['&.phx-change-loading', '.phx-change-loading &']))
   ],
   daisyui: {
-    themes: ["light"]
+    themes: [
+      {
+        mytheme: {
+          neutral: "#f0f0f0",
+          "neutral-content": "#000000",
+
+          primary: "#000000",
+          "primary-content": "#ffffff",
+
+          secondary: "#f6d860",
+          
+          accent: "#37cdbe",
+
+          "base-100": "#ffffff",
+          "base-200": "#f0f0f0",
+          "base-content": "#000000",
+          "bg-menu": "#000000",
+          "bg-content": "#ffffff"
+        }
+      }
+    ]
   }
 }

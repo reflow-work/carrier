@@ -1,22 +1,21 @@
 <main>
-  <.flash flash={@flash} />
+  <div class="fixed w-20 top-2 bottom-2 bg-black rounded-tr-md rounded-br-md">
+    <nav class="flex h-full text-white flex-col items-center py-4">
+      <a class="p-4 cursor-pointer">
+        <%= img_tag(Routes.static_path(@socket, "/images/logo-white.png"), class: "w-5") %>
+      </a>
 
-  <div class="flex bg-slate-100 w-full">
-    <div class="w-20 h-screen bg-white">
-      <ul>
-        <li class="p-3"><a>REFLOW</a></li>
-        <li class="p-3"><a><Icon.bar_chart /></a></li>
-        <li class="p-3"><a><Icon.settings /></a></li>
-        <li class="p-3">
-          <%= link to: Routes.auth_path(@socket, :logout) do %>
-            Logout
-          <% end %>
-        </li>
-      </ul>
-    </div>
+      <a class="p-4 cursor-pointer"><Icon.bar_chart /></a>
 
-    <div class="p-10 flex-1">
-      <%= @inner_content %>
-    </div>
+      <a class="p-4 cursor-pointer"><Icon.settings /></a>
+
+      <%= link to: Routes.auth_path(@socket, :logout), class: "p-4 cursor-pointer" do %>
+        Logout
+      <% end %>
+    </nav>
+  </div>
+
+  <div class="ml-20 my-2">
+    <%= @inner_content %>
   </div>
 </main>
