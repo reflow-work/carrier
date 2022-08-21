@@ -1,7 +1,9 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   alias Carrier.Data.QueryData
-  alias Carrier.Reports.Report
+  alias Carrier.Reports
+  alias Carrier.External.Aws
+  alias Carrier.External.Slack
 
   @sample_sql_template """
   SELECT DATE(order_date) as date, SUM(amount) AS total_amount
@@ -17,7 +19,9 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:conn_info_id, conn_info_id)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
-      |> assign_new(:query_result, fn -> nil end)
+      |> assign_new(:query_result_parsed, fn -> nil end)
+      |> assign_new(:query_result_raw, fn -> nil end)
+      |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> ["a", "b", "c"] end)
       |> assign_new(:hours, fn -> 0..23 end)
 
@@ -46,7 +50,8 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, %{columns: columns, data: data}} ->
           socket
-          |> assign(:query_result, parse_data(%{columns: columns, data: data}))
+          |> assign(:query_result_parsed, parse_data(%{columns: columns, data: data}))
+          |> assign(:query_result_raw, %{columns: columns, data: data})
           |> push_event("input_data", %{columns: columns, data: data})
 
         {:error, error} ->
@@ -60,18 +65,56 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("save_report", params, socket) do
     %{"report" => %{"name" => name, "channel" => _channel, "hour" => _hour}} = params
 
-    socket = socket |> create_report(params)
+    socket =
+      socket
+      |> create_report(%{name: name})
 
-    {:noreply, socket}
+    {:ok, concise_resp, _full_resp} =
+      socket.assigns.query_result_raw
+      |> Map.put("orgId", socket.assigns.org_id)
+      |> Map.put("reportId", socket.assigns.report_id)
+      |> Aws.save_chart_img()
+
+    img_url =
+      concise_resp
+      |> Map.get("body")
+      |> Jason.decode!()
+      |> Map.get("imgUrl")
+
+    args = %{
+      title: socket.assigns.query_result_parsed.label,
+      yesterday: %{
+        raw: socket.assigns.query_result_parsed.current_raw,
+        wow: socket.assigns.query_result_parsed.raw_wow
+      },
+      last_week: %{
+        raw: socket.assigns.query_result_parsed.current_period_raw,
+        wow: socket.assigns.query_result_parsed.period_wow
+      },
+      img_url: img_url
+    }
+
+    {:ok, %Tesla.Env{body: %{"ok" => result}}} = Slack.post_message("C03KTBEU3ST", args)
+
+    if result == true do
+      socket =
+        socket
+        |> put_flash(:info, "Slack message for \"#{name}\" has been sent!")
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   defp create_report(socket, params) do
     params = params |> Map.put(:org_id, socket.assigns.org_id)
 
-    case Report.create(params) do
+    case Reports.create_reports(params) do
       {:ok, report} ->
         socket
         |> put_flash(:info, "Report \"#{report.name}\" has been saved!")
+        |> assign("report_id", report.id)
 
       {:error, error} ->
         socket |> put_flash(:error, error)

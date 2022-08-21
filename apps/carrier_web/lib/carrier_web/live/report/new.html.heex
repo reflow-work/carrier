@@ -15,12 +15,14 @@
     <section class="flex gap-x-8">
       <section class="rounded drop-shadow p-6 bg-white w-full">
         <h2 class="text-h2">Set up Report</h2>
-        <%= if @query_result do %>
+        <%= if @query_result_parsed do %>
           <section class="mt-6">
-            <h3 class="text-h3"><%= @query_result.label %></h3>
-            <p>Yesterday: <%= @query_result.current_raw %> (WoW <%= @query_result.raw_wow %>%)</p>
+            <h3 class="text-h3"><%= @query_result_parsed.label %></h3>
             <p>
-              Last 7 Days: <%= @query_result.current_period_raw %> (WoW <%= @query_result.period_wow %>%)
+              Yesterday: <%= @query_result_parsed.current_raw %> (WoW <%= @query_result_parsed.raw_wow %>%)
+            </p>
+            <p>
+              Last 7 Days: <%= @query_result_parsed.current_period_raw %> (WoW <%= @query_result_parsed.period_wow %>%)
             </p>
           </section>
           <section id="chart-container-1" phx-update="ignore">
@@ -32,24 +34,24 @@
       </section>
       <section class="rounded drop-shadow p-6 bg-white w-full">
         <h2 class="text-h2">Slack Preview</h2>
-        <%= if @query_result do %>
+        <%= if @query_result_parsed do %>
           <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
-            <h3 class="font-bold pb-2">📊 <%= @query_result.label %></h3>
+            <h3 class="font-bold pb-2">📊 <%= @query_result_parsed.label %></h3>
             <section class="divide-y divide-gray-200">
               <section>
                 <p class="font-bold py-2">Yesterday</p>
                 <section class="grid grid-cols-2 grid-rows-2 py-2">
                   <p class="font-bold">Raw</p>
                   <p class="font-bold">Week over Week</p>
-                  <p>55</p>
-                  <p>-1.5%</p>
+                  <p><%= @query_result_parsed.current_raw %></p>
+                  <p><%= @query_result_parsed.raw_wow %></p>
                 </section>
                 <p class="font-bold py-2">Last Week</p>
                 <section class="grid grid-cols-2 grid-rows-2 py-2">
                   <p class="font-bold">Raw</p>
                   <p class="font-bold">Week over Week</p>
-                  <p>377</p>
-                  <p>5.5%</p>
+                  <p><%= @query_result_parsed.current_period_raw %></p>
+                  <p><%= @query_result_parsed.period_wow %></p>
                 </section>
               </section>
               <section id="chart-container" phx-update="ignore" class="pt-2">
