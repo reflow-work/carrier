@@ -1,10 +1,14 @@
 defmodule Carrier.External.Aws do
   import AWS
 
-  def save_chart_img(payload) do
+  def save_chart_img(%{columns: columns, data: data, orgId: orgId, reportId: reportId}) do
     create_client()
-    |> AWS.Lambda.invoke("createChartImage", payload)
-    |> IO.inspect()
+    |> AWS.Lambda.invoke("createChartImage", %{
+      columns: columns,
+      data: data,
+      orgId: orgId,
+      reportId: reportId
+    })
   end
 
   defp create_client() do

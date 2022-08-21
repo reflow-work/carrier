@@ -69,17 +69,18 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> create_report(%{name: name})
 
-    {:ok, concise_resp, _full_resp} =
-      socket.assigns.query_result_raw
-      |> Map.put("orgId", socket.assigns.org_id)
-      |> Map.put("reportId", socket.assigns.report_id)
-      |> Aws.save_chart_img()
+    {:noreply, socket}
+  end
 
-    img_url =
-      concise_resp
-      |> Map.get("body")
-      |> Jason.decode!()
-      |> Map.get("imgUrl")
+  @impl true
+  def handle_event("send_preview", _params, socket) do
+    save_chart_img_params =
+      socket.assigns.query_result_raw
+      |> Map.put(:orgId, socket.assigns.org_id)
+      |> Map.put(:reportId, "preview")
+
+    {:ok, %{"body" => %{"imgUrl" => img_url}}, _full_resp} =
+      save_chart_image(save_chart_img_params)
 
     args = %{
       title: socket.assigns.query_result_parsed.label,
@@ -94,15 +95,19 @@ defmodule CarrierWeb.ReportLive.New do
       img_url: img_url
     }
 
-    {:ok, %Tesla.Env{body: %{"ok" => result}}} = Slack.post_message("C03KTBEU3ST", args)
+    {:ok, %Tesla.Env{body: %{"ok" => result}}} = Slack.post_message("C03U2QWU7F1", args)
 
     if result == true do
       socket =
         socket
-        |> put_flash(:info, "Slack message for \"#{name}\" has been sent!")
+        |> put_flash(:info, "Slack message for the current chart has been sent!")
 
       {:noreply, socket}
     else
+      socket =
+        socket
+        |> put_flash(:error, "Failed to send slack message for the current chart!")
+
       {:noreply, socket}
     end
   end
@@ -119,6 +124,11 @@ defmodule CarrierWeb.ReportLive.New do
       {:error, error} ->
         socket |> put_flash(:error, error)
     end
+  end
+
+  defp save_chart_image(%{columns: columns, data: data, orgId: orgId, reportId: reportId}) do
+    %{columns: columns, data: data, orgId: orgId, reportId: reportId}
+    |> Aws.save_chart_img()
   end
 
   defp parse_data(%{columns: columns, data: data}) do

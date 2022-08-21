@@ -67,29 +67,41 @@
     </section>
     <section class="rounded drop-shadow p-6 bg-white w-full">
       <h2 class="text-h2">Report Details</h2>
-      <.form let={f} for={:report} id="report_form" phx-submit="save_report" autocomplete="off">
-        <div>
-          <%= label(f, :name, "Name") %>
+      <.form
+        let={f}
+        for={:report}
+        id="report_form"
+        phx-submit="save_report"
+        autocomplete="off"
+        class="space-y-2"
+      >
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :name, "Name", class: "w-16 text-body1") %>
           <%= text_input(f, :name,
             placeholder: "Daily User Metric",
-            class: "border border-black rounded mt-2 p-2"
+            class: "border border-black rounded p-2"
           ) %>
           <%= error_tag(f, :name) %>
         </div>
 
-        <div>
-          <%= label(f, :hour, "Hour") %>
-          <%= select(f, :hour, @hours, class: "border border-black rounded mt-2") %>
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :hour, "Hour", class: "w-16 text-body1") %>
+          <%= select(f, :hour, @hours, class: "border border-black rounded") %>
           <%= error_tag(f, :hour) %>
         </div>
 
-        <div>
-          <%= label(f, :channel, "Channel") %>
-          <%= select(f, :channel, @channels, class: "border border-black rounded mt-2") %>
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :channel, "Channel", class: "w-16 text-body1") %>
+          <%= select(f, :channel, @channels, class: "border border-black rounded") %>
           <%= error_tag(f, :channel) %>
         </div>
 
-        <%= submit("Save", class: "p-2 border rounded") %>
+        <div class="flex gap-x-4">
+          <button class="p-2 border rounded" type="button" phx-click="send_preview">
+            Send Preview
+          </button>
+          <%= submit("Save", class: "p-2 border rounded") %>
+        </div>
       </.form>
     </section>
   </section>
