@@ -24,9 +24,28 @@ defmodule CarrierWeb.AuthController do
     |> redirect(to: Routes.page_path(conn, :index))
   end
 
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+  def callback(
+        %{assigns: %{ueberauth_auth: %Ueberauth.Auth{provider: provider} = auth}} = conn,
+        _params
+      ) do
     auth |> IO.inspect()
 
+    _conn =
+      case provider do
+        :google -> auth(conn, auth)
+        :slack -> add_conn_info_to_org(conn, auth)
+      end
+  end
+
+  def callback(%{assigns: %{ueberauth_failure: fails}} = conn, _params) do
+    fails |> IO.inspect()
+
+    conn
+    |> put_flash(:error, "Failed to authenticate.")
+    |> redirect(to: "/")
+  end
+
+  defp auth(conn, auth) do
     %Ueberauth.Auth{
       info: %Ueberauth.Auth.Info{
         email: email
@@ -48,11 +67,7 @@ defmodule CarrierWeb.AuthController do
     end
   end
 
-  def callback(%{assigns: %{ueberauth_failure: fails}} = conn, _params) do
-    fails |> IO.inspect()
-
+  defp add_conn_info_to_org(conn, _auth) do
     conn
-    |> put_flash(:error, "Failed to authenticate.")
-    |> redirect(to: "/")
   end
 end
