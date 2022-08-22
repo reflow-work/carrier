@@ -3,7 +3,7 @@ defmodule Carrier.Secrets.ConnValidator do
   alias Carrier.Dynamic.{PostgresRepo, MySQLRepo}
 
   def validate(source, info) do
-    module = ConnInfo.get_info_module(source)
+    module = ConnInfo.Info.get_module_from_source(source)
     struct = struct(module, info)
 
     do_validate(struct)
