@@ -1,12 +1,21 @@
-<section class="bg-white flex flex-col items-center p-10">
-  <h2 class="font-bold text-5xl">This is reflow</h2>
-  <%= link to: Routes.auth_path(@conn, :request, "google") do %>
-    <%= img_tag(Routes.static_path(@conn, "/images/google-signin.png"),
-      class: "w-48 m-10 cursor-pointer"
-    ) %>
-  <% end %>
-  <div class="text-sm">
-    By creating an account you agree to our <a href="#" class="underline">Terms & Conditions</a>
-    and <a href="#" class="underline">Privacy Policy</a>
+<div class="w-screen h-screen flex flex-col items-center justify-center">
+  <div class="max-w-sm w-full flex flex-col items-center pb-28">
+    <h2 class="font-bold text-5xl mb-12">reflow.</h2>
+    <%= link to: Routes.auth_path(@conn, :request, "google"), class: "w-full text-sm font-bold border px-4 py-3 shadow-sm rounded hover:bg-gray-50" do %>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <%= img_tag(Routes.static_path(@conn, "/images/google-logo.png"),
+            class: "w-4 mr-3"
+          ) %> Google 계정으로 로그인
+        </div>
+        <CarrierWeb.Components.Icon.arrow_right class="w-4" />
+      </div>
+    <% end %>
   </div>
-</section>
+</div>
+
+
+<div class="fixed bottom-6 left-0 right-0 text-center text-xs text-gray-500">
+  By creating an account you agree to our <a href="#" class="underline">Terms & Conditions</a>
+  and <a href="#" class="underline">Privacy Policy</a>
+</div>
