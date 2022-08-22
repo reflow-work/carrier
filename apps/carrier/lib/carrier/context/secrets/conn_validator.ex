@@ -37,4 +37,8 @@ defmodule Carrier.Secrets.ConnValidator do
     _ ->
       {:error, :invalid_conn_info}
   end
+
+  defp do_validate(_) do
+    :ok
+  end
 end

@@ -1,7 +1,8 @@
 defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
-  alias Carrier.Accounts
+  alias Carrier.{Accounts, Secrets}
   alias Carrier.Accounts.User
+  alias Carrier.Secrets.ConnInfo
 
   plug Ueberauth
 
@@ -67,7 +68,34 @@ defmodule CarrierWeb.AuthController do
     end
   end
 
-  defp add_conn_info_to_org(conn, _auth) do
-    conn
+  defp add_conn_info_to_org(conn, auth) do
+    %Ueberauth.Auth{
+      extra: %Ueberauth.Auth.Extra{
+        raw_info: %{
+          auth: %{
+            "team" => team_name,
+            "team_id" => team_id
+          }
+        }
+      }
+    } = auth
+
+    org_id = conn |> get_session(:org_id)
+
+    case Secrets.create_conn_info(%{
+           org_id: org_id,
+           name: "slack",
+           source: :slack,
+           info: %{team_name: team_name, team_id: team_id}
+         }) do
+      {:ok, %ConnInfo{}} ->
+        conn
+        |> redirect(to: "/")
+
+      error ->
+        conn
+        |> put_flash(:error, inspect(error))
+        |> redirect(to: "/")
+    end
   end
 end
