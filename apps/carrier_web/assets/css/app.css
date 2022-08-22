@@ -120,3 +120,7 @@
   0% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+input[type='text']:focus {
+  @apply border-primary ring-primary;
+}

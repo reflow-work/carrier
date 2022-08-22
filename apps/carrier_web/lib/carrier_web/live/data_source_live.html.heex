@@ -31,18 +31,28 @@
             <div
               phx-click="select_source"
               phx-value-source="mysql"
-              class="p-4 cursor-pointer rounded w-96 bg-white border hover:bg-black hover:text-white flex justify-between"
+              class={
+                "p-4 cursor-pointer rounded w-96 border hover:bg-black hover:text-white flex justify-between #{if @conn_info.source == "mysql" do
+                  "bg-black text-white"
+                else
+                  "bg-white text-black"
+                end}"
+              }
             >
-              MySQL
-              <Icon.arrow_right class="w-4" />
+              MySQL <Icon.arrow_right class="w-4" />
             </div>
             <div
               phx-click="select_source"
               phx-value-source="postgres"
-              class="p-4 cursor-pointer rounded w-96 bg-white border hover:bg-black hover:text-white flex justify-between"
+              class={
+                "p-4 cursor-pointer rounded w-96 border hover:bg-black hover:text-white flex justify-between #{if @conn_info.source == "postgres" do
+                  "bg-black text-white"
+                else
+                  "bg-white text-black"
+                end}"
+              }
             >
-              PostgreSQL
-              <Icon.arrow_right class="w-4" />
+              PostgreSQL <Icon.arrow_right class="w-4" />
             </div>
           </div>
         <% end %>
@@ -121,8 +131,8 @@
                 ) %>
               </div>
 
-              <div class="flex justify-end pt-4">
-                <%= submit("Connect", class: "btn") %>
+              <div class="flex pt-4">
+                <%= submit("Connect", class: "btn btn-primary") %>
               </div>
             </.form>
           </div>
