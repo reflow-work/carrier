@@ -50,7 +50,7 @@ defmodule Carrier.External.Slack do
           %{"text" => "*Raw*", "type" => "mrkdwn"},
           %{"text" => "*Week over Week*", "type" => "mrkdwn"},
           %{"text" => "#{draw}", "type" => "plain_text"},
-          %{"text" => "#{dwow}", "type" => "plain_text"}
+          %{"text" => "#{dwow}%", "type" => "plain_text"}
         ],
         "text" => %{"text" => "*Yesterday*", "type" => "mrkdwn"},
         "type" => "section"
@@ -60,7 +60,7 @@ defmodule Carrier.External.Slack do
           %{"text" => "*Raw*", "type" => "mrkdwn"},
           %{"text" => "*Week over Week*", "type" => "mrkdwn"},
           %{"text" => "#{wraw}", "type" => "plain_text"},
-          %{"text" => "#{wwow}", "type" => "plain_text"}
+          %{"text" => "#{wwow}%", "type" => "plain_text"}
         ],
         "text" => %{"text" => "*Last Week*", "type" => "mrkdwn"},
         "type" => "section"
@@ -74,11 +74,11 @@ defmodule Carrier.External.Slack do
       title: "total_sales",
       yesterday: %{
         raw: "123,456",
-        wow: "1.5%"
+        wow: "1.5"
       },
       last_week: %{
         raw: "901,552",
-        wow: "-8.3%"
+        wow: "-8.3"
       },
       img_url:
         "https://www.investopedia.com/thmb/MCCSOI-i2RokZiuwSSDNae1xt8I=/660x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_INV_Final_Line_Chart_Jan_2021-01-d2dc4eb9a59c43468e48c03e15501ebe.jpg"
