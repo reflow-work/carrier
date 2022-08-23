@@ -1,9 +1,32 @@
 defmodule Carrier.SecretsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Secrets
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Secrets.{Integration, ConnInfo}
 
   @moduletag repo: TenantRepo
+
+  describe "create_integration/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      valid_params = %{
+        org_id: org.org_id,
+        service_name: :slack,
+        conn_info: %{
+          "team_name" => "dongrami",
+          "team_id" => "T03LL747Q49"
+        }
+      }
+
+      %{valid_params: valid_params}
+    end
+
+    test "with valid params", %{valid_params: valid_params} do
+      assert {:ok, %Integration{} = integration} = Secrets.create_integration(valid_params)
+
+      assert same_fields?(integration, valid_params, [:org_id, :service_name])
+    end
+  end
 
   describe "create_conn_info/1" do
     setup do
