@@ -12,5 +12,6 @@ defmodule Carrier.Repo.Migrations.CreateConnInfos do
     end
 
     create unique_index(:conn_infos, [:org_id, :name])
+    create unique_index(:conn_infos, [:id, :org_id, :source])
   end
 end
