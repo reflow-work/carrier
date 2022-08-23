@@ -1,6 +1,6 @@
-<main>
+<main class="bg-base">
   <.flash flash={@flash} />
-  <div class="fixed w-20 top-2 bottom-2 bg-black rounded-tr-md rounded-br-md">
+  <div class="fixed w-20 top-0 bottom-0 bg-base-dark">
     <nav class="flex h-full text-white flex-col items-center py-4">
       <%= live_redirect to: Routes.report_index_path(@socket, :index), class: "p-4" do %>
         <%= img_tag(Routes.static_path(@socket, "/images/logo-white.png"), class: "w-5") %>
@@ -18,7 +18,7 @@
     </nav>
   </div>
 
-  <div class="ml-20 my-2">
+  <div class="ml-20 h-screen">
     <%= @inner_content %>
   </div>
 </main>

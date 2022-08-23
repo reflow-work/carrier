@@ -11,6 +11,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        base: "#F9F9FA",
+        "base-dark": "#161615"
+      },
       fontFamily: {
         lato: ["Lato", "ui-sans-serif", "system-ui"],
       },
@@ -54,9 +58,7 @@ module.exports = {
 
           "base-100": "#ffffff",
           "base-200": "#f0f0f0",
-          "base-content": "#000000",
-          "bg-menu": "#000000",
-          "bg-content": "#ffffff"
+          "base-content": "#161615"
         }
       }
     ]

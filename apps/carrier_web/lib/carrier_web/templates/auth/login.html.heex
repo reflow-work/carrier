@@ -1,7 +1,7 @@
 <div class="w-screen h-screen flex flex-col items-center justify-center">
   <div class="max-w-sm w-full flex flex-col items-center pb-28">
     <h2 class="font-bold text-5xl mb-12">reflow.</h2>
-    <%= link to: Routes.auth_path(@conn, :request, "google"), class: "w-full text-sm font-bold border px-4 py-3 shadow-sm rounded hover:bg-gray-50" do %>
+    <%= link to: Routes.auth_path(@conn, :request, "google"), class: "w-full text-sm font-bold border px-4 py-3 shadow-sm rounded hover:bg-gray-50 bg-white" do %>
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <%= img_tag(Routes.static_path(@conn, "/images/google-logo.png"),
