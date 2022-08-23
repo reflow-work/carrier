@@ -10,6 +10,6 @@ defmodule Carrier.Repo.Migrations.CreateIntegrations do
         null: false
     end
 
-    create index(:integrations, [:org_id])
+    create index(:integrations, [:org_id, :service_name])
   end
 end

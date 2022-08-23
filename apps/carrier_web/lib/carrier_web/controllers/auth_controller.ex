@@ -2,7 +2,7 @@ defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
   alias Carrier.{Accounts, Secrets}
   alias Carrier.Accounts.User
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Secrets.Integration
 
   plug Ueberauth
 
@@ -22,7 +22,7 @@ defmodule CarrierWeb.AuthController do
     conn
     |> clear_session()
     |> configure_session(drop: true)
-    |> redirect(to: Routes.page_path(conn, :index))
+    |> redirect(to: Routes.auth_path(conn, :login))
   end
 
   def callback(
@@ -82,13 +82,12 @@ defmodule CarrierWeb.AuthController do
 
     org_id = conn |> get_session(:org_id)
 
-    case Secrets.create_conn_info(%{
+    case Secrets.create_integration(%{
            org_id: org_id,
-           name: "slack",
-           source: :slack,
-           info: %{team_name: team_name, team_id: team_id}
+           service_name: :slack,
+           conn_info: %{team_name: team_name, team_id: team_id}
          }) do
-      {:ok, %ConnInfo{}} ->
+      {:ok, %Integration{}} ->
         conn
         |> redirect(to: "/")
 

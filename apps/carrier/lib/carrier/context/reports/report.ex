@@ -1,6 +1,5 @@
 defmodule Carrier.Reports.Report do
   use Carrier.Schema
-  alias Carrier.TenantRepo
 
   schema "reports" do
     field :org_id, :integer

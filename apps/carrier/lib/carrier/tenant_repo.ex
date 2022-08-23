@@ -7,6 +7,8 @@ defmodule Carrier.TenantRepo do
     otp_app: :carrier,
     adapter: Ecto.Adapters.Postgres
 
+  use Doumi.RepoHelper
+
   require Ecto.Query
 
   @impl true
