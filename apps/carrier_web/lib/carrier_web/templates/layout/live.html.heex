@@ -6,7 +6,9 @@
         <%= img_tag(Routes.static_path(@socket, "/images/logo-white.png"), class: "w-5") %>
       <% end %>
 
-      <a class="p-4 cursor-pointer"><Icon.bar_chart /></a>
+      <%= live_redirect to: Routes.report_index_path(@socket, :index), class: "p-4" do %>
+        <Icon.bar_chart />
+      <% end %>
 
       <a class="p-4 cursor-pointer"><Icon.settings /></a>
 
