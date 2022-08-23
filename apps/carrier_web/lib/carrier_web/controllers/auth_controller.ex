@@ -22,7 +22,7 @@ defmodule CarrierWeb.AuthController do
     conn
     |> clear_session()
     |> configure_session(drop: true)
-    |> redirect(to: Routes.page_path(conn, :index))
+    |> redirect(to: Routes.auth_path(conn, :login))
   end
 
   def callback(
