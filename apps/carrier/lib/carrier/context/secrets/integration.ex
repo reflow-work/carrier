@@ -1,4 +1,4 @@
-defmodule Carrier.Services.Integration do
+defmodule Carrier.Secrets.Integration do
   use Carrier.Schema
 
   schema "integrations" do

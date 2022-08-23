@@ -11,8 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 
 alias Carrier.Accounts.{Org, User}
-alias Carrier.Secrets.ConnInfo
-alias Carrier.Services.Integration
+alias Carrier.Secrets.{ConnInfo, Integration}
 alias Carrier.Repo
 
 Repo.transaction(fn ->
