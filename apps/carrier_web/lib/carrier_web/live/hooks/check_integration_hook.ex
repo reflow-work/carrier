@@ -1,8 +1,9 @@
 defmodule CarrierWeb.CheckIntegrationHook do
   use CarrierWeb, :live_hook
+  alias Carrier.Secrets
 
-  def on_mount(:default, _params, %{"org_id" => org_id}, socket) do
-    case has_integration?(org_id) do
+  def on_mount(:default, _params, _session, socket) do
+    case has_integration?() do
       true ->
         {:cont, socket}
 
@@ -13,7 +14,10 @@ defmodule CarrierWeb.CheckIntegrationHook do
     end
   end
 
-  defp has_integration?(_org_id) do
-    false
+  defp has_integration?() do
+    case Secrets.list_integrations() do
+      [_ | _] -> true
+      [] -> false
+    end
   end
 end
