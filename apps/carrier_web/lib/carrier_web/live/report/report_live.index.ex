@@ -2,6 +2,8 @@ defmodule CarrierWeb.ReportLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Reports
 
+  on_mount(CarrierWeb.CheckIntegrationHook)
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
