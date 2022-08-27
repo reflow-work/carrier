@@ -3,11 +3,13 @@ defmodule CarrierWeb.Components.Flash do
 
   def flash(assigns) do
     ~H"""
-    <%= for {kind, message} <- @flash do %>
-      <p class={kind_to_class(kind)} role="alert" phx-click="lv:clear-flash" phx-value-key={kind}>
-        <%= message %>
-      </p>
-    <% end %>
+    <div class="toast toast-end">
+      <%= for {kind, message} <- @flash do %>
+        <div class={kind_to_class(kind)} role="alert" phx-click="lv:clear-flash" phx-value-key={kind}>
+          <%= message %>
+        </div>
+      <% end %>
+    </div>
     """
   end
 
