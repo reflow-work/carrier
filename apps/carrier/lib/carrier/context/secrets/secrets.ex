@@ -29,6 +29,11 @@ defmodule Carrier.Secrets do
     end)
   end
 
+  def list_integrations() do
+    Integration.list()
+    |> TenantRepo.all()
+  end
+
   def create_conn_info(%{org_id: org_id, name: name, source: source, info: info}) do
     with :ok <- ConnValidator.validate(source, info),
          {:ok, %ConnInfo{} = conn_info} <-
