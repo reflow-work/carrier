@@ -1,0 +1,54 @@
+<section class="p-8 w-full">
+  <header>
+    <div>
+      <h1 class="text-h1">Report List</h1>
+    </div>
+    <div class="text-right">
+      <%= live_redirect("Create New Report",
+        to: Routes.report_new_path(@socket, :new),
+        class: "btn btn-primary"
+      ) %>
+    </div>
+  </header>
+
+  <section class="mt-10">
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Time</th>
+            <th>Channel</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for report <- @reports do %>
+            <tr class="hover">
+              <th><%= report.name %></th>
+              <td>15:00</td>
+              <td>#all-data</td>
+              <td>
+                <button class="btn btn-sm">Edit</button>
+                <label for="delete-modal" class="btn btn-sm modal-button">Delete</label>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<div>
+  <input type="checkbox" id="delete-modal" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Are you sure you want to delete the report?</h3>
+      <div class="modal-action">
+        <label for="delete-modal" class="btn btn-sm">No</label>
+        <label for="delete-modal" class="btn btn-primary btn-sm">Yes</label>
+      </div>
+    </div>
+  </div>
+</div>
