@@ -12,6 +12,7 @@
 
 alias Carrier.Accounts.{Org, User}
 alias Carrier.Secrets.{ConnInfo, Integration, DataSource}
+alias Carrier.Reports.Report
 alias Carrier.Repo
 
 Repo.transaction(fn ->
@@ -69,6 +70,18 @@ Repo.transaction(fn ->
         org_id: org0.org_id,
         source: :postgres,
         conn_info_id: conn_info0.id
+      }
+    ])
+
+  {_, _} =
+    Repo.insert_all(Report, [
+      %{
+        org_id: org0.org_id,
+        name: "json is babo"
+      },
+      %{
+        org_id: org0.org_id,
+        name: "json is mungceongE"
       }
     ])
 end)
