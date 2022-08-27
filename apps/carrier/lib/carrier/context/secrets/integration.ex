@@ -27,4 +27,8 @@ defmodule Carrier.Secrets.Integration do
       conn_info_id: conn_info_id
     })
   end
+
+  def list() do
+    __MODULE__
+  end
 end
