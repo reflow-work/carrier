@@ -124,3 +124,7 @@
 input[type='text']:focus {
   @apply border-primary ring-primary;
 }
+
+.text-h1 {
+  @apply text-3xl;
+}
