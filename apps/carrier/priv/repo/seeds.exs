@@ -11,7 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 
 alias Carrier.Accounts.{Org, User}
-alias Carrier.Secrets.{ConnInfo, Integration}
+alias Carrier.Secrets.{ConnInfo, Integration, DataSource}
 alias Carrier.Repo
 
 Repo.transaction(fn ->
@@ -25,7 +25,7 @@ Repo.transaction(fn ->
       %{org_id: org0.org_id, email: "ftsgsd@gmail.com"}
     ])
 
-  {_, [_conn_info0, conn_info1]} =
+  {_, [conn_info0, conn_info1]} =
     Repo.insert_all(
       ConnInfo,
       [
@@ -60,6 +60,15 @@ Repo.transaction(fn ->
         org_id: org0.org_id,
         service_name: :slack,
         conn_info_id: conn_info1.id
+      }
+    ])
+
+  {_, _} =
+    Repo.insert_all(DataSource, [
+      %{
+        org_id: org0.org_id,
+        source: :postgres,
+        conn_info_id: conn_info0.id
       }
     ])
 end)
