@@ -124,3 +124,7 @@ input[type='text']:focus {
 .text-h1 {
   @apply text-3xl;
 }
+
+.menu-item {
+  @apply flex justify-center text-white py-4 hover:bg-base-dark-hover rounded-sm mx-2;
+}

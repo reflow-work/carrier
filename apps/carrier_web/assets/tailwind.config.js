@@ -13,7 +13,8 @@ module.exports = {
     extend: {
       colors: {
         base: "#F9F9FA",
-        "base-dark": "#161615"
+        "base-dark": "#161615",
+        "base-dark-hover": "#1F1F1F"
       },
       fontFamily: {
         lato: ["Lato", "ui-sans-serif", "system-ui"],
