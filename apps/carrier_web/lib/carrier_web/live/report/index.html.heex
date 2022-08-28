@@ -1,8 +1,8 @@
-<section class="p-8 w-full">
+<section class="px-10 py-8 w-full">
   <header>
-    <div>
-      <h1 class="text-h1">Report List 📑</h1>
-    </div>
+    <h1 class="font-bold text-lg">
+      <span class="pr-1">📑</span> Report List
+    </h1>
     <div class="text-right">
       <%= live_redirect("Create New Report",
         to: Routes.report_new_path(@socket, :new),
@@ -11,7 +11,8 @@
     </div>
   </header>
 
-  <section class="mt-10">
+
+  <section class="mt-6">
     <div class="overflow-x-auto">
       <table class="table w-full">
         <thead>
