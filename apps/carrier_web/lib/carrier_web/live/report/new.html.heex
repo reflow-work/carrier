@@ -27,99 +27,99 @@
       <section class="card">
         <div class="card-body">
           <h2 class="card-title">Set up Report</h2>
-        <%= if @query_result_parsed do %>
-          <section class="mt-6">
-            <h3 class="text-h3"><%= @query_result_parsed.label %></h3>
-            <p>
-              Yesterday: <%= @query_result_parsed.current_raw %> (WoW <%= @query_result_parsed.raw_wow %>%)
-            </p>
-            <p>
-              Last 7 Days: <%= @query_result_parsed.current_period_raw %> (WoW <%= @query_result_parsed.period_wow %>%)
-            </p>
-          </section>
-          <section id="chart-container-1" phx-update="ignore">
-            <canvas id="chart-1" phx-hook="Chart"></canvas>
-          </section>
-        <% else %>
-          <p>Need data!</p>
-        <% end %>
+          <%= if @query_result_parsed do %>
+            <section class="mt-6">
+              <h3 class="text-h3"><%= @query_result_parsed.label %></h3>
+              <p>
+                Yesterday: <%= @query_result_parsed.current_raw %> (WoW <%= @query_result_parsed.raw_wow %>%)
+              </p>
+              <p>
+                Last 7 Days: <%= @query_result_parsed.current_period_raw %> (WoW <%= @query_result_parsed.period_wow %>%)
+              </p>
+            </section>
+            <section id="chart-container-1" phx-update="ignore">
+              <canvas id="chart-1" phx-hook="Chart"></canvas>
+            </section>
+          <% else %>
+            <p>Need data!</p>
+          <% end %>
         </div>
       </section>
 
       <section class="card">
-       <div class="card-body">
-        <h2 class="card-title">Slack Preview</h2>
-        <%= if @query_result_parsed do %>
-          <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
-            <h3 class="font-bold pb-2">📊 <%= @query_result_parsed.label %></h3>
-            <section class="divide-y divide-gray-200">
-              <section>
-                <p class="font-bold py-2">Yesterday</p>
-                <section class="grid grid-cols-2 grid-rows-2 py-2">
-                  <p class="font-bold">Raw</p>
-                  <p class="font-bold">Week over Week</p>
-                  <p><%= @query_result_parsed.current_raw %></p>
-                  <p><%= @query_result_parsed.raw_wow %></p>
+        <div class="card-body">
+          <h2 class="card-title">Slack Preview</h2>
+          <%= if @query_result_parsed do %>
+            <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
+              <h3 class="font-bold pb-2">📊 <%= @query_result_parsed.label %></h3>
+              <section class="divide-y divide-gray-200">
+                <section>
+                  <p class="font-bold py-2">Yesterday</p>
+                  <section class="grid grid-cols-2 grid-rows-2 py-2">
+                    <p class="font-bold">Raw</p>
+                    <p class="font-bold">Week over Week</p>
+                    <p><%= @query_result_parsed.current_raw %></p>
+                    <p><%= @query_result_parsed.raw_wow %></p>
+                  </section>
+                  <p class="font-bold py-2">Last Week</p>
+                  <section class="grid grid-cols-2 grid-rows-2 py-2">
+                    <p class="font-bold">Raw</p>
+                    <p class="font-bold">Week over Week</p>
+                    <p><%= @query_result_parsed.current_period_raw %></p>
+                    <p><%= @query_result_parsed.period_wow %></p>
+                  </section>
                 </section>
-                <p class="font-bold py-2">Last Week</p>
-                <section class="grid grid-cols-2 grid-rows-2 py-2">
-                  <p class="font-bold">Raw</p>
-                  <p class="font-bold">Week over Week</p>
-                  <p><%= @query_result_parsed.current_period_raw %></p>
-                  <p><%= @query_result_parsed.period_wow %></p>
+                <section id="chart-container" phx-update="ignore" class="pt-2">
+                  <canvas id="chart-2" class="border border-gray-200 rounded-lg" phx-hook="Chart">
+                  </canvas>
                 </section>
-              </section>
-              <section id="chart-container" phx-update="ignore" class="pt-2">
-                <canvas id="chart-2" class="border border-gray-200 rounded-lg" phx-hook="Chart">
-                </canvas>
               </section>
             </section>
-          </section>
-        <% else %>
-          <p>Need data!</p>
-        <% end %>
-       </div>
+          <% else %>
+            <p>Need data!</p>
+          <% end %>
+        </div>
       </section>
     </section>
     <section class="card">
       <div class="card-body">
-      <h2 class="card-title">Report Details</h2>
-      <.form
-        let={f}
-        for={:report}
-        id="report_form"
-        phx-submit="save_report"
-        autocomplete="off"
-        class="space-y-2"
-      >
-        <div class="flex items-center gap-x-2">
-          <%= label(f, :name, "Name", class: "label") %>
-          <%= text_input(f, :name,
-            placeholder: "Daily User Metric",
-            class: "input input-bordered"
-          ) %>
-          <%= error_tag(f, :name) %>
-        </div>
+        <h2 class="card-title">Report Details</h2>
+        <.form
+          let={f}
+          for={:report}
+          id="report_form"
+          phx-submit="save_report"
+          autocomplete="off"
+          class="space-y-2"
+        >
+          <div class="flex items-center gap-x-2">
+            <%= label(f, :name, "Name", class: "label") %>
+            <%= text_input(f, :name,
+              placeholder: "Daily User Metric",
+              class: "input input-bordered"
+            ) %>
+            <%= error_tag(f, :name) %>
+          </div>
 
-        <div class="flex items-center gap-x-2">
-          <%= label(f, :hour, "Hour", class: "label") %>
-          <%= select(f, :hour, @hours, class: "select select-bordered") %>
-          <%= error_tag(f, :hour) %>
-        </div>
+          <div class="flex items-center gap-x-2">
+            <%= label(f, :hour, "Hour", class: "label") %>
+            <%= select(f, :hour, @hours, class: "select select-bordered") %>
+            <%= error_tag(f, :hour) %>
+          </div>
 
-        <div class="flex items-center gap-x-2">
-          <%= label(f, :channel, "Channel", class: "label") %>
-          <%= select(f, :channel, @channels, class: "select select-bordered") %>
-          <%= error_tag(f, :channel) %>
-        </div>
+          <div class="flex items-center gap-x-2">
+            <%= label(f, :channel, "Channel", class: "label") %>
+            <%= select(f, :channel, @channels, class: "select select-bordered") %>
+            <%= error_tag(f, :channel) %>
+          </div>
 
-        <div class="flex gap-x-4 justify-end">
-          <button class="btn btn-outline" type="button" phx-click="send_preview">
-            Send Preview
-          </button>
-          <%= submit("Save", class: "btn btn-primary") %>
-        </div>
-      </.form>
+          <div class="flex gap-x-4 justify-end">
+            <button class="btn btn-outline" type="button" phx-click="send_preview">
+              Send Preview
+            </button>
+            <%= submit("Save", class: "btn btn-primary") %>
+          </div>
+        </.form>
       </div>
     </section>
   </section>

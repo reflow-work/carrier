@@ -1,11 +1,11 @@
-<section class="px-10 py-8">
+<section class="px-10 py-8 space-y-4">
   <header>
     <h1 class="font-bold text-lg">
       <span class="pr-1">⚙️</span> Settings
     </h1>
   </header>
 
-  <div class="card mt-6">
+  <div class="card">
     <div class="card-body">
       <h2 class="card-title">
         My Plan
@@ -14,6 +14,14 @@
       <p>
         Trial
       </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <%= link to: Routes.auth_path(@socket, :logout), class: "btn" do %>
+        Logout
+      <% end %>
     </div>
   </div>
 </section>
