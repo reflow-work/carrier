@@ -32,10 +32,13 @@ defmodule CarrierWeb.DataSourceLive do
   def handle_event("select_source", %{"source" => source_str}, socket) do
     source = String.to_existing_atom(source_str)
 
+    port = if source == :mysql, do: 5432, else: 3306
+
     socket =
       socket
       |> assign(:step, "step-2")
       |> update(:conn_info, fn conn_info -> conn_info |> Map.put(:source, source) end)
+      |> update(:conn_info, fn conn_info -> conn_info |> Map.put(:port, port) end)
 
     {:noreply, socket}
   end
