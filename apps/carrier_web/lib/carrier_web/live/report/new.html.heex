@@ -1,20 +1,28 @@
-<section class="p-8 bg-slate-200 w-full">
+<section class="p-8 w-full bg-base">
   <h1 class="text-h1">Create New Report</h1>
+
   <section class="mt-10 space-y-6">
-    <section class="rounded drop-shadow p-6 bg-white">
-      <h2 class="text-h2">Type Query</h2>
-      <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
-        <%= textarea(f, :sql_template,
-          class: "border border-black rounded mt-2 p-2 w-full",
-          placeholder: "SQL here",
-          value: @sql_template
-        ) %>
-        <%= submit("Run Query", class: "p-2 border rounded") %>
-      </.form>
+    <section class="card">
+      <div class="card-body">
+        <h2 class="card-title">Type Query</h2>
+
+        <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
+          <%= textarea(f, :sql_template,
+            class: "border border-black rounded mt-2 p-2 w-full",
+            placeholder: "SQL here",
+            value: @sql_template
+          ) %>
+          <div class="text-right mt-2">
+            <%= submit("Run Query", class: "btn btn-primary") %>
+          </div>
+        </.form>
+      </div>
     </section>
+
     <section class="flex gap-x-8">
-      <section class="rounded drop-shadow p-6 bg-white w-full">
-        <h2 class="text-h2">Set up Report</h2>
+      <section class="card">
+        <div class="card-body">
+          <h2 class="card-title">Set up Report</h2>
         <%= if @query_result_parsed do %>
           <section class="mt-6">
             <h3 class="text-h3"><%= @query_result_parsed.label %></h3>
@@ -31,9 +39,12 @@
         <% else %>
           <p>Need data!</p>
         <% end %>
+        </div>
       </section>
-      <section class="rounded drop-shadow p-6 bg-white w-full">
-        <h2 class="text-h2">Slack Preview</h2>
+
+      <section class="card">
+       <div class="card-body">
+        <h2 class="card-title">Slack Preview</h2>
         <%= if @query_result_parsed do %>
           <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
             <h3 class="font-bold pb-2">📊 <%= @query_result_parsed.label %></h3>
@@ -63,10 +74,12 @@
         <% else %>
           <p>Need data!</p>
         <% end %>
+       </div>
       </section>
     </section>
-    <section class="rounded drop-shadow p-6 bg-white w-full">
-      <h2 class="text-h2">Report Details</h2>
+    <section class="card">
+      <div class="card-body">
+      <h2 class="card-title">Report Details</h2>
       <.form
         let={f}
         for={:report}
@@ -76,33 +89,34 @@
         class="space-y-2"
       >
         <div class="flex items-center gap-x-2">
-          <%= label(f, :name, "Name", class: "w-16 text-body1") %>
+          <%= label(f, :name, "Name", class: "label") %>
           <%= text_input(f, :name,
             placeholder: "Daily User Metric",
-            class: "border border-black rounded p-2"
+            class: "input input-bordered"
           ) %>
           <%= error_tag(f, :name) %>
         </div>
 
         <div class="flex items-center gap-x-2">
-          <%= label(f, :hour, "Hour", class: "w-16 text-body1") %>
-          <%= select(f, :hour, @hours, class: "border border-black rounded") %>
+          <%= label(f, :hour, "Hour", class: "label") %>
+          <%= select(f, :hour, @hours, class: "select select-bordered") %>
           <%= error_tag(f, :hour) %>
         </div>
 
         <div class="flex items-center gap-x-2">
-          <%= label(f, :channel, "Channel", class: "w-16 text-body1") %>
-          <%= select(f, :channel, @channels, class: "border border-black rounded") %>
+          <%= label(f, :channel, "Channel", class: "label") %>
+          <%= select(f, :channel, @channels, class: "select select-bordered") %>
           <%= error_tag(f, :channel) %>
         </div>
 
-        <div class="flex gap-x-4">
-          <button class="p-2 border rounded" type="button" phx-click="send_preview">
+        <div class="flex gap-x-4 justify-end">
+          <button class="btn btn-outline" type="button" phx-click="send_preview">
             Send Preview
           </button>
-          <%= submit("Save", class: "p-2 border rounded") %>
+          <%= submit("Save", class: "btn btn-primary") %>
         </div>
       </.form>
+      </div>
     </section>
   </section>
 
