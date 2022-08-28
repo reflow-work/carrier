@@ -39,6 +39,7 @@ defmodule CarrierWeb.Router do
       live "/integrations/new", IntegrationLive.New, :new
       live "/reports", ReportLive.Index, :index
       live "/reports/new", ReportLive.New, :new
+      live "/settings", SettingsLive, :index
     end
   end
 
