@@ -56,6 +56,7 @@ defmodule CarrierWeb.MixProject do
       {:ueberauth_google, github: "ueberauth/ueberauth_google", ref: "341b289"},
       {:ueberauth_slack_v2, "~> 2.0"},
       {:reverse_proxy_plug, "~> 2.1"}
+      {:decimal, "~> 2.0.0"}
     ]
   end
 

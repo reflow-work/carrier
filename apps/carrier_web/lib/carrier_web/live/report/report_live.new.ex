@@ -6,7 +6,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Slack
 
   @sample_sql_template """
-  SELECT DATE(order_date) as date, SUM(amount) AS total_amount
+  SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(value) AS total_value
     FROM sample_data_simple
     WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
     GROUP BY order_date
@@ -48,11 +48,13 @@ defmodule CarrierWeb.ReportLive.New do
         comparing_period: 7
       })
       |> case do
-        {:ok, %{columns: columns, data: data}} ->
+        {:ok, raw_data} ->
+          parsed_data = parse_data(raw_data)
+
           socket
-          |> assign(:query_result_parsed, parse_data(%{columns: columns, data: data}))
-          |> assign(:query_result_raw, %{columns: columns, data: data})
-          |> push_event("input_data", %{columns: columns, data: data})
+          |> assign(:query_result_parsed, Enum.with_index(Map.to_list(parsed_data)))
+          |> assign(:query_result_raw, raw_data)
+          |> add_events(parsed_data)
 
         {:error, error} ->
           socket |> put_flash(:error, error)
@@ -126,34 +128,90 @@ defmodule CarrierWeb.ReportLive.New do
     end
   end
 
+  defp add_events(socket, parsed_data) do
+    parsed_data
+    |> Map.to_list()
+    |> Enum.with_index()
+    |> Enum.reduce(socket, fn {{_k, v}, i}, acc ->
+      push_event(acc, "input_data_#{i}", v)
+    end)
+  end
+
   defp save_chart_image(%{columns: columns, data: data, orgId: orgId, reportId: reportId}) do
     %{columns: columns, data: data, orgId: orgId, reportId: reportId}
     |> Aws.save_chart_img()
   end
 
+  defp split_data_by_columns(%{columns: columns, data: data}) do
+    non_date_keys =
+      columns
+      |> Enum.filter(&(&1 !== "date"))
+
+    non_date_keys
+    |> Enum.map(fn raw_key ->
+      data_by_column =
+        Enum.reduce(
+          data,
+          [],
+          fn datum, acc ->
+            current_period_sum_key = raw_key <> "_window_sum"
+            previous_period_sum_key = raw_key <> "_window_sum_offset"
+            current_to_previous_periods_sum_ratio = raw_key <> "_window_sum_over"
+
+            item = %{
+              :date => datum["date"],
+              String.to_atom(raw_key) => datum[raw_key],
+              String.to_atom(current_period_sum_key) => datum[current_period_sum_key],
+              String.to_atom(previous_period_sum_key) => datum[previous_period_sum_key],
+              String.to_atom(current_to_previous_periods_sum_ratio) =>
+                datum[current_to_previous_periods_sum_ratio]
+            }
+
+            [item | acc]
+          end
+        )
+        |> Enum.sort(&(&1.date <= &2.date))
+
+      meta_data = build_meta_data(raw_key, data_by_column)
+
+      {String.to_atom(raw_key), Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
+    end)
+    |> Enum.into(%{})
+  end
+
+  defp build_meta_data(raw_key, data) do
+    current_period_sum_key = String.to_atom(raw_key <> "_window_sum")
+    previous_period_sum_key = String.to_atom(raw_key <> "_window_sum_offset")
+    current_to_previous_periods_sum_ratio_key = String.to_atom(raw_key <> "_window_sum_over")
+    atom_raw_key = String.to_atom(raw_key)
+
+    last_datum =
+      data
+      |> List.last(data)
+
+    previous_period_last_datum = Enum.at(data, -8)
+
+    diff_between_periods_in_percentage =
+      last_datum[current_to_previous_periods_sum_ratio_key]
+      |> Decimal.from_float()
+      |> Decimal.sub(1)
+      |> Decimal.round(4)
+      |> Decimal.mult(100)
+      |> Decimal.to_float()
+
+    %{
+      label: raw_key,
+      current_period_last_tick_raw: last_datum[atom_raw_key],
+      previous_period_last_tick_raw: previous_period_last_datum[atom_raw_key],
+      current_period_sum: last_datum[current_period_sum_key],
+      previous_period_sum: last_datum[previous_period_sum_key],
+      current_to_previous_periods_sum_ratio:
+        last_datum[current_to_previous_periods_sum_ratio_key],
+      diff_between_periods_in_percentage: diff_between_periods_in_percentage
+    }
+  end
+
   defp parse_data(%{columns: columns, data: data}) do
-    raw_key = List.last(columns)
-    sum_key = raw_key <> "_window_sum"
-    percentage_diff_key = raw_key <> "_window_sum_over"
-    current_datum = List.last(data)
-    previous_datum = Enum.at(data, -8)
-
-    with {:ok, current_raw} <- Access.fetch(current_datum, raw_key),
-         {:ok, previous_raw} <- Access.fetch(previous_datum, raw_key),
-         {:ok, current_period_raw} <- Access.fetch(current_datum, sum_key),
-         {:ok, percentage_diff} <- Access.fetch(current_datum, percentage_diff_key) do
-      raw_wow = ((current_raw / previous_raw - 1) * 100) |> Float.round(2) |> to_string()
-      period_wow = ((percentage_diff - 1) * 100) |> Float.round(2) |> to_string()
-
-      %{
-        label: raw_key,
-        current_raw: current_raw,
-        current_period_raw: current_period_raw,
-        raw_wow: raw_wow,
-        period_wow: period_wow
-      }
-    else
-      err -> {:err, err}
-    end
+    split_data_by_columns(%{columns: columns, data: data})
   end
 end

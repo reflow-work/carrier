@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "chart.js": "^3.8.0",
-    "daisyui": "^2.20.0"
+    "daisyui": "^2.20.0",
+    "date-fns": "^2.29.2"
   }
 }
