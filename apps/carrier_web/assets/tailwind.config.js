@@ -12,9 +12,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        base: "#F9F9FA",
-        "base-dark": "#161615",
-        "base-dark-hover": "#1F1F1F"
+        base: "#F7F7F7",
+        "base-dark": "#111111",
+        "base-dark-hover": "#1F1F1F",
       },
       fontFamily: {
         lato: ["Lato", "ui-sans-serif", "system-ui"],
@@ -47,15 +47,14 @@ module.exports = {
     themes: [
       {
         mytheme: {
+          primary: "#000000",
+          "primary-content": "#FFFFFF",
+          accent: "#B22317",
+
           neutral: "#f0f0f0",
           "neutral-content": "#000000",
 
-          primary: "#000000",
-          "primary-content": "#ffffff",
-
-          secondary: "#f6d860",
           
-          accent: "#37cdbe",
 
           "base-100": "#ffffff",
           "base-200": "#f0f0f0",
