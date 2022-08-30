@@ -19,7 +19,6 @@ defmodule CarrierWeb.Router do
   scope "/", CarrierWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
     get "/health", HealthController, :index
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
@@ -42,6 +41,13 @@ defmodule CarrierWeb.Router do
       live "/settings", SettingsLive, :index
     end
   end
+
+  forward "/", ReverseProxyPlug,
+    upstream: "https://reflow-service.webflow.io",
+    response_mode: :buffer,
+    client_options: [
+      tesla_client: Tesla.client([])
+    ]
 
   # Other scopes may use custom stacks.
   # scope "/api", CarrierWeb do
