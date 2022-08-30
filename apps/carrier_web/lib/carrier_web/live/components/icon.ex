@@ -21,6 +21,6 @@ defmodule CarrierWeb.Components.Icon do
   end
 
   def __mix_recompile__?() do
-    unquote(paths) |> :erlang.md5() != unquote(paths_hash)
+    Path.wildcard(@icon_paths) |> :erlang.md5() != unquote(paths_hash)
   end
 end
