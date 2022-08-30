@@ -1,0 +1,7 @@
+.page-container {
+  @apply px-10 py-8 bg-base;
+}
+
+.page-title {
+  @apply font-bold text-xl;
+}

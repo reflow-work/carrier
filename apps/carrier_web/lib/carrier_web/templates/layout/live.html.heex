@@ -1,10 +1,10 @@
-<main>
+<main class="bg-base">
   <.flash flash={@flash} />
 
   <nav class="flex flex-col items-stretch fixed w-44 top-0 bottom-0 py-4 bg-base-dark">
     <%= live_redirect to: Routes.report_index_path(@socket, :index) do %>
       <div class="menu-item mb-8">
-       <CarrierWeb.Components.Icon.logo_white class="w-24 h-auto" />
+        <CarrierWeb.Components.Icon.logo_white class="w-24 h-auto" />
       </div>
     <% end %>
 
