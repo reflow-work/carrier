@@ -24,16 +24,21 @@
       </div>
     </section>
 
-    <section class="flex gap-x-8">
+    <section class="flex gap-8 sm:flex-col">
       <section class="card">
         <div class="card-body">
           <h2 class="card-title">Set up Report</h2>
           <%= if @query_result_parsed do %>
-            <%= for {{_k, v}, _i} <- @query_result_parsed do %>
-              <section class="mt-6">
-                <h3 class="text-h3"><%= v.meta.label %></h3>
-              </section>
-            <% end %>
+            <.form let={f} for={:data_columns} phx-change="select_data_column" class="gap-y-2">
+              <%= for v <- Map.values(@query_result_parsed) do %>
+                <div class="flex gap-x-[0.25rem] items-center">
+                  <%= label(f, v.meta.label, v.meta.label) %>
+                  <%= checkbox(f, v.meta.label,
+                    value: Enum.member?(@selected_columns, v.meta.label)
+                  ) %>
+                </div>
+              <% end %>
+            </.form>
           <% else %>
             <p>Need data!</p>
           <% end %>
@@ -44,36 +49,44 @@
         <div class="card-body">
           <h2 class="card-title">Slack Preview</h2>
           <%= if @query_result_parsed do %>
-            <%= for {{_k, v}, i} <- @query_result_parsed do %>
-              <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
-                <h3 class="font-bold pb-2">📊 <%= v.meta.label %></h3>
-                <section class="divide-y divide-gray-200">
-                  <section>
-                    <p class="font-bold py-2">Raw</p>
-                    <section class="grid grid-cols-2 grid-rows-2 py-2">
-                      <p class="font-bold">Yesterday</p>
-                      <p class="font-bold">Last Week</p>
-                      <p><%= v.meta.current_period_last_tick_raw %></p>
-                      <p><%= v.meta.previous_period_last_tick_raw %></p>
+            <%= for v <- Map.values(@query_result_parsed) do %>
+              <%= if Enum.member?(@selected_columns, v.meta.label) do %>
+                <section class="rounded-xl border border-gray-200 p-6 font-lato text-slackBody mt-6">
+                  <h3 class="font-bold pb-2">📊 <%= v.meta.label %></h3>
+                  <section class="divide-y divide-gray-200">
+                    <section>
+                      <p class="font-bold py-2">Raw</p>
+                      <section class="grid grid-cols-2 grid-rows-2 py-2">
+                        <p class="font-bold">Yesterday</p>
+                        <p class="font-bold">Last Week</p>
+                        <p><%= v.meta.current_period_last_tick_raw %></p>
+                        <p><%= v.meta.previous_period_last_tick_raw %></p>
+                      </section>
+                      <p class="font-bold py-2">Weekly Sum</p>
+                      <section class="grid grid-cols-2 grid-rows-2 py-2">
+                        <p class="font-bold">Last Week</p>
+                        <p class="font-bold">Week over Week</p>
+                        <p><%= v.meta.current_period_sum %></p>
+                        <p><%= "#{v.meta.diff_between_periods_in_percentage}%" %></p>
+                      </section>
                     </section>
-                    <p class="font-bold py-2">Weekly Sum</p>
-                    <section class="grid grid-cols-2 grid-rows-2 py-2">
-                      <p class="font-bold">Last Week</p>
-                      <p class="font-bold">Week over Week</p>
-                      <p><%= v.meta.current_period_sum %></p>
-                      <p><%= "#{v.meta.diff_between_periods_in_percentage}%" %></p>
-                    </section>
-                  </section>
-                  <section id={"chart-container-#{i}"} phx-update="ignore" class="pt-2">
-                    <canvas
-                      id={"chart-#{i}"}
-                      class="border border-gray-200 rounded-lg"
-                      phx-hook="Chart"
+                    <section
+                      id={"chart-container-#{v.meta.label}"}
+                      phx-update="ignore"
+                      class="pt-2"
                     >
-                    </canvas>
+                      <canvas
+                        id={"chart-#{v.meta.label}"}
+                        class="border border-gray-200 rounded-lg"
+                        phx-hook="Chart"
+                      >
+                      </canvas>
+                    </section>
                   </section>
                 </section>
-              </section>
+              <% else %>
+                <div></div>
+              <% end %>
             <% end %>
           <% else %>
             <p>Need data!</p>

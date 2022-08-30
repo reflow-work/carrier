@@ -6,7 +6,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Slack
 
   @sample_sql_template """
-  SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(value) AS total_value
+  SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
     FROM sample_data_simple
     WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
     GROUP BY order_date
@@ -19,8 +19,9 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:conn_info_id, conn_info_id)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
-      |> assign_new(:query_result_parsed, fn -> nil end)
-      |> assign_new(:query_result_raw, fn -> nil end)
+      |> assign_new(:query_result_parsed, fn -> %{} end)
+      |> assign_new(:query_result_raw, fn -> %{} end)
+      |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> ["a", "b", "c"] end)
       |> assign_new(:hours, fn -> 0..23 end)
@@ -32,8 +33,11 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("run_query", params, socket) do
     %{"query" => %{"sql_template" => sql_template}} = params
 
-    socket = socket |> assign(:sql_template, sql_template)
+    socket =
+      socket
+      |> assign(:sql_template, sql_template)
 
+    # {:ok, datetime} = DateTime.now("Asia/Seoul")
     {:ok, datetime, _n} = DateTime.from_iso8601("2022-07-14T00:00:00Z")
 
     socket =
@@ -51,14 +55,38 @@ defmodule CarrierWeb.ReportLive.New do
         {:ok, raw_data} ->
           parsed_data = parse_data(raw_data)
 
+          selected_columns =
+            parsed_data
+            |> Map.keys()
+            |> Enum.map(fn k -> Atom.to_string(k) end)
+
           socket
-          |> assign(:query_result_parsed, Enum.with_index(Map.to_list(parsed_data)))
+          |> assign(:query_result_parsed, parsed_data)
           |> assign(:query_result_raw, raw_data)
-          |> add_events(parsed_data)
+          |> assign(:selected_columns, selected_columns)
+          |> add_events(parsed_data, selected_columns)
 
         {:error, error} ->
           socket |> put_flash(:error, error)
       end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select_data_column", params, socket) do
+    %{"data_columns" => data_columns} = params
+
+    selected_columns =
+      data_columns
+      |> Map.to_list()
+      |> Enum.filter(fn {_k, v} -> v == "true" end)
+      |> Enum.map(fn {k, _v} -> k end)
+
+    socket =
+      socket
+      |> assign(:selected_columns, selected_columns)
+      |> add_events(socket.assigns.query_result_parsed, selected_columns)
 
     {:noreply, socket}
   end
@@ -128,12 +156,12 @@ defmodule CarrierWeb.ReportLive.New do
     end
   end
 
-  defp add_events(socket, parsed_data) do
+  defp add_events(socket, parsed_data, selected_columns) do
     parsed_data
     |> Map.to_list()
-    |> Enum.with_index()
-    |> Enum.reduce(socket, fn {{_k, v}, i}, acc ->
-      push_event(acc, "input_data_#{i}", v)
+    |> Enum.filter(fn {k, _v} -> Enum.member?(selected_columns, Atom.to_string(k)) end)
+    |> Enum.reduce(socket, fn {k, v}, acc ->
+      push_event(acc, "input_data_#{k}", v)
     end)
   end
 
@@ -160,10 +188,10 @@ defmodule CarrierWeb.ReportLive.New do
 
             item = %{
               :date => datum["date"],
-              String.to_atom(raw_key) => datum[raw_key],
-              String.to_atom(current_period_sum_key) => datum[current_period_sum_key],
-              String.to_atom(previous_period_sum_key) => datum[previous_period_sum_key],
-              String.to_atom(current_to_previous_periods_sum_ratio) =>
+              String.to_existing_atom(raw_key) => datum[raw_key],
+              String.to_existing_atom(current_period_sum_key) => datum[current_period_sum_key],
+              String.to_existing_atom(previous_period_sum_key) => datum[previous_period_sum_key],
+              String.to_existing_atom(current_to_previous_periods_sum_ratio) =>
                 datum[current_to_previous_periods_sum_ratio]
             }
 
@@ -174,16 +202,20 @@ defmodule CarrierWeb.ReportLive.New do
 
       meta_data = build_meta_data(raw_key, data_by_column)
 
-      {String.to_atom(raw_key), Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
+      {String.to_existing_atom(raw_key),
+       Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
     end)
     |> Enum.into(%{})
   end
 
   defp build_meta_data(raw_key, data) do
-    current_period_sum_key = String.to_atom(raw_key <> "_window_sum")
-    previous_period_sum_key = String.to_atom(raw_key <> "_window_sum_offset")
-    current_to_previous_periods_sum_ratio_key = String.to_atom(raw_key <> "_window_sum_over")
-    atom_raw_key = String.to_atom(raw_key)
+    current_period_sum_key = String.to_existing_atom(raw_key <> "_window_sum")
+    previous_period_sum_key = String.to_existing_atom(raw_key <> "_window_sum_offset")
+
+    current_to_previous_periods_sum_ratio_key =
+      String.to_existing_atom(raw_key <> "_window_sum_over")
+
+    atom_raw_key = String.to_existing_atom(raw_key)
 
     last_datum =
       data

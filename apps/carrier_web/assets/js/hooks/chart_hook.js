@@ -12,8 +12,7 @@ const colors = {
 const ChartHook = {
   mounted() {
     const ctx = this.el.getContext('2d')
-    const idx = this.el.id.split("-").at(-1)
-    console.log(this.el.id)
+    const column_key = this.el.id.split("-").at(-1)
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -38,7 +37,7 @@ const ChartHook = {
         }
       }
     })
-    this.handleEvent(`input_data_${idx}`, ({ meta, data }) => {
+    this.handleEvent(`input_data_${column_key}`, ({ meta, data }) => {
       // Clear previous chart data
       chart.data.datasets = []
       chart.data.labels = []

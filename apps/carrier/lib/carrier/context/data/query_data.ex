@@ -168,9 +168,6 @@ defmodule Carrier.Data.QueryData do
           info
           |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
           |> Keyword.new()
-          |> IO.inspect()
-
-        IO.inspect(sql)
 
         %{columns: columns, rows: rows} =
           PostgresRepo.with_dynamic_repo(credentials, fn ->
