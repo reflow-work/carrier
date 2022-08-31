@@ -1,7 +1,7 @@
 defmodule Carrier.SecretsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Secrets
-  alias Carrier.Secrets.{Integration, ConnInfo}
+  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
 
   @moduletag repo: TenantRepo
 
@@ -13,8 +13,8 @@ defmodule Carrier.SecretsTest do
         org_id: org.org_id,
         service_name: :slack,
         conn_info: %{
-          "team_name" => "dongrami",
-          "team_id" => "T03LL747Q49"
+          team_name: "dongrami",
+          team_id: "T03LL747Q49"
         }
       }
 
@@ -25,6 +25,33 @@ defmodule Carrier.SecretsTest do
       assert {:ok, %Integration{} = integration} = Secrets.create_integration(valid_params)
 
       assert same_fields?(integration, valid_params, [:org_id, :service_name])
+    end
+  end
+
+  describe "create_data_source/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      valid_params = %{
+        org_id: org.org_id,
+        name: "my app database",
+        source: :postgres,
+        conn_info: %{
+          hostname: "localhost",
+          port: 48140,
+          username: "postgres",
+          password: "postgres",
+          database: "postgres"
+        }
+      }
+
+      %{valid_params: valid_params}
+    end
+
+    test "with valid params", %{valid_params: valid_params} do
+      assert {:ok, %DataSource{} = data_source} = Secrets.create_data_source(valid_params)
+
+      assert same_fields?(data_source, valid_params, [:org_id, :name, :source])
     end
   end
 

@@ -1,6 +1,6 @@
 defmodule Carrier.Secrets do
   alias Carrier.Secrets.ConnValidator
-  alias Carrier.Secrets.{Integration, ConnInfo}
+  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
   alias Carrier.TenantRepo
 
   def create_integration(%{
@@ -25,6 +25,34 @@ defmodule Carrier.Secrets do
              })
              |> TenantRepo.insert() do
         {:ok, integration}
+      end
+    end)
+  end
+
+  def create_data_source(%{
+        org_id: org_id,
+        name: name,
+        source: source,
+        conn_info: conn_info_params
+      }) do
+    conn_info_params = %{
+      org_id: org_id,
+      name: name,
+      source: source,
+      info: conn_info_params
+    }
+
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params),
+           {:ok, %DataSource{} = data_source} <-
+             DataSource.create(%{
+               org_id: org_id,
+               name: name,
+               source: source,
+               conn_info_id: conn_info_id
+             })
+             |> TenantRepo.insert() do
+        {:ok, data_source}
       end
     end)
   end
