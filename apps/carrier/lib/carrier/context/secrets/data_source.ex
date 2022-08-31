@@ -4,6 +4,7 @@ defmodule Carrier.Secrets.DataSource do
   schema "data_sources" do
     field :org_id, :id
     field :source, Ecto.Enum, values: [:postgres, :mysql]
+    field :name, :string
     field :conn_info_id, :id
   end
 end
