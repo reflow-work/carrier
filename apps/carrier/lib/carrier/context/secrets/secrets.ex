@@ -62,6 +62,12 @@ defmodule Carrier.Secrets do
     |> TenantRepo.all()
   end
 
+  def list_data_sources() do
+    DataSource.list()
+    |> DataSource.preload_conn_info()
+    |> TenantRepo.all()
+  end
+
   def fetch_data_source(data_source_id) do
     DataSource.fetch(data_source_id)
     |> DataSource.preload_conn_info()

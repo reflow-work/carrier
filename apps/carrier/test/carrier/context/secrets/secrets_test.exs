@@ -111,6 +111,23 @@ defmodule Carrier.SecretsTest do
     end
   end
 
+  describe "list_data_source/0" do
+    setup do
+      data_source = TenantFactory.insert(:data_source)
+
+      TenantRepo.put_org_id(data_source.org_id)
+
+      %{data_source: data_source}
+    end
+
+    test "with valid params", %{data_source: data_source} do
+      assert [%DataSource{} = fetched_data_source0] = Secrets.list_data_sources()
+
+      assert same_records?(fetched_data_source0, data_source)
+      assert %ConnInfo{} = fetched_data_source0.conn_info
+    end
+  end
+
   describe "fetch_data_source/1" do
     setup do
       data_source = TenantFactory.insert(:data_source)
