@@ -1,11 +1,13 @@
 defmodule Carrier.Secrets.DataSource do
   use Carrier.Schema
+  alias Carrier.Secrets.ConnInfo
 
   schema "data_sources" do
+    belongs_to :conn_info, ConnInfo
+
     field :org_id, :id
     field :source, Ecto.Enum, values: [:postgres, :mysql]
     field :name, :string
-    field :conn_info_id, :id
   end
 
   @required_for_create [:org_id, :name, :source, :conn_info_id]
@@ -28,5 +30,14 @@ defmodule Carrier.Secrets.DataSource do
       source: source,
       conn_info_id: conn_info_id
     })
+  end
+
+  def fetch(id) do
+    __MODULE__
+    |> where([ds], ds.id == ^id)
+  end
+
+  def preload_conn_info(query) do
+    query |> preload([:conn_info])
   end
 end

@@ -1,7 +1,7 @@
 defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
   alias Carrier.Accounts.Org
-  alias Carrier.Secrets.{Integration, ConnInfo}
+  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
   alias Carrier.Reports.Report
 
   def org_factory() do
@@ -24,6 +24,25 @@ defmodule Carrier.TenantFactory do
       org_id: org_id,
       service_name: Enum.random([:slack]),
       conn_info_id: conn_info_id
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def data_source_factory(attrs) do
+    {source, attrs} = attrs |> Map.pop(:source, Enum.random([:postgres, :mysql]))
+
+    {{org_id, conn_info}, attrs} =
+      attrs
+      |> Map.pop_lazy(:conn_info, fn ->
+        conn_info = insert(:conn_info, source: source)
+        {conn_info.org_id, conn_info}
+      end)
+
+    %DataSource{
+      org_id: org_id,
+      name: seq(:data_source_name),
+      source: source,
+      conn_info: conn_info
     }
     |> merge_attributes(attrs)
   end

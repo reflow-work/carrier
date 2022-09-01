@@ -1,6 +1,6 @@
 defmodule Carrier.Data.QueryData do
   alias Carrier.Secrets
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Secrets.{DataSource, ConnInfo}
   alias Carrier.TenantRepo
   alias Carrier.Dynamic.PostgresRepo
   alias Carrier.Core.DataHelper
@@ -10,7 +10,7 @@ defmodule Carrier.Data.QueryData do
 
   def query_sample(%{
         org_id: org_id,
-        conn_info_id: conn_info_id,
+        data_source_id: data_source_id,
         sql_template: sql_template,
         datetime: datetime,
         timezone: timezone,
@@ -26,7 +26,8 @@ defmodule Carrier.Data.QueryData do
 
     with :ok <- is_valid_sql?(sql_template),
          sql = sql_template |> convert_sql_template_to_sql() |> append_limit(),
-         {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
+         {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
+           Secrets.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
          data = DataHelper.rows_to_map(columns, rows) do
@@ -38,7 +39,7 @@ defmodule Carrier.Data.QueryData do
 
   def query(%{
         org_id: org_id,
-        conn_info_id: conn_info_id,
+        data_source_id: data_source_id,
         sql_template: sql_template,
         datetime: datetime,
         timezone: timezone,
@@ -57,7 +58,8 @@ defmodule Carrier.Data.QueryData do
 
     with :ok <- is_valid_sql?(sql_template),
          sql = sql_template |> convert_sql_template_to_sql(),
-         {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
+         {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
+           Secrets.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
          data = DataHelper.rows_to_map(columns, rows),

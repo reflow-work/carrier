@@ -111,19 +111,21 @@ defmodule Carrier.SecretsTest do
     end
   end
 
-  describe "fetch_conn_info/1" do
+  describe "fetch_data_source/1" do
     setup do
-      conn_info = TenantFactory.insert(:conn_info)
+      data_source = TenantFactory.insert(:data_source)
 
-      TenantRepo.put_org_id(conn_info.org_id)
+      TenantRepo.put_org_id(data_source.org_id)
 
-      %{conn_info: conn_info}
+      %{data_source: data_source}
     end
 
-    test "with valid id", %{conn_info: conn_info} do
-      assert {:ok, %ConnInfo{} = fetched_conn_info} = Secrets.fetch_conn_info(conn_info.id)
+    test "with valid id", %{data_source: data_source} do
+      assert {:ok, %DataSource{} = fetched_data_source} =
+               Secrets.fetch_data_source(data_source.id)
 
-      assert same_records?(fetched_conn_info, conn_info)
+      assert same_records?(fetched_data_source, data_source)
+      assert %ConnInfo{} = fetched_data_source.conn_info
     end
   end
 end

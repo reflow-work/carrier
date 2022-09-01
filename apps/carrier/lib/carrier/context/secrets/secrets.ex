@@ -76,16 +76,18 @@ defmodule Carrier.Secrets do
     |> TenantRepo.all()
   end
 
-  def fetch_conn_info(conn_info_id) do
-    ConnInfo.fetch(conn_info_id)
+  def fetch_data_source(data_source_id) do
+    DataSource.fetch(data_source_id)
+    |> DataSource.preload_conn_info()
     |> TenantRepo.one()
     |> case do
-      %ConnInfo{} = conn_info ->
-        {:ok, conn_info}
+      %DataSource{} = data_source ->
+        {:ok, data_source}
 
       nil ->
         {:error,
-         {:resource_not_found, %{target: "conn_info", conditions: %{conn_info_id: conn_info_id}}}}
+         {:resource_not_found,
+          %{target: "data_source_id", conditions: %{data_source_id: data_source_id}}}}
     end
   end
 end

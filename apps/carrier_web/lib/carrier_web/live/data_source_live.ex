@@ -2,7 +2,7 @@ defmodule CarrierWeb.DataSourceLive do
   use CarrierWeb, :live_view
   alias CarrierWeb.Components.Icon
   alias Carrier.Secrets
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Secrets.DataSource
 
   @impl true
   def mount(_params, _session, socket) do
@@ -78,9 +78,11 @@ defmodule CarrierWeb.DataSourceLive do
     params = params |> Map.put(:org_id, socket.assigns.org_id)
 
     case do_create_conn_info(params) do
-      {:ok, %ConnInfo{id: conn_info_id}} ->
+      {:ok, %DataSource{id: data_source_id}} ->
         socket
-        |> push_redirect(to: Routes.report_new_path(socket, :new, %{conn_info_id: conn_info_id}))
+        |> push_redirect(
+          to: Routes.report_new_path(socket, :new, %{data_source_id: data_source_id})
+        )
 
       error ->
         socket
@@ -98,11 +100,11 @@ defmodule CarrierWeb.DataSourceLive do
          password: password,
          database: database
        }) do
-    Secrets.create_conn_info(%{
+    Secrets.create_data_source(%{
       org_id: org_id,
       name: name,
       source: source,
-      info: %{
+      conn_info: %{
         hostname: hostname,
         port: port,
         username: username,
