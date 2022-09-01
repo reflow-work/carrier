@@ -62,20 +62,6 @@ defmodule Carrier.Secrets do
     |> TenantRepo.all()
   end
 
-  def create_conn_info(%{org_id: org_id, name: name, source: source, info: info}) do
-    with :ok <- ConnValidator.validate(source, info),
-         {:ok, %ConnInfo{} = conn_info} <-
-           ConnInfo.create(%{org_id: org_id, name: name, source: source, info: info})
-           |> TenantRepo.insert() do
-      {:ok, conn_info}
-    end
-  end
-
-  def list_conn_infos() do
-    ConnInfo.list()
-    |> TenantRepo.all()
-  end
-
   def fetch_data_source(data_source_id) do
     DataSource.fetch(data_source_id)
     |> DataSource.preload_conn_info()
@@ -89,5 +75,19 @@ defmodule Carrier.Secrets do
          {:resource_not_found,
           %{target: "data_source_id", conditions: %{data_source_id: data_source_id}}}}
     end
+  end
+
+  def create_conn_info(%{org_id: org_id, name: name, source: source, info: info}) do
+    with :ok <- ConnValidator.validate(source, info),
+         {:ok, %ConnInfo{} = conn_info} <-
+           ConnInfo.create(%{org_id: org_id, name: name, source: source, info: info})
+           |> TenantRepo.insert() do
+      {:ok, conn_info}
+    end
+  end
+
+  def list_conn_infos() do
+    ConnInfo.list()
+    |> TenantRepo.all()
   end
 end
