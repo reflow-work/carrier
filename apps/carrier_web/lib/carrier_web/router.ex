@@ -34,8 +34,8 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     live_session :user, on_mount: CarrierWeb.UserHook do
-      live "/data-source", DataSourceLive, :new
       live "/integrations/new", IntegrationLive.New, :new
+      live "/data-sources/new", DataSourceLive, :new
       live "/reports", ReportLive.Index, :index
       live "/reports/new", ReportLive.New, :new
       live "/settings", SettingsLive, :index
