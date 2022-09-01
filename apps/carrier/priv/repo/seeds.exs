@@ -68,6 +68,7 @@ Repo.transaction(fn ->
     Repo.insert_all(DataSource, [
       %{
         org_id: org0.org_id,
+        name: "main db",
         source: :postgres,
         conn_info_id: conn_info0.id
       }
