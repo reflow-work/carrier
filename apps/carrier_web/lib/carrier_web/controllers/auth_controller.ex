@@ -70,12 +70,11 @@ defmodule CarrierWeb.AuthController do
 
   defp add_conn_info_to_org(conn, auth) do
     %Ueberauth.Auth{
-      extra: %Ueberauth.Auth.Extra{
-        raw_info: %{
-          auth: %{
-            "team" => team_name,
-            "team_id" => team_id
-          }
+      credentials: %Ueberauth.Auth.Credentials{
+        token: bot_token,
+        other: %{
+          team: team_name,
+          team_id: team_id
         }
       }
     } = auth
@@ -85,7 +84,7 @@ defmodule CarrierWeb.AuthController do
     case Secrets.create_integration(%{
            org_id: org_id,
            service_name: :slack,
-           conn_info: %{team_name: team_name, team_id: team_id}
+           conn_info: %{team_name: team_name, team_id: team_id, bot_token: bot_token}
          }) do
       {:ok, %Integration{}} ->
         conn
