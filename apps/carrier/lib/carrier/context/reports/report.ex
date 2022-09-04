@@ -24,4 +24,9 @@ defmodule Carrier.Reports.Report do
   def list() do
     __MODULE__
   end
+
+  def fetct(report_id) do
+    __MODULE__
+    |> where([r], r.id == ^report_id)
+  end
 end
