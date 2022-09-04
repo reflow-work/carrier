@@ -38,8 +38,13 @@ defmodule Carrier.External.Slack do
          title: title,
          yesterday: %{raw: draw, wow: dwow},
          last_week: %{raw: wraw, wow: wwow},
-         img_url: img_url
+         img_urls: img_urls
        }) do
+
+    img_blocks = Enum.map(img_urls, fn img_url -> 
+      %{"alt_text" => "chart-#{title}", "image_url" => img_url, "type" => "image"}
+    end)
+
     [
       %{
         "text" => %{"text" => ":chart: *#{title}*", "type" => "mrkdwn"},
@@ -65,8 +70,7 @@ defmodule Carrier.External.Slack do
         "text" => %{"text" => "*Last Week*", "type" => "mrkdwn"},
         "type" => "section"
       },
-      %{"alt_text" => "Sample chart", "image_url" => img_url, "type" => "image"}
-    ]
+    ] ++ img_blocks
   end
 
   def sample_args() do

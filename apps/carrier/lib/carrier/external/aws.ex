@@ -13,6 +13,7 @@ defmodule Carrier.External.Aws do
 
   defp create_client() do
     AWS.Client.create(get_access_key_id(), get_secret_access_key(), get_default_region())
+    |> Map.put(:http_client, {Carrier.External.Aws.HTTPClient, []})
   end
 
   defp get_access_key_id() do
