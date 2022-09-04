@@ -7,7 +7,7 @@ defmodule Carrier.External.Slack do
     Tesla.get(client(token), "/chat.postMessage", query: query)
     |> handle_response()
     |> case do
-      {:ok, body} -> :ok
+      {:ok, _body} -> :ok
       {:error, reason} -> {:error, reason}
     end
   end
@@ -18,7 +18,7 @@ defmodule Carrier.External.Slack do
     Tesla.post(client(token), "/chat.postMessage", body)
     |> handle_response()
     |> case do
-      {:ok, body} -> :ok
+      {:ok, _body} -> :ok
       {:error, reason} -> {:error, reason}
     end
   end
