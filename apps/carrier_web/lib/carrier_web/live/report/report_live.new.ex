@@ -5,6 +5,8 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Aws
   alias Carrier.External.Slack
 
+  on_mount(CarrierWeb.DataSourceHook)
+
   @sample_sql_template """
   SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
     FROM sample_data_simple
@@ -14,10 +16,9 @@ defmodule CarrierWeb.ReportLive.New do
   """
 
   @impl true
-  def mount(%{"data_source_id" => data_source_id}, _session, socket) do
+  def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:data_source_id, data_source_id)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
       |> assign_new(:query_result_parsed, fn -> %{} end)
       |> assign_new(:query_result_raw, fn -> %{} end)
@@ -43,7 +44,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       QueryData.query(%{
         org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source_id,
+        data_source_id: socket.assigns.data_source.id,
         sql_template: sql_template,
         datetime: datetime,
         timezone: "Asia/Seoul",
