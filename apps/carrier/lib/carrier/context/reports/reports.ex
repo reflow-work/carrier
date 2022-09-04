@@ -21,4 +21,11 @@ defmodule Carrier.Reports do
       nil -> {:error, {:resource_not_found, target: Report, conditions: %{report_id: report_id}}}
     end
   end
+
+  def delete_report(report_id) do
+    with {:ok, %Report{} = report} <- fetch_report(report_id),
+      {:ok, deleted_report} <- report |> Report.delete(DateTime.utc_now()) |> TenantRepo.delete() do
+      {:ok, deleted_report}
+    end
+  end
 end
