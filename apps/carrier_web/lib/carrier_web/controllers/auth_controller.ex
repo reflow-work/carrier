@@ -29,8 +29,6 @@ defmodule CarrierWeb.AuthController do
         %{assigns: %{ueberauth_auth: %Ueberauth.Auth{provider: provider} = auth}} = conn,
         _params
       ) do
-    auth |> IO.inspect()
-
     _conn =
       case provider do
         :google -> auth(conn, auth)
@@ -39,8 +37,6 @@ defmodule CarrierWeb.AuthController do
   end
 
   def callback(%{assigns: %{ueberauth_failure: fails}} = conn, _params) do
-    fails |> IO.inspect()
-
     conn
     |> put_flash(:error, "Failed to authenticate.")
     |> redirect(to: "/")
