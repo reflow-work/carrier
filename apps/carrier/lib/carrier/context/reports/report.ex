@@ -4,6 +4,23 @@ defmodule Carrier.Reports.Report do
   schema "reports" do
     field :org_id, :integer
     field :name, :string
+    field :trigger_time, :time
+
+    embeds_one(:integration_info, IntegrationInfo, primary_key: false, on_replace: :delete) do
+      field :integration_id, :integer
+      field :channel_id, :string
+    end
+
+    embeds_one(:data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete) do
+      field :data_source_id, :integer
+      field :sql_template, :string
+      field :timezone, :string
+      field :period, :integer
+      field :window_size, :integer
+      field :comparing_period, :integer
+      field :columns, {:array, :string}
+    end
+
     field :deleted_at, :utc_datetime_usec
 
     timestamps()

@@ -5,6 +5,9 @@ defmodule Carrier.Repo.Migrations.CreateReports do
     create table(:reports) do
       add :org_id, references(:orgs, column: :org_id), null: false
       add :name, :string, null: false
+      add :trigger_time, :time, null: false
+      add :integration_info, :jsonb, null: false
+      add :data_source_info, :jsonb, null: false
       add :deleted_at, :timestamptz, null: true
 
       add_tstz()
