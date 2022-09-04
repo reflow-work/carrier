@@ -48,7 +48,8 @@ Repo.transaction(fn ->
           source: :slack,
           info: %{
             "team_name" => "dongrami",
-            "team_id" => "T03LL747Q49"
+            "team_id" => "T03LL747Q49",
+            "bot_token" => "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
           }
         }
       ],
