@@ -30,7 +30,10 @@
               <td>#all-data</td>
               <td>
                 <button class="btn btn-sm">Edit</button>
-                <label for="delete-modal" class="btn btn-sm modal-button">Delete</label>
+                <%= live_patch("Delete",
+                  to: Routes.report_index_path(@socket, :delete, report.id),
+                  class: "btn btn-sm"
+                ) %>
               </td>
             </tr>
           <% end %>
@@ -40,15 +43,14 @@
   </section>
 </section>
 
-<div>
-  <input type="checkbox" id="delete-modal" class="modal-toggle" />
-  <div class="modal">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg">Are you sure you want to delete the report?</h3>
-      <div class="modal-action">
-        <label for="delete-modal" class="btn btn-sm">No</label>
-        <label for="delete-modal" class="btn btn-primary btn-sm">Yes</label>
-      </div>
-    </div>
-  </div>
-</div>
+<%= if @live_action == :delete do %>
+  <Modal.confirm>
+    <:title>
+      Are you sure you want to delete the report?
+    </:title>
+    <:actions>
+      <%= live_patch("No", to: Routes.report_index_path(@socket, :index), class: "btn btn-sm") %>
+      <a class="btn btn-primary btn-sm" phx-click="delete_report">Yes</a>
+    </:actions>
+  </Modal.confirm>
+<% end %>

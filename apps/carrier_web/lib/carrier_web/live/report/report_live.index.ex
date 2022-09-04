@@ -1,6 +1,7 @@
 defmodule CarrierWeb.ReportLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Reports
+  alias CarrierWeb.Components.Modal
 
   on_mount(CarrierWeb.CheckIntegrationHook)
 
@@ -19,10 +20,49 @@ defmodule CarrierWeb.ReportLive.Index do
     {:ok, socket}
   end
 
+  @impl true
+  def handle_params(params, _uri, socket) do
+    socket =
+      case socket.assigns.live_action do
+        :index ->
+          socket
+
+        :delete ->
+          report_id = params["id"] |> String.to_integer()
+
+          socket
+          |> assign(:report_id, report_id)
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete_report", _params, socket) do
+    socket =
+      socket
+      |> delete_report(socket.assigns.report_id)
+
+    {:noreply, socket}
+  end
+
   defp load_reports(socket) do
     case Reports.list_reports() do
       {:ok, reports} ->
         socket |> assign(:reports, reports)
+
+      {:error, reason} ->
+        socket
+        |> put_flash(:error, inspect(reason))
+    end
+  end
+
+  defp delete_report(socket, report_id) do
+    case Reports.delete_report(report_id) do
+      {:ok, _deleted_report} ->
+        socket
+        |> update(:reports, fn reports -> reports |> Enum.reject(&(&1.id == report_id)) end)
+        |> push_patch(to: Routes.report_index_path(socket, :index))
 
       {:error, reason} ->
         socket
