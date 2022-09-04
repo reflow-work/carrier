@@ -32,6 +32,10 @@ defmodule Carrier.Secrets.DataSource do
     })
   end
 
+  def list() do
+    __MODULE__
+  end
+
   def fetch(id) do
     __MODULE__
     |> where([ds], ds.id == ^id)
