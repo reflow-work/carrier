@@ -36,7 +36,7 @@ defmodule CarrierWeb.AuthController do
       end
   end
 
-  def callback(%{assigns: %{ueberauth_failure: fails}} = conn, _params) do
+  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
     |> put_flash(:error, "Failed to authenticate.")
     |> redirect(to: "/")
@@ -84,7 +84,7 @@ defmodule CarrierWeb.AuthController do
          }) do
       {:ok, %Integration{}} ->
         conn
-        |> redirect(to: "/")
+        |> redirect(to: Routes.report_index_path(conn, :index))
 
       error ->
         conn
