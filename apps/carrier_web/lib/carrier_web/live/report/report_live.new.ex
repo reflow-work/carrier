@@ -64,7 +64,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:query_result_parsed, parsed_data)
           |> assign(:query_result_raw, raw_data)
           |> assign(:selected_columns, selected_columns)
-          |> add_events(parsed_data, selected_columns)
+          |> add_draw_chart_events(parsed_data, selected_columns)
 
         {:error, error} ->
           socket |> put_flash(:error, error)
@@ -86,7 +86,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign(:selected_columns, selected_columns)
-      |> add_events(socket.assigns.query_result_parsed, selected_columns)
+      |> add_draw_chart_events(socket.assigns.query_result_parsed, selected_columns)
 
     {:noreply, socket}
   end
@@ -105,45 +105,61 @@ defmodule CarrierWeb.ReportLive.New do
   @impl true
   def handle_event("send_preview", _params, socket) do
     save_chart_img_params =
-      socket.assigns.query_result_raw
-      |> Map.put(:orgId, socket.assigns.org_id)
-      |> Map.put(:reportId, "preview")
+      [
+        {:data, socket.assigns.query_result_parsed},
+        {:orgId, socket.assigns.org_id},
+        {:reportId, "preview"}
+      ]
+      |> Enum.into(%{})
 
-    {:ok, %{"body" => %{"imgUrl" => img_url}}, _full_resp} =
+    {:ok, %{"body" => %{"imgUrls" => img_urls}}, _full_resp} =
       save_chart_image(save_chart_img_params)
 
-    args = %{
-      title: socket.assigns.query_result_parsed.label,
-      yesterday: %{
-        raw: socket.assigns.query_result_parsed.current_raw,
-        wow: socket.assigns.query_result_parsed.raw_wow
-      },
-      last_week: %{
-        raw: socket.assigns.query_result_parsed.current_period_raw,
-        wow: socket.assigns.query_result_parsed.period_wow
-      },
-      img_urls: [img_url]
-    }
+    slack_post_message_aggregated_result =
+      build_slack_args(socket.assigns.query_result_parsed, img_urls)
+      |> Enum.map(fn slack_arg ->
+          Noti.send_report_to_slack(
+            "C03U2QWU7F1",
+            args,
+            "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+          )
+      end)
+        |> Enum.all?(fn result -> result == :ok)
 
-    slack_result =
-      Noti.send_report_to_slack(
-        "C03U2QWU7F1",
-        args,
-        "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
-      )
+    if slack_post_message_aggregated_result == true do
+      socket =
+        socket
+        |> put_flash(:info, "Slack messages for the selected query results have been sent! 😊")
 
-    socket =
-      case slack_result do
-        :ok ->
-          socket
-          |> put_flash(:info, "Slack message for the current chart has been sent!")
-
-        _ ->
-          socket
-          |> put_flash(:error, "Failed to send slack message for the current chart!")
-      end
+      {:noreply, socket}
+    else
+      socket =
+        socket
+        |> put_flash(
+          :error,
+          "Failed to send one or more of slack messages for selected query results! 😮"
+        )
 
     {:noreply, socket}
+  end
+
+  defp build_slack_args(data, img_urls) do
+    data
+    |> Map.to_list()
+    |> Enum.map(fn {k, v} ->
+      %{
+        title: v.meta.label,
+        raw: %{
+          yesterday: v.meta.current_period_last_tick_raw,
+          last_week: v.meta.previous_period_last_tick_raw
+        },
+        weekly_sum: %{
+          last_week: v.meta.current_period_sum,
+          week_over_week: v.meta.diff_between_periods_in_percentage
+        },
+        img_url: Map.get(img_urls, k)
+      }
+    end)
   end
 
   defp create_report(socket, params) do
@@ -160,7 +176,7 @@ defmodule CarrierWeb.ReportLive.New do
     end
   end
 
-  defp add_events(socket, parsed_data, selected_columns) do
+  defp add_draw_chart_events(socket, parsed_data, selected_columns) do
     parsed_data
     |> Map.to_list()
     |> Enum.filter(fn {k, _v} -> Enum.member?(selected_columns, k) end)
@@ -169,8 +185,8 @@ defmodule CarrierWeb.ReportLive.New do
     end)
   end
 
-  defp save_chart_image(%{columns: columns, data: data, orgId: orgId, reportId: reportId}) do
-    %{columns: columns, data: data, orgId: orgId, reportId: reportId}
+  defp save_chart_image(%{orgId: orgId, reportId: reportId, data: data}) do
+    %{orgId: orgId, reportId: reportId, data: data}
     |> Aws.save_chart_img()
   end
 

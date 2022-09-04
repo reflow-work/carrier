@@ -7,42 +7,39 @@ defmodule Carrier.Noti do
     Slack.post_message(channel, blocks, token)
   end
 
-  defp report_to_slack_block(%{
+  defp report_to_slack_block( %{
          title: title,
-         yesterday: %{raw: draw, wow: dwow},
-         last_week: %{raw: wraw, wow: wwow},
-         img_urls: img_urls
-       }) do
-    img_blocks =
-      Enum.map(img_urls, fn img_url ->
-        %{"alt_text" => "chart-#{title}", "image_url" => img_url, "type" => "image"}
-      end)
-
-    [
+         raw: %{yesterday: raw_yesterday, last_week: raw_last_week},
+         weekly_sum: %{last_week: weekly_sum_last_week, week_over_week: weekly_sum_week_over_week},
+         img_url: img_url
+       }
+  ) do
+[
       %{
         "text" => %{"text" => ":chart: *#{title}*", "type" => "mrkdwn"},
         "type" => "section"
       },
       %{
         "fields" => [
-          %{"text" => "*Raw*", "type" => "mrkdwn"},
-          %{"text" => "*Week over Week*", "type" => "mrkdwn"},
-          %{"text" => "#{draw}", "type" => "plain_text"},
-          %{"text" => "#{dwow}%", "type" => "plain_text"}
+          %{"text" => "*Yesterday*", "type" => "mrkdwn"},
+          %{"text" => "*Last Week*", "type" => "mrkdwn"},
+          %{"text" => "#{raw_yesterday}", "type" => "plain_text"},
+          %{"text" => "#{raw_last_week}", "type" => "plain_text"}
         ],
-        "text" => %{"text" => "*Yesterday*", "type" => "mrkdwn"},
+        "text" => %{"text" => "*Raw*", "type" => "mrkdwn"},
         "type" => "section"
       },
       %{
         "fields" => [
-          %{"text" => "*Raw*", "type" => "mrkdwn"},
+          %{"text" => "*Last Week*", "type" => "mrkdwn"},
           %{"text" => "*Week over Week*", "type" => "mrkdwn"},
-          %{"text" => "#{wraw}", "type" => "plain_text"},
-          %{"text" => "#{wwow}%", "type" => "plain_text"}
+          %{"text" => "#{weekly_sum_last_week}", "type" => "plain_text"},
+          %{"text" => "#{weekly_sum_week_over_week}%", "type" => "plain_text"}
         ],
-        "text" => %{"text" => "*Last Week*", "type" => "mrkdwn"},
+        "text" => %{"text" => "*Weekly Sum*", "type" => "mrkdwn"},
         "type" => "section"
-      }
-    ] ++ img_blocks
+      },
+      %{"alt_text" => "chart-#{title}", "image_url" => img_url, "type" => "image"}
+    ]
   end
 end

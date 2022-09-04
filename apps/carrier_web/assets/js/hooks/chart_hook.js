@@ -6,7 +6,6 @@ const colors = {
   default: "#1C110A",
   current: "#E9B44C",
   previous: "#9B2915",
-  over: "#50A2A7",
 }
 
 const ChartHook = {
