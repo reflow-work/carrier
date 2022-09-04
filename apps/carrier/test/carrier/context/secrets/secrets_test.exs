@@ -14,7 +14,8 @@ defmodule Carrier.SecretsTest do
         service_name: :slack,
         conn_info: %{
           team_name: "dongrami",
-          team_id: "T03LL747Q49"
+          team_id: "T03LL747Q49",
+          bot_token: "bot_token"
         }
       }
 
