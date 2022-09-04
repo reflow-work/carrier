@@ -19,24 +19,65 @@ const ChartHook = {
         labels: [],
       },
       options: {
+        plugins: {
+          legend: {
+            lables: {
+              display: true,
+              usePointStyle: true,
+              font: {
+                size: 20,
+                weight: 700,
+              }
+            }
+          }
+        },
         scales: {
           y: {
             title: {
               display: true,
+              font: {
+                size: 20,
+                weight: 700,
+              }
+            },
+            ticks: {
+              callback: function(value, index, ticks) {
+                if (ticks.length > 7) {
+                  if (index % (Math.floor(ticks.length / 4)) === 0 || index === ticks.length - 1) {
+                    return this.getLabelForValue(value)
+                  } else {
+                    return null
+                  }
+                } else {
+                  return this.getLabelForValue(value)
+                }
+              },
+              font: {
+                size: 20,
+                weight: 700,
+              },
             },
           },
           x: {
             title: {
               display: true,
+              font: {
+                size: 20,
+                weight: 700,
+              }
             },
             ticks: {
-              callback: function(value, index, _ticks) {
-                if (index % 7 === 0 || index === 27) {
+              callback: function(value, index, ticks) {
+                if (index % (Math.floor(ticks.length / 4)) === 0 || index === ticks.length - 1) {
                   return this.getLabelForValue(value)
                 } else {
                   return null
                 }
               },
+              font: {
+                size: 20,
+                weight: 700,
+              }
             },
           }
         }
