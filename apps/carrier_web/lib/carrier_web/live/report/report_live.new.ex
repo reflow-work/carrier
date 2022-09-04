@@ -2,8 +2,8 @@ defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   alias Carrier.Data.QueryData
   alias Carrier.Reports
+  alias Carrier.Noti
   alias Carrier.External.Aws
-  alias Carrier.External.Slack
 
   on_mount(CarrierWeb.DataSourceHook)
 
@@ -125,21 +125,25 @@ defmodule CarrierWeb.ReportLive.New do
       img_urls: [img_url]
     }
 
-    {:ok, %Tesla.Env{body: %{"ok" => result}}} = Slack.post_message("C03U2QWU7F1", args)
+    slack_result =
+      Noti.send_report_to_slack(
+        "C03U2QWU7F1",
+        args,
+        "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+      )
 
-    if result == true do
-      socket =
-        socket
-        |> put_flash(:info, "Slack message for the current chart has been sent!")
+    socket =
+      case slack_result do
+        :ok ->
+          socket
+          |> put_flash(:info, "Slack message for the current chart has been sent!")
 
-      {:noreply, socket}
-    else
-      socket =
-        socket
-        |> put_flash(:error, "Failed to send slack message for the current chart!")
+        _ ->
+          socket
+          |> put_flash(:error, "Failed to send slack message for the current chart!")
+      end
 
-      {:noreply, socket}
-    end
+    {:noreply, socket}
   end
 
   defp create_report(socket, params) do

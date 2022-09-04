@@ -100,8 +100,7 @@ config :tzdata, :autoupdate, :disabled
 
 config :carrier, :slack,
   client_id: "3700242262145.3907206908336",
-  client_secret: "ea1926306433ead67eea5f55a6855f67",
-  bot_token: "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+  client_secret: "ea1926306433ead67eea5f55a6855f67"
 
 config :ueberauth, Ueberauth,
   providers: [
