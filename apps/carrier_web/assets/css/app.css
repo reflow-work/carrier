@@ -139,5 +139,5 @@ input[type='text']:focus {
 }
 
 .menu-item {
-  @apply flex justify-center text-white py-4 hover:bg-base-dark-hover rounded-sm mx-2;
+  @apply flex justify-center text-white py-4 hover:bg-base-dark-hover rounded-sm mx-2 items-center;
 }
