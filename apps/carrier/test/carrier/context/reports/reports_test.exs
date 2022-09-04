@@ -4,6 +4,38 @@ defmodule Carrier.ReportsTest do
 
   @moduletag repo: TenantRepo
 
+  describe "create_report/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      %{org: org}
+    end
+
+    test "with valid attrs", %{org: org} do
+      params = %{
+        org_id: org.org_id,
+        name: "Daily Report",
+        trigger_time: ~T[10:00:00],
+        integration_info: %{
+          "integration_id" => 1,
+          "channel_id" => "channel_id"
+        },
+        data_source_info: %{
+          "data_source_id" => 1,
+          "sql_template" => "sql",
+          "timezone" => "Asia/Seoul",
+          "period" => 28,
+          "window_size" => 7,
+          "comparing_period" => 7,
+          "columns" => ["total_revenue"]
+        }
+      }
+
+      assert {:ok, created_report} = Reports.create_report(params)
+      assert same_fields?(created_report, params, [:org_id, :name, :trigger_time])
+    end
+  end
+
   describe "list_reports/0" do
     setup do
       org = TenantFactory.insert(:org)

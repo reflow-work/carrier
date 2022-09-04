@@ -2,8 +2,20 @@ defmodule Carrier.Reports do
   alias Carrier.Reports.Report
   alias Carrier.TenantRepo
 
-  def create_report(%{org_id: org_id, name: name}) do
-    Report.create(%{org_id: org_id, name: name})
+  def create_report(%{
+        org_id: org_id,
+        name: name,
+        trigger_time: trigger_time,
+        integration_info: integration_info,
+        data_source_info: data_source_info
+      }) do
+    Report.create(%{
+      org_id: org_id,
+      name: name,
+      trigger_time: trigger_time,
+      integration_info: integration_info,
+      data_source_info: data_source_info
+    })
     |> TenantRepo.insert()
   end
 
