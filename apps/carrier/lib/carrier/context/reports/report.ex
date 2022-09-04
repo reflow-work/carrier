@@ -30,6 +30,7 @@ defmodule Carrier.Reports.Report do
 
   def list() do
     __MODULE__
+    |> where([r], not is_nil(r.deleted_at))
   end
 
   def fetct(report_id) do
