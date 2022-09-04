@@ -47,6 +47,26 @@ defmodule CarrierWeb do
       use Phoenix.LiveView,
         layout: {CarrierWeb.LayoutView, "live.html"}
 
+      def put_flash_for(socket, kind, message, opts \\ []) do
+        timeout = opts |> Keyword.get(:timeout, :infinity)
+
+        socket = Phoenix.LiveView.put_flash(socket, kind, message)
+
+        case timeout do
+          :infinity ->
+            nil
+
+          timeout when is_integer(timeout) ->
+            Process.send_after(self(), :clear_flash, timeout)
+        end
+
+        socket
+      end
+
+      def handle_info(:clear_flash, socket) do
+        {:noreply, clear_flash(socket)}
+      end
+
       unquote(view_helpers())
     end
   end

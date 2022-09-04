@@ -59,7 +59,6 @@ defmodule CarrierWeb.ReportLive.New do
           selected_columns =
             parsed_data
             |> Map.keys()
-            |> Enum.map(fn k -> Atom.to_string(k) end)
 
           socket
           |> assign(:query_result_parsed, parsed_data)
@@ -123,7 +122,7 @@ defmodule CarrierWeb.ReportLive.New do
         raw: socket.assigns.query_result_parsed.current_period_raw,
         wow: socket.assigns.query_result_parsed.period_wow
       },
-      img_url: img_url
+      img_urls: [img_url]
     }
 
     {:ok, %Tesla.Env{body: %{"ok" => result}}} = Slack.post_message("C03U2QWU7F1", args)
@@ -160,7 +159,7 @@ defmodule CarrierWeb.ReportLive.New do
   defp add_events(socket, parsed_data, selected_columns) do
     parsed_data
     |> Map.to_list()
-    |> Enum.filter(fn {k, _v} -> Enum.member?(selected_columns, Atom.to_string(k)) end)
+    |> Enum.filter(fn {k, _v} -> Enum.member?(selected_columns, k) end)
     |> Enum.reduce(socket, fn {k, v}, acc ->
       push_event(acc, "input_data_#{k}", v)
     end)
@@ -189,10 +188,10 @@ defmodule CarrierWeb.ReportLive.New do
 
             item = %{
               :date => datum["date"],
-              String.to_existing_atom(raw_key) => datum[raw_key],
-              String.to_existing_atom(current_period_sum_key) => datum[current_period_sum_key],
-              String.to_existing_atom(previous_period_sum_key) => datum[previous_period_sum_key],
-              String.to_existing_atom(current_to_previous_periods_sum_ratio) =>
+              raw_key => datum[raw_key],
+              current_period_sum_key => datum[current_period_sum_key],
+              previous_period_sum_key => datum[previous_period_sum_key],
+              current_to_previous_periods_sum_ratio =>
                 datum[current_to_previous_periods_sum_ratio]
             }
 
@@ -203,20 +202,15 @@ defmodule CarrierWeb.ReportLive.New do
 
       meta_data = build_meta_data(raw_key, data_by_column)
 
-      {String.to_existing_atom(raw_key),
-       Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
+      {raw_key, Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
     end)
     |> Enum.into(%{})
   end
 
   defp build_meta_data(raw_key, data) do
-    current_period_sum_key = String.to_existing_atom(raw_key <> "_window_sum")
-    previous_period_sum_key = String.to_existing_atom(raw_key <> "_window_sum_offset")
-
-    current_to_previous_periods_sum_ratio_key =
-      String.to_existing_atom(raw_key <> "_window_sum_over")
-
-    atom_raw_key = String.to_existing_atom(raw_key)
+    current_period_sum_key = raw_key <> "_window_sum"
+    previous_period_sum_key = raw_key <> "_window_sum_offset"
+    current_to_previous_periods_sum_ratio_key = raw_key <> "_window_sum_over"
 
     last_datum =
       data
@@ -234,8 +228,8 @@ defmodule CarrierWeb.ReportLive.New do
 
     %{
       label: raw_key,
-      current_period_last_tick_raw: last_datum[atom_raw_key],
-      previous_period_last_tick_raw: previous_period_last_datum[atom_raw_key],
+      current_period_last_tick_raw: last_datum[raw_key],
+      previous_period_last_tick_raw: previous_period_last_datum[raw_key],
       current_period_sum: last_datum[current_period_sum_key],
       previous_period_sum: last_datum[previous_period_sum_key],
       current_to_previous_periods_sum_ratio:
