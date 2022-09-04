@@ -32,7 +32,7 @@ defmodule CarrierWeb.DataSourceLive do
   def handle_event("select_source", %{"source" => source_str}, socket) do
     source = String.to_existing_atom(source_str)
 
-    port = if source == :mysql, do: 5432, else: 3306
+    port = if source == :mysql, do: 3306, else: 5432
 
     socket =
       socket
