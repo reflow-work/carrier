@@ -9,7 +9,7 @@ defmodule CarrierWeb.DataSourceHook do
         {:cont, socket |> assign(:data_source, data_source)}
 
       _ ->
-        socket = socket |> push_redirect(to: Routes.data_source_path(socket, :new))
+        socket = socket |> push_redirect(to: Routes.data_source_new_path(socket, :new))
 
         {:halt, socket}
     end

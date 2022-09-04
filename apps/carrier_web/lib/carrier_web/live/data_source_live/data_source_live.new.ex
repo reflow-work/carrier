@@ -1,4 +1,4 @@
-defmodule CarrierWeb.DataSourceLive do
+defmodule CarrierWeb.DataSourceLive.New do
   use CarrierWeb, :live_view
   alias CarrierWeb.Components.Icon
   alias Carrier.Secrets
