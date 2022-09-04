@@ -220,7 +220,7 @@ defmodule CarrierWeb.ReportLive.New do
             [item | acc]
           end
         )
-        |> Enum.sort(&(&1.date <= &2.date))
+        |> Enum.sort(&(Date.compare(&1.date, &2.date) == :lt))
 
       meta_data = build_meta_data(raw_key, data_by_column)
 
