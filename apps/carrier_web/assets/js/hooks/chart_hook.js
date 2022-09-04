@@ -67,45 +67,6 @@ const ChartHook = {
       chart.options.scales['y'].title.text = key
       chart.update()
     })
-
-    this.handleEvent("input_data", ({ columns, data }) => {
-      chart.data.datasets = []
-      chart.data.labels = []
-      const labels = []
-      const nonDateKeys = columns.filter((k) => k !== "date")
-      const ticks = Object.fromEntries(nonDateKeys.map((k) => {
-        const innerObject = {
-          current: [],
-          previous: [],
-        }
-        return [k, innerObject]
-      }))
-      data.forEach((datum) => {
-        labels.push(datum.date)
-        nonDateKeys.forEach((k) => {
-          const currentPeriodKey = k + "_window_sum"
-          const previousPeriodKey = k + "_window_sum_offset"
-          ticks[k].current.push(datum[currentPeriodKey])
-          ticks[k].previous.push(datum[previousPeriodKey])
-        })
-      })
-      const datasets = []
-      for (const k in ticks) {
-        for (const period in ticks[k]) {
-          const dataset = {
-            label: [period, k].join("_"),
-            data: ticks[k][period],
-            borderColor: colors[period],
-          }
-          datasets.push(dataset)
-        }
-      }
-      chart.data.datasets = datasets
-      chart.data.labels = labels
-      chart.options.scales['x'].title.text = "date"
-      chart.options.scales['y'].title.text = columns[1]
-      chart.update()
-    })
   }
 }
 

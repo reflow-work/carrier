@@ -38,8 +38,7 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:sql_template, sql_template)
 
-    # {:ok, datetime} = DateTime.now("Asia/Seoul")
-    {:ok, datetime, _n} = DateTime.from_iso8601("2022-07-14T00:00:00Z")
+    {:ok, datetime} = DateTime.now("Asia/Seoul")
 
     socket =
       QueryData.query(%{
@@ -123,7 +122,6 @@ defmodule CarrierWeb.ReportLive.New do
           slack_arg,
           "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
         )
-        |> IO.inspect()
       end)
       |> Enum.all?(fn result -> result == :ok end)
 
@@ -192,47 +190,10 @@ defmodule CarrierWeb.ReportLive.New do
     |> Aws.save_chart_img()
   end
 
-  defp split_data_by_columns(%{columns: columns, data: data}) do
-    non_date_keys =
-      columns
-      |> Enum.filter(&(&1 !== "date"))
-
-    non_date_keys
-    |> Enum.map(fn raw_key ->
-      data_by_column =
-        Enum.reduce(
-          data,
-          [],
-          fn datum, acc ->
-            current_period_sum_key = raw_key <> "_window_sum"
-            previous_period_sum_key = raw_key <> "_window_sum_offset"
-            current_to_previous_periods_sum_ratio = raw_key <> "_window_sum_over"
-
-            item = %{
-              :date => datum["date"],
-              raw_key => datum[raw_key],
-              current_period_sum_key => datum[current_period_sum_key],
-              previous_period_sum_key => datum[previous_period_sum_key],
-              current_to_previous_periods_sum_ratio =>
-                datum[current_to_previous_periods_sum_ratio]
-            }
-
-            [item | acc]
-          end
-        )
-        |> Enum.sort(&(Date.compare(&1.date, &2.date) == :lt))
-
-      meta_data = build_meta_data(raw_key, data_by_column)
-
-      {raw_key, Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
-    end)
-    |> Enum.into(%{})
-  end
-
-  defp build_meta_data(raw_key, data) do
-    current_period_sum_key = raw_key <> "_window_sum"
-    previous_period_sum_key = raw_key <> "_window_sum_offset"
-    current_to_previous_periods_sum_ratio_key = raw_key <> "_window_sum_over"
+  defp build_meta_data(key, data) do
+    current_period_sum_key = key <> "_window_sum"
+    previous_period_sum_key = key <> "_window_sum_offset"
+    current_to_previous_periods_sum_ratio_key = key <> "_window_sum_over"
 
     last_datum =
       data
@@ -249,9 +210,9 @@ defmodule CarrierWeb.ReportLive.New do
       |> Decimal.to_float()
 
     %{
-      label: raw_key,
-      current_period_last_tick_raw: last_datum[raw_key],
-      previous_period_last_tick_raw: previous_period_last_datum[raw_key],
+      label: key,
+      current_period_last_tick_raw: last_datum[key],
+      previous_period_last_tick_raw: previous_period_last_datum[key],
       current_period_sum: last_datum[current_period_sum_key],
       previous_period_sum: last_datum[previous_period_sum_key],
       current_to_previous_periods_sum_ratio:
@@ -261,6 +222,36 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   defp parse_data(%{columns: columns, data: data}) do
-    split_data_by_columns(%{columns: columns, data: data})
+    non_date_keys =
+      columns
+      |> Enum.filter(&(&1 !== "date"))
+
+    non_date_keys
+    |> Enum.map(fn key ->
+      data_by_column = split_data_by_columns(key, data)
+      meta_data = build_meta_data(key, data_by_column)
+
+      {key, Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
+    end)
+    |> Enum.into(%{})
+  end
+
+  defp split_data_by_columns(key, data) do
+    current_period_sum_key = key <> "_window_sum"
+    previous_period_sum_key = key <> "_window_sum_offset"
+    current_to_previous_periods_sum_ratio = key <> "_window_sum_over"
+
+    Enum.map(
+      data,
+      fn datum ->
+        %{
+          :date => datum["date"],
+          key => datum[key],
+          current_period_sum_key => datum[current_period_sum_key],
+          previous_period_sum_key => datum[previous_period_sum_key],
+          current_to_previous_periods_sum_ratio => datum[current_to_previous_periods_sum_ratio]
+        }
+      end
+    )
   end
 end
