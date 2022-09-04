@@ -16,7 +16,7 @@ const ChartHook = {
       type: 'line',
       data: {
         datasets: [],
-        labels: []
+        labels: [],
       },
       options: {
         scales: {
@@ -29,8 +29,14 @@ const ChartHook = {
             title: {
               display: true,
             },
-            grid: {
-              display: false,
+            ticks: {
+              callback: function(value, index, _ticks) {
+                if (index % 7 === 0 || index === 27) {
+                  return this.getLabelForValue(value)
+                } else {
+                  return null
+                }
+              },
             },
           }
         }
