@@ -4,6 +4,7 @@ defmodule Carrier.Reports.Report do
   schema "reports" do
     field :org_id, :integer
     field :name, :string
+    field :deleted_at, :utc_datetime_usec
 
     timestamps()
   end
