@@ -5,22 +5,30 @@
 @import "page";
 
 /* Alerts and form errors used by phx.new */
+.toast {
+  @apply p-5;
+}
+
 .alert {
-  @apply drop-shadow-sm bg-white p-3 border text-sm;
+  @apply drop-shadow-lg py-4 px-6 text-sm w-72 rounded-full bg-primary text-white justify-start gap-3;
 }
-.alert-info {
-  color: #31708f;
-  border-color: #31708f;
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
 }
-.alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #8a6d3b;
+.alert-info .dot {
+  background-color: #2da235;
 }
-.alert-danger {
-  color: #a94442;
-  background-color: #f2dede;
-  border-color: #a94442;
+
+.alert-warning .dot {
+  background-color: #8a6d3b;
+}
+
+.alert-danger .dot {
+  background-color: #a94442;
 }
 .alert p {
   margin-bottom: 0;
