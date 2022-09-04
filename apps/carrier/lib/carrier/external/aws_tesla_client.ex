@@ -21,7 +21,7 @@ defmodule Carrier.External.Aws.TeslaClient do
     )
     |> case do
       {:ok, %Tesla.Env{status: status, headers: headers, body: body}} ->
-        {:ok, %{status_code: status, headers: headers, body: body}} |> IO.inspect()
+        {:ok, %{status_code: status, headers: headers, body: body}}
 
       {:error, error} ->
         {:error, error}

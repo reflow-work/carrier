@@ -118,13 +118,14 @@ defmodule CarrierWeb.ReportLive.New do
     slack_post_message_aggregated_result =
       build_slack_args(socket.assigns.query_result_parsed, img_urls)
       |> Enum.map(fn slack_arg ->
-          Noti.send_report_to_slack(
-            "C03U2QWU7F1",
-            args,
-            "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
-          )
+        Noti.send_report_to_slack(
+          "C03U2QWU7F1",
+          slack_arg,
+          "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+        )
+        |> IO.inspect()
       end)
-        |> Enum.all?(fn result -> result == :ok)
+      |> Enum.all?(fn result -> result == :ok end)
 
     if slack_post_message_aggregated_result == true do
       socket =
@@ -137,10 +138,11 @@ defmodule CarrierWeb.ReportLive.New do
         socket
         |> put_flash(
           :error,
-          "Failed to send one or more of slack messages for selected query results! 😮"
+          "Failed to send one or more slack messages for selected query results! 😮"
         )
 
-    {:noreply, socket}
+      {:noreply, socket}
+    end
   end
 
   defp build_slack_args(data, img_urls) do

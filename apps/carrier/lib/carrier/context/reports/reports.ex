@@ -24,7 +24,8 @@ defmodule Carrier.Reports do
 
   def delete_report(report_id) do
     with {:ok, %Report{} = report} <- fetch_report(report_id),
-      {:ok, deleted_report} <- report |> Report.delete(DateTime.utc_now()) |> TenantRepo.delete() do
+         {:ok, deleted_report} <-
+           report |> Report.delete(DateTime.utc_now()) |> TenantRepo.delete() do
       {:ok, deleted_report}
     end
   end

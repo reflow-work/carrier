@@ -15,7 +15,7 @@ defmodule Carrier.External.Slack do
   def post_message(channel_id, blocks, token) when is_list(blocks) do
     body = %{channel: channel_id, blocks: blocks}
 
-    Tesla.post(client(token), "/chat.postMessage", body: body)
+    Tesla.post(client(token), "/chat.postMessage", body)
     |> handle_response()
     |> case do
       {:ok, body} -> :ok

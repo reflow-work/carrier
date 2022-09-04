@@ -7,14 +7,13 @@ defmodule Carrier.Noti do
     Slack.post_message(channel, blocks, token)
   end
 
-  defp report_to_slack_block( %{
+  defp report_to_slack_block(%{
          title: title,
          raw: %{yesterday: raw_yesterday, last_week: raw_last_week},
          weekly_sum: %{last_week: weekly_sum_last_week, week_over_week: weekly_sum_week_over_week},
          img_url: img_url
-       }
-  ) do
-[
+       }) do
+    [
       %{
         "text" => %{"text" => ":chart: *#{title}*", "type" => "mrkdwn"},
         "type" => "section"
