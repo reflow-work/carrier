@@ -8,6 +8,8 @@ defmodule Carrier.Secrets.ConnInfo do
     field :name, :string
     field :source, Ecto.Enum, values: [:postgres, :mysql, :slack]
     field :info, Types.Map, source: :encrypted_info, redact: true
+
+    timestamps()
   end
 
   @required_for_create [:org_id, :name, :source, :info]
