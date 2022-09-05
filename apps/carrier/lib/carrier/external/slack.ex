@@ -23,17 +23,25 @@ defmodule Carrier.External.Slack do
     end
   end
 
-  # def get_public_channels() do
-  #   %URI{path: "/conversations.list"}
-  #   |> URI.to_string()
-  #   |> get()
-  # end
+  def list_conversations(token) do
+    Tesla.get(client(token), "/conversations.list")
+    |> handle_response()
+    |> case do
+      {:ok, %{"channels" => raw_channels}} ->
+        channels = raw_channels |> Enum.map(&parse_channel/1)
+        {:ok, channels}
 
-  # def get_access_token() do
-  #   %URI{path: "/oauth.v2.access"}
-  #   |> URI.to_string()
-  #   |> get()
-  # end
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp parse_channel(%{"id" => id, "name" => name}) do
+    %{
+      id: id,
+      name: name
+    }
+  end
 
   # data :: %{ dynamic_column_name: %{ data: list(), meta: map() }, ... }
   def build_post_message_args(data, img_urls) do
