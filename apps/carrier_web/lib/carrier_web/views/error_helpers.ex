@@ -17,6 +17,12 @@ defmodule CarrierWeb.ErrorHelpers do
     end)
   end
 
+  def error_tag(error) when is_atom(error) do
+    content_tag(:span, Gettext.dgettext(CarrierWeb.Gettext, "errors", error |> to_string()),
+      class: "invalid-feedback"
+    )
+  end
+
   @doc """
   Translates an error message using gettext.
   """

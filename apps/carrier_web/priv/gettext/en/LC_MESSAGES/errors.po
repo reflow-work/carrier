@@ -110,3 +110,6 @@ msgstr ""
 
 msgid "must be equal to %{number}"
 msgstr ""
+
+msgid "invalid_conn_info"
+msgstr "can't connect to the database"

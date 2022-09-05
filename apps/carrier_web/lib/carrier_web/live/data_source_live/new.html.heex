@@ -33,7 +33,7 @@
                 phx-click="select_source"
                 phx-value-source="mysql"
                 class={
-                  "p-4 cursor-pointer rounded w-96 border hover:bg-black hover:text-white flex justify-between #{if @conn_info.source == "mysql" do
+                  "p-4 cursor-pointer rounded w-96 border hover:bg-black hover:text-white flex justify-between #{if @source == :mysql do
                     "bg-black text-white"
                   else
                     "bg-white text-black"
@@ -46,7 +46,7 @@
                 phx-click="select_source"
                 phx-value-source="postgres"
                 class={
-                  "p-4 cursor-pointer rounded w-96 border hover:bg-black hover:text-white flex justify-between #{if @conn_info.source == "postgres" do
+                  "p-4 cursor-pointer rounded w-96 border hover:bg-black hover:text-white flex justify-between #{if @source == :postgres do
                     "bg-black text-white"
                   else
                     "bg-white text-black"
@@ -62,7 +62,8 @@
             <div class="mt-10">
               <.form
                 let={f}
-                for={:conn_info}
+                for={@changeset}
+                as="conn_info"
                 phx-submit="create_conn_info"
                 class="space-y-2"
                 autocomplete="off"
@@ -76,6 +77,7 @@
                     value: @conn_info.name,
                     placeholder: "Data Mart"
                   ) %>
+                  <%= error_tag(f, :name) %>
                 </div>
 
                 <div>
@@ -87,6 +89,7 @@
                     value: @conn_info.hostname,
                     placeholder: "127.0.0.1"
                   ) %>
+                  <%= error_tag(f, :hostname) %>
                 </div>
 
                 <div>
@@ -98,6 +101,7 @@
                     value: @conn_info.port,
                     placeholder: "Type here"
                   ) %>
+                  <%= error_tag(f, :port) %>
                 </div>
 
                 <div>
@@ -109,6 +113,7 @@
                     value: @conn_info.database,
                     placeholder: "database name"
                   ) %>
+                  <%= error_tag(f, :database) %>
                 </div>
 
                 <div>
@@ -120,6 +125,7 @@
                     value: @conn_info.username,
                     placeholder: "username"
                   ) %>
+                  <%= error_tag(f, :username) %>
                 </div>
 
                 <div>
@@ -130,7 +136,12 @@
                     class: "data-source-input",
                     placeholder: "password"
                   ) %>
+                  <%= error_tag(f, :username) %>
                 </div>
+
+                <%= if @error do %>
+                  <%= error_tag(@error) %>
+                <% end %>
 
                 <div class="flex pt-4">
                   <%= submit("Connect", class: "btn btn-primary") %>

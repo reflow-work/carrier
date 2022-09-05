@@ -1,6 +1,7 @@
 defmodule CarrierWeb.DataSourceLive.New do
   use CarrierWeb, :live_view
   alias CarrierWeb.Components.Icon
+  alias CarrierWeb.DataSourceLive.ConnInfoParams
   alias Carrier.Secrets
   alias Carrier.Secrets.DataSource
 
@@ -9,15 +10,10 @@ defmodule CarrierWeb.DataSourceLive.New do
     socket =
       socket
       |> assign(:step, "step-1")
-      |> assign(:conn_info, %{
-        name: nil,
-        source: nil,
-        hostname: nil,
-        port: nil,
-        username: nil,
-        password: nil,
-        database: nil
-      })
+      |> assign(:source, nil)
+      |> assign(:conn_info, %{})
+      |> assign(:changeset, nil)
+      |> assign(:error, nil)
 
     {:ok, socket}
   end
@@ -32,51 +28,64 @@ defmodule CarrierWeb.DataSourceLive.New do
   def handle_event("select_source", %{"source" => source_str}, socket) do
     source = String.to_existing_atom(source_str)
 
-    port = if source == :mysql, do: 3306, else: 5432
+    params_module =
+      case source do
+        :postgres ->
+          ConnInfoParams.Postgres
+
+        :mysql ->
+          ConnInfoParams.MySQL
+      end
+
+    conn_info = struct(params_module)
 
     socket =
       socket
       |> assign(:step, "step-2")
-      |> update(:conn_info, fn conn_info -> conn_info |> Map.put(:source, source) end)
-      |> update(:conn_info, fn conn_info -> conn_info |> Map.put(:port, port) end)
+      |> assign(:source, source)
+      |> assign(:conn_info, conn_info)
+      |> assign(:changeset, params_module.changeset(conn_info))
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("create_conn_info", %{"conn_info" => conn_info_input}, socket) do
-    %{
-      "name" => name,
-      "hostname" => hostname,
-      "port" => port,
-      "username" => username,
-      "password" => password,
-      "database" => database
-    } = conn_info_input
+  def handle_event("create_conn_info", %{"conn_info" => conn_info_params}, socket) do
+    conn_info = socket.assigns.conn_info
 
-    conn_info_params = %{
-      name: name,
-      source: socket.assigns.conn_info.source,
-      hostname: hostname,
-      port: port,
-      username: username,
-      password: password,
-      database: database
-    }
+    changeset =
+      conn_info
+      |> conn_info.__struct__.changeset(conn_info_params)
+      |> Map.put(:action, :validate)
 
-    socket = socket |> assign(:conn_info, conn_info_params)
+    conn_info = Ecto.Changeset.apply_changes(changeset)
 
-    # test connection
+    socket = socket |> assign(:conn_info, conn_info) |> assign(:changeset, changeset)
 
-    # create conn_info
-    socket = socket |> create_conn_info(conn_info_params)
+    socket =
+      case changeset.valid? do
+        true ->
+          conn_info_params = %{
+            org_id: socket.assigns.org_id,
+            name: conn_info_params["name"],
+            source: socket.assigns.source,
+            hostname: conn_info_params["hostname"],
+            port: conn_info_params["port"],
+            username: conn_info_params["username"],
+            password: conn_info_params["password"],
+            database: conn_info_params["database"]
+          }
+
+          socket |> create_conn_info(conn_info_params)
+
+        false ->
+          socket
+      end
 
     {:noreply, socket}
   end
 
   defp create_conn_info(socket, params) do
-    params = params |> Map.put(:org_id, socket.assigns.org_id)
-
     case do_create_conn_info(params) do
       {:ok, %DataSource{id: data_source_id}} ->
         socket
@@ -84,9 +93,9 @@ defmodule CarrierWeb.DataSourceLive.New do
           to: Routes.report_new_path(socket, :new, %{data_source_id: data_source_id})
         )
 
-      error ->
+      {:error, reason} ->
         socket
-        |> put_flash(:error, inspect(error))
+        |> assign(:error, reason)
     end
   end
 
