@@ -56,34 +56,54 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {_, _} =
-    Repo.insert_all(Integration, [
-      %{
-        org_id: org0.org_id,
-        service_name: :slack,
-        conn_info_id: conn_info1.id
-      }
-    ])
+  {_, [integration0]} =
+    Repo.insert_all(
+      Integration,
+      [
+        %{
+          org_id: org0.org_id,
+          service_name: :slack,
+          conn_info_id: conn_info1.id
+        }
+      ],
+      returning: true
+    )
 
-  {_, _} =
-    Repo.insert_all(DataSource, [
-      %{
-        org_id: org0.org_id,
-        name: "main db",
-        source: :postgres,
-        conn_info_id: conn_info0.id
-      }
-    ])
+  {_, [data_source0]} =
+    Repo.insert_all(
+      DataSource,
+      [
+        %{
+          org_id: org0.org_id,
+          name: "main db",
+          source: :postgres,
+          conn_info_id: conn_info0.id
+        }
+      ],
+      returning: true
+    )
 
   {_, _} =
     Repo.insert_all(Report, [
       %{
         org_id: org0.org_id,
-        name: "json is babo"
-      },
-      %{
-        org_id: org0.org_id,
-        name: "json is mungceongE"
+        name: "json is babo",
+        trigger_time: ~T[01:00:00],
+        integration_info: %Report.IntegrationInfo{
+          integration_id: integration0.id,
+          channel_id: "C03NXJZ1SPJ"
+        },
+        data_source_info: %Report.DataSourceInfo{
+          data_source_id: data_source0.id,
+          query: """
+          SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
+            FROM sample_data_simple
+            WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
+            GROUP BY order_date
+            ORDER BY order_date
+          """,
+          columns: ["total_amount", "total_revenue"]
+        }
       }
     ])
 end)

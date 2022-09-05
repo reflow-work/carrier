@@ -1,12 +1,13 @@
 defmodule Carrier.Works.QueryJob do
   use Oban.Worker, queue: :default
   require Logger
+  alias Carrier.Data.QueryData
   alias Carrier.Secrets
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Secrets.Integration
+  alias Carrier.Noti
   alias Carrier.TenantRepo
-  alias Carrier.Dynamic.PostgresRepo
-  alias Carrier.External.SlackWebhook
-  alias TableRex.Table
+  alias Carrier.External.Aws
+  alias Carrier.External.Slack
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args} = job) do
@@ -20,56 +21,61 @@ defmodule Carrier.Works.QueryJob do
 
   defp do_perform(%{
          "org_id" => org_id,
-         "conn_info_id" => conn_info_id,
+         "report_id" => report_id,
+         "name" => _name,
          "datetime" => datetime_str,
-         "slack_webhook_url" => slack_webhook_url
+         "integration_info" => %{
+           "integration_id" => integration_id,
+           "channel_id" => channel_id
+         },
+         "data_source_info" => %{
+           "data_source_id" => %{
+             "data_source_id" => data_source_id,
+             "sql_template" => sql_template,
+             "timezone" => timezone,
+             "period" => period,
+             "window_size" => window_size,
+             "comparing_period" => comparing_period,
+             "columns" => _columns
+           }
+         }
        }) do
     TenantRepo.put_org_id(org_id)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
-    with {:ok, %ConnInfo{} = conn_info} = Secrets.fetch_conn_info(conn_info_id),
-         {:ok, %{header: header, rows: rows}} <- run_query(conn_info, datetime),
-         {:ok, message} <- make_message(%{header: header, rows: rows}),
-         {:ok, _} <- SlackWebhook.send_message(slack_webhook_url, message) do
+    with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
+         {:ok, raw_data} <-
+           QueryData.query(%{
+             org_id: org_id,
+             data_source_id: data_source_id,
+             sql_template: sql_template,
+             datetime: datetime,
+             timezone: timezone,
+             period: period,
+             window_size: window_size,
+             comparing_period: comparing_period
+           }),
+         parsed_data = QueryData.refine_data_based_on_columns(raw_data),
+         {:ok, %{"body" => %{"imgUrls" => img_urls}}, _} <-
+           Aws.save_chart_img(%{
+             data: parsed_data,
+             orgId: org_id,
+             reportId: report_id
+           }),
+         slack_args = Slack.build_post_message_args(parsed_data, img_urls),
+         true <-
+           slack_args
+           |> Enum.map(
+             &Noti.send_report_to_slack(
+               channel_id,
+               &1,
+               integration.conn_info.bot_token
+             )
+           )
+           |> Enum.all?(fn result -> result == :ok end) do
       :ok
     end
-  end
-
-  defp run_query(%ConnInfo{source: source, info: info}, datetime) do
-    case source do
-      "postgres" ->
-        credentials =
-          info
-          |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
-          |> Keyword.new()
-
-        period = 28
-        t_unit = 7
-
-        query = """
-        SELECT DATE(datetime) as date, SUM(price)
-          FROM orders
-          WHERE datetime >= $1::TIMESTAMP - ($2::INTEGER + $3::INTEGER) * interval '1 days' AND datetime < $1::TIMESTAMP
-          GROUP BY date
-          ORDER BY date;
-        """
-
-        %{columns: columns, rows: rows} =
-          PostgresRepo.with_dynamic_repo(credentials, fn ->
-            PostgresRepo.query!(query, [datetime, period, t_unit])
-          end)
-
-        {:ok, %{header: columns, rows: rows}}
-    end
-  end
-
-  defp make_message(%{header: header, rows: rows}) do
-    table_str =
-      Table.new(rows, header)
-      |> Table.render!()
-
-    {:ok, table_str}
   end
 
   defp schedule_next(%Oban.Job{

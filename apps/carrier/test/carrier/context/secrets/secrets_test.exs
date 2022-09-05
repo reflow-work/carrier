@@ -112,6 +112,22 @@ defmodule Carrier.SecretsTest do
     end
   end
 
+  describe "fetch_integration/1" do
+    setup do
+      integration = TenantFactory.insert(:integration)
+
+      TenantRepo.put_org_id(integration.org_id)
+
+      %{integration: integration}
+    end
+
+    test "with valid params", %{integration: integration} do
+      assert {:ok, fetched_integration} = Secrets.fetch_integration(integration.id)
+      assert same_records?(fetched_integration, integration)
+      assert %ConnInfo{} = fetched_integration.conn_info
+    end
+  end
+
   describe "list_data_source/0" do
     setup do
       data_source = TenantFactory.insert(:data_source)

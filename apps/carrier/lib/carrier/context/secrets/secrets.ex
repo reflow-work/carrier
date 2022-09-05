@@ -62,6 +62,21 @@ defmodule Carrier.Secrets do
     |> TenantRepo.all()
   end
 
+  def fetch_integration(integration_id) do
+    Integration.fetch(integration_id)
+    |> DataSource.preload_conn_info()
+    |> TenantRepo.one()
+    |> case do
+      %Integration{} = integration ->
+        {:ok, integration}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: "integration_id", conditions: %{integration_id: integration_id}}}}
+    end
+  end
+
   def list_data_sources() do
     DataSource.list()
     |> DataSource.preload_conn_info()

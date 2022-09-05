@@ -1,10 +1,12 @@
 defmodule Carrier.Secrets.Integration do
   use Carrier.Schema
+  alias Carrier.Secrets.ConnInfo
 
   schema "integrations" do
+    belongs_to :conn_info, ConnInfo
+
     field :org_id, :integer
     field :service_name, Ecto.Enum, values: [:slack]
-    field :conn_info_id, :integer
   end
 
   @required_for_create [:org_id, :service_name, :conn_info_id]
@@ -30,5 +32,14 @@ defmodule Carrier.Secrets.Integration do
 
   def list() do
     __MODULE__
+  end
+
+  def fetch(id) do
+    __MODULE__
+    |> where([i], i.id == ^id)
+  end
+
+  def preload_conn_info(query) do
+    query |> preload([:conn_info])
   end
 end

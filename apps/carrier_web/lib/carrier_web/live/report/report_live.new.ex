@@ -147,7 +147,7 @@ defmodule CarrierWeb.ReportLive.New do
   defp create_report(socket, params) do
     params = params |> Map.put(:org_id, socket.assigns.org_id)
 
-    case Reports.create_reports(params) do
+    case Reports.create_report(params) do
       {:ok, report} ->
         socket
         |> put_flash(:info, "Report \"#{report.name}\" has been saved!")
