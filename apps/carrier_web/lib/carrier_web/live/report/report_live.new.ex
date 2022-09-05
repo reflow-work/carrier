@@ -3,6 +3,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.Data.QueryData
   alias Carrier.Reports
   alias Carrier.Noti
+  alias Carrier.External.Slack
   alias Carrier.External.Aws
 
   on_mount(CarrierWeb.DataSourceHook)
@@ -53,7 +54,7 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> case do
         {:ok, raw_data} ->
-          parsed_data = parse_data(raw_data)
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data)
 
           selected_columns =
             parsed_data
@@ -115,7 +116,7 @@ defmodule CarrierWeb.ReportLive.New do
       save_chart_image(save_chart_img_params)
 
     slack_post_message_aggregated_result =
-      build_slack_args(socket.assigns.query_result_parsed, img_urls)
+      Slack.build_post_message_args(socket.assigns.query_result_parsed, img_urls)
       |> Enum.map(fn slack_arg ->
         Noti.send_report_to_slack(
           "C03U2QWU7F1",
@@ -141,25 +142,6 @@ defmodule CarrierWeb.ReportLive.New do
 
       {:noreply, socket}
     end
-  end
-
-  defp build_slack_args(data, img_urls) do
-    data
-    |> Map.to_list()
-    |> Enum.map(fn {k, v} ->
-      %{
-        title: v.meta.label,
-        raw: %{
-          yesterday: v.meta.current_period_last_tick_raw,
-          last_week: v.meta.previous_period_last_tick_raw
-        },
-        weekly_sum: %{
-          last_week: v.meta.current_period_sum,
-          week_over_week: v.meta.diff_between_periods_in_percentage
-        },
-        img_url: Map.get(img_urls, k)
-      }
-    end)
   end
 
   defp create_report(socket, params) do
@@ -188,70 +170,5 @@ defmodule CarrierWeb.ReportLive.New do
   defp save_chart_image(%{orgId: orgId, reportId: reportId, data: data}) do
     %{orgId: orgId, reportId: reportId, data: data}
     |> Aws.save_chart_img()
-  end
-
-  defp build_meta_data(key, data) do
-    current_period_sum_key = key <> "_window_sum"
-    previous_period_sum_key = key <> "_window_sum_offset"
-    current_to_previous_periods_sum_ratio_key = key <> "_window_sum_over"
-
-    last_datum =
-      data
-      |> List.last(data)
-
-    previous_period_last_datum = Enum.at(data, -8)
-
-    diff_between_periods_in_percentage =
-      last_datum[current_to_previous_periods_sum_ratio_key]
-      |> Decimal.from_float()
-      |> Decimal.sub(1)
-      |> Decimal.round(4)
-      |> Decimal.mult(100)
-      |> Decimal.to_float()
-
-    %{
-      label: key,
-      current_period_last_tick_raw: last_datum[key],
-      previous_period_last_tick_raw: previous_period_last_datum[key],
-      current_period_sum: last_datum[current_period_sum_key],
-      previous_period_sum: last_datum[previous_period_sum_key],
-      current_to_previous_periods_sum_ratio:
-        last_datum[current_to_previous_periods_sum_ratio_key],
-      diff_between_periods_in_percentage: diff_between_periods_in_percentage
-    }
-  end
-
-  defp parse_data(%{columns: columns, data: data}) do
-    non_date_keys =
-      columns
-      |> Enum.filter(&(&1 !== "date"))
-
-    non_date_keys
-    |> Enum.map(fn key ->
-      data_by_column = split_data_by_columns(key, data)
-      meta_data = build_meta_data(key, data_by_column)
-
-      {key, Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
-    end)
-    |> Enum.into(%{})
-  end
-
-  defp split_data_by_columns(key, data) do
-    current_period_sum_key = key <> "_window_sum"
-    previous_period_sum_key = key <> "_window_sum_offset"
-    current_to_previous_periods_sum_ratio = key <> "_window_sum_over"
-
-    Enum.map(
-      data,
-      fn datum ->
-        %{
-          :date => datum["date"],
-          key => datum[key],
-          current_period_sum_key => datum[current_period_sum_key],
-          previous_period_sum_key => datum[previous_period_sum_key],
-          current_to_previous_periods_sum_ratio => datum[current_to_previous_periods_sum_ratio]
-        }
-      end
-    )
   end
 end

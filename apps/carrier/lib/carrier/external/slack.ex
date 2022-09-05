@@ -35,6 +35,26 @@ defmodule Carrier.External.Slack do
   #   |> get()
   # end
 
+  # data :: %{ dynamic_column_name: %{ data: list(), meta: map() }, ... }
+  def build_post_message_args(data, img_urls) do
+    data
+    |> Map.to_list()
+    |> Enum.map(fn {k, v} ->
+      %{
+        title: v.meta.label,
+        raw: %{
+          yesterday: v.meta.current_period_last_tick_raw,
+          last_week: v.meta.previous_period_last_tick_raw
+        },
+        weekly_sum: %{
+          last_week: v.meta.current_period_sum,
+          week_over_week: v.meta.diff_between_periods_in_percentage
+        },
+        img_url: Map.get(img_urls, k)
+      }
+    end)
+  end
+
   defp handle_response(response) do
     case response do
       {:ok, %Tesla.Env{status: 200, body: %{"ok" => true} = body}} ->
