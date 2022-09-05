@@ -6,6 +6,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Slack
   alias Carrier.External.Aws
 
+  on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
 
   @sample_sql_template """
@@ -18,6 +19,11 @@ defmodule CarrierWeb.ReportLive.New do
 
   @impl true
   def mount(_params, _session, socket) do
+    {:ok, channels} =
+      Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
+
+    channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+
     socket =
       socket
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
@@ -25,7 +31,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:query_result_raw, fn -> %{} end)
       |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
-      |> assign_new(:channels, fn -> ["a", "b", "c"] end)
+      |> assign_new(:channels, fn -> channel_options end)
       |> assign_new(:hours, fn -> 0..23 end)
 
     {:ok, socket}

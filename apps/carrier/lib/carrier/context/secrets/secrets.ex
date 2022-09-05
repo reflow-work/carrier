@@ -59,6 +59,7 @@ defmodule Carrier.Secrets do
 
   def list_integrations() do
     Integration.list()
+    |> DataSource.preload_conn_info()
     |> TenantRepo.all()
   end
 
