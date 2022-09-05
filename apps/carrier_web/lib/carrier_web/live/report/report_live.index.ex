@@ -3,7 +3,7 @@ defmodule CarrierWeb.ReportLive.Index do
   alias Carrier.Reports
   alias CarrierWeb.Components.Modal
 
-  on_mount(CarrierWeb.CheckIntegrationHook)
+  on_mount(CarrierWeb.IntegrationHook)
 
   @impl true
   def mount(_params, _session, socket) do
