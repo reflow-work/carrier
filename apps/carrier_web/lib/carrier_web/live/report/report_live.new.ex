@@ -2,6 +2,7 @@ defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   alias Carrier.Data.QueryData
   alias Carrier.Reports
+  alias Carrier.Reports.Report
   alias Carrier.Noti
   alias Carrier.External.Slack
   alias Carrier.External.Aws
@@ -173,10 +174,10 @@ defmodule CarrierWeb.ReportLive.New do
 
   defp create_report(socket, params) do
     case Reports.create_report(params) do
-      {:ok, report} ->
+      {:ok, %Report{name: report_name}} ->
         socket
-        |> put_flash(:info, "Report \"#{report.name}\" has been saved!")
-        |> assign("report_id", report.id)
+        |> put_flash(:info, "Report \"#{report_name}\" has been saved!")
+        |> push_redirect(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
         socket |> put_flash(:error, error)
