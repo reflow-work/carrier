@@ -5,6 +5,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.Noti
   alias Carrier.External.Slack
   alias Carrier.External.Aws
+  alias Carrier.Core.TimeHelper
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -33,6 +34,10 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)
       |> assign_new(:hours, fn -> 0..23 end)
+      |> assign(:timezone, "Asia/Seoul")
+      |> assign(:period, 28)
+      |> assign(:window_size, 7)
+      |> assign(:comparing_period, 7)
 
     {:ok, socket}
   end
@@ -53,10 +58,10 @@ defmodule CarrierWeb.ReportLive.New do
         data_source_id: socket.assigns.data_source.id,
         sql_template: sql_template,
         datetime: datetime,
-        timezone: "Asia/Seoul",
-        period: 28,
-        window_size: 7,
-        comparing_period: 7
+        timezone: socket.assigns.timezone,
+        period: socket.assigns.period,
+        window_size: socket.assigns.window_size,
+        comparing_period: socket.assigns.comparing_period
       })
       |> case do
         {:ok, raw_data} ->
@@ -98,12 +103,28 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   @impl true
-  def handle_event("save_report", params, socket) do
-    %{"report" => %{"name" => name, "channel" => _channel, "hour" => _hour}} = params
+  def handle_event("save_report", %{"report" => report_input}, socket) do
+    %{"name" => name, "channel" => channel, "hour" => hour_str} = report_input
+
+    trigger_time = TimeHelper.from!(hour: hour_str |> String.to_integer())
 
     socket =
       socket
-      |> create_report(%{name: name})
+      |> create_report(%{
+        org_id: socket.assigns.org_id,
+        name: name,
+        trigger_time: trigger_time,
+        integration_info: %{integration_id: socket.assigns.integration.id, channel_id: channel},
+        data_source_info: %{
+          data_source_id: socket.assigns.data_source.id,
+          sql_template: socket.assigns.sql_template,
+          timezone: socket.assigns.timezone,
+          period: socket.assigns.period,
+          window_size: socket.assigns.window_size,
+          comparing_period: socket.assigns.comparing_period,
+          columns: socket.assigns.selected_columns
+        }
+      })
 
     {:noreply, socket}
   end
@@ -151,8 +172,6 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   defp create_report(socket, params) do
-    params = params |> Map.put(:org_id, socket.assigns.org_id)
-
     case Reports.create_report(params) do
       {:ok, report} ->
         socket
