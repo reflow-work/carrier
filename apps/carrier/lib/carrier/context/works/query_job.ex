@@ -8,6 +8,7 @@ defmodule Carrier.Works.QueryJob do
   alias Carrier.TenantRepo
   alias Carrier.External.Aws
   alias Carrier.External.Slack
+  alias Carrier.Core.Traversable
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args} = job) do
@@ -65,7 +66,7 @@ defmodule Carrier.Works.QueryJob do
              reportId: report_id
            }),
          slack_args = Slack.build_post_message_args(parsed_data, img_urls),
-         true <-
+         {:ok, _} <-
            slack_args
            |> Enum.map(
              &Noti.send_report_to_slack(
@@ -74,7 +75,7 @@ defmodule Carrier.Works.QueryJob do
                integration.conn_info.info["bot_token"]
              )
            )
-           |> Enum.all?(fn result -> result == :ok end) do
+           |> Traversable.traverse() do
       :ok
     end
   end
