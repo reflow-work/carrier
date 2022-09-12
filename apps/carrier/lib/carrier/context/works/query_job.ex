@@ -29,15 +29,13 @@ defmodule Carrier.Works.QueryJob do
            "channel_id" => channel_id
          },
          "data_source_info" => %{
-           "data_source_id" => %{
-             "data_source_id" => data_source_id,
-             "sql_template" => sql_template,
-             "timezone" => timezone,
-             "period" => period,
-             "window_size" => window_size,
-             "comparing_period" => comparing_period,
-             "columns" => _columns
-           }
+           "data_source_id" => data_source_id,
+           "sql_template" => sql_template,
+           "timezone" => timezone,
+           "period" => period,
+           "window_size" => window_size,
+           "comparing_period" => comparing_period,
+           "columns" => _columns
          }
        }) do
     TenantRepo.put_org_id(org_id)
@@ -70,7 +68,7 @@ defmodule Carrier.Works.QueryJob do
              &Noti.send_report_to_slack(
                channel_id,
                &1,
-               integration.conn_info.bot_token
+               integration.conn_info.info["bot_token"]
              )
            )
            |> Enum.all?(fn result -> result == :ok end) do
@@ -89,8 +87,8 @@ defmodule Carrier.Works.QueryJob do
     {:ok, scheduled_at, _} = scheduled_at_str |> DateTime.from_iso8601()
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
-    new_scheduled_at = scheduled_at |> DateTime.add(10, :second)
-    new_datetime = datetime |> DateTime.add(10, :second)
+    new_scheduled_at = scheduled_at |> Timex.shift(days: 1)
+    new_datetime = datetime |> Timex.shift(days: 1)
 
     Logger.debug("next job is scheduled_at #{inspect(new_scheduled_at)}")
 
