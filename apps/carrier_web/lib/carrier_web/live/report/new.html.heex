@@ -1,10 +1,5 @@
 <section class="page-container">
   <header class="page-header">
-    <ul class="steps">
-      <li class="step step-primary">Integrate Slack</li>
-      <li class="step step-primary">Connect Data Source</li>
-      <li class="step step-primary">Create Report</li>
-    </ul>
     <h1 class="page-title">
       <span class="pr-1">📊</span> Create New Report
     </h1>
@@ -50,7 +45,10 @@
             </.form>
           <% else %>
             <div class="pt-6">
-              <Empty.empty title="쿼리 결과가 없습니다." description="확인할 데이터를 쿼리해주세요." />
+              <Empty.empty
+                title="쿼리 결과가 없습니다."
+                description="확인할 데이터를 쿼리해주세요."
+              />
             </div>
           <% end %>
         </div>
@@ -101,13 +99,16 @@
             <% end %>
           <% else %>
             <div class="pt-6">
-              <Empty.empty title="쿼리 결과가 없습니다." description="확인할 데이터를 쿼리해주세요." />
+              <Empty.empty
+                title="쿼리 결과가 없습니다."
+                description="확인할 데이터를 쿼리해주세요."
+              />
             </div>
           <% end %>
         </div>
       </section>
     </section>
-    
+
     <section class="card">
       <div class="card-body">
         <h2 class="card-title">Report Details</h2>

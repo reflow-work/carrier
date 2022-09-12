@@ -1,19 +1,28 @@
 <div class="page-container">
   <header class="page-header">
-    <ul class="steps">
-      <li class="step step-primary">Integrate Slack</li>
-      <li class="step step-primary">Connect Data Source</li>
-      <li class="step">Create Report</li>
-    </ul>
     <h1 class="page-title">
-      <span class="pr-1">🗄</span> Connect Data Source
+      <span class="pr-1">⚙️</span>초기 설정하기
     </h1>
   </header>
 
   <section class="card mt-10">
     <div class="card-body">
+      <div class="flex">
+        <a class="flex-1 text-sm">
+          <div class="p-2 pt-0 border-b-2">
+            1. Integrate Slack
+          </div>
+        </a>
+
+        <a class="flex-1 text-sm">
+          <div class="ml-4 p-2 pt-0 border-b-2 border-primary font-bold">
+            2. Connect Data Source
+          </div>
+        </a>
+      </div>
+
       <div class="rounded-md">
-        <div class="">
+        <div class="mt-10">
           <div class="flex">
             <a phx-click="change_step" phx-value-step="step-1" class="text-sm cursor-pointer">
               <div class={"p-2 pt-0 border-b-2 hover:text-primary-200 #{if @step == "step-1" do
