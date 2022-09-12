@@ -33,6 +33,24 @@ defmodule Carrier.AccountsTest do
     end
   end
 
+  describe "fetch_user/1" do
+    @describetag repo: TenantRepo
+
+    setup do
+      user = TenantFactory.insert(:user)
+
+      TenantRepo.put_org_id(user.org_id)
+
+      {:ok, %{user: user}}
+    end
+
+    test "with valid user_id", %{user: user} do
+      assert {:ok, %User{} = fetched_user} = Accounts.fetch_user(user.id)
+
+      assert same_records?(fetched_user, user)
+    end
+  end
+
   describe "fetch_user_by_email/1" do
     setup do
       user = Factory.insert(:user)

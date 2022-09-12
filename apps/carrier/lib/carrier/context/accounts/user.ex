@@ -19,6 +19,11 @@ defmodule Carrier.Accounts.User do
     |> changeset_for_create(%{org_id: org_id, email: email})
   end
 
+  def get(user_id) do
+    from u in __MODULE__,
+      where: u.id == ^user_id
+  end
+
   def get_by_email(email) do
     __MODULE__
     |> where([u], u.email == ^email)
