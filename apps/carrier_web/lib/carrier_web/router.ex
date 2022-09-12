@@ -11,6 +11,10 @@ defmodule CarrierWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :auth_user do
+    plug CarrierWeb.AuthPlug
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -31,7 +35,7 @@ defmodule CarrierWeb.Router do
 
   # With Auth
   scope "/", CarrierWeb do
-    pipe_through :browser
+    pipe_through [:browser, :auth_user]
 
     live_session :user, on_mount: CarrierWeb.UserHook do
       live "/integrations/new", IntegrationLive.New, :new

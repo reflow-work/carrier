@@ -1,6 +1,6 @@
 defmodule Carrier.Accounts do
   alias Carrier.Accounts.{Org, User}
-  alias Carrier.Repo
+  alias Carrier.{Repo, TenantRepo}
 
   def auth(email) do
     case fetch_user_by_email(email) do
@@ -22,6 +22,15 @@ defmodule Carrier.Accounts do
   def create_org(%{name: name}) do
     Org.create(%{name: name})
     |> Repo.insert()
+  end
+
+  def fetch_user(user_id) do
+    User.get(user_id)
+    |> TenantRepo.one()
+    |> case do
+      %User{} = user -> {:ok, user}
+      nil -> {:error, {:resource_not_found, target: User, conditions: %{user_id: user_id}}}
+    end
   end
 
   def fetch_user_by_email(email) do
