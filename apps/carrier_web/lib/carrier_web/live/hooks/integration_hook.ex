@@ -8,7 +8,7 @@ defmodule CarrierWeb.IntegrationHook do
       [%Integration{} = integration] ->
         {:cont, socket |> assign(:integration, integration)}
 
-      false ->
+      _ ->
         socket = socket |> push_redirect(to: Routes.integration_new_path(socket, :new))
 
         {:halt, socket}
