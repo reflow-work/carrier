@@ -29,7 +29,6 @@
               <td>15:00</td>
               <td>#all-data</td>
               <td>
-                <button class="btn btn-sm">Edit</button>
                 <%= live_patch("Delete",
                   to: Routes.report_index_path(@socket, :delete, report.id),
                   class: "btn btn-sm"
