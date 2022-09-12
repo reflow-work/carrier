@@ -61,7 +61,6 @@ defmodule Carrier.Reports do
     })
     |> Map.delete(:id)
     |> Map.put(:scheduled_at, scheduled_at)
-    |> IO.inspect()
     |> QueryJob.new(meta: %{org_id: report.org_id})
     |> then(&Oban.insert(CarrierWorker.Oban, &1))
   end
