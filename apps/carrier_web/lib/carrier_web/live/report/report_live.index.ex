@@ -50,10 +50,6 @@ defmodule CarrierWeb.ReportLive.Index do
     case Reports.list_reports() do
       {:ok, reports} ->
         socket |> assign(:reports, reports)
-
-      {:error, reason} ->
-        socket
-        |> put_flash(:error, inspect(reason))
     end
   end
 
@@ -66,7 +62,7 @@ defmodule CarrierWeb.ReportLive.Index do
 
       {:error, reason} ->
         socket
-        |> put_flash(:error, inspect(reason))
+        |> put_flash_for(:error, inspect(reason), timeout: :timer.seconds(3))
     end
   end
 end

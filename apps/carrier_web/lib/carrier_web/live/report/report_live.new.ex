@@ -79,7 +79,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> add_draw_chart_events(parsed_data, selected_columns)
 
         {:error, error} ->
-          socket |> put_flash(:error, error)
+          socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
       end
 
     {:noreply, socket}
@@ -157,15 +157,18 @@ defmodule CarrierWeb.ReportLive.New do
     if slack_post_message_aggregated_result == true do
       socket =
         socket
-        |> put_flash(:info, "Slack messages for the selected query results have been sent! 😊")
+        |> put_flash_for(:info, "Slack messages for the selected query results have been sent! 😊",
+          timeout: :timer.seconds(3)
+        )
 
       {:noreply, socket}
     else
       socket =
         socket
-        |> put_flash(
+        |> put_flash_for(
           :error,
-          "Failed to send one or more slack messages for selected query results! 😮"
+          "Failed to send one or more slack messages for selected query results! 😮",
+          timeout: :timer.seconds(3)
         )
 
       {:noreply, socket}
@@ -176,11 +179,13 @@ defmodule CarrierWeb.ReportLive.New do
     case Reports.create_report(params) do
       {:ok, %Report{name: report_name}} ->
         socket
-        |> put_flash(:info, "Report \"#{report_name}\" has been saved!")
+        |> put_flash_for(:info, "Report \"#{report_name}\" has been saved!",
+          timeout: :timer.seconds(3)
+        )
         |> push_redirect(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
-        socket |> put_flash(:error, error)
+        socket |> put_flash_for(:error, error, timeout: :timer.seconds(3))
     end
   end
 
