@@ -17,6 +17,12 @@ defmodule CarrierWeb.ReportLive.Index do
         false -> socket
       end
 
+    socket =
+      case length(socket.assigns.reports) < 1 do
+        true -> socket |> push_redirect(to: Routes.data_source_new_path(socket, :new))
+        _ -> socket
+      end
+
     {:ok, socket}
   end
 
