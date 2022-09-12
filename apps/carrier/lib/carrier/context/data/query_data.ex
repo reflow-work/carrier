@@ -2,7 +2,7 @@ defmodule Carrier.Data.QueryData do
   alias Carrier.Secrets
   alias Carrier.Secrets.{DataSource, ConnInfo}
   alias Carrier.TenantRepo
-  alias Carrier.Dynamic.PostgresRepo
+  alias Carrier.Dynamic.{PostgresRepo, MySQLRepo}
   alias Carrier.Core.DataHelper
 
   @start_template "{{start}}"
@@ -239,6 +239,19 @@ defmodule Carrier.Data.QueryData do
         %{columns: columns, rows: rows} =
           PostgresRepo.with_dynamic_repo(credentials, fn ->
             PostgresRepo.query!(sql, sql_params)
+          end)
+
+        {:ok, %{columns: columns, rows: rows}}
+
+      :mysql ->
+        credentials =
+          info
+          |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
+          |> Keyword.new()
+
+        %{columns: columns, rows: rows} =
+          MySQLRepo.with_dynamic_repo(credentials, fn ->
+            MySQLRepo.query!(sql, sql_params)
           end)
 
         {:ok, %{columns: columns, rows: rows}}
