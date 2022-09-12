@@ -14,9 +14,12 @@ defmodule Carrier.Works.QueryJob do
     with :ok <- do_perform(args),
          {:ok, _next_job} <- schedule_next(job) do
       :ok
-    end
+    else
+      {:error, reason} ->
+        Logger.error("Failed to send report: #{inspect(reason)}")
 
-    :ok
+        {:error, reason}
+    end
   end
 
   defp do_perform(%{
