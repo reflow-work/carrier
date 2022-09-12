@@ -7,11 +7,13 @@ defmodule Carrier.Reports.Report do
     field :trigger_time, :time
 
     embeds_one(:integration_info, IntegrationInfo, primary_key: false, on_replace: :delete) do
+      @derive Jason.Encoder
       field :integration_id, :integer
       field :channel_id, :string
     end
 
     embeds_one(:data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete) do
+      @derive Jason.Encoder
       field :data_source_id, :integer
       field :sql_template, :string
       field :timezone, :string
