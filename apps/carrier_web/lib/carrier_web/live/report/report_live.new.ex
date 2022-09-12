@@ -29,8 +29,8 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
-      |> assign_new(:query_result_parsed, fn -> %{} end)
-      |> assign_new(:query_result_raw, fn -> %{} end)
+      |> assign_new(:query_result_parsed, fn -> nil end)
+      |> assign_new(:query_result_raw, fn -> nil end)
       |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)

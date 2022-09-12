@@ -9,14 +9,18 @@
     <section class="card">
       <div class="card-body">
         <h2 class="card-title">Type Query</h2>
-
         <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
-          <%= textarea(f, :sql_template,
-            class: "border border-black rounded mt-2 p-2 w-full",
-            placeholder: "SQL here",
-            value: @sql_template,
-            rows: 12
-          ) %>
+          <div class="flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-2">
+            <%= textarea(f, :sql_template,
+              class: "border border-black rounded mt-2 p-2 w-full sm:col-span-2",
+              placeholder: "SQL here",
+              value: @sql_template,
+              rows: 12
+            ) %>
+            <p class="border border-black rounded mt-2 p-2 w-full sm:col-span-1">
+              This should be query guide!
+            </p>
+          </div>
           <div class="text-right mt-2">
             <%= submit("Run Query", class: "btn btn-primary") %>
           </div>
