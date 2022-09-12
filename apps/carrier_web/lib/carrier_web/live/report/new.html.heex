@@ -33,7 +33,7 @@
       </div>
     </section>
 
-    <section class="flex gap-8 sm:flex-col">
+    <section class="flex gap-8 flex-col lg:flex-row">
       <section class="card">
         <div class="card-body">
           <h2 class="card-title">Set up Report</h2>
@@ -49,7 +49,9 @@
               <% end %>
             </.form>
           <% else %>
-            <p>Need data!</p>
+            <div class="pt-6">
+              <Empty.empty title="쿼리 결과가 없습니다." description="확인할 데이터를 쿼리해주세요." />
+            </div>
           <% end %>
         </div>
       </section>
@@ -98,11 +100,14 @@
               <% end %>
             <% end %>
           <% else %>
-            <p>Need data!</p>
+            <div class="pt-6">
+              <Empty.empty title="쿼리 결과가 없습니다." description="확인할 데이터를 쿼리해주세요." />
+            </div>
           <% end %>
         </div>
       </section>
     </section>
+    
     <section class="card">
       <div class="card-body">
         <h2 class="card-title">Report Details</h2>

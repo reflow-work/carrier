@@ -7,6 +7,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Slack
   alias Carrier.External.Aws
   alias Carrier.Core.TimeHelper
+  alias CarrierWeb.Components.Empty
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
