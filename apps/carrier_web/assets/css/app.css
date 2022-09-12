@@ -130,6 +130,10 @@ input[type='text']:focus {
   @apply border-primary ring-primary;
 }
 
+input[type='checkbox'] {
+  @apply text-primary;
+}
+ 
 .text-h1 {
   @apply text-3xl;
 }
