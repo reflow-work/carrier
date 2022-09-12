@@ -6,7 +6,7 @@
 
 /* Alerts and form errors used by phx.new */
 .toast {
-  @apply p-5;
+  @apply p-5 z-50;
 }
 
 .alert {
