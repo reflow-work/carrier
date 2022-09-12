@@ -27,6 +27,13 @@ defmodule CarrierWeb do
     end
   end
 
+  def plug do
+    quote do
+      import Plug.Conn
+      alias CarrierWeb.Router.Helpers, as: Routes
+    end
+  end
+
   def view do
     quote do
       use Phoenix.View,
