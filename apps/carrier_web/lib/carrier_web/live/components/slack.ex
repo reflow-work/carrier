@@ -31,7 +31,7 @@ defmodule CarrierWeb.Components.Slack do
   @path "https://slack.com/oauth/v2/authorize"
   defp generate_url() do
     query = %{
-      scope: ["channels:read"] |> Enum.join(","),
+      scope: ["channels:read", "chat:write", "chat:write.public"] |> Enum.join(","),
       redirect_uri: nil,
       client_id: client_id()
     }
