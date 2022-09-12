@@ -17,12 +17,12 @@
         <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
           <div class="flex-col gap-2 sm:grid sm:grid-cols-3 sm:gap-2">
             <%= textarea(f, :sql_template,
-              class: "border border-black rounded mt-2 p-2 w-full sm:col-span-2",
+              class: "border rounded mt-2 p-2 w-full sm:col-span-2",
               placeholder: "SQL here",
               value: @sql_template,
               rows: 12
             ) %>
-            <p class="border border-black rounded mt-2 p-2 w-full sm:col-span-1">
+            <p class="border rounded mt-2 p-2 w-full sm:col-span-1">
               This should be query guide!
             </p>
           </div>
@@ -117,26 +117,26 @@
           id="report_form"
           phx-submit="save_report"
           autocomplete="off"
-          class="space-y-2"
+          class="space-y-4"
         >
-          <div class="flex items-center gap-x-2">
-            <%= label(f, :name, "Name", class: "label") %>
+          <div class="flex items-center gap-x-2 mt-4">
+            <%= label(f, :name, "레포트 이름", class: "label w-28 text-gray-500 text-sm") %>
             <%= text_input(f, :name,
-              placeholder: "Daily User Metric",
-              class: "input input-bordered"
+              placeholder: "데일리 유저 지표",
+              class: "input input-bordered w-64"
             ) %>
             <%= error_tag(f, :name) %>
           </div>
 
           <div class="flex items-center gap-x-2">
-            <%= label(f, :hour, "Hour", class: "label") %>
-            <%= select(f, :hour, @hours, class: "select select-bordered") %>
+            <%= label(f, :hour, "레포트 발송 시간", class: "label w-28 text-gray-500 text-sm") %>
+            <%= select(f, :hour, @hours, class: "select select-bordered w-64") %>
             <%= error_tag(f, :hour) %>
           </div>
 
           <div class="flex items-center gap-x-2">
-            <%= label(f, :channel, "Channel", class: "label") %>
-            <%= select(f, :channel, @channels, class: "select select-bordered") %>
+            <%= label(f, :channel, "레포트 발송 채널", class: "label w-28 text-gray-500 text-sm") %>
+            <%= select(f, :channel, @channels, class: "select select-bordered w-64") %>
             <%= error_tag(f, :channel) %>
           </div>
 

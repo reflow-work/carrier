@@ -35,7 +35,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)
-      |> assign_new(:hours, fn -> 0..23 end)
+      |> assign_new(:hours, fn -> 0..23 |> Enum.map(&{"매일 #{&1}시", &1}) end)
       |> assign(:timezone, "Asia/Seoul")
       |> assign(:period, 28)
       |> assign(:window_size, 7)
