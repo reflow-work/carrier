@@ -186,7 +186,7 @@ defmodule CarrierWeb.ReportLive.New do
         |> push_redirect(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
-        socket |> put_flash_for(:error, error, timeout: :timer.seconds(3))
+        socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
     end
   end
 
