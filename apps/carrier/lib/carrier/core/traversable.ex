@@ -3,6 +3,7 @@ defmodule Carrier.Core.Traversable do
     ok_tuple_list
     |> Enum.reduce_while({:ok, []}, fn ok_tuple, {:ok, acc} ->
       case ok_tuple do
+        :ok -> {:cont, {:ok, [nil | acc]}}
         {:ok, result} -> {:cont, {:ok, [result | acc]}}
         {:error, error} -> {:halt, {:error, error}}
       end

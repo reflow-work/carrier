@@ -6,11 +6,11 @@ defmodule Carrier.Core.TraversableTest do
     test "with all ok tuples" do
       list = [
         {:ok, 1},
-        {:ok, 2},
+        :ok,
         {:ok, 3}
       ]
 
-      assert list |> Traversable.traverse() == {:ok, [1, 2, 3]}
+      assert list |> Traversable.traverse() == {:ok, [1, nil, 3]}
     end
 
     test "with ok and error tuples" do
