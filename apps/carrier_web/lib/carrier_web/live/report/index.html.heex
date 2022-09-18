@@ -26,7 +26,7 @@
           <%= for report <- @reports do %>
             <tr class="hover">
               <th><%= report.name %></th>
-              <td>15:00</td>
+              <td><%= Timex.format!(report.trigger_time, "매일 {_h24}시") %></td>
               <td>#all-data</td>
               <td>
                 <%= live_patch("Delete",
