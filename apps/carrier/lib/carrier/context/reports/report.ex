@@ -10,6 +10,7 @@ defmodule Carrier.Reports.Report do
       @derive Jason.Encoder
       field :integration_id, :integer
       field :channel_id, :string
+      field :channel_name, :string
     end
 
     embeds_one(:data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete) do
@@ -43,7 +44,7 @@ defmodule Carrier.Reports.Report do
     )
   end
 
-  @required_for_create_integration_info [:integration_id, :channel_id]
+  @required_for_create_integration_info [:integration_id, :channel_id, :channel_name]
   defp changeset_for_create_integration_info(struct, attrs) do
     struct
     |> cast(attrs, @required_for_create_integration_info)

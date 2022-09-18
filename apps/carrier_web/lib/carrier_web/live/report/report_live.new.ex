@@ -106,9 +106,12 @@ defmodule CarrierWeb.ReportLive.New do
 
   @impl true
   def handle_event("save_report", %{"report" => report_input}, socket) do
-    %{"name" => name, "channel" => channel, "hour" => hour_str} = report_input
+    %{"name" => name, "channel" => channel_id, "hour" => hour_str} = report_input
 
     trigger_time = TimeHelper.from!(hour: hour_str |> String.to_integer())
+
+    {channel_name, _} =
+      socket.assigns.channels |> Enum.find(fn {_name, id} -> id == channel_id end)
 
     socket =
       socket
@@ -116,7 +119,11 @@ defmodule CarrierWeb.ReportLive.New do
         org_id: socket.assigns.org_id,
         name: name,
         trigger_time: trigger_time,
-        integration_info: %{integration_id: socket.assigns.integration.id, channel_id: channel},
+        integration_info: %{
+          integration_id: socket.assigns.integration.id,
+          channel_id: channel_id,
+          channel_name: channel_name
+        },
         data_source_info: %{
           data_source_id: socket.assigns.data_source.id,
           sql_template: socket.assigns.sql_template,

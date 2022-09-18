@@ -27,7 +27,7 @@
             <tr class="hover">
               <th><%= report.name %></th>
               <td><%= Timex.format!(report.trigger_time, "매일 {_h24}시") %></td>
-              <td>#all-data</td>
+              <td>#<%= report.integration_info.channel_name %></td>
               <td>
                 <%= live_patch("Delete",
                   to: Routes.report_index_path(@socket, :delete, report.id),
