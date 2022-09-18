@@ -62,7 +62,8 @@ defmodule Carrier.Data.QueryData do
            Secrets.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql, sql_params),
-         data = DataHelper.rows_to_map(columns, rows),
+         normalized_rows = normalize_rows(rows),
+         data = DataHelper.rows_to_map(columns, normalized_rows),
          data = fill_missing_dates(data, columns, data_start_datetime, end_datetime),
          {:ok, analyzed_date} <-
            data
@@ -261,6 +262,20 @@ defmodule Carrier.Data.QueryData do
       %Postgrex.Error{postgres: %{code: code, message: message, hint: hint}} = error
 
       {:error, [code, message, hint] |> Enum.join("\n")}
+  end
+
+  @doc """
+  Normalize the row values
+  """
+  defp normalize_rows(rows) do
+    rows
+    |> Enum.map(fn row ->
+      row
+      |> Enum.map(fn
+        %Decimal{} = value -> Decimal.to_float(value)
+        value -> value
+      end)
+    end)
   end
 
   defp fill_missing_dates(
