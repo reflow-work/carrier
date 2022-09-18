@@ -33,6 +33,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:query_result_raw, fn -> nil end)
       |> assign_new(:query_result_by_columns, fn -> nil end)
       |> assign_new(:query_result_for_preview, fn -> nil end)
+      |> assign_new(:show_preview_modal, fn -> false end)
       |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)
@@ -143,7 +144,9 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   @impl true
-  def handle_event("send_preview", _params, socket) do
+  def handle_event("send_preview", params, socket) do
+    %{"send_preview_form" => %{"channel" => channel_id}} = params
+
     save_chart_img_params =
       [
         {:data, socket.assigns.query_result_by_columns},
@@ -159,7 +162,7 @@ defmodule CarrierWeb.ReportLive.New do
       Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
       |> Enum.map(fn slack_arg ->
         Noti.send_report_to_slack(
-          "C03U2QWU7F1",
+          channel_id,
           slack_arg,
           "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
         )
@@ -185,6 +188,14 @@ defmodule CarrierWeb.ReportLive.New do
 
       {:noreply, socket}
     end
+  end
+
+  def handle_event("show_preview_modal", _params, socket) do
+    socket =
+      socket
+      |> assign(:show_preview_modal, true)
+
+    {:noreply, socket}
   end
 
   defp create_report(socket, params) do

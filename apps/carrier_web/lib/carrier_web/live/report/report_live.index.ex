@@ -1,7 +1,6 @@
 defmodule CarrierWeb.ReportLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Reports
-  alias CarrierWeb.Components.Modal
 
   on_mount(CarrierWeb.IntegrationHook)
 
