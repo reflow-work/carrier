@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -e
+
+# The one arg that we can accept will be the ENV we are building
+GITHUB_REPO=$1
+export MIX_ENV=$2
+BRANCH=$3
+
+echo "MIX_ENV=$MIX_ENV"
+
+echo "Pull source of $BRANCH"
+cd /opt/build
+mkdir source
+cd source
+git clone -b $BRANCH --single-branch --depth=1 $GITHUB_REPO .
+
+echo "Fetching project deps..."
+mix deps.get --only $MIX_ENV
+
+echo "Cleaning any leftover artifacts..."
+mix do clean, compile --force
+
+echo "Prepare assets"
+mix release.setup
+
+echo "Building release..."
+mix release --path "../_build/$MIX_ENV" --overwrite
+
+echo "Build completed!"
+exit 0
