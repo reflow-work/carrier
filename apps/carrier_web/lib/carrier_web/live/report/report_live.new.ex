@@ -30,8 +30,9 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
-      |> assign_new(:query_result_parsed, fn -> nil end)
       |> assign_new(:query_result_raw, fn -> nil end)
+      |> assign_new(:query_result_by_columns, fn -> nil end)
+      |> assign_new(:query_result_for_preview, fn -> nil end)
       |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)
@@ -69,13 +70,16 @@ defmodule CarrierWeb.ReportLive.New do
         {:ok, raw_data} ->
           parsed_data = QueryData.refine_data_based_on_columns(raw_data)
 
+          formatted_data = QueryData.format_data_for_preview(raw_data)
+
           selected_columns =
             parsed_data
             |> Map.keys()
 
           socket
-          |> assign(:query_result_parsed, parsed_data)
           |> assign(:query_result_raw, raw_data)
+          |> assign(:query_result_by_columns, parsed_data)
+          |> assign(:query_result_for_preview, formatted_data)
           |> assign(:selected_columns, selected_columns)
           |> add_draw_chart_events(parsed_data, selected_columns)
 
@@ -99,7 +103,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign(:selected_columns, selected_columns)
-      |> add_draw_chart_events(socket.assigns.query_result_parsed, selected_columns)
+      |> add_draw_chart_events(socket.assigns.query_result_by_columns, selected_columns)
 
     {:noreply, socket}
   end
@@ -142,7 +146,7 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("send_preview", _params, socket) do
     save_chart_img_params =
       [
-        {:data, socket.assigns.query_result_parsed},
+        {:data, socket.assigns.query_result_by_columns},
         {:orgId, socket.assigns.org_id},
         {:reportId, "preview"}
       ]
@@ -152,7 +156,7 @@ defmodule CarrierWeb.ReportLive.New do
       save_chart_image(save_chart_img_params)
 
     slack_post_message_aggregated_result =
-      Slack.build_post_message_args(socket.assigns.query_result_parsed, img_urls)
+      Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
       |> Enum.map(fn slack_arg ->
         Noti.send_report_to_slack(
           "C03U2QWU7F1",

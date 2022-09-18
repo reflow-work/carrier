@@ -28,13 +28,43 @@
       </div>
     </section>
 
+    <%= if @query_result_for_preview do %>
+      <section class="card">
+        <div class="card-body">
+          <table class="border-collapse border border-gray-800">
+            <thead>
+              <tr class="w-full">
+                <%= for header <- @query_result_for_preview.columns do %>
+                  <th class="border border-gray-800"><%= header %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for row <- @query_result_for_preview.data do %>
+                <tr class="w-full">
+                  <%= for value <- row do %>
+                    <td class="border border-gray-800 text-center"><%= value %></td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    <% end %>
+
     <section class="flex gap-4 flex-col lg:flex-row">
       <section class="card flex-[3_3_0%]">
         <div class="card-body">
           <h2 class="card-title">Set up Report</h2>
-          <%= if @query_result_parsed do %>
-            <.form let={f} for={:data_columns} phx-change="select_data_column" class="flex flex-col gap-y-3 mt-4">
-              <%= for v <- Map.values(@query_result_parsed) do %>
+          <%= if @query_result_by_columns do %>
+            <.form
+              let={f}
+              for={:data_columns}
+              phx-change="select_data_column"
+              class="flex flex-col gap-y-3 mt-4"
+            >
+              <%= for v <- Map.values(@query_result_by_columns) do %>
                 <div class="flex gap-x-2 items-center">
                   <%= checkbox(f, v.meta.label,
                     value: Enum.member?(@selected_columns, v.meta.label)
@@ -57,47 +87,47 @@
       <section class="card flex-[5_5_0%]">
         <div class="card-body">
           <h2 class="card-title">Slack Preview</h2>
-          <%= if @query_result_parsed do %>
+          <%= if @query_result_by_columns do %>
             <div class="flex flex-col gap-y-6 mt-4">
-              <%= for v <- Map.values(@query_result_parsed) do %>
-              <%= if Enum.member?(@selected_columns, v.meta.label) do %>
-                <section class="border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody">
-                  <h3 class="font-bold pb-2">📊 <%= v.meta.label %></h3>
-                  <section class="divide-y divide-gray-200">
-                    <section>
-                      <p class="font-bold py-2">Raw</p>
-                      <section class="grid grid-cols-2 grid-rows-2 py-2">
-                        <p class="font-bold">Yesterday</p>
-                        <p class="font-bold">Last Week</p>
-                        <p><%= v.meta.current_period_last_tick_raw %></p>
-                        <p><%= v.meta.previous_period_last_tick_raw %></p>
+              <%= for v <- Map.values(@query_result_by_columns) do %>
+                <%= if Enum.member?(@selected_columns, v.meta.label) do %>
+                  <section class="border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody">
+                    <h3 class="font-bold pb-2">📊 <%= v.meta.label %></h3>
+                    <section class="divide-y divide-gray-200">
+                      <section>
+                        <p class="font-bold py-2">Raw</p>
+                        <section class="grid grid-cols-2 grid-rows-2 py-2">
+                          <p class="font-bold">Yesterday</p>
+                          <p class="font-bold">Last Week</p>
+                          <p><%= v.meta.current_period_last_tick_raw %></p>
+                          <p><%= v.meta.previous_period_last_tick_raw %></p>
+                        </section>
+                        <p class="font-bold py-2">Weekly Sum</p>
+                        <section class="grid grid-cols-2 grid-rows-2 py-2">
+                          <p class="font-bold">Last Week</p>
+                          <p class="font-bold">Week over Week</p>
+                          <p><%= v.meta.current_period_sum %></p>
+                          <p><%= "#{v.meta.diff_between_periods_in_percentage}%" %></p>
+                        </section>
                       </section>
-                      <p class="font-bold py-2">Weekly Sum</p>
-                      <section class="grid grid-cols-2 grid-rows-2 py-2">
-                        <p class="font-bold">Last Week</p>
-                        <p class="font-bold">Week over Week</p>
-                        <p><%= v.meta.current_period_sum %></p>
-                        <p><%= "#{v.meta.diff_between_periods_in_percentage}%" %></p>
-                      </section>
-                    </section>
-                    <section
-                      id={"chart-container-#{v.meta.label}"}
-                      phx-update="ignore"
-                      class="pt-2"
-                    >
-                      <canvas
-                        id={"chart-#{v.meta.label}"}
-                        class="border border-gray-200 rounded-lg"
-                        phx-hook="Chart"
+                      <section
+                        id={"chart-container-#{v.meta.label}"}
+                        phx-update="ignore"
+                        class="pt-2"
                       >
-                      </canvas>
+                        <canvas
+                          id={"chart-#{v.meta.label}"}
+                          class="border border-gray-200 rounded-lg"
+                          phx-hook="Chart"
+                        >
+                        </canvas>
+                      </section>
                     </section>
                   </section>
-                </section>
-              <% else %>
-                <div></div>
+                <% else %>
+                  <div></div>
+                <% end %>
               <% end %>
-            <% end %>
             </div>
           <% else %>
             <div class="pt-6">

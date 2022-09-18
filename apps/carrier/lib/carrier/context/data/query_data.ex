@@ -94,6 +94,18 @@ defmodule Carrier.Data.QueryData do
     |> Enum.into(%{})
   end
 
+  def format_data_for_preview(raw_data) do
+    data = 
+    raw_data.data
+    |> Enum.map(fn d -> 
+      Enum.reduce(raw_data.columns, [], fn c, acc -> 
+        [d[c] | acc]
+      end)
+      |> Enum.reverse()
+    end)
+    Map.put(raw_data, :data, data)
+  end
+
   defp build_meta_data(key, data) do
     current_period_sum_key = key <> "_window_sum"
     previous_period_sum_key = key <> "_window_sum_offset"
