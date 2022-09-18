@@ -45,3 +45,31 @@ Oban.cancel_job(CarrierWorker.Oban, job_id)
 # resume queue
 Oban.resume_queue(CarrierWorker.Oban, queue: :sample)
 ```
+
+## Deploy
+
+### Assemble Elixir Release
+
+`./bin/release <GITHUB_TOKEN> <branch> <env>`
+
+ex) `./bin/release <GITHUB_TOKEN> prod main`
+
+`<branch>` 는 `main`, `<env>` 는 `prod` 가 default 로, 생략 가능합니다.
+
+### Deploy Elixir Release
+
+`./bin/deploy <env> <version>`
+
+ex) `./bin/deploy prod 0.1.0`
+
+### Connect to machine
+
+`./bin/connect <env>`
+
+ex) `./bin/connect prod`
+
+### Run DB Migration
+
+```
+$ ./app/current/bin/carrier_app eval "Carrier.Release.migrate()"
+```

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+GITHUB_TOKEN=$1
+BRANCH=${2:-main}
+ENV=${3:-prod}
+GITHUB_REPO="https://nallwhy:${GITHUB_TOKEN}@github.com/reflow-work/carrier.git"
+
+docker run -v "$(pwd)/_build:/opt/build/_build" --rm -t -i nallwhy/phoenix-builder:latest /opt/build/bin/build_release $GITHUB_REPO $ENV $BRANCH

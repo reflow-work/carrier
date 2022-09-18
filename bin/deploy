@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -e
+
+ENV=$1
+VERSION=$2
+
+case $ENV in
+    prod)
+        HOST="ec2-user@ec2-13-125-105-154.ap-northeast-2.compute.amazonaws.com"
+        ;;
+    # staging)
+    #     HOST="ec2-user@ec2-13-125-193-39.ap-northeast-2.compute.amazonaws.com"
+    #     ;;
+    *)
+        echo "wrong env $ENV"
+        exit 0
+        ;;
+esac
+
+APP_NAME="carrier_app"
+CERT_PATH="~/.ssh/carrier_app_deployer.pem"
+
+ssh -i $CERT_PATH $HOST "mkdir -p ~/app"
+scp -i $CERT_PATH -r "./_build/$ENV/$APP_NAME-$VERSION.tar.gz" $HOST:~/app
+
+set +e
+
+ssh -i $CERT_PATH $HOST "~/app/current/bin/$APP_NAME stop"
+ssh -i $CERT_PATH $HOST "sudo rm -rf ~/app/current"
+ssh -i $CERT_PATH $HOST "sudo rm -rf ~/app/$VERSION"
+
+set -e
+
+ssh -i $CERT_PATH $HOST "mkdir ~/app/$VERSION"
+ssh -i $CERT_PATH $HOST "tar -xvf ~/app/$APP_NAME-$VERSION.tar.gz -C ~/app/$VERSION"
+ssh -i $CERT_PATH $HOST "ln -s ~/app/$VERSION ~/app/current"
+scp -i $CERT_PATH -r "./rel/overlays/config_${ENV}.exs" $HOST:~/app/current
+
+ssh -i $CERT_PATH $HOST "~/app/current/bin/$APP_NAME daemon_iex"
+

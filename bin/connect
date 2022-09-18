@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+
+ENV=$1
+
+case $ENV in
+    prod)
+        HOST="ec2-user@ec2-13-125-105-154.ap-northeast-2.compute.amazonaws.com"
+        ;;
+    # staging)
+    #     HOST="ec2-user@ec2-13-125-193-39.ap-northeast-2.compute.amazonaws.com"
+    #     ;;
+    *)
+        echo "wrong env $ENV"
+        exit 0
+        ;;
+esac
+
+CERT_PATH="~/.ssh/carrier_app_deployer.pem"
+
+ssh -i $CERT_PATH $HOST
