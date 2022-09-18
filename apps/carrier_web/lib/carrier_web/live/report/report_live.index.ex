@@ -12,14 +12,16 @@ defmodule CarrierWeb.ReportLive.Index do
 
     socket =
       case connected?(socket) do
-        true -> socket |> load_reports()
-        false -> socket
-      end
+        true ->
+          socket = socket |> load_reports()
 
-    socket =
-      case length(socket.assigns.reports) < 1 do
-        true -> socket |> push_redirect(to: Routes.report_new_path(socket, :new))
-        _ -> socket
+          case length(socket.assigns.reports) < 1 do
+            true -> socket |> push_redirect(to: Routes.report_new_path(socket, :new))
+            _ -> socket
+          end
+
+        false ->
+          socket
       end
 
     {:ok, socket}
