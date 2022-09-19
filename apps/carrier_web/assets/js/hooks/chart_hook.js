@@ -87,12 +87,13 @@ const ChartHook = {
       // Clear previous chart data
       chart.data.datasets = []
       chart.data.labels = []
-      const key = meta.label
       const labels = []
       const current = []
       const previous = []
+      const key = meta.label
+      const date_column_name = meta.date_column_name
       data.forEach((datum) => {
-        labels.push(datum.date)
+        labels.push(datum[date_column_name])
         const currentPeriodKey = key + "_window_sum"
         const previousPeriodKey = key + "_window_sum_offset"
         current.push(datum[currentPeriodKey])
@@ -110,7 +111,7 @@ const ChartHook = {
       }
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
-      chart.options.scales['x'].title.text = "date"
+      chart.options.scales['x'].title.text = date_column_name
       chart.options.scales['y'].title.text = key
       chart.update()
     })
