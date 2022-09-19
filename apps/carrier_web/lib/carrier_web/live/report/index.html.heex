@@ -43,7 +43,7 @@
 </section>
 
 <%= if @live_action == :delete do %>
-  <Modal.confirm>
+  <CarrierWeb.Components.Modal.confirm>
     <:title>
       Are you sure you want to delete the report?
     </:title>
@@ -51,5 +51,5 @@
       <%= live_patch("No", to: Routes.report_index_path(@socket, :index), class: "btn btn-sm") %>
       <a class="btn btn-primary btn-sm" phx-click="delete_report">Yes</a>
     </:actions>
-  </Modal.confirm>
+  </CarrierWeb.Components.Modal.confirm>
 <% end %>
