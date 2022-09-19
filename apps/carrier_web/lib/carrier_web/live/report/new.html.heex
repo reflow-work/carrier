@@ -239,7 +239,9 @@
           <%= select(f, :channel, @channels, class: "select select-bordered w-64") %>
           <%= error_tag(f, :channel) %>
         </div>
-        <%= submit("Save", class: "btn btn-primary") %>
+        <div class="flex justify-end">
+          <%= submit("발송", class: "btn btn-primary text-right") %>
+        </div>
       </.form>
     </div>
   </.modal>
