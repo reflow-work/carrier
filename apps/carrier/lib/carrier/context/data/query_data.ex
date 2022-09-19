@@ -85,7 +85,7 @@ defmodule Carrier.Data.QueryData do
     value_columns
     |> Enum.map(fn value_column ->
       data_by_column = split_data_by_columns(value_column, date_column, data)
-      meta_data = build_meta_data(value_column, data_by_column)
+      meta_data = build_meta_data(date_column, value_column, data_by_column)
 
       {value_column, Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
     end)
@@ -105,7 +105,7 @@ defmodule Carrier.Data.QueryData do
     Map.put(raw_data, :data, data)
   end
 
-  defp build_meta_data(key, data) do
+  defp build_meta_data(date_column_name, key, data) do
     current_period_sum_key = key <> "_window_sum"
     previous_period_sum_key = key <> "_window_sum_offset"
     current_to_previous_periods_sum_ratio_key = key <> "_window_sum_over"
@@ -126,6 +126,7 @@ defmodule Carrier.Data.QueryData do
 
     %{
       label: key,
+      date_column_name: date_column_name,
       current_period_last_tick_raw: last_datum[key],
       previous_period_last_tick_raw: previous_period_last_datum[key],
       current_period_sum: last_datum[current_period_sum_key],
