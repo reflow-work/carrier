@@ -219,8 +219,10 @@ defmodule CarrierWeb.ReportLive.New do
         |> push_redirect(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
-        socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
+        socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
     end
+  rescue
+    e -> socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
   end
 
   defp add_draw_chart_events(socket, parsed_data, selected_columns) do
