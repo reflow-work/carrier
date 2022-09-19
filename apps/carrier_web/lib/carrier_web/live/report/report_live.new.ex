@@ -8,6 +8,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Aws
   alias Carrier.Core.TimeHelper
   alias CarrierWeb.Components.Empty
+  import CarrierWeb.LiveHelpers
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -175,6 +176,7 @@ defmodule CarrierWeb.ReportLive.New do
         |> put_flash_for(:info, "Slack messages for the selected query results have been sent! 😊",
           timeout: :timer.seconds(3)
         )
+        |> assign(:show_preview_modal, false)
 
       {:noreply, socket}
     else
@@ -194,6 +196,15 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign(:show_preview_modal, true)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _uri, socket) do
+    socket =
+      socket
+      |> assign(:show_preview_modal, false)
 
     {:noreply, socket}
   end

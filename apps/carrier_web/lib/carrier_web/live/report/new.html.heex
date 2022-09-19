@@ -223,7 +223,7 @@
 </section>
 
 <%= if @show_preview_modal == true do %>
-  <CarrierWeb.Components.Modal.send_preview>
+  <.modal return_to={Routes.report_new_path(@socket, :new)}>
     <div>
       <h3 class="font-bold text-lg">테스트 발송</h3>
       <.form
@@ -242,5 +242,5 @@
         <%= submit("Save", class: "btn btn-primary") %>
       </.form>
     </div>
-  </CarrierWeb.Components.Modal.send_preview>
+  </.modal>
 <% end %>

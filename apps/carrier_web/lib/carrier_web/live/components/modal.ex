@@ -17,16 +17,4 @@ defmodule CarrierWeb.Components.Modal do
     </div>
     """
   end
-
-  def send_preview(assigns) do
-    ~H"""
-    <div>
-      <div class="modal modal-open">
-        <div class="modal-box">
-          <%= render_slot(@inner_block) %>
-        </div>
-      </div>
-    </div>
-    """
-  end
 end
