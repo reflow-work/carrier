@@ -1,21 +1,38 @@
-<div class="w-screen h-screen flex flex-col items-center justify-center">
-  <div class="max-w-sm w-full flex flex-col items-center pb-28">
-    <CarrierWeb.Components.Icon.logo class="w-52 mb-12" />
-
-    <%= link to: Routes.auth_path(@conn, :request, "google"), class: "w-full text-sm font-bold border px-4 py-3 shadow-sm rounded hover:bg-gray-50 bg-white" do %>
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <%= img_tag(Routes.static_path(@conn, "/images/google-logo.png"),
-            class: "w-4 mr-3"
-          ) %> Google 계정으로 로그인
-        </div>
-        <CarrierWeb.Components.Icon.arrow_right class="w-4" />
+<div class="flex flex-col items-center h-screen max-w-5xl w-full mx-auto px-8 py-20">
+  <div class="flex-1 flex flex-row rounded-2xl overflow-hidden bg-white w-full shadow">
+    <div class="flex flex-col flex-1 items-center justify-center bg-base-dark text-primary-content pb-8">
+      <div>
+        <CarrierWeb.Components.Icon.logo_white class="w-36 mb-2" />
       </div>
-    <% end %>
-  </div>
-</div>
+      <div class="text-2xl font-bold">
+        단 5분만에 데이터 분석 환경 구축
+      </div>
+    </div>
 
-<div class="fixed bottom-6 left-0 right-0 text-center text-xs text-gray-500">
-  By creating an account you agree to our <a href="#" class="underline">Terms & Conditions</a> and
-  <a href="#" class="underline">Privacy Policy</a>
+    <div class="flex flex-col flex-1 items-center justify-center relative">
+      <div class="">
+        <%= link to: Routes.auth_path(@conn, :request, "google"), class: "" do %>
+          <div class="flex items-center bg-white border px-6 py-3 shadow-sm rounded text-sm font-bold hover:bg-gray-100">
+            <div class="w-4">
+              <%= img_tag(Routes.static_path(@conn, "/images/google-logo.png")) %>
+            </div>
+            <div class="mx-4">
+              Google 계정으로 로그인
+            </div>
+            <div>
+              <CarrierWeb.Components.Icon.arrow_right class="w-4" />
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="text-xs text-description mt-8">
+    By creating an account you agree to our
+    <a href="#" class="underline">Terms & Conditions</a> and
+    <a href="#" class="underline">Privacy Policy</a>
+  </div>
 </div>

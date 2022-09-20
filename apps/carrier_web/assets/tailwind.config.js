@@ -14,7 +14,8 @@ module.exports = {
       colors: {
         base: "#F7F7F7",
         "base-dark": "#111111",
-        "base-dark-hover": "#1F1F1F",
+        "base-dark-hover": "#f1f1f1",
+        "description": "#888888"
       },
       fontFamily: {
         lato: ["Lato", "ui-sans-serif", "system-ui"],
