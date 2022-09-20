@@ -143,7 +143,7 @@ input[type='checkbox'] {
 }
 
 .menu-item {
-  @apply flex justify-center text-white py-4 hover:bg-base-dark-hover rounded-sm mx-2 items-center;
+  @apply flex justify-center text-white py-4 px-4 hover:bg-base-dark-hover rounded-sm items-center;
 }
 
 .circle {

@@ -1,5 +1,5 @@
 .page-container {
-  @apply px-10 py-8 bg-base;
+  @apply py-8 bg-base;
 }
 
 .page-title {
