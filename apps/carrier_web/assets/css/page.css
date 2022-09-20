@@ -3,5 +3,9 @@
 }
 
 .page-title {
-  @apply font-bold text-xl;
+  @apply font-bold text-2xl;
+}
+
+.page-title-icon {
+  @apply mr-3;
 }
