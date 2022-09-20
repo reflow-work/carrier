@@ -145,3 +145,19 @@ input[type='checkbox'] {
 .menu-item {
   @apply flex justify-center text-white py-4 hover:bg-base-dark-hover rounded-sm mx-2 items-center;
 }
+
+.circle {
+  @apply bg-black rounded-full w-6 h-6 text-white text-center flex items-center justify-center text-xs;
+}
+
+.circle.gray {
+  @apply bg-description;
+}
+
+.callout {
+  @apply rounded-md bg-base-200 px-5 py-4 text-sm flex;
+}
+
+.callout-icon {
+  @apply mr-2;
+}

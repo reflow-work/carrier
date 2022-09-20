@@ -6,23 +6,46 @@
   </header>
 
   <section class="card card-body mt-10">
-    <div class="flex">
-      <a class="flex-1 text-sm">
-        <div class="p-2 pt-0 border-b-2 border-primary font-bold">
-          1. Integrate Slack
+    <div class="flex space-x-6">
+      <div class="flex items-center">
+        <div class="circle font-bold mr-2">
+          1
         </div>
-      </a>
+        <div class="text-sm">
+          Integrate Slack
+        </div>
+      </div>
 
-      <a class="flex-1 text-sm">
-        <div class="ml-4 p-2 pt-0 border-b-2">
-          2. Connect Data Source
+      <div class="flex items-center">
+        <div class="circle mr-2 gray">
+          2
         </div>
-      </a>
+        <div class="text-sm text-description">
+          Connect Data Source
+        </div>
+      </div>
     </div>
 
-    <p>
+    <div class="callout mt-4">
+      <div class="callout-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+          />
+        </svg>
+      </div>
       데이터 리포트를 받으실 슬랙 워크스페이스에 연결해주세요.
-    </p>
+    </div>
+
     <div class="mt-10">
       <Slack.button />
     </div>
