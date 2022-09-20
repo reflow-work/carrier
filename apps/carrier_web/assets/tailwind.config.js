@@ -14,7 +14,7 @@ module.exports = {
       colors: {
         base: "#F7F7F7",
         "base-dark": "#111111",
-        "base-dark-hover": "#f1f1f1",
+        "base-dark-hover": "#1F1F1F",
         "description": "#888888"
       },
       fontFamily: {
