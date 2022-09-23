@@ -1,5 +1,9 @@
 .page-container {
-  @apply py-8 bg-base;
+  @apply py-8 bg-base max-w-7xl px-6;
+}
+
+.page-header {
+  @apply flex justify-between;
 }
 
 .page-title {

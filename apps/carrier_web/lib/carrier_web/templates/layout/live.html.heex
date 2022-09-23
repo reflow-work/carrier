@@ -2,14 +2,14 @@
   <.flash flash={@flash} />
 
   <nav class="fixed top-0 left-0 right-0 bg-base-dark z-50">
-    <div class="max-w-7xl flex mx-auto py-1 justify-between">
+    <div class="max-w-7xl px-6 flex mx-auto py-1 justify-between">
       <%= live_redirect to: Routes.report_index_path(@socket, :index) do %>
         <div class="cursor-pointer py-4 px-1">
           <CarrierWeb.Components.Icon.logo_white class="w-24 h-auto" />
         </div>
       <% end %>
 
-      <div class="max-w-7xl flex flex-row">
+      <div class="max-w-7xl px-6 flex flex-row">
         <%= live_redirect to: Routes.report_index_path(@socket, :index) do %>
           <div class="menu-item">
             <svg

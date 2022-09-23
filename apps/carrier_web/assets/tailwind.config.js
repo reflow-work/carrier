@@ -34,6 +34,9 @@ module.exports = {
       animation: {
         "spin-slow": "spin 18s linear infinite",
       },
+      zIndex: {
+        '60': '60',
+      }
     },
   },
   plugins: [
