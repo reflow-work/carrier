@@ -68,6 +68,20 @@
     <%= if @query_result_for_preview do %>
       <section class="card">
         <div class="card-body">
+          <header class="flex justify-between">
+            <h2 class="card-title">쿼리 결과 데이터</h2>
+            <button
+              class="btn btn-outline btn-sm"
+              type="button"
+              phx-click="toggle_show_full_preview_data"
+            >
+              <%= if @show_full_preview_data do %>
+                숨기기
+              <% else %>
+                전체 보기
+              <% end %>
+            </button>
+          </header>
           <table class="border-collapse border border-gray-800">
             <thead>
               <tr class="w-full">
@@ -77,12 +91,22 @@
               </tr>
             </thead>
             <tbody>
-              <%= for row <- @query_result_for_preview.data do %>
-                <tr class="w-full">
-                  <%= for value <- row do %>
-                    <td class="border border-gray-800 text-center"><%= value %></td>
-                  <% end %>
-                </tr>
+              <%= if @show_full_preview_data do %>
+                <%= for row <- @query_result_for_preview.data do %>
+                  <tr class="w-full">
+                    <%= for value <- row do %>
+                      <td class="border border-gray-800 text-center"><%= value %></td>
+                    <% end %>
+                  </tr>
+                <% end %>
+              <% else %>
+                <%= for row <- Enum.take(@query_result_for_preview.data, 5) do %>
+                  <tr class="w-full">
+                    <%= for value <- row do %>
+                      <td class="border border-gray-800 text-center"><%= value %></td>
+                    <% end %>
+                  </tr>
+                <% end %>
               <% end %>
             </tbody>
           </table>

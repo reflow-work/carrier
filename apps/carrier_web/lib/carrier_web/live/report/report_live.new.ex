@@ -34,6 +34,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:query_result_raw, fn -> nil end)
       |> assign_new(:query_result_by_columns, fn -> nil end)
       |> assign_new(:query_result_for_preview, fn -> nil end)
+      |> assign_new(:show_full_preview_data, fn -> false end)
       |> assign_new(:show_preview_modal, fn -> false end)
       |> assign_new(:selected_columns, fn -> [] end)
       |> assign_new(:report_id, fn -> nil end)
@@ -196,6 +197,14 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> assign(:show_preview_modal, true)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("toggle_show_full_preview_data", _params, socket) do
+    socket =
+      socket
+      |> assign(:show_full_preview_data, !socket.assigns.show_full_preview_data)
 
     {:noreply, socket}
   end
