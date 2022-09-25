@@ -1,12 +1,13 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
+  require Logger
   alias Carrier.Data.QueryData
   alias Carrier.Reports
   alias Carrier.Reports.Report
   alias Carrier.Noti
   alias Carrier.External.Slack
   alias Carrier.External.Aws
-  alias Carrier.Core.TimeHelper
+  alias Carrier.Core.{TimeHelper, Traversable}
   alias CarrierWeb.Components.Empty
   import CarrierWeb.LiveHelpers
 
@@ -160,18 +161,16 @@ defmodule CarrierWeb.ReportLive.New do
     {:ok, %{"body" => %{"imgUrls" => img_urls}}, _full_resp} =
       save_chart_image(save_chart_img_params)
 
-    slack_post_message_aggregated_result =
-      Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
-      |> Enum.map(fn slack_arg ->
-        Noti.send_report_to_slack(
-          channel_id,
-          slack_arg,
-          socket.assigns.integration.conn_info.info["bot_token"]
-        )
-      end)
-      |> Enum.all?(fn result -> result == :ok end)
-
-    if slack_post_message_aggregated_result == true do
+    with {:ok, _} <-
+           Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
+           |> Enum.map(fn slack_arg ->
+             Noti.send_report_to_slack(
+               channel_id,
+               slack_arg,
+               socket.assigns.integration.conn_info.info["bot_token"]
+             )
+           end)
+           |> Traversable.traverse() do
       socket =
         socket
         |> put_flash_for(:info, "Slack messages for the selected query results have been sent! 😊",
@@ -181,15 +180,18 @@ defmodule CarrierWeb.ReportLive.New do
 
       {:noreply, socket}
     else
-      socket =
-        socket
-        |> put_flash_for(
-          :error,
-          "Failed to send one or more slack messages for selected query results! 😮",
-          timeout: :timer.seconds(3)
-        )
+      {:error, error} ->
+        Logger.error(error)
 
-      {:noreply, socket}
+        socket =
+          socket
+          |> put_flash_for(
+            :error,
+            "Failed to send one or more slack messages for selected query results! 😮",
+            timeout: :timer.seconds(3)
+          )
+
+        {:noreply, socket}
     end
   end
 
