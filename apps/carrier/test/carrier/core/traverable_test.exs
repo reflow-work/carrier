@@ -23,4 +23,26 @@ defmodule Carrier.Core.TraversableTest do
       assert list |> Traversable.traverse() == {:error, 1}
     end
   end
+
+  describe "traverse_all/1" do
+    test "with all ok tuples" do
+      list = [
+        {:ok, 1},
+        :ok,
+        {:ok, 3}
+      ]
+
+      assert list |> Traversable.traverse_all() == {:ok, [1, nil, 3]}
+    end
+
+    test "with ok and error tuples" do
+      list = [
+        {:error, 1},
+        {:ok, 2},
+        {:error, 3}
+      ]
+
+      assert list |> Traversable.traverse_all() == {:error, [1, 3]}
+    end
+  end
 end
