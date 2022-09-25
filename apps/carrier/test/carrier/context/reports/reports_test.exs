@@ -18,7 +18,8 @@ defmodule Carrier.ReportsTest do
         trigger_time: ~T[10:00:00],
         integration_info: %{
           "integration_id" => 1,
-          "channel_id" => "channel_id"
+          "channel_id" => "channel_id",
+          "channel_name" => "channel_name"
         },
         data_source_info: %{
           "data_source_id" => 1,
@@ -84,6 +85,40 @@ defmodule Carrier.ReportsTest do
       assert {:ok, deleted_report} = Reports.delete_report(report.id)
       assert same_records?(deleted_report, report)
       assert deleted_report.deleted_at != nil
+    end
+  end
+
+  describe "create_report_log/1" do
+    setup do
+      report = TenantFactory.insert(:report)
+
+      %{report: report}
+    end
+
+    test "with valid attrs", %{report: report} do
+      params = %{
+        org_id: report.org_id,
+        report_id: report.id,
+        payload: %{name: "test"},
+        tried_at: DateTime.utc_now(),
+        integration_info: %{
+          "integration_id" => 1,
+          "channel_id" => "channel_id",
+          "channel_name" => "channel_name",
+        },
+        data_source_info: %{
+          "data_source_id" => 1,
+          "sql_template" => "sql",
+          "timezone" => "Asia/Seoul",
+          "period" => 28,
+          "window_size" => 7,
+          "comparing_period" => 7,
+          "columns" => ["total_revenue"]
+        }
+      }
+
+      assert {:ok, created_report_log} = Reports.create_report_log(params)
+      assert same_fields?(created_report_log, params, [:org_id, :report_id, :payload, :tried_at])
     end
   end
 end

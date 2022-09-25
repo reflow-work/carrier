@@ -1,5 +1,5 @@
 defmodule Carrier.Reports do
-  alias Carrier.Reports.Report
+  alias Carrier.Reports.{Report, ReportLog}
   alias Carrier.Works.QueryJob
   alias Carrier.TenantRepo
 
@@ -47,6 +47,25 @@ defmodule Carrier.Reports do
            report |> Report.delete(DateTime.utc_now()) |> TenantRepo.delete() do
       {:ok, deleted_report}
     end
+  end
+
+  def create_report_log(%{
+        org_id: org_id,
+        report_id: report_id,
+        payload: payload,
+        tried_at: tried_at,
+        integration_info: integration_info,
+        data_source_info: data_source_info
+      }) do
+    ReportLog.create(%{
+      org_id: org_id,
+      report_id: report_id,
+      payload: payload,
+      tried_at: tried_at,
+      integration_info: integration_info,
+      data_source_info: data_source_info
+    })
+    |> TenantRepo.insert()
   end
 
   defp create_job_from_report(%Report{} = report) do

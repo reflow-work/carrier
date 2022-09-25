@@ -27,4 +27,60 @@ defmodule Carrier.Reports.ReportLog do
       field :columns, {:array, :string}
     end
   end
+
+  @required_for_create [:org_id, :report_id, :payload, :tried_at]
+  defp changeset_for_create(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create)
+    |> validate_required(@required_for_create)
+    |> cast_embed(:integration_info,
+      required: true,
+      with: &changeset_for_create_integration_info/2
+    )
+    |> cast_embed(:data_source_info,
+      required: true,
+      with: &changeset_for_create_data_source_info/2
+    )
+  end
+
+  @required_for_create_integration_info [:integration_id, :channel_id, :channel_name]
+  defp changeset_for_create_integration_info(struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create_integration_info)
+    |> validate_required(@required_for_create_integration_info)
+  end
+
+  @required_for_create_data_source_info [
+    :data_source_id,
+    :sql_template,
+    :timezone,
+    :period,
+    :window_size,
+    :comparing_period,
+    :columns
+  ]
+  defp changeset_for_create_data_source_info(struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create_data_source_info)
+    |> validate_required(@required_for_create_data_source_info)
+  end
+
+  def create(%{
+        org_id: org_id,
+        report_id: report_id,
+        payload: payload,
+        tried_at: tried_at,
+        integration_info: integration_info,
+        data_source_info: data_source_info
+      }) do
+    %__MODULE__{}
+    |> changeset_for_create(%{
+      org_id: org_id,
+      report_id: report_id,
+      payload: payload,
+      tried_at: tried_at,
+      integration_info: integration_info,
+      data_source_info: data_source_info
+    })
+  end
 end
