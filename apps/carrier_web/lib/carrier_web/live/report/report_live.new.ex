@@ -166,7 +166,7 @@ defmodule CarrierWeb.ReportLive.New do
         Noti.send_report_to_slack(
           channel_id,
           slack_arg,
-          "xoxb-3700242262145-3896134834753-QZ1WpkILGCgWy7bctc47CoLz"
+          socket.assigns.integration.conn_info.info["bot_token"]
         )
       end)
       |> Enum.all?(fn result -> result == :ok end)
