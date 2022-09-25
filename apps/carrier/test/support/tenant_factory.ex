@@ -2,7 +2,7 @@ defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
   alias Carrier.Accounts.{Org, User}
   alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
-  alias Carrier.Reports.Report
+  alias Carrier.Reports.{Report, ReportLog}
 
   def org_factory() do
     %Org{
@@ -76,6 +76,31 @@ defmodule Carrier.TenantFactory do
       org_id: org_id,
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
+      integration_info: %{
+        "integration_id" => insert(:integration).id,
+        "channel_id" => "channel_id"
+      },
+      data_source_info: %{
+        "data_source_info" => insert(:data_source).id,
+        "sql_template" => "sql",
+        "timezone" => "Asia/Seoul",
+        "period" => 28,
+        "window_size" => 7,
+        "comparing_period" => 7,
+        "columns" => ["total_revenue"]
+      }
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def report_log_factory(attrs) do
+    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> insert(:report) end)
+
+    %ReportLog{
+      org_id: report.org_id,
+      report_id: report.id,
+      payload: %{"test" => "wow"},
+      tried_at: DateTime.utc_now(),
       integration_info: %{
         "integration_id" => insert(:integration).id,
         "channel_id" => "channel_id"

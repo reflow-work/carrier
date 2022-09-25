@@ -104,7 +104,7 @@ defmodule Carrier.ReportsTest do
         integration_info: %{
           "integration_id" => 1,
           "channel_id" => "channel_id",
-          "channel_name" => "channel_name",
+          "channel_name" => "channel_name"
         },
         data_source_info: %{
           "data_source_id" => 1,
@@ -119,6 +119,34 @@ defmodule Carrier.ReportsTest do
 
       assert {:ok, created_report_log} = Reports.create_report_log(params)
       assert same_fields?(created_report_log, params, [:org_id, :report_id, :payload, :tried_at])
+    end
+  end
+
+  describe "record_succeeded_report_log/1" do
+    setup do
+      report_log = TenantFactory.insert(:report_log)
+
+      %{report_log: report_log}
+    end
+
+    test "with valid attrs", %{report_log: report_log} do
+      assert {:ok, updated_report_log} = Reports.record_succeeded_report_log(report_log)
+      assert updated_report_log.sent_at != nil
+    end
+  end
+
+  describe "record_failed_report_log/1" do
+    setup do
+      report_log = TenantFactory.insert(:report_log)
+
+      %{report_log: report_log}
+    end
+
+    test "with valid attrs", %{report_log: report_log} do
+      error_message = "error~"
+
+      assert {:ok, updated_report_log} = Reports.record_failed_report_log(report_log, %{error_message: error_message})
+      assert updated_report_log.error_message == error_message
     end
   end
 end

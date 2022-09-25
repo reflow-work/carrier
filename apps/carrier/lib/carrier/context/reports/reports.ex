@@ -68,6 +68,27 @@ defmodule Carrier.Reports do
     |> TenantRepo.insert()
   end
 
+  def record_succeeded_report_log(%ReportLog{} = report_log) do
+    report_log
+    |> ReportLog.record_succeeded(%{
+      sent_at: DateTime.utc_now()
+    })
+    |> TenantRepo.update()
+  end
+
+  def record_failed_report_log(
+        %ReportLog{} = report_log,
+        %{
+          error_message: error_message
+        }
+      ) do
+    report_log
+    |> ReportLog.record_failed(%{
+      error_message: error_message
+    })
+    |> TenantRepo.update()
+  end
+
   defp create_job_from_report(%Report{} = report) do
     # TODO: calc next report datetime
     scheduled_at = DateTime.utc_now()

@@ -65,6 +65,20 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_create_data_source_info)
   end
 
+  @required_for_record_succeeded [:sent_at]
+  defp changeset_for_record_succeeded(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_record_succeeded)
+    |> validate_required(@required_for_record_succeeded)
+  end
+
+  @required_for_record_failed [:error_message]
+  defp changeset_for_record_failed(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_record_failed)
+    |> validate_required(@required_for_record_failed)
+  end
+
   def create(%{
         org_id: org_id,
         report_id: report_id,
@@ -81,6 +95,24 @@ defmodule Carrier.Reports.ReportLog do
       tried_at: tried_at,
       integration_info: integration_info,
       data_source_info: data_source_info
+    })
+  end
+
+  def record_succeeded(%__MODULE__{} = struct, %{
+        sent_at: sent_at
+      }) do
+    struct
+    |> changeset_for_record_succeeded(%{
+      sent_at: sent_at
+    })
+  end
+
+  def record_failed(%__MODULE__{} = struct, %{
+        error_message: error_message
+      }) do
+    struct
+    |> changeset_for_record_failed(%{
+      error_message: error_message
     })
   end
 end
