@@ -29,7 +29,7 @@ defmodule Carrier.External.Slack do
         :ok
 
       {:error, reason} ->
-        Logger.error(reason)
+        Logger.error(%{reason: inspect(reason), channel_id: channel_id, blocks: blocks})
 
         {:error, reason}
     end
