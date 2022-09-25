@@ -1,4 +1,6 @@
 defmodule Carrier.External.Slack do
+  require Logger
+
   @host "https://slack.com/api"
 
   def post_message(channel_id, message, token) when is_binary(message) do
@@ -7,8 +9,13 @@ defmodule Carrier.External.Slack do
     Tesla.get(client(token), "/chat.postMessage", query: query)
     |> handle_response()
     |> case do
-      {:ok, _body} -> :ok
-      {:error, reason} -> {:error, reason}
+      {:ok, _body} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error(reason)
+
+        {:error, reason}
     end
   end
 
@@ -18,8 +25,13 @@ defmodule Carrier.External.Slack do
     Tesla.post(client(token), "/chat.postMessage", body)
     |> handle_response()
     |> case do
-      {:ok, _body} -> :ok
-      {:error, reason} -> {:error, reason}
+      {:ok, _body} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error(reason)
+
+        {:error, reason}
     end
   end
 
@@ -32,6 +44,8 @@ defmodule Carrier.External.Slack do
         {:ok, channels}
 
       {:error, reason} ->
+        Logger.error(reason)
+
         {:error, reason}
     end
   end
