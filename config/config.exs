@@ -57,15 +57,19 @@ config :esbuild,
   ]
 
 # Configures Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
-config :logger, :logger_papertrail_backend,
-  host: "logs.papertrailapp.com:46175",
-  system_name: "carrier_app_#{config_env()}",
-  format: "$metadata[$level] $message\n",
-  metadata: [:request_id]
+config :logger,
+  backends: [:console, LoggerPapertrailBackend.Logger],
+  console: [
+    format: "$time $metadata[$level] $message\n",
+    metadata: [:request_id]
+  ],
+  logger_papertrail_backend: [
+    level: :info,
+    host: "logs.papertrailapp.com:46175",
+    system_name: "carrier_app_#{config_env()}",
+    format: "$metadata[$level] $message\n",
+    metadata: [:request_id]
+  ]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

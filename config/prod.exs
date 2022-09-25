@@ -50,5 +50,6 @@ config :carrier_web, CarrierWeb.Endpoint,
 
 # Do not print debug messages in production
 config :logger,
-  level: :info,
-  backends: [:console, LoggerPapertrailBackend.Logger]
+  compile_time_purge_matching: [
+    [level_lower_than: :info]
+  ]
