@@ -4,10 +4,13 @@ defmodule CarrierWeb.Endpoint do
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
+
   @session_options [
     store: :cookie,
     key: "_carrier_web_key",
-    signing_salt: "wRs2LeoF"
+    signing_salt: "wRs2LeoF",
+    # 1 year
+    max_age: 365 * 24 * 60 * 60
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
