@@ -271,9 +271,9 @@ defmodule Carrier.Data.QueryData do
     end
   rescue
     error in Postgrex.Error ->
-      %Postgrex.Error{postgres: %{code: code, message: message, hint: hint}} = error
+      %Postgrex.Error{postgres: %{code: code, message: message} = postgres} = error
 
-      {:error, [code, message, hint] |> Enum.join("\n")}
+      {:error, [code, message, postgres[:hint]] |> Enum.reject(&(&1 == nil)) |> Enum.join("\n")}
   end
 
   @doc """
