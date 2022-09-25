@@ -1,16 +1,23 @@
 defmodule CarrierWeb.UserHook do
   use CarrierWeb, :live_hook
+  use Carrier.Accounts
   alias Carrier.TenantRepo
 
   def on_mount(:default, _params, %{"org_id" => org_id, "user_id" => user_id}, socket) do
-    socket =
-      socket
-      |> assign(org_id: org_id)
-      |> assign(user_id: user_id)
-
     TenantRepo.put_org_id(org_id)
 
-    {:cont, socket}
+    case Accounts.fetch_user(user_id) do
+      {:ok, %User{} = user} ->
+        socket =
+          socket
+          |> assign(:org_id, org_id)
+          |> assign(:user, user)
+
+        {:cont, socket}
+
+      _ ->
+        {:halt, socket}
+    end
   end
 
   def on_mount(:default, _params, _session, socket) do

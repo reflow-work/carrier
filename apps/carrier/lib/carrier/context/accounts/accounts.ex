@@ -2,6 +2,13 @@ defmodule Carrier.Accounts do
   alias Carrier.Accounts.{Org, User}
   alias Carrier.{Repo, TenantRepo}
 
+  defmacro __using__([]) do
+    quote do
+      alias Carrier.Accounts
+      alias Carrier.Accounts.{Org, User}
+    end
+  end
+
   def auth(email) do
     case fetch_user_by_email(email) do
       {:ok, %User{} = user} ->
