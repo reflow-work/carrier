@@ -13,6 +13,8 @@ defmodule Carrier.Noti do
          weekly_sum: %{last_week: weekly_sum_last_week, week_over_week: weekly_sum_week_over_week},
          img_url: img_url
        }) do
+    img_url = img_url |> URI.encode()
+
     [
       %{
         "text" => %{"text" => ":chart: *#{title}*", "type" => "mrkdwn"},
