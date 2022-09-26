@@ -17,4 +17,14 @@ defmodule Carrier.Core.TimeHelperTest do
       assert Timex.equal?(TimeHelper.to_utc_time(~T[08:00:00], "Asia/Seoul"), ~T[23:00:00])
     end
   end
+
+  describe "from_utc_time/2" do
+    test "with not date diff condition" do
+      assert Timex.equal?(TimeHelper.from_utc_time(~T[01:00:00], "Asia/Seoul"), ~T[10:00:00])
+    end
+
+    test "with date diff condition" do
+      assert Timex.equal?(TimeHelper.from_utc_time(~T[23:00:00], "Asia/Seoul"), ~T[08:00:00])
+    end
+  end
 end
