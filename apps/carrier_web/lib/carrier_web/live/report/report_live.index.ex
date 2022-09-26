@@ -1,6 +1,7 @@
 defmodule CarrierWeb.ReportLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Reports
+  alias Carrier.Core.TimeHelper
 
   on_mount(CarrierWeb.IntegrationHook)
 
@@ -71,5 +72,10 @@ defmodule CarrierWeb.ReportLive.Index do
         socket
         |> put_flash_for(:error, inspect(reason), timeout: :timer.seconds(3))
     end
+  end
+
+  defp format_trigger_time(trigger_time, timezone) do
+    TimeHelper.from_utc_time(trigger_time, timezone)
+    |> Timex.format!("매일 {_h24}시")
   end
 end
