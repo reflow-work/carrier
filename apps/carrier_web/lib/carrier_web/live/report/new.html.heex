@@ -154,35 +154,49 @@
                 <%= if Enum.member?(@selected_columns, v.meta.label) do %>
                   <section class="border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody">
                     <h3 class="font-bold pb-2">📊 <%= v.meta.label %></h3>
-                    <section class="divide-y divide-gray-200">
-                      <section>
-                        <p class="font-bold py-2">Raw</p>
-                        <section class="grid grid-cols-2 grid-rows-2 py-2">
-                          <p class="font-bold">Yesterday</p>
-                          <p class="font-bold">Last Week</p>
-                          <p><%= v.meta.current_period_last_tick_raw %></p>
-                          <p><%= v.meta.previous_period_last_tick_raw %></p>
-                        </section>
-                        <p class="font-bold py-2">Weekly Sum</p>
-                        <section class="grid grid-cols-2 grid-rows-2 py-2">
-                          <p class="font-bold">Last Week</p>
-                          <p class="font-bold">Week over Week</p>
-                          <p><%= v.meta.current_period_sum %></p>
-                          <p><%= "#{v.meta.diff_between_periods_in_percentage}%" %></p>
-                        </section>
+                    <div class="grid grid-cols-2 gap-x-2">
+                      <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">
+                        <h4 class="text-xl font-bold">어제</h4>
+                        <p class="text-center text-3xl font-bold">
+                          <%= v.meta.current_period_last_tick_raw %>
+                        </p>
+                        <p class="text-xl text-center">
+                          <span>지난 주 대비:</span>
+                          <span class={"font-bold #{if v.meta.diff_between_period_raws > 0,
+                              do: "text-green-500",
+                              else: "text-red-500"}"}>
+                            <%= v.meta.diff_between_period_raws %>
+                          </span>
+                        </p>
                       </section>
-                      <section
-                        id={"chart-container-#{v.meta.label}"}
-                        phx-update="ignore"
-                        class="pt-2"
+                      <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">
+                        <h4 class="text-xl font-bold">최근 7일 합계</h4>
+                        <p class="text-center text-3xl font-bold">
+                          <%= v.meta.current_period_sum %>
+                        </p>
+                        <p class="text-xl text-center">
+                          <span>WOW:</span>
+                          <span class={
+                            "font-bold #{if v.meta.diff_between_period_sums_in_percentage > 0,
+                              do: "text-green-500",
+                              else: "text-red-500"}"
+                          }>
+                            <%= "#{v.meta.diff_between_period_sums_in_percentage}%" %>
+                          </span>
+                        </p>
+                      </section>
+                    </div>
+                    <section
+                      id={"chart-container-#{v.meta.label}"}
+                      phx-update="ignore"
+                      class="pt-2"
+                    >
+                      <canvas
+                        id={"chart-#{v.meta.label}"}
+                        class="border border-gray-200 rounded-lg"
+                        phx-hook="Chart"
                       >
-                        <canvas
-                          id={"chart-#{v.meta.label}"}
-                          class="border border-gray-200 rounded-lg"
-                          phx-hook="Chart"
-                        >
-                        </canvas>
-                      </section>
+                      </canvas>
                     </section>
                   </section>
                 <% else %>

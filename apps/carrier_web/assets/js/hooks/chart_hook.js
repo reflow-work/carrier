@@ -19,13 +19,17 @@ const ChartHook = {
         labels: [],
       },
       options: {
+        elements: {
+          point: {
+            radius: 0,
+          }
+        },
         plugins: {
           legend: {
-            lables: {
-              display: true,
-              usePointStyle: true,
+            display: true,
+            labels: {
               font: {
-                size: 20,
+                size: 18,
                 weight: 700,
               }
             }
@@ -41,17 +45,7 @@ const ChartHook = {
               }
             },
             ticks: {
-              callback: function(value, index, ticks) {
-                if (ticks.length > 7) {
-                  if (index % (Math.floor(ticks.length / 4)) === 0 || index === ticks.length - 1) {
-                    return this.getLabelForValue(value)
-                  } else {
-                    return null
-                  }
-                } else {
-                  return this.getLabelForValue(value)
-                }
-              },
+              count: 4,
               font: {
                 size: 20,
                 weight: 700,
@@ -66,10 +60,13 @@ const ChartHook = {
                 weight: 700,
               }
             },
+            grid: {
+              display: false,
+            },
             ticks: {
               callback: function(value, index, ticks) {
                 if (index % (Math.floor(ticks.length / 4)) === 0 || index === ticks.length - 1) {
-                  return this.getLabelForValue(value)
+                  return this.getLabelForValue(value).split("-").slice(1).join("/")
                 } else {
                   return null
                 }
@@ -100,19 +97,17 @@ const ChartHook = {
         previous.push(datum[previousPeriodKey])
       })
       const current_dataset = {
-        label: "Current",
+        label: "최근 28일",
         data: current,
         borderColor: colors.current,
       }
       const previous_dataset = {
-        label: "Previous",
+        label: "지난 28일",
         data: previous,
         borderColor: colors.previous,
       }
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
-      chart.options.scales['x'].title.text = date_column_name
-      chart.options.scales['y'].title.text = key
       chart.update()
     })
   }

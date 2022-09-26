@@ -116,7 +116,7 @@ defmodule Carrier.Data.QueryData do
 
     previous_period_last_datum = Enum.at(data, -8)
 
-    diff_between_periods_in_percentage =
+    diff_between_period_sums_in_percentage =
       last_datum[current_to_previous_periods_sum_ratio_key]
       |> Decimal.from_float()
       |> Decimal.sub(1)
@@ -133,7 +133,8 @@ defmodule Carrier.Data.QueryData do
       previous_period_sum: last_datum[previous_period_sum_key],
       current_to_previous_periods_sum_ratio:
         last_datum[current_to_previous_periods_sum_ratio_key],
-      diff_between_periods_in_percentage: diff_between_periods_in_percentage
+      diff_between_period_sums_in_percentage: diff_between_period_sums_in_percentage,
+      diff_between_period_raws: last_datum[key] - previous_period_last_datum[key],
     }
   end
 

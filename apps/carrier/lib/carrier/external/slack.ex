@@ -70,7 +70,7 @@ defmodule Carrier.External.Slack do
         },
         weekly_sum: %{
           last_week: v.meta.current_period_sum,
-          week_over_week: v.meta.diff_between_periods_in_percentage
+          week_over_week: v.meta.diff_between_period_sums_in_percentage
         },
         img_url: Map.get(img_urls, k)
       }
