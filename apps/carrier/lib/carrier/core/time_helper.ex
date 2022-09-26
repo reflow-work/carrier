@@ -6,4 +6,10 @@ defmodule Carrier.Core.TimeHelper do
 
     Time.new!(hour, minute, second)
   end
+
+  def to_utc_time(%Time{} = time, timezone) when is_binary(timezone) do
+    timezone_info = Timex.Timezone.get(timezone)
+
+    time |> Time.add(-timezone_info.offset_utc, :second)
+  end
 end
