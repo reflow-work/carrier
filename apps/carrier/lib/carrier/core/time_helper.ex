@@ -8,14 +8,20 @@ defmodule Carrier.Core.TimeHelper do
   end
 
   def to_utc_time(%Time{} = time, timezone) when is_binary(timezone) do
-    timezone_info = Timex.Timezone.get(timezone)
+    utc_offset = get_utc_offset(timezone)
 
-    time |> Time.add(-timezone_info.offset_utc, :second)
+    time |> Time.add(-utc_offset, :second)
   end
 
   def from_utc_time(%Time{} = time, timezone) when is_binary(timezone) do
+    utc_offset = get_utc_offset(timezone)
+
+    time |> Time.add(utc_offset, :second)
+  end
+
+  defp get_utc_offset(timezone) do
     timezone_info = Timex.Timezone.get(timezone)
 
-    time |> Time.add(timezone_info.offset_utc, :second)
+    timezone_info.offset_utc
   end
 end
