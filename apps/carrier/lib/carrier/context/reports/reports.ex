@@ -1,6 +1,6 @@
 defmodule Carrier.Reports do
   alias Carrier.Reports.{Report, ReportLog}
-  alias Carrier.Works.QueryJob
+  alias Carrier.Works.ReportJob
   alias Carrier.TenantRepo
 
   def create_report(%{
@@ -101,7 +101,7 @@ defmodule Carrier.Reports do
     })
     |> Map.delete(:id)
     |> Map.put(:scheduled_at, scheduled_at)
-    |> QueryJob.new(meta: %{org_id: report.org_id})
+    |> ReportJob.new(meta: %{org_id: report.org_id})
     |> then(&Oban.insert(CarrierWorker.Oban, &1))
   end
 end
