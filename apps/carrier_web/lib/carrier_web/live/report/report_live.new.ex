@@ -1,6 +1,5 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
-  require Logger
   alias Carrier.Data.QueryData
   alias Carrier.Reports
   alias Carrier.Reports.Report
@@ -232,10 +231,15 @@ defmodule CarrierWeb.ReportLive.New do
         |> push_redirect(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
+        Logger.error(inspect(error))
+
         socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
     end
   rescue
-    e -> socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
+    e ->
+      Logger.error(inspect(e))
+
+      socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
   end
 
   defp add_draw_chart_events(socket, parsed_data, selected_columns) do

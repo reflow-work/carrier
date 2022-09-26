@@ -276,9 +276,6 @@ defmodule Carrier.Data.QueryData do
       {:error, [code, message, postgres[:hint]] |> Enum.reject(&(&1 == nil)) |> Enum.join("\n")}
   end
 
-  @doc """
-  Normalize the row values
-  """
   defp normalize_rows(rows) do
     rows
     |> Enum.map(fn row ->

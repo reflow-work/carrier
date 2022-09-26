@@ -97,7 +97,10 @@ defmodule CarrierWeb.DataSourceLive.New do
         |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
     end
   rescue
-    e -> socket |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+    e ->
+      Logger.error(inspect(e))
+
+      socket |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
   end
 
   defp do_create_conn_info(%{

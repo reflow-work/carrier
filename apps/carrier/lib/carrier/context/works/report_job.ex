@@ -4,8 +4,6 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.Data.QueryData
   alias Carrier.Secrets
   alias Carrier.Secrets.Integration
-  alias Carrier.Reports
-  alias Carrier.Reports.ReportLog
   alias Carrier.Noti
   alias Carrier.TenantRepo
   alias Carrier.External.Aws

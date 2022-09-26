@@ -47,13 +47,6 @@ defmodule CarrierWeb.Router do
     end
   end
 
-  forward "/", ReverseProxyPlug,
-    upstream: "https://reflow-service.webflow.io",
-    response_mode: :buffer,
-    client_options: [
-      tesla_client: Tesla.client([])
-    ]
-
   # Other scopes may use custom stacks.
   # scope "/api", CarrierWeb do
   #   pipe_through :api
@@ -87,4 +80,11 @@ defmodule CarrierWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
+
+  forward "/", ReverseProxyPlug,
+    upstream: "https://reflow-service.webflow.io",
+    response_mode: :buffer,
+    client_options: [
+      tesla_client: Tesla.client([])
+    ]
 end

@@ -57,7 +57,8 @@ defmodule CarrierWeb.MixProject do
       {:ueberauth_slack_v2, "~> 2.0"},
       {:reverse_proxy_plug, "~> 2.1"},
       {:decimal, "~> 2.0.0"},
-      {:doumi_phoenix_svg, "~> 0.1.1"}
+      {:doumi_phoenix_svg, "~> 0.1.1"},
+      {:sentry, "~> 8.0"}
     ]
   end
 
