@@ -145,7 +145,9 @@ defmodule Carrier.ReportsTest do
     test "with valid attrs", %{report_log: report_log} do
       error_message = "error~"
 
-      assert {:ok, updated_report_log} = Reports.record_failed_report_log(report_log, %{error_message: error_message})
+      assert {:ok, updated_report_log} =
+               Reports.record_failed_report_log(report_log, %{error_message: error_message})
+
       assert updated_report_log.error_message == error_message
     end
   end
