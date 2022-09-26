@@ -116,7 +116,9 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("save_report", %{"report" => report_input}, socket) do
     %{"name" => name, "channel" => channel_id, "hour" => hour_str} = report_input
 
-    trigger_time = TimeHelper.from!(hour: hour_str |> String.to_integer())
+    trigger_time =
+      TimeHelper.from!(hour: hour_str |> String.to_integer())
+      |> TimeHelper.to_utc_time(socket.assigns.timezone)
 
     {channel_name, _} =
       socket.assigns.channels |> Enum.find(fn {_name, id} -> id == channel_id end)
