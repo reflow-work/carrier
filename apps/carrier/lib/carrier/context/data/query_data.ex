@@ -79,10 +79,11 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  def refine_data_based_on_columns(%{columns: columns, data: data}) do
+  def refine_data_based_on_columns(%{columns: columns, data: data}, selected_columns) do
     [date_column | value_columns] = columns
 
     value_columns
+    |> Enum.filter(&(&1 in selected_columns))
     |> Enum.map(fn value_column ->
       data_by_column = split_data_by_columns(value_column, date_column, data)
       meta_data = build_meta_data(date_column, value_column, data_by_column)
@@ -134,7 +135,7 @@ defmodule Carrier.Data.QueryData do
       current_to_previous_periods_sum_ratio:
         last_datum[current_to_previous_periods_sum_ratio_key],
       diff_between_period_sums_in_percentage: diff_between_period_sums_in_percentage,
-      diff_between_period_raws: last_datum[key] - previous_period_last_datum[key],
+      diff_between_period_raws: last_datum[key] - previous_period_last_datum[key]
     }
   end
 

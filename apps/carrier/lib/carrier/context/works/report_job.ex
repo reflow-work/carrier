@@ -47,7 +47,7 @@ defmodule Carrier.Works.ReportJob do
               period: period,
               window_size: window_size,
               comparing_period: comparing_period,
-              columns: _columns
+              columns: value_columns
             }
           }} <- Reports.fetch_report(report_id),
          {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
@@ -62,7 +62,7 @@ defmodule Carrier.Works.ReportJob do
              window_size: window_size,
              comparing_period: comparing_period
            }),
-         parsed_data = QueryData.refine_data_based_on_columns(raw_data),
+         parsed_data = QueryData.refine_data_based_on_columns(raw_data, value_columns),
          {:ok, %{"body" => %{"imgUrls" => img_urls}}, _} <-
            Aws.save_chart_img(%{
              data: parsed_data,

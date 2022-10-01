@@ -71,7 +71,7 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> case do
         {:ok, raw_data} ->
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data)
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
 
           formatted_data = QueryData.format_data_for_preview(raw_data)
 
