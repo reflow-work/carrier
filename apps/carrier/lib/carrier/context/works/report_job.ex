@@ -4,6 +4,8 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.Data.QueryData
   alias Carrier.Secrets
   alias Carrier.Secrets.Integration
+  alias Carrier.Reports
+  alias Carrier.Reports.Report
   alias Carrier.Noti
   alias Carrier.TenantRepo
   alias Carrier.External.Aws
@@ -26,27 +28,29 @@ defmodule Carrier.Works.ReportJob do
   defp do_perform(%{
          "org_id" => org_id,
          "report_id" => report_id,
-         "name" => _name,
-         "datetime" => datetime_str,
-         "integration_info" => %{
-           "integration_id" => integration_id,
-           "channel_id" => channel_id
-         },
-         "data_source_info" => %{
-           "data_source_id" => data_source_id,
-           "sql_template" => sql_template,
-           "timezone" => timezone,
-           "period" => period,
-           "window_size" => window_size,
-           "comparing_period" => comparing_period,
-           "columns" => _columns
-         }
+         "datetime" => datetime_str
        }) do
     TenantRepo.put_org_id(org_id)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
-    with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
+    with {:ok,
+          %Report{
+            integration_info: %{
+              integration_id: integration_id,
+              channel_id: channel_id
+            },
+            data_source_info: %{
+              data_source_id: data_source_id,
+              sql_template: sql_template,
+              timezone: timezone,
+              period: period,
+              window_size: window_size,
+              comparing_period: comparing_period,
+              columns: _columns
+            }
+          }} <- Reports.fetch_report(report_id),
+         {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
          {:ok, raw_data} <-
            QueryData.query(%{
              org_id: org_id,

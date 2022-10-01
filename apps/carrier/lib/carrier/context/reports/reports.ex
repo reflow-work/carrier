@@ -93,12 +93,7 @@ defmodule Carrier.Reports do
   defp create_job_from_report(%Report{} = report) do
     scheduled_at = DateTimeHelper.get_next_with_time(report.created_at, report.trigger_time)
 
-    report
-    |> Map.take([:org_id, :name, :trigger_time, :integration_info, :data_source_info])
-    |> Map.merge(%{
-      report_id: report.id,
-      datetime: scheduled_at
-    })
+    %{org_id: report.org_id, report_id: report.id, datetime: scheduled_at}
     |> ReportJob.new(
       scheduled_at: scheduled_at,
       meta: %{org_id: report.org_id}
