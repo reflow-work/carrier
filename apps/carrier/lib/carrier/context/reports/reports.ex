@@ -2,6 +2,7 @@ defmodule Carrier.Reports do
   alias Carrier.Reports.{Report, ReportLog}
   alias Carrier.Works.ReportJob
   alias Carrier.TenantRepo
+  alias Carrier.Core.DateTimeHelper
 
   def create_report(%{
         org_id: org_id,
@@ -90,8 +91,7 @@ defmodule Carrier.Reports do
   end
 
   defp create_job_from_report(%Report{} = report) do
-    # TODO: calc next report datetime
-    scheduled_at = DateTime.utc_now()
+    scheduled_at = DateTimeHelper.get_next_with_time(report.created_at, report.trigger_time)
 
     report
     |> Map.take([:org_id, :name, :trigger_time, :integration_info, :data_source_info])
@@ -99,9 +99,10 @@ defmodule Carrier.Reports do
       report_id: report.id,
       datetime: scheduled_at
     })
-    |> Map.delete(:id)
-    |> Map.put(:scheduled_at, scheduled_at)
-    |> ReportJob.new(meta: %{org_id: report.org_id})
-    |> then(&Oban.insert(CarrierWorker.Oban, &1))
+    |> ReportJob.new(
+      scheduled_at: scheduled_at,
+      meta: %{org_id: report.org_id}
+    )
+    |> TenantRepo.insert()
   end
 end

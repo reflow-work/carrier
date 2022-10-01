@@ -23,11 +23,12 @@ defmodule Carrier.TenantFactory do
   def integration_factory(attrs) do
     {service_name, attrs} = attrs |> Map.pop(:service_name, Enum.random([:slack]))
 
-    {{org_id, conn_info_id}, attrs} =
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    {conn_info_id, attrs} =
       attrs
       |> Map.pop_lazy(:conn_info_id, fn ->
-        conn_info = insert(:conn_info, source: service_name)
-        {conn_info.org_id, conn_info.id}
+        insert(:conn_info, org_id: org_id, source: service_name).id
       end)
 
     %Integration{
@@ -41,11 +42,12 @@ defmodule Carrier.TenantFactory do
   def data_source_factory(attrs) do
     {source, attrs} = attrs |> Map.pop(:source, Enum.random([:postgres, :mysql]))
 
-    {{org_id, conn_info}, attrs} =
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    {conn_info, attrs} =
       attrs
       |> Map.pop_lazy(:conn_info, fn ->
-        conn_info = insert(:conn_info, source: source)
-        {conn_info.org_id, conn_info}
+        insert(:conn_info, org_id: org_id, source: source)
       end)
 
     %DataSource{
@@ -69,20 +71,34 @@ defmodule Carrier.TenantFactory do
     |> merge_attributes(attrs)
   end
 
+  @sql_template """
+  SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
+    FROM sample_data_simple
+    WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
+    GROUP BY order_date
+    ORDER BY order_date
+  """
+
   def report_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    {integration_id, attrs} =
+      attrs |> Map.pop_lazy(:integration_id, fn -> insert(:integration, org_id: org_id).id end)
+
+    {data_source_id, attrs} =
+      attrs |> Map.pop_lazy(:data_source_id, fn -> insert(:data_source, org_id: org_id).id end)
 
     %Report{
       org_id: org_id,
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
       integration_info: %{
-        "integration_id" => insert(:integration).id,
+        "integration_id" => integration_id,
         "channel_id" => "channel_id"
       },
       data_source_info: %{
-        "data_source_info" => insert(:data_source).id,
-        "sql_template" => "sql",
+        "data_source_info" => data_source_id,
+        "sql_template" => @sql_template,
         "timezone" => "Asia/Seoul",
         "period" => 28,
         "window_size" => 7,

@@ -1,5 +1,6 @@
 defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
+  use Oban.Testing, repo: TenantRepo
   alias Carrier.Reports
 
   @moduletag repo: TenantRepo
@@ -7,22 +8,24 @@ defmodule Carrier.ReportsTest do
   describe "create_report/1" do
     setup do
       org = TenantFactory.insert(:org)
+      integration = TenantFactory.insert(:integration, org_id: org.org_id)
+      data_source = TenantFactory.insert(:data_source, org_id: org.org_id, source: :postgres)
 
-      %{org: org}
+      %{org: org, integration: integration, data_source: data_source}
     end
 
-    test "with valid attrs", %{org: org} do
+    test "with valid attrs", %{org: org, integration: integration, data_source: data_source} do
       params = %{
         org_id: org.org_id,
         name: "Daily Report",
         trigger_time: ~T[10:00:00],
         integration_info: %{
-          "integration_id" => 1,
+          "integration_id" => integration.id,
           "channel_id" => "channel_id",
           "channel_name" => "channel_name"
         },
         data_source_info: %{
-          "data_source_id" => 1,
+          "data_source_id" => data_source.id,
           "sql_template" => "sql",
           "timezone" => "Asia/Seoul",
           "period" => 28,
@@ -34,6 +37,11 @@ defmodule Carrier.ReportsTest do
 
       assert {:ok, created_report} = Reports.create_report(params)
       assert same_fields?(created_report, params, [:org_id, :name, :trigger_time])
+
+      TenantRepo.set_skip_org_id()
+
+      assert [%{scheduled_at: scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
+      assert scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
     end
   end
 
@@ -108,7 +116,7 @@ defmodule Carrier.ReportsTest do
         },
         data_source_info: %{
           "data_source_id" => 1,
-          "sql_template" => "sql",
+          "sql_template" => "SELECT * FROM table",
           "timezone" => "Asia/Seoul",
           "period" => 28,
           "window_size" => 7,
