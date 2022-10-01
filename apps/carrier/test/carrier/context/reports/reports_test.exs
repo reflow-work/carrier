@@ -2,6 +2,7 @@ defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
   use Oban.Testing, repo: TenantRepo
   alias Carrier.Reports
+  alias Carrier.Reports.Report
 
   @moduletag repo: TenantRepo
 
@@ -92,7 +93,9 @@ defmodule Carrier.ReportsTest do
     test "with report_id", %{report: report} do
       assert {:ok, deleted_report} = Reports.delete_report(report.id)
       assert same_records?(deleted_report, report)
-      assert deleted_report.deleted_at != nil
+
+      assert %{deleted_at: deleted_at} = TenantRepo.get_by(Report, id: report.id)
+      assert deleted_at != nil
     end
   end
 
