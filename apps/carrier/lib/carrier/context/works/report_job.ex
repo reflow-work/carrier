@@ -81,14 +81,10 @@ defmodule Carrier.Works.ReportJob do
   end
 
   defp schedule_next(%Oban.Job{
-         args:
-           %{
-             "scheduled_at" => scheduled_at_str,
-             "datetime" => datetime_str
-           } = args,
-         meta: meta
+         args: %{"datetime" => datetime_str} = args,
+         meta: meta,
+         scheduled_at: scheduled_at
        }) do
-    {:ok, scheduled_at, _} = scheduled_at_str |> DateTime.from_iso8601()
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
     new_scheduled_at = scheduled_at |> Timex.shift(days: 1)
@@ -96,7 +92,7 @@ defmodule Carrier.Works.ReportJob do
 
     Logger.debug("next job is scheduled_at #{inspect(new_scheduled_at)}")
 
-    %{args | "scheduled_at" => new_scheduled_at, "datetime" => new_datetime}
+    %{args | "datetime" => new_datetime}
     |> new(meta: meta, scheduled_at: new_scheduled_at)
     |> then(&Oban.insert(CarrierWorker.Oban, &1))
   end

@@ -13,12 +13,15 @@ defmodule Carrier.TenantRepo do
 
   @impl true
   def prepare_query(_operation, query, opts) do
-    cond do
-      org_id = opts[:org_id] ->
+    case opts[:org_id] do
+      :skip ->
+        {query, opts}
+
+      org_id when is_integer(org_id) ->
         {Ecto.Query.where(query, org_id: ^org_id), opts}
 
-      true ->
-        raise "expected org_id or skip_org_id to be set"
+      _ ->
+        raise "expected org_id to be set"
     end
   end
 
@@ -35,5 +38,9 @@ defmodule Carrier.TenantRepo do
 
   def get_org_id() do
     Process.get(@tenant_key)
+  end
+
+  def set_skip_org_id() do
+    Process.put(@tenant_key, :skip)
   end
 end
