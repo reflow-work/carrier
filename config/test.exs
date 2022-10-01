@@ -40,8 +40,8 @@ config :logger, level: :warn
 # In test we don't send emails.
 config :carrier, Carrier.Mailer, adapter: Swoosh.Adapters.Test
 
-config :carrier, Oban, testing: :inline
-config :carrier_worker, Oban, testing: :inline
+config :carrier, Oban, testing: :manual
+config :carrier_worker, Oban, testing: :manual
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
