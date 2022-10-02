@@ -65,7 +65,8 @@ defmodule Carrier.AccountsTest do
     end
 
     test "with invalid email" do
-      assert {:error, {:resource_not_found, _}} = Accounts.fetch_user_by_email("invalid_email")
+      assert {:error, {:resource_not_found, %{target: User}}} =
+               Accounts.fetch_user_by_email("invalid_email")
     end
   end
 

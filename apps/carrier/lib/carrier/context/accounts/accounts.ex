@@ -36,7 +36,7 @@ defmodule Carrier.Accounts do
     |> TenantRepo.one()
     |> case do
       %User{} = user -> {:ok, user}
-      nil -> {:error, {:resource_not_found, target: User, conditions: %{user_id: user_id}}}
+      nil -> {:error, {:resource_not_found, %{target: User, conditions: %{user_id: user_id}}}}
     end
   end
 
@@ -45,7 +45,7 @@ defmodule Carrier.Accounts do
     |> Repo.one()
     |> case do
       %User{} = user -> {:ok, user}
-      nil -> {:error, {:resource_not_found, target: User, conditions: %{email: email}}}
+      nil -> {:error, {:resource_not_found, %{target: User, conditions: %{email: email}}}}
     end
   end
 

@@ -74,7 +74,7 @@ defmodule Carrier.Secrets do
       nil ->
         {:error,
          {:resource_not_found,
-          %{target: "integration_id", conditions: %{integration_id: integration_id}}}}
+          %{target: Integration, conditions: %{integration_id: integration_id}}}}
     end
   end
 
@@ -95,7 +95,7 @@ defmodule Carrier.Secrets do
       nil ->
         {:error,
          {:resource_not_found,
-          %{target: "data_source_id", conditions: %{data_source_id: data_source_id}}}}
+          %{target: DataSource, conditions: %{data_source_id: data_source_id}}}}
     end
   end
 
