@@ -18,6 +18,9 @@ defmodule Carrier.Works.ReportJob do
          {:ok, _next_job} <- schedule_next(job) do
       :ok
     else
+      {:cancel, reason} ->
+        {:cancel, reason}
+
       {:error, reason} ->
         Logger.error("Failed to send report: #{inspect(reason)}")
 
@@ -81,6 +84,12 @@ defmodule Carrier.Works.ReportJob do
            )
            |> Traversable.traverse() do
       :ok
+    else
+      {:error, {:resource_not_found, %{target: Report}}} ->
+        {:cancel, :report_is_deleted}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

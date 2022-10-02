@@ -98,6 +98,7 @@ defmodule Carrier.Reports.Report do
   def fetch(report_id) do
     __MODULE__
     |> where([r], r.id == ^report_id)
+    |> where([r], is_nil(r.deleted_at))
   end
 
   def delete(%__MODULE__{} = struct, %DateTime{} = deleted_at) do
