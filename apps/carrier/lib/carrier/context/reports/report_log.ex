@@ -1,5 +1,6 @@
 defmodule Carrier.Reports.ReportLog do
   use Carrier.Schema
+  alias Carrier.Reports.{IntegrationInfo, DataSourceInfo}
 
   schema "report_logs" do
     field :org_id, :integer
@@ -9,23 +10,8 @@ defmodule Carrier.Reports.ReportLog do
     field :sent_at, :utc_datetime_usec
     field :error_message, :string
 
-    embeds_one(:integration_info, IntegrationInfo, primary_key: false, on_replace: :delete) do
-      @derive Jason.Encoder
-      field :integration_id, :integer
-      field :channel_id, :string
-      field :channel_name, :string
-    end
-
-    embeds_one(:data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete) do
-      @derive Jason.Encoder
-      field :data_source_id, :integer
-      field :sql_template, :string
-      field :timezone, :string
-      field :period, :integer
-      field :window_size, :integer
-      field :comparing_period, :integer
-      field :columns, {:array, :string}
-    end
+    embeds_one :integration_info, IntegrationInfo, on_replace: :delete
+    embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
   end
 
   @required_for_create [:org_id, :report_id, :payload, :tried_at]
@@ -35,34 +21,12 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_create)
     |> cast_embed(:integration_info,
       required: true,
-      with: &changeset_for_create_integration_info/2
+      with: &IntegrationInfo.changeset_for_create/2
     )
     |> cast_embed(:data_source_info,
       required: true,
-      with: &changeset_for_create_data_source_info/2
+      with: &DataSourceInfo.changeset_for_create/2
     )
-  end
-
-  @required_for_create_integration_info [:integration_id, :channel_id, :channel_name]
-  defp changeset_for_create_integration_info(struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_create_integration_info)
-    |> validate_required(@required_for_create_integration_info)
-  end
-
-  @required_for_create_data_source_info [
-    :data_source_id,
-    :sql_template,
-    :timezone,
-    :period,
-    :window_size,
-    :comparing_period,
-    :columns
-  ]
-  defp changeset_for_create_data_source_info(struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_create_data_source_info)
-    |> validate_required(@required_for_create_data_source_info)
   end
 
   @required_for_record_succeeded [:sent_at]
