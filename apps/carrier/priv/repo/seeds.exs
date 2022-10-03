@@ -35,9 +35,9 @@ Repo.transaction(fn ->
           name: "test DB",
           source: :postgres,
           info: %{
-            "hostname" => "test-db.cdw6skjbo8fk.ap-northeast-2.rds.amazonaws.com",
+            "hostname" => "carrier-app-db.cdw6skjbo8fk.ap-northeast-2.rds.amazonaws.com",
             "port" => 5432,
-            "username" => "postgres",
+            "username" => "tester",
             "password" => "JJJxcv7MUzaFct9R6vEB",
             "database" => "test_db"
           }
