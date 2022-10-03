@@ -10,28 +10,21 @@ defmodule Carrier.Reports.ReportLog do
       values: [:scheduled, :tried, :generated, :sent, :failed],
       default: :scheduled
 
-    field :payload, :map
+    field :scheduled_at, :utc_datetime_usec
     field :tried_at, :utc_datetime_usec
     field :sent_at, :utc_datetime_usec
+    field :payload, :map
     field :error_message, :string
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
   end
 
-  @required_for_create [:org_id, :report_id, :payload, :tried_at]
-  defp changeset_for_create(%__MODULE__{} = struct, attrs) do
+  @required_for_record_scheduled [:org_id, :report_id, :scheduled_at]
+  defp changeset_for_record_scheduled(%__MODULE__{} = struct, attrs) do
     struct
-    |> cast(attrs, @required_for_create)
-    |> validate_required(@required_for_create)
-    |> cast_embed(:integration_info,
-      required: true,
-      with: &IntegrationInfo.changeset_for_create/2
-    )
-    |> cast_embed(:data_source_info,
-      required: true,
-      with: &DataSourceInfo.changeset_for_create/2
-    )
+    |> cast(attrs, @required_for_record_scheduled)
+    |> validate_required(@required_for_record_scheduled)
   end
 
   @required_for_record_succeeded [:sent_at]
@@ -48,22 +41,17 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_record_failed)
   end
 
-  def create(%{
+  def record_scheduled(%{
         org_id: org_id,
         report_id: report_id,
-        payload: payload,
-        tried_at: tried_at,
-        integration_info: integration_info,
-        data_source_info: data_source_info
+        scheduled_at: scheduled_at
       }) do
     %__MODULE__{}
-    |> changeset_for_create(%{
+    |> changeset_for_record_scheduled(%{
       org_id: org_id,
       report_id: report_id,
-      payload: payload,
-      tried_at: tried_at,
-      integration_info: integration_info,
-      data_source_info: data_source_info
+      status: :scheduled,
+      scheduled_at: scheduled_at
     })
   end
 

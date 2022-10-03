@@ -6,14 +6,15 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
       add :org_id, references(:orgs, column: :org_id), null: false
       add :report_id, :integer, null: false
       add :status, :string, null: false
-      add :payload, :jsonb, null: false
-      add :tried_at, :timestamptz, null: false
+      add :scheduled_at, :timestamptz, null: false
+      add :tried_at, :timestamptz, null: true
       add :sent_at, :timestamptz, null: true
+      add :payload, :jsonb, null: true
       add :error_message, :string, null: true
-      add :integration_info, :jsonb, null: false
-      add :data_source_info, :jsonb, null: false
+      add :integration_info, :jsonb, null: true
+      add :data_source_info, :jsonb, null: true
     end
 
-    create index(:report_logs, [:org_id, :sent_at])
+    create index(:report_logs, [:org_id, "id DESC"])
   end
 end

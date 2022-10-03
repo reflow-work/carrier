@@ -111,27 +111,20 @@ defmodule Carrier.TenantFactory do
 
   def report_log_factory(attrs) do
     {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> insert(:report) end)
+    {status, attrs} = attrs |> Map.pop(:status, :scheduled)
 
     %ReportLog{
       org_id: report.org_id,
       report_id: report.id,
-      payload: %{"test" => "wow"},
-      tried_at: DateTime.utc_now(),
-      integration_info: %{
-        "integration_id" => insert(:integration).id,
-        "channel_id" => "channel_id"
-      },
-      data_source_info: %{
-        "data_source_info" => insert(:data_source).id,
-        "sql_template" => "sql",
-        "timezone" => "Asia/Seoul",
-        "period" => 28,
-        "window_size" => 7,
-        "comparing_period" => 7,
-        "columns" => ["total_revenue"]
-      }
+      status: status
     }
+    |> apply_status(status)
     |> merge_attributes(attrs)
+  end
+
+  defp apply_status(%ReportLog{} = report_log, :scheduled) do
+    report_log
+    |> Map.merge(%{scheduled_at: DateTime.utc_now()})
   end
 
   defp seq(name) when is_atom(name) do

@@ -2,7 +2,7 @@ defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
   use Oban.Testing, repo: TenantRepo
   alias Carrier.Reports
-  alias Carrier.Reports.Report
+  alias Carrier.Reports.{Report, ReportLog}
 
   @moduletag repo: TenantRepo
 
@@ -39,10 +39,19 @@ defmodule Carrier.ReportsTest do
       assert {:ok, created_report} = Reports.create_report(params)
       assert same_fields?(created_report, params, [:org_id, :name, :trigger_time])
 
+      # ReportJob
+
       TenantRepo.set_skip_org_id()
 
       assert [%{scheduled_at: scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
       assert scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
+
+      # ReportLog
+
+      report_log = TenantRepo.get_by(ReportLog, report_id: created_report.id)
+
+      assert report_log.org_id == created_report.org_id
+      assert report_log.report_id == created_report.id
     end
   end
 
@@ -111,7 +120,7 @@ defmodule Carrier.ReportsTest do
     end
   end
 
-  describe "create_report_log/1" do
+  describe "record_scheduled_report_log/1" do
     setup do
       report = TenantFactory.insert(:report)
 
@@ -121,27 +130,13 @@ defmodule Carrier.ReportsTest do
     test "with valid attrs", %{report: report} do
       params = %{
         org_id: report.org_id,
-        report_id: report.id,
-        payload: %{name: "test"},
-        tried_at: DateTime.utc_now(),
-        integration_info: %{
-          "integration_id" => 1,
-          "channel_id" => "channel_id",
-          "channel_name" => "channel_name"
-        },
-        data_source_info: %{
-          "data_source_id" => 1,
-          "sql_template" => "SELECT * FROM table",
-          "timezone" => "Asia/Seoul",
-          "period" => 28,
-          "window_size" => 7,
-          "comparing_period" => 7,
-          "columns" => ["total_revenue"]
-        }
+        report_id: report.id
       }
 
-      assert {:ok, created_report_log} = Reports.create_report_log(params)
-      assert same_fields?(created_report_log, params, [:org_id, :report_id, :payload, :tried_at])
+      assert {:ok, scheduled_report_log} = Reports.record_scheduled_report_log(params)
+      assert same_fields?(scheduled_report_log, params, [:org_id, :report_id])
+      assert scheduled_report_log.status == :scheduled
+      assert scheduled_report_log.scheduled_at != nil
     end
   end
 

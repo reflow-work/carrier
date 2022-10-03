@@ -21,7 +21,12 @@ defmodule Carrier.Reports do
                data_source_info: data_source_info
              })
              |> TenantRepo.insert(),
-           {:ok, _job} <- create_job_from_report(report) do
+           {:ok, _job} <- create_job_from_report(report),
+           {:ok, %ReportLog{}} <-
+             record_scheduled_report_log(%{
+               org_id: org_id,
+               report_id: report.id
+             }) do
         {:ok, report}
       end
     end)
@@ -53,21 +58,14 @@ defmodule Carrier.Reports do
     end
   end
 
-  def create_report_log(%{
+  def record_scheduled_report_log(%{
         org_id: org_id,
-        report_id: report_id,
-        payload: payload,
-        tried_at: tried_at,
-        integration_info: integration_info,
-        data_source_info: data_source_info
+        report_id: report_id
       }) do
-    ReportLog.create(%{
+    ReportLog.record_scheduled(%{
       org_id: org_id,
       report_id: report_id,
-      payload: payload,
-      tried_at: tried_at,
-      integration_info: integration_info,
-      data_source_info: data_source_info
+      scheduled_at: DateTime.utc_now()
     })
     |> TenantRepo.insert()
   end
