@@ -3,16 +3,17 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
 
   def change do
     create table(:report_logs) do
-      add(:org_id, references(:orgs, column: :org_id), null: false)
-      add(:report_id, :integer, null: false)
-      add(:payload, :jsonb, null: false)
-      add(:tried_at, :timestamptz, null: false)
-      add(:sent_at, :timestamptz, null: true)
-      add(:error_message, :string, null: true)
-      add(:integration_info, :jsonb, null: false)
-      add(:data_source_info, :jsonb, null: false)
+      add :org_id, references(:orgs, column: :org_id), null: false
+      add :report_id, :integer, null: false
+      add :status, :string, null: false
+      add :payload, :jsonb, null: false
+      add :tried_at, :timestamptz, null: false
+      add :sent_at, :timestamptz, null: true
+      add :error_message, :string, null: true
+      add :integration_info, :jsonb, null: false
+      add :data_source_info, :jsonb, null: false
     end
 
-    create(index(:report_logs, [:org_id, :sent_at]))
+    create index(:report_logs, [:org_id, :sent_at])
   end
 end

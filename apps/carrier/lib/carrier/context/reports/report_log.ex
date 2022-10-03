@@ -5,6 +5,11 @@ defmodule Carrier.Reports.ReportLog do
   schema "report_logs" do
     field :org_id, :integer
     field :report_id, :integer
+
+    field :status, Ecto.Enum,
+      values: [:scheduled, :tried, :generated, :sent, :failed],
+      default: :scheduled
+
     field :payload, :map
     field :tried_at, :utc_datetime_usec
     field :sent_at, :utc_datetime_usec
