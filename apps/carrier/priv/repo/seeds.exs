@@ -12,7 +12,7 @@
 
 alias Carrier.Accounts.{Org, User}
 alias Carrier.Secrets.{ConnInfo, Integration, DataSource}
-alias Carrier.Reports.Report
+alias Carrier.Reports.{Report, IntegrationInfo, DataSourceInfo}
 alias Carrier.Repo
 
 Repo.transaction(fn ->
@@ -89,11 +89,12 @@ Repo.transaction(fn ->
         org_id: org0.org_id,
         name: "json is babo",
         trigger_time: ~T[01:00:00],
-        integration_info: %Report.IntegrationInfo{
+        integration_info: %IntegrationInfo{
           integration_id: integration0.id,
-          channel_id: "C03NXJZ1SPJ"
+          channel_id: "C03U2QWU7F1",
+          channel_name: "message_tests"
         },
-        data_source_info: %Report.DataSourceInfo{
+        data_source_info: %DataSourceInfo{
           data_source_id: data_source0.id,
           sql_template: """
           SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
