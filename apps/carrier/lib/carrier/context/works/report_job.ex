@@ -10,12 +10,21 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.TenantRepo
   alias Carrier.External.Aws
   alias Carrier.External.Slack
-  alias Carrier.Core.Traversable
+  alias Carrier.Core.{Traversable, DateTimeHelper}
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: args} = job) do
-    with :ok <- do_perform(args),
-         {:ok, _next_job} <- schedule_next(job) do
+  def perform(
+        %Oban.Job{
+          args: %{"org_id" => org_id, "report_id" => report_id, "datetime" => datetime_str}
+        } = job
+      ) do
+    TenantRepo.put_org_id(org_id)
+
+    {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
+
+    with {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
+         :ok <- do_perform(%{report: report, datetime: datetime}),
+         {:ok, _next_job} <- schedule_next(%{job: job, report: report, datetime: datetime}) do
       :ok
     else
       {:cancel, reason} ->
@@ -29,31 +38,26 @@ defmodule Carrier.Works.ReportJob do
   end
 
   defp do_perform(%{
-         "org_id" => org_id,
-         "report_id" => report_id,
-         "datetime" => datetime_str
+         report: %Report{
+           id: report_id,
+           org_id: org_id,
+           integration_info: %{
+             integration_id: integration_id,
+             channel_id: channel_id
+           },
+           data_source_info: %{
+             data_source_id: data_source_id,
+             sql_template: sql_template,
+             timezone: timezone,
+             period: period,
+             window_size: window_size,
+             comparing_period: comparing_period,
+             columns: value_columns
+           }
+         },
+         datetime: datetime
        }) do
-    TenantRepo.put_org_id(org_id)
-
-    {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
-
-    with {:ok,
-          %Report{
-            integration_info: %{
-              integration_id: integration_id,
-              channel_id: channel_id
-            },
-            data_source_info: %{
-              data_source_id: data_source_id,
-              sql_template: sql_template,
-              timezone: timezone,
-              period: period,
-              window_size: window_size,
-              comparing_period: comparing_period,
-              columns: value_columns
-            }
-          }} <- Reports.fetch_report(report_id),
-         {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
+    with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
          {:ok, raw_data} <-
            QueryData.query(%{
              org_id: org_id,
@@ -93,20 +97,21 @@ defmodule Carrier.Works.ReportJob do
     end
   end
 
-  defp schedule_next(%Oban.Job{
-         args: %{"datetime" => datetime_str} = args,
-         meta: meta,
-         scheduled_at: scheduled_at
+  defp schedule_next(%{
+         job: %Oban.Job{args: args, meta: meta},
+         report: %Report{trigger_time: trigger_time},
+         datetime: datetime
        }) do
-    {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
+    new_datetime = DateTimeHelper.get_next_with_time(datetime, trigger_time)
+    new_scheduled_at = new_datetime
 
-    new_scheduled_at = scheduled_at |> Timex.shift(days: 1)
-    new_datetime = datetime |> Timex.shift(days: 1)
+    {:ok, next_job} =
+      %{args | "datetime" => new_datetime}
+      |> new(meta: meta, scheduled_at: new_scheduled_at)
+      |> then(&Oban.insert(CarrierWorker.Oban, &1))
 
     Logger.debug("next job is scheduled_at #{inspect(new_scheduled_at)}")
 
-    %{args | "datetime" => new_datetime}
-    |> new(meta: meta, scheduled_at: new_scheduled_at)
-    |> then(&Oban.insert(CarrierWorker.Oban, &1))
+    {:ok, next_job}
   end
 end
