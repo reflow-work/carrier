@@ -70,6 +70,19 @@ defmodule Carrier.Reports do
     |> TenantRepo.insert()
   end
 
+  def record_tried_report_log(%{
+        report_id: report_id
+      }) do
+    TenantRepo.wrap_transaction(fn ->
+      ReportLog.record_tried(%{report_id: report_id, tried_at: DateTime.utc_now()})
+      |> TenantRepo.update_all([])
+      |> case do
+        {1, [%ReportLog{} = report_log]} -> {:ok, report_log}
+        _ -> {:error, :failed_to_record_tried_report_log}
+      end
+    end)
+  end
+
   def record_succeeded_report_log(%ReportLog{} = report_log) do
     report_log
     |> ReportLog.record_succeeded(%{

@@ -55,6 +55,16 @@ defmodule Carrier.Reports.ReportLog do
     })
   end
 
+  def record_tried(%{report_id: report_id, tried_at: tried_at}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :scheduled
+    )
+    |> update([rl], set: [status: :tried, tried_at: ^tried_at])
+    |> select([rl], rl)
+  end
+
   def record_succeeded(%__MODULE__{} = struct, %{
         sent_at: sent_at
       }) do
