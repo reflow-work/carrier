@@ -1,0 +1,30 @@
+defmodule Carrier.Reports.DataSourceInfo do
+  use Carrier.Schema
+
+  @derive Jason.Encoder
+  @primary_key false
+  embedded_schema do
+    field :data_source_id, :integer
+    field :sql_template, :string
+    field :timezone, :string
+    field :period, :integer
+    field :window_size, :integer
+    field :comparing_period, :integer
+    field :columns, {:array, :string}
+  end
+
+  @required_for_create [
+    :data_source_id,
+    :sql_template,
+    :timezone,
+    :period,
+    :window_size,
+    :comparing_period,
+    :columns
+  ]
+  def changeset_for_create(struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create)
+    |> validate_required(@required_for_create)
+  end
+end
