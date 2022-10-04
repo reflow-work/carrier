@@ -170,7 +170,7 @@ defmodule Carrier.ReportsTest do
 
     test "with valid attrs", %{report_log: report_log} do
       assert {:ok, updated_report_log} = Reports.record_succeeded_report_log(report_log)
-      assert updated_report_log.sent_at != nil
+      assert updated_report_log.succeeded_at != nil
     end
   end
 

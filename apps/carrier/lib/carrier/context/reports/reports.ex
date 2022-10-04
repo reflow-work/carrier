@@ -86,7 +86,7 @@ defmodule Carrier.Reports do
   def record_succeeded_report_log(%ReportLog{} = report_log) do
     report_log
     |> ReportLog.record_succeeded(%{
-      sent_at: DateTime.utc_now()
+      succeeded_at: DateTime.utc_now()
     })
     |> TenantRepo.update()
   end

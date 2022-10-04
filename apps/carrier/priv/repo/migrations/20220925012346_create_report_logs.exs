@@ -8,7 +8,7 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
       add :status, :string, null: false
       add :scheduled_at, :timestamptz, null: false
       add :tried_at, :timestamptz, null: true
-      add :sent_at, :timestamptz, null: true
+      add :succeeded_at, :timestamptz, null: true
       add :payload, :jsonb, null: true
       add :error_message, :string, null: true
       add :integration_info, :jsonb, null: true

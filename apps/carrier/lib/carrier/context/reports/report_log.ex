@@ -7,12 +7,12 @@ defmodule Carrier.Reports.ReportLog do
     field :report_id, :integer
 
     field :status, Ecto.Enum,
-      values: [:scheduled, :tried, :sent, :failed],
+      values: [:scheduled, :tried, :succeeded, :failed],
       default: :scheduled
 
     field :scheduled_at, :utc_datetime_usec
     field :tried_at, :utc_datetime_usec
-    field :sent_at, :utc_datetime_usec
+    field :succeeded_at, :utc_datetime_usec
     field :payload, :map
     field :error_message, :string
 
@@ -27,7 +27,7 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_record_scheduled)
   end
 
-  @required_for_record_succeeded [:sent_at]
+  @required_for_record_succeeded [:succeeded_at]
   defp changeset_for_record_succeeded(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_record_succeeded)
@@ -66,11 +66,11 @@ defmodule Carrier.Reports.ReportLog do
   end
 
   def record_succeeded(%__MODULE__{} = struct, %{
-        sent_at: sent_at
+        succeeded_at: succeeded_at
       }) do
     struct
     |> changeset_for_record_succeeded(%{
-      sent_at: sent_at
+      succeeded_at: succeeded_at
     })
   end
 
