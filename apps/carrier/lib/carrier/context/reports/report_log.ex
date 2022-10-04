@@ -10,6 +10,7 @@ defmodule Carrier.Reports.ReportLog do
       values: [:scheduled, :tried, :succeeded, :failed],
       default: :scheduled
 
+    field :created_at, :utc_datetime_usec
     field :scheduled_at, :utc_datetime_usec
     field :tried_at, :utc_datetime_usec
     field :succeeded_at, :utc_datetime_usec
@@ -20,7 +21,7 @@ defmodule Carrier.Reports.ReportLog do
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
   end
 
-  @required_for_record_scheduled [:org_id, :report_id, :scheduled_at]
+  @required_for_record_scheduled [:org_id, :report_id, :created_at, :scheduled_at]
   defp changeset_for_record_scheduled(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_record_scheduled)
@@ -44,6 +45,7 @@ defmodule Carrier.Reports.ReportLog do
   def record_scheduled(%{
         org_id: org_id,
         report_id: report_id,
+        created_at: created_at,
         scheduled_at: scheduled_at
       }) do
     %__MODULE__{}
@@ -51,6 +53,7 @@ defmodule Carrier.Reports.ReportLog do
       org_id: org_id,
       report_id: report_id,
       status: :scheduled,
+      created_at: created_at,
       scheduled_at: scheduled_at
     })
   end

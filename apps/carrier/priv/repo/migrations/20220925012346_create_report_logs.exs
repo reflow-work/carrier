@@ -6,6 +6,7 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
       add :org_id, references(:orgs, column: :org_id), null: false
       add :report_id, :integer, null: false
       add :status, :string, null: false
+      add :created_at, :timestamptz, null: false
       add :scheduled_at, :timestamptz, null: false
       add :tried_at, :timestamptz, null: true
       add :succeeded_at, :timestamptz, null: true

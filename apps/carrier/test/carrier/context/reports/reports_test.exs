@@ -130,13 +130,14 @@ defmodule Carrier.ReportsTest do
     test "with valid attrs", %{report: report} do
       params = %{
         org_id: report.org_id,
-        report_id: report.id
+        report_id: report.id,
+        scheduled_at: DateTime.utc_now() |> Timex.shift(days: 1)
       }
 
       assert {:ok, scheduled_report_log} = Reports.record_scheduled_report_log(params)
-      assert same_fields?(scheduled_report_log, params, [:org_id, :report_id])
+      assert same_fields?(scheduled_report_log, params, [:org_id, :report_id, :scheduled_at])
       assert scheduled_report_log.status == :scheduled
-      assert scheduled_report_log.scheduled_at != nil
+      assert scheduled_report_log.created_at != nil
     end
   end
 

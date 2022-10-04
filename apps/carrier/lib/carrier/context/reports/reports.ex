@@ -56,12 +56,14 @@ defmodule Carrier.Reports do
 
   def record_scheduled_report_log(%{
         org_id: org_id,
-        report_id: report_id
+        report_id: report_id,
+        scheduled_at: scheduled_at
       }) do
     ReportLog.record_scheduled(%{
       org_id: org_id,
       report_id: report_id,
-      scheduled_at: DateTime.utc_now()
+      created_at: DateTime.utc_now(),
+      scheduled_at: scheduled_at
     })
     |> TenantRepo.insert()
   end
@@ -114,7 +116,8 @@ defmodule Carrier.Reports do
            {:ok, %ReportLog{}} <-
              record_scheduled_report_log(%{
                org_id: report.org_id,
-               report_id: report.id
+               report_id: report.id,
+               scheduled_at: scheduled_at
              }) do
         {:ok, report_job}
       end

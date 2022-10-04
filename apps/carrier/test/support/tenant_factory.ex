@@ -116,7 +116,8 @@ defmodule Carrier.TenantFactory do
     %ReportLog{
       org_id: report.org_id,
       report_id: report.id,
-      status: status
+      status: status,
+      created_at: DateTime.utc_now()
     }
     |> apply_status(status)
     |> merge_attributes(attrs)
