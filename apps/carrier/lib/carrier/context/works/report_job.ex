@@ -10,21 +10,20 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.TenantRepo
   alias Carrier.External.Aws
   alias Carrier.External.Slack
-  alias Carrier.Core.{Traversable, DateTimeHelper}
+  alias Carrier.Core.Traversable
 
   @impl Oban.Worker
-  def perform(
-        %Oban.Job{
-          args: %{"org_id" => org_id, "report_id" => report_id, "datetime" => datetime_str}
-        } = job
-      ) do
+  def perform(%Oban.Job{
+        args: %{"org_id" => org_id, "report_id" => report_id, "datetime" => datetime_str}
+      }) do
     TenantRepo.put_org_id(org_id)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
-    with {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
+    with {:ok, _report_log} <- Reports.record_tried_report_log(%{report_id: report_id}),
+         {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
          :ok <- do_perform(%{report: report, datetime: datetime}),
-         {:ok, _next_job} <- schedule_next(%{job: job, report: report, datetime: datetime}) do
+         {:ok, _next_job} <- Reports.create_job_from_report(report, datetime) do
       :ok
     else
       {:cancel, reason} ->
@@ -95,23 +94,5 @@ defmodule Carrier.Works.ReportJob do
       {:error, reason} ->
         {:error, reason}
     end
-  end
-
-  defp schedule_next(%{
-         job: %Oban.Job{args: args, meta: meta},
-         report: %Report{trigger_time: trigger_time},
-         datetime: datetime
-       }) do
-    new_datetime = DateTimeHelper.get_next_with_time(datetime, trigger_time)
-    new_scheduled_at = new_datetime
-
-    {:ok, next_job} =
-      %{args | "datetime" => new_datetime}
-      |> new(meta: meta, scheduled_at: new_scheduled_at)
-      |> then(&Oban.insert(CarrierWorker.Oban, &1))
-
-    Logger.debug("next job is scheduled_at #{inspect(new_scheduled_at)}")
-
-    {:ok, next_job}
   end
 end

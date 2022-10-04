@@ -1,4 +1,5 @@
 defmodule Carrier.Reports do
+  require Logger
   alias Carrier.Reports.{Report, ReportLog}
   alias Carrier.Works.ReportJob
   alias Carrier.TenantRepo
@@ -21,7 +22,7 @@ defmodule Carrier.Reports do
                data_source_info: data_source_info
              })
              |> TenantRepo.insert(),
-           {:ok, _job} <- create_job_from_report(report) do
+           {:ok, _job} <- create_job_from_report(report, report.created_at) do
         {:ok, report}
       end
     end)
@@ -99,8 +100,8 @@ defmodule Carrier.Reports do
     |> TenantRepo.update()
   end
 
-  defp create_job_from_report(%Report{} = report) do
-    scheduled_at = DateTimeHelper.get_next_with_time(report.created_at, report.trigger_time)
+  def create_job_from_report(%Report{} = report, %DateTime{} = base_datetime) do
+    scheduled_at = DateTimeHelper.get_next_with_time(base_datetime, report.trigger_time)
 
     TenantRepo.wrap_transaction(fn ->
       with {:ok, report_job} <-
@@ -117,6 +118,9 @@ defmodule Carrier.Reports do
              }) do
         {:ok, report_job}
       end
+    end)
+    |> tap(fn _ ->
+      Logger.debug("next job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}")
     end)
   end
 end
