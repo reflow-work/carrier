@@ -1,5 +1,5 @@
 defmodule Carrier.Works.ReportJob do
-  use Oban.Worker, queue: :default
+  use Oban.Worker, queue: :default, max_attempts: 1
   require Logger
   alias Carrier.Data.QueryData
   alias Carrier.Secrets
