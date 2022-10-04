@@ -31,10 +31,17 @@ defmodule Carrier.Works.ReportJob do
         {:cancel, :report_is_deleted}
 
       {:error, reason} ->
+        Reports.record_failed_report_log(%{report_id: report_id, error_message: inspect(reason)})
         Logger.error("Failed to send report: #{inspect(reason)}")
 
         {:error, reason}
     end
+  rescue
+    e ->
+      Reports.record_failed_report_log(%{report_id: report_id, error_message: inspect(e)})
+      Logger.error("Failed to send report: #{inspect(e)}")
+
+      {:error, e}
   end
 
   defp generate_slack_args(%{

@@ -12,7 +12,7 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
       add :succeeded_at, :timestamptz, null: true
       add :failed_at, :timestamptz, null: true
       add :payload, :jsonb, null: true
-      add :error_message, :string, null: true
+      add :error_message, :text, null: true
       add :integration_info, :jsonb, null: true
       add :data_source_info, :jsonb, null: true
     end
