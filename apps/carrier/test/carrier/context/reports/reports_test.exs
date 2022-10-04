@@ -164,14 +164,22 @@ defmodule Carrier.ReportsTest do
 
   describe "record_succeeded_report_log/1" do
     setup do
-      report_log = TenantFactory.insert(:report_log)
+      report = TenantFactory.insert(:report)
+      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
 
-      %{report_log: report_log}
+      TenantRepo.put_org_id(report.org_id)
+
+      %{report: report}
     end
 
-    test "with valid attrs", %{report_log: report_log} do
-      assert {:ok, updated_report_log} = Reports.record_succeeded_report_log(report_log)
-      assert updated_report_log.succeeded_at != nil
+    test "with valid attrs", %{report: report} do
+      params = %{
+        report_id: report.id
+      }
+
+      assert {:ok, succeeded_report_log} = Reports.record_succeeded_report_log(params)
+      assert succeeded_report_log.status == :succeeded
+      assert succeeded_report_log.succeeded_at != nil
     end
   end
 

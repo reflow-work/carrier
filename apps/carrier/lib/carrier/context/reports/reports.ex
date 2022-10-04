@@ -81,12 +81,15 @@ defmodule Carrier.Reports do
     end)
   end
 
-  def record_succeeded_report_log(%ReportLog{} = report_log) do
-    report_log
-    |> ReportLog.record_succeeded(%{
-      succeeded_at: DateTime.utc_now()
-    })
-    |> TenantRepo.update()
+  def record_succeeded_report_log(%{report_id: report_id}) do
+    TenantRepo.wrap_transaction(fn ->
+      ReportLog.record_succeeded(%{report_id: report_id, succeeded_at: DateTime.utc_now()})
+      |> TenantRepo.update_all([])
+      |> case do
+        {1, [%ReportLog{} = report_log]} -> {:ok, report_log}
+        _ -> {:error, :failed_to_record_succeeded_report_log}
+      end
+    end)
   end
 
   def record_failed_report_log(

@@ -116,7 +116,6 @@ defmodule Carrier.TenantFactory do
     %ReportLog{
       org_id: report.org_id,
       report_id: report.id,
-      status: status,
       created_at: DateTime.utc_now()
     }
     |> apply_status(status)
@@ -125,7 +124,13 @@ defmodule Carrier.TenantFactory do
 
   defp apply_status(%ReportLog{} = report_log, :scheduled) do
     report_log
-    |> Map.merge(%{scheduled_at: DateTime.utc_now()})
+    |> Map.merge(%{status: :scheduled, scheduled_at: DateTime.utc_now()})
+  end
+
+  defp apply_status(%ReportLog{} = report_log, :tried) do
+    report_log
+    |> apply_status(:scheduled)
+    |> Map.merge(%{status: :tried, tried_at: DateTime.utc_now()})
   end
 
   defp seq(name) when is_atom(name) do

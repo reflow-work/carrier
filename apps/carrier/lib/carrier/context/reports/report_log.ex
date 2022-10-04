@@ -28,13 +28,6 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_record_scheduled)
   end
 
-  @required_for_record_succeeded [:succeeded_at]
-  defp changeset_for_record_succeeded(%__MODULE__{} = struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_record_succeeded)
-    |> validate_required(@required_for_record_succeeded)
-  end
-
   @required_for_record_failed [:error_message]
   defp changeset_for_record_failed(%__MODULE__{} = struct, attrs) do
     struct
@@ -68,13 +61,14 @@ defmodule Carrier.Reports.ReportLog do
     |> select([rl], rl)
   end
 
-  def record_succeeded(%__MODULE__{} = struct, %{
-        succeeded_at: succeeded_at
-      }) do
-    struct
-    |> changeset_for_record_succeeded(%{
-      succeeded_at: succeeded_at
-    })
+  def record_succeeded(%{report_id: report_id, succeeded_at: succeeded_at}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :tried
+    )
+    |> update([rl], set: [status: :succeeded, succeeded_at: ^succeeded_at])
+    |> select([rl], rl)
   end
 
   def record_failed(%__MODULE__{} = struct, %{
