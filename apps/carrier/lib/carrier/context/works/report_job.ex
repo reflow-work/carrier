@@ -79,6 +79,7 @@ defmodule Carrier.Works.ReportJob do
   defp send_report(%{
          report:
            %Report{
+             id: report_id,
              integration_info: %{
                integration_id: integration_id,
                channel_id: channel_id
@@ -95,6 +96,7 @@ defmodule Carrier.Works.ReportJob do
                &Noti.send_report_to_slack(channel_id, &1, integration.conn_info.info["bot_token"])
              )
              |> Traversable.traverse(),
+           {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}),
            {:ok, next_job} <- Reports.create_job_from_report(report, datetime) do
         {:ok, next_job}
       end

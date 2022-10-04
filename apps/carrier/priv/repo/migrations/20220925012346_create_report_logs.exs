@@ -17,6 +17,9 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
     end
 
     create index(:report_logs, [:org_id, "id DESC"])
-    create unique_index(:report_logs, [:org_id, :report_id, :status], where: "status <> 'sent'")
+
+    create unique_index(:report_logs, [:org_id, :report_id, :status],
+             where: "status <> 'succeeded'"
+           )
   end
 end
