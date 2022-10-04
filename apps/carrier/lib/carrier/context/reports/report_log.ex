@@ -14,6 +14,7 @@ defmodule Carrier.Reports.ReportLog do
     field :scheduled_at, :utc_datetime_usec
     field :tried_at, :utc_datetime_usec
     field :succeeded_at, :utc_datetime_usec
+    field :failed_at, :utc_datetime_usec
     field :payload, :map
     field :error_message, :string
 
@@ -26,13 +27,6 @@ defmodule Carrier.Reports.ReportLog do
     struct
     |> cast(attrs, @required_for_record_scheduled)
     |> validate_required(@required_for_record_scheduled)
-  end
-
-  @required_for_record_failed [:error_message]
-  defp changeset_for_record_failed(%__MODULE__{} = struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_record_failed)
-    |> validate_required(@required_for_record_failed)
   end
 
   def record_scheduled(%{
@@ -71,12 +65,13 @@ defmodule Carrier.Reports.ReportLog do
     |> select([rl], rl)
   end
 
-  def record_failed(%__MODULE__{} = struct, %{
-        error_message: error_message
-      }) do
-    struct
-    |> changeset_for_record_failed(%{
-      error_message: error_message
-    })
+  def record_failed(%{report_id: report_id, failed_at: failed_at, error_message: error_message}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :tried
+    )
+    |> update([rl], set: [status: :failed, failed_at: ^failed_at, error_message: ^error_message])
+    |> select([rl], rl)
   end
 end

@@ -92,17 +92,19 @@ defmodule Carrier.Reports do
     end)
   end
 
-  def record_failed_report_log(
-        %ReportLog{} = report_log,
-        %{
-          error_message: error_message
-        }
-      ) do
-    report_log
-    |> ReportLog.record_failed(%{
-      error_message: error_message
-    })
-    |> TenantRepo.update()
+  def record_failed_report_log(%{report_id: report_id, error_message: error_message}) do
+    TenantRepo.wrap_transaction(fn ->
+      ReportLog.record_failed(%{
+        report_id: report_id,
+        failed_at: DateTime.utc_now(),
+        error_message: error_message
+      })
+      |> TenantRepo.update_all([])
+      |> case do
+        {1, [%ReportLog{} = report_log]} -> {:ok, report_log}
+        _ -> {:error, :failed_to_record_failed_report_log}
+      end
+    end)
   end
 
   def create_job_from_report(%Report{} = report, %DateTime{} = base_datetime) do

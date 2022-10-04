@@ -185,18 +185,25 @@ defmodule Carrier.ReportsTest do
 
   describe "record_failed_report_log/1" do
     setup do
-      report_log = TenantFactory.insert(:report_log)
+      report = TenantFactory.insert(:report)
+      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
 
-      %{report_log: report_log}
+      TenantRepo.put_org_id(report.org_id)
+
+      %{report: report}
     end
 
-    test "with valid attrs", %{report_log: report_log} do
+    test "with valid attrs", %{report: report} do
       error_message = "error~"
 
-      assert {:ok, updated_report_log} =
-               Reports.record_failed_report_log(report_log, %{error_message: error_message})
+      assert {:ok, failed_report_log} =
+               Reports.record_failed_report_log(%{
+                 report_id: report.id,
+                 error_message: error_message
+               })
 
-      assert updated_report_log.error_message == error_message
+      assert failed_report_log.error_message == error_message
+      assert failed_report_log.failed_at != nil
     end
   end
 end
