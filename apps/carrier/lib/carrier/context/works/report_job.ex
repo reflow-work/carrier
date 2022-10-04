@@ -22,12 +22,13 @@ defmodule Carrier.Works.ReportJob do
 
     with {:ok, _report_log} <- Reports.record_tried_report_log(%{report_id: report_id}),
          {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
-         :ok <- do_perform(%{report: report, datetime: datetime}),
-         {:ok, _next_job} <- Reports.create_job_from_report(report, datetime) do
+         {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
+         {:ok, _next_job} <-
+           send_report(%{report: report, slack_args: slack_args, datetime: datetime}) do
       :ok
     else
-      {:cancel, reason} ->
-        {:cancel, reason}
+      {:error, {:resource_not_found, %{target: Report}}} ->
+        {:cancel, :report_is_deleted}
 
       {:error, reason} ->
         Logger.error("Failed to send report: #{inspect(reason)}")
@@ -36,14 +37,10 @@ defmodule Carrier.Works.ReportJob do
     end
   end
 
-  defp do_perform(%{
+  defp generate_slack_args(%{
          report: %Report{
            id: report_id,
            org_id: org_id,
-           integration_info: %{
-             integration_id: integration_id,
-             channel_id: channel_id
-           },
            data_source_info: %{
              data_source_id: data_source_id,
              sql_template: sql_template,
@@ -56,8 +53,7 @@ defmodule Carrier.Works.ReportJob do
          },
          datetime: datetime
        }) do
-    with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
-         {:ok, raw_data} <-
+    with {:ok, raw_data} <-
            QueryData.query(%{
              org_id: org_id,
              data_source_id: data_source_id,
@@ -75,24 +71,33 @@ defmodule Carrier.Works.ReportJob do
              orgId: org_id,
              reportId: report_id
            }),
-         slack_args = Slack.build_post_message_args(parsed_data, img_urls),
-         {:ok, _} <-
-           slack_args
-           |> Enum.map(
-             &Noti.send_report_to_slack(
-               channel_id,
-               &1,
-               integration.conn_info.info["bot_token"]
-             )
-           )
-           |> Traversable.traverse() do
-      :ok
-    else
-      {:error, {:resource_not_found, %{target: Report}}} ->
-        {:cancel, :report_is_deleted}
-
-      {:error, reason} ->
-        {:error, reason}
+         slack_args = Slack.build_post_message_args(parsed_data, img_urls) do
+      {:ok, slack_args}
     end
+  end
+
+  defp send_report(%{
+         report:
+           %Report{
+             integration_info: %{
+               integration_id: integration_id,
+               channel_id: channel_id
+             }
+           } = report,
+         slack_args: slack_args,
+         datetime: datetime
+       }) do
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
+           {:ok, _} <-
+             slack_args
+             |> Enum.map(
+               &Noti.send_report_to_slack(channel_id, &1, integration.conn_info.info["bot_token"])
+             )
+             |> Traversable.traverse(),
+           {:ok, next_job} <- Reports.create_job_from_report(report, datetime) do
+        {:ok, next_job}
+      end
+    end)
   end
 end
