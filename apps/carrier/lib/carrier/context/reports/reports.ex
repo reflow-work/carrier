@@ -21,12 +21,7 @@ defmodule Carrier.Reports do
                data_source_info: data_source_info
              })
              |> TenantRepo.insert(),
-           {:ok, _job} <- create_job_from_report(report),
-           {:ok, %ReportLog{}} <-
-             record_scheduled_report_log(%{
-               org_id: org_id,
-               report_id: report.id
-             }) do
+           {:ok, _job} <- create_job_from_report(report) do
         {:ok, report}
       end
     end)
@@ -107,11 +102,21 @@ defmodule Carrier.Reports do
   defp create_job_from_report(%Report{} = report) do
     scheduled_at = DateTimeHelper.get_next_with_time(report.created_at, report.trigger_time)
 
-    %{org_id: report.org_id, report_id: report.id, datetime: scheduled_at}
-    |> ReportJob.new(
-      scheduled_at: scheduled_at,
-      meta: %{org_id: report.org_id}
-    )
-    |> TenantRepo.insert()
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, report_job} <-
+             %{org_id: report.org_id, report_id: report.id, datetime: scheduled_at}
+             |> ReportJob.new(
+               scheduled_at: scheduled_at,
+               meta: %{org_id: report.org_id}
+             )
+             |> TenantRepo.insert(),
+           {:ok, %ReportLog{}} <-
+             record_scheduled_report_log(%{
+               org_id: report.org_id,
+               report_id: report.id
+             }) do
+        {:ok, report_job}
+      end
+    end)
   end
 end
