@@ -183,7 +183,7 @@
                 <%= if Enum.member?(@selected_columns, column) do %>
                   <section class="border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody">
                     <h3 class="text-xl font-bold pb-2">
-                      📊 <%= "#{@query_result_by_columns[column].meta.label} (#{Date.to_string(Date.utc_today())})" %>
+                      📊 <%= "#{@query_result_by_columns[column].meta.label} (#{DateTime.now("Asia/Seoul") |> elem(1) |> DateTime.to_date() |> Date.to_string()})" %>
                     </h3>
                     <div class="grid grid-cols-2 gap-x-2">
                       <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">

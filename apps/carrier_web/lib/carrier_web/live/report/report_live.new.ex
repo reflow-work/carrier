@@ -96,11 +96,46 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   def handle_event("select_window_size", params, socket) do
+    IO.inspect(params)
     %{"data_window_size" => %{"window_size" => window_size}} = params
 
     socket =
       socket
-      |> assign(:window_size, Integer.parse(window_size))
+      |> assign(:window_size, window_size |> Integer.parse() |> elem(0))
+
+    {:ok, datetime} = DateTime.now("Asia/Seoul")
+
+    socket =
+      QueryData.query(%{
+        org_id: socket.assigns.org_id,
+        data_source_id: socket.assigns.data_source.id,
+        sql_template: socket.assigns.sql_template,
+        datetime: datetime,
+        timezone: socket.assigns.timezone,
+        period: socket.assigns.period,
+        window_size: socket.assigns.window_size,
+        comparing_period: socket.assigns.comparing_period
+      })
+      |> case do
+        {:ok, raw_data} ->
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+
+          formatted_data = QueryData.format_data_for_preview(raw_data)
+
+          selected_columns =
+            parsed_data
+            |> Map.keys()
+
+          socket
+          |> assign(:query_result_raw, raw_data)
+          |> assign(:query_result_by_columns, parsed_data)
+          |> assign(:query_result_for_preview, formatted_data)
+          |> assign(:selected_columns, selected_columns)
+          |> add_draw_chart_events(parsed_data, selected_columns)
+
+        {:error, error} ->
+          socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
+      end
 
     {:noreply, socket}
   end
