@@ -40,6 +40,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)
       |> assign_new(:hours, fn -> 0..23 |> Enum.map(&{"매일 #{&1}시", &1}) end)
+      |> assign_new(:is_report_valid, fn -> false end)
       |> assign(:timezone, "Asia/Seoul")
       |> assign(:period, 28)
       |> assign(:window_size, 7)
@@ -143,6 +144,21 @@ defmodule CarrierWeb.ReportLive.New do
           columns: socket.assigns.selected_columns
         }
       })
+
+    {:noreply, socket}
+  end
+
+  def handle_event("validate", %{"report" => report_input}, socket) do
+    %{"name" => name, "channel" => channel_id, "hour" => hour_str} = report_input
+
+    socket =
+      if name && name != "" && channel_id && hour_str do
+        socket
+        |> assign(:is_report_valid, true)
+      else
+        socket
+        |> assign(:is_report_valid, false)
+      end
 
     {:noreply, socket}
   end

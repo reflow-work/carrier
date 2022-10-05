@@ -235,6 +235,7 @@
           for={:report}
           id="report_form"
           phx-submit="save_report"
+          phx-change="validate"
           autocomplete="off"
           class="space-y-4"
         >
@@ -263,7 +264,7 @@
             <button class="btn btn-outline" type="button" phx-click="show_preview_modal">
               테스트 발송
             </button>
-            <%= submit("레포트 저장", class: "btn btn-primary") %>
+            <%= submit("레포트 저장", class: "btn btn-primary", disabled: !@is_report_valid) %>
           </div>
         </.form>
       </div>
