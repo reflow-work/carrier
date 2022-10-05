@@ -40,6 +40,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign_new(:report_id, fn -> nil end)
       |> assign_new(:channels, fn -> channel_options end)
       |> assign_new(:hours, fn -> 0..23 |> Enum.map(&{"매일 #{&1}시", &1}) end)
+      |> assign_new(:window_sizes, fn -> [1, 7] end)
       |> assign_new(:is_report_valid, fn -> false end)
       |> assign(:timezone, "Asia/Seoul")
       |> assign(:period, 28)
@@ -90,6 +91,16 @@ defmodule CarrierWeb.ReportLive.New do
         {:error, error} ->
           socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
       end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("select_window_size", params, socket) do
+    %{"data_window_size" => %{"window_size" => window_size}} = params
+
+    socket =
+      socket
+      |> assign(:window_size, Integer.parse(window_size))
 
     {:noreply, socket}
   end
