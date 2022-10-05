@@ -125,12 +125,10 @@
               phx-change="select_data_column"
               class="flex flex-col gap-y-3 mt-4"
             >
-              <%= for v <- Map.values(@query_result_by_columns) do %>
+              <%= for column <- Enum.filter(@query_result_raw.columns, &(&1 !== "date")) do %>
                 <div class="flex gap-x-2 items-center">
-                  <%= checkbox(f, v.meta.label,
-                    value: Enum.member?(@selected_columns, v.meta.label)
-                  ) %>
-                  <%= label(f, v.meta.label, v.meta.label) %>
+                  <%= checkbox(f, column, value: Enum.member?(@selected_columns, column)) %>
+                  <%= label(f, column, column) %>
                 </div>
               <% end %>
             </.form>
@@ -150,51 +148,62 @@
           <h2 class="card-title">Slack Preview</h2>
           <%= if @query_result_by_columns do %>
             <div class="flex flex-col gap-y-6 mt-4">
-              <%= for v <- Map.values(@query_result_by_columns) do %>
-                <%= if Enum.member?(@selected_columns, v.meta.label) do %>
+              <%= for column <- Enum.filter(@query_result_raw.columns, &(&1 !== "date")) do %>
+                <%= if Enum.member?(@selected_columns, column) do %>
                   <section class="border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody">
                     <h3 class="text-xl font-bold pb-2">
-                      📊 <%= "#{v.meta.label} (#{Date.to_string(Date.utc_today())})" %>
+                      📊 <%= "#{@query_result_by_columns[column].meta.label} (#{Date.to_string(Date.utc_today())})" %>
                     </h3>
                     <div class="grid grid-cols-2 gap-x-2">
                       <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">
                         <h4 class="text-xl font-bold">어제</h4>
                         <p class="text-center text-3xl font-bold">
-                          <%= v.meta.current_period_last_tick_raw %>
+                          <%= Number.Delimit.number_to_delimited(
+                            @query_result_by_columns[column].meta.current_period_last_tick_raw,
+                            precision: 0
+                          ) %>
                         </p>
                         <p class="text-xl text-center">
                           <span>지난 주 대비:</span>
-                          <span class={"font-bold #{if v.meta.diff_between_period_raws > 0,
+                          <span class={
+                            "font-bold #{if @query_result_by_columns[column].meta.diff_between_period_raws > 0,
                               do: "text-green-500",
-                              else: "text-red-500"}"}>
-                            <%= v.meta.diff_between_period_raws %>
+                              else: "text-red-500"}"
+                          }>
+                            <%= Number.Delimit.number_to_delimited(
+                              @query_result_by_columns[column].meta.diff_between_period_raws,
+                              precision: 0
+                            ) %>
                           </span>
                         </p>
                       </section>
                       <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">
                         <h4 class="text-xl font-bold">최근 7일 합계</h4>
                         <p class="text-center text-3xl font-bold">
-                          <%= v.meta.current_period_sum %>
+                          <%= Number.Delimit.number_to_delimited(
+                            @query_result_by_columns[column].meta.current_period_sum,
+                            precision: 0
+                          ) %>
                         </p>
                         <p class="text-xl text-center">
                           <span>WOW:</span>
                           <span class={
-                            "font-bold #{if v.meta.diff_between_period_sums_in_percentage > 0,
+                            "font-bold #{if @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage > 0,
                               do: "text-green-500",
                               else: "text-red-500"}"
                           }>
-                            <%= "#{v.meta.diff_between_period_sums_in_percentage}%" %>
+                            <%= "#{@query_result_by_columns[column].meta.diff_between_period_sums_in_percentage}%" %>
                           </span>
                         </p>
                       </section>
                     </div>
                     <section
-                      id={"chart-container-#{v.meta.label}"}
+                      id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
                       phx-update="ignore"
                       class="pt-2"
                     >
                       <canvas
-                        id={"chart-#{v.meta.label}"}
+                        id={"chart-#{@query_result_by_columns[column].meta.label}"}
                         class="border border-gray-200 rounded-lg"
                         phx-hook="Chart"
                       >

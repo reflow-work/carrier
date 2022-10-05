@@ -4,8 +4,8 @@ Chart.register(...registerables)
 
 const colors = {
   default: "#1C110A",
-  current: "#E9B44C",
-  previous: "#9B2915",
+  current: "#1b9e77",
+  previous: "#d95f02",
 }
 
 const ChartHook = {
@@ -105,6 +105,7 @@ const ChartHook = {
         label: "지난 28일",
         data: previous,
         borderColor: colors.previous,
+        borderDash: [3, 3],
       }
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
