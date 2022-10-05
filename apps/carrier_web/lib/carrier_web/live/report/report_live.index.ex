@@ -6,7 +6,7 @@ defmodule CarrierWeb.ReportLive.Index do
   on_mount(CarrierWeb.IntegrationHook)
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, session, socket) do
     socket =
       socket
       |> assign(:reports, [])
@@ -22,6 +22,18 @@ defmodule CarrierWeb.ReportLive.Index do
           end
 
         false ->
+          socket
+      end
+
+    socket =
+      case params do
+        %{"redirected" => "true"} ->
+          push_event(socket, "smartlook_identify", %{
+            "orgId" => session["org_id"],
+            "userId" => session["user_id"]
+          })
+
+        _ ->
           socket
       end
 

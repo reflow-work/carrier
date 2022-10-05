@@ -55,7 +55,7 @@ defmodule CarrierWeb.AuthController do
         |> put_session(:user_id, user_id)
         |> put_session(:org_id, org_id)
         |> put_flash(:info, "Successfully authenticated.")
-        |> redirect(to: Routes.report_index_path(conn, :index))
+        |> redirect(to: Routes.report_index_path(conn, :index, redirected: "true"))
 
       _ ->
         conn
