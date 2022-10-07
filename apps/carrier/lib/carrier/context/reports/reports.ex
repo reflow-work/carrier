@@ -107,6 +107,11 @@ defmodule Carrier.Reports do
     end)
   end
 
+  def update_report_log(%ReportLog{} = report_log, params) do
+    ReportLog.update(report_log, params)
+    |> TenantRepo.update()
+  end
+
   def create_job_from_report(%Report{} = report, %DateTime{} = base_datetime) do
     scheduled_at = DateTimeHelper.get_next_with_time(base_datetime, report.trigger_time)
 

@@ -206,4 +206,58 @@ defmodule Carrier.ReportsTest do
       assert failed_report_log.failed_at != nil
     end
   end
+
+  describe "update_report_log/1" do
+    setup do
+      report_log = TenantFactory.insert(:report_log, status: :tried)
+
+      %{report_log: report_log}
+    end
+
+    test "with integration_info", %{report_log: report_log} do
+      integration = TenantFactory.insert(:integration, org_id: report_log.org_id)
+
+      integration_info = %{
+        integration_id: integration.id,
+        channel_id: "channel_id",
+        channel_name: "channel_name"
+      }
+
+      assert {:ok, updated_report_log} =
+               Reports.update_report_log(report_log, %{integration_info: integration_info})
+
+      assert same_fields?(updated_report_log.integration_info, integration_info, [
+               :integration_id,
+               :channel_id,
+               :channel_name
+             ])
+    end
+
+    test "with data_source_info", %{report_log: report_log} do
+      data_source = TenantFactory.insert(:data_source, org_id: report_log.org_id)
+
+      data_source_info = %{
+        data_source_id: data_source.id,
+        sql_template: "sql",
+        timezone: "Asia/Seoul",
+        period: 28,
+        window_size: 7,
+        comparing_period: 7,
+        columns: ["total_revenue"]
+      }
+
+      assert {:ok, updated_report_log} =
+               Reports.update_report_log(report_log, %{data_source_info: data_source_info})
+
+      assert same_fields?(updated_report_log.data_source_info, data_source_info, [
+               :data_source_id,
+               :sql_template,
+               :timezone,
+               :period,
+               :window_size,
+               :comparing_period,
+               :columns
+             ])
+    end
+  end
 end

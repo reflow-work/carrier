@@ -29,6 +29,14 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_record_scheduled)
   end
 
+  @optional_for_update []
+  defp changeset_for_update(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @optional_for_update)
+    |> cast_embed(:integration_info, with: &IntegrationInfo.changeset_for_create/2)
+    |> cast_embed(:data_source_info, with: &DataSourceInfo.changeset_for_create/2)
+  end
+
   def record_scheduled(%{
         org_id: org_id,
         report_id: report_id,
@@ -73,5 +81,10 @@ defmodule Carrier.Reports.ReportLog do
     )
     |> update([rl], set: [status: :failed, failed_at: ^failed_at, error_message: ^error_message])
     |> select([rl], rl)
+  end
+
+  def update(%__MODULE__{status: :tried} = struct, attrs) do
+    struct
+    |> changeset_for_update(attrs)
   end
 end
