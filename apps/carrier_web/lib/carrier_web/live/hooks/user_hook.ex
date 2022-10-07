@@ -16,6 +16,10 @@ defmodule CarrierWeb.UserHook do
         {:cont, socket}
 
       _ ->
+        socket =
+          socket
+          |> redirect(to: Routes.auth_path(socket, :login))
+
         {:halt, socket}
     end
   end
