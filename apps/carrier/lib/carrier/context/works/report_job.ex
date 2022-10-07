@@ -1,11 +1,10 @@
 defmodule Carrier.Works.ReportJob do
   use Oban.Worker, queue: :default, max_attempts: 1
+  use Carrier.Reports
   require Logger
   alias Carrier.Data.QueryData
   alias Carrier.Secrets
   alias Carrier.Secrets.Integration
-  alias Carrier.Reports
-  alias Carrier.Reports.Report
   alias Carrier.Noti
   alias Carrier.TenantRepo
   alias Carrier.External.Aws

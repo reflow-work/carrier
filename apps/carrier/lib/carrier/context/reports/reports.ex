@@ -5,6 +5,13 @@ defmodule Carrier.Reports do
   alias Carrier.TenantRepo
   alias Carrier.Core.DateTimeHelper
 
+  defmacro __using__([]) do
+    quote do
+      alias unquote(__MODULE__)
+      alias unquote(__MODULE__).{Report, ReportLog}
+    end
+  end
+
   def create_report(%{
         org_id: org_id,
         name: name,
