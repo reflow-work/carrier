@@ -15,7 +15,7 @@ defmodule Carrier.Reports.ReportLog do
     field :tried_at, :utc_datetime_usec
     field :succeeded_at, :utc_datetime_usec
     field :failed_at, :utc_datetime_usec
-    field :payload, :map
+    field :payload, {:array, :any}
     field :error_message, :string
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
@@ -29,7 +29,7 @@ defmodule Carrier.Reports.ReportLog do
     |> validate_required(@required_for_record_scheduled)
   end
 
-  @optional_for_update []
+  @optional_for_update [:payload]
   defp changeset_for_update(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @optional_for_update)

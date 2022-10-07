@@ -259,5 +259,14 @@ defmodule Carrier.ReportsTest do
                :columns
              ])
     end
+
+    test "with payload", %{report_log: report_log} do
+      payload = [%{"key" => "value"}]
+
+      assert {:ok, updated_report_log} =
+               Reports.update_report_log(report_log, %{payload: payload})
+
+      assert updated_report_log.payload == payload
+    end
   end
 end
