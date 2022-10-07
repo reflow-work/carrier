@@ -2,7 +2,7 @@ defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
   use Oban.Testing, repo: TenantRepo
   alias Carrier.Reports
-  alias Carrier.Reports.Report
+  alias Carrier.Reports.{Report, ReportLog}
 
   @moduletag repo: TenantRepo
 
@@ -39,10 +39,19 @@ defmodule Carrier.ReportsTest do
       assert {:ok, created_report} = Reports.create_report(params)
       assert same_fields?(created_report, params, [:org_id, :name, :trigger_time])
 
+      # ReportJob
+
       TenantRepo.set_skip_org_id()
 
       assert [%{scheduled_at: scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
       assert scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
+
+      # ReportLog
+
+      report_log = TenantRepo.get_by(ReportLog, report_id: created_report.id)
+
+      assert report_log.org_id == created_report.org_id
+      assert report_log.report_id == created_report.id
     end
   end
 
@@ -111,7 +120,7 @@ defmodule Carrier.ReportsTest do
     end
   end
 
-  describe "create_report_log/1" do
+  describe "record_scheduled_report_log/1" do
     setup do
       report = TenantFactory.insert(:report)
 
@@ -122,56 +131,142 @@ defmodule Carrier.ReportsTest do
       params = %{
         org_id: report.org_id,
         report_id: report.id,
-        payload: %{name: "test"},
-        tried_at: DateTime.utc_now(),
-        integration_info: %{
-          "integration_id" => 1,
-          "channel_id" => "channel_id",
-          "channel_name" => "channel_name"
-        },
-        data_source_info: %{
-          "data_source_id" => 1,
-          "sql_template" => "SELECT * FROM table",
-          "timezone" => "Asia/Seoul",
-          "period" => 28,
-          "window_size" => 7,
-          "comparing_period" => 7,
-          "columns" => ["total_revenue"]
-        }
+        scheduled_at: DateTime.utc_now() |> Timex.shift(days: 1)
       }
 
-      assert {:ok, created_report_log} = Reports.create_report_log(params)
-      assert same_fields?(created_report_log, params, [:org_id, :report_id, :payload, :tried_at])
+      assert {:ok, scheduled_report_log} = Reports.record_scheduled_report_log(params)
+      assert same_fields?(scheduled_report_log, params, [:org_id, :report_id, :scheduled_at])
+      assert scheduled_report_log.status == :scheduled
+      assert scheduled_report_log.created_at != nil
+    end
+  end
+
+  describe "record_tried_report_log/1" do
+    setup do
+      report = TenantFactory.insert(:report)
+      _report_log = TenantFactory.insert(:report_log, report: report, status: :scheduled)
+
+      TenantRepo.put_org_id(report.org_id)
+
+      %{report: report}
+    end
+
+    test "with valid attrs", %{report: report} do
+      params = %{
+        report_id: report.id
+      }
+
+      assert {:ok, tried_report_log} = Reports.record_tried_report_log(params)
+      assert tried_report_log.status == :tried
+      assert tried_report_log.tried_at != nil
     end
   end
 
   describe "record_succeeded_report_log/1" do
     setup do
-      report_log = TenantFactory.insert(:report_log)
+      report = TenantFactory.insert(:report)
+      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
 
-      %{report_log: report_log}
+      TenantRepo.put_org_id(report.org_id)
+
+      %{report: report}
     end
 
-    test "with valid attrs", %{report_log: report_log} do
-      assert {:ok, updated_report_log} = Reports.record_succeeded_report_log(report_log)
-      assert updated_report_log.sent_at != nil
+    test "with valid attrs", %{report: report} do
+      params = %{
+        report_id: report.id
+      }
+
+      assert {:ok, succeeded_report_log} = Reports.record_succeeded_report_log(params)
+      assert succeeded_report_log.status == :succeeded
+      assert succeeded_report_log.succeeded_at != nil
     end
   end
 
   describe "record_failed_report_log/1" do
     setup do
-      report_log = TenantFactory.insert(:report_log)
+      report = TenantFactory.insert(:report)
+      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
+
+      TenantRepo.put_org_id(report.org_id)
+
+      %{report: report}
+    end
+
+    test "with valid attrs", %{report: report} do
+      error_message = "error~"
+
+      assert {:ok, failed_report_log} =
+               Reports.record_failed_report_log(%{
+                 report_id: report.id,
+                 error_message: error_message
+               })
+
+      assert failed_report_log.error_message == error_message
+      assert failed_report_log.failed_at != nil
+    end
+  end
+
+  describe "update_report_log/1" do
+    setup do
+      report_log = TenantFactory.insert(:report_log, status: :tried)
 
       %{report_log: report_log}
     end
 
-    test "with valid attrs", %{report_log: report_log} do
-      error_message = "error~"
+    test "with integration_info", %{report_log: report_log} do
+      integration = TenantFactory.insert(:integration, org_id: report_log.org_id)
+
+      integration_info = %{
+        integration_id: integration.id,
+        channel_id: "channel_id",
+        channel_name: "channel_name"
+      }
 
       assert {:ok, updated_report_log} =
-               Reports.record_failed_report_log(report_log, %{error_message: error_message})
+               Reports.update_report_log(report_log, %{integration_info: integration_info})
 
-      assert updated_report_log.error_message == error_message
+      assert same_fields?(updated_report_log.integration_info, integration_info, [
+               :integration_id,
+               :channel_id,
+               :channel_name
+             ])
+    end
+
+    test "with data_source_info", %{report_log: report_log} do
+      data_source = TenantFactory.insert(:data_source, org_id: report_log.org_id)
+
+      data_source_info = %{
+        data_source_id: data_source.id,
+        sql_template: "sql",
+        timezone: "Asia/Seoul",
+        period: 28,
+        window_size: 7,
+        comparing_period: 7,
+        columns: ["total_revenue"]
+      }
+
+      assert {:ok, updated_report_log} =
+               Reports.update_report_log(report_log, %{data_source_info: data_source_info})
+
+      assert same_fields?(updated_report_log.data_source_info, data_source_info, [
+               :data_source_id,
+               :sql_template,
+               :timezone,
+               :period,
+               :window_size,
+               :comparing_period,
+               :columns
+             ])
+    end
+
+    test "with payload", %{report_log: report_log} do
+      payload = [%{"key" => "value"}]
+
+      assert {:ok, updated_report_log} =
+               Reports.update_report_log(report_log, %{payload: payload})
+
+      assert updated_report_log.payload == payload
     end
   end
 end

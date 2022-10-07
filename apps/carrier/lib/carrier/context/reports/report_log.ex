@@ -5,78 +5,86 @@ defmodule Carrier.Reports.ReportLog do
   schema "report_logs" do
     field :org_id, :integer
     field :report_id, :integer
-    field :payload, :map
+
+    field :status, Ecto.Enum,
+      values: [:scheduled, :tried, :succeeded, :failed],
+      default: :scheduled
+
+    field :created_at, :utc_datetime_usec
+    field :scheduled_at, :utc_datetime_usec
     field :tried_at, :utc_datetime_usec
-    field :sent_at, :utc_datetime_usec
+    field :succeeded_at, :utc_datetime_usec
+    field :failed_at, :utc_datetime_usec
+    field :payload, {:array, :any}
     field :error_message, :string
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
   end
 
-  @required_for_create [:org_id, :report_id, :payload, :tried_at]
-  defp changeset_for_create(%__MODULE__{} = struct, attrs) do
+  @required_for_record_scheduled [:org_id, :report_id, :created_at, :scheduled_at]
+  defp changeset_for_record_scheduled(%__MODULE__{} = struct, attrs) do
     struct
-    |> cast(attrs, @required_for_create)
-    |> validate_required(@required_for_create)
-    |> cast_embed(:integration_info,
-      required: true,
-      with: &IntegrationInfo.changeset_for_create/2
-    )
-    |> cast_embed(:data_source_info,
-      required: true,
-      with: &DataSourceInfo.changeset_for_create/2
-    )
+    |> cast(attrs, @required_for_record_scheduled)
+    |> validate_required(@required_for_record_scheduled)
   end
 
-  @required_for_record_succeeded [:sent_at]
-  defp changeset_for_record_succeeded(%__MODULE__{} = struct, attrs) do
+  @optional_for_update [:payload]
+  defp changeset_for_update(%__MODULE__{} = struct, attrs) do
     struct
-    |> cast(attrs, @required_for_record_succeeded)
-    |> validate_required(@required_for_record_succeeded)
+    |> cast(attrs, @optional_for_update)
+    |> cast_embed(:integration_info, with: &IntegrationInfo.changeset_for_create/2)
+    |> cast_embed(:data_source_info, with: &DataSourceInfo.changeset_for_create/2)
   end
 
-  @required_for_record_failed [:error_message]
-  defp changeset_for_record_failed(%__MODULE__{} = struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_record_failed)
-    |> validate_required(@required_for_record_failed)
-  end
-
-  def create(%{
+  def record_scheduled(%{
         org_id: org_id,
         report_id: report_id,
-        payload: payload,
-        tried_at: tried_at,
-        integration_info: integration_info,
-        data_source_info: data_source_info
+        created_at: created_at,
+        scheduled_at: scheduled_at
       }) do
     %__MODULE__{}
-    |> changeset_for_create(%{
+    |> changeset_for_record_scheduled(%{
       org_id: org_id,
       report_id: report_id,
-      payload: payload,
-      tried_at: tried_at,
-      integration_info: integration_info,
-      data_source_info: data_source_info
+      status: :scheduled,
+      created_at: created_at,
+      scheduled_at: scheduled_at
     })
   end
 
-  def record_succeeded(%__MODULE__{} = struct, %{
-        sent_at: sent_at
-      }) do
-    struct
-    |> changeset_for_record_succeeded(%{
-      sent_at: sent_at
-    })
+  def record_tried(%{report_id: report_id, tried_at: tried_at}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :scheduled
+    )
+    |> update([rl], set: [status: :tried, tried_at: ^tried_at])
+    |> select([rl], rl)
   end
 
-  def record_failed(%__MODULE__{} = struct, %{
-        error_message: error_message
-      }) do
+  def record_succeeded(%{report_id: report_id, succeeded_at: succeeded_at}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :tried
+    )
+    |> update([rl], set: [status: :succeeded, succeeded_at: ^succeeded_at])
+    |> select([rl], rl)
+  end
+
+  def record_failed(%{report_id: report_id, failed_at: failed_at, error_message: error_message}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :tried
+    )
+    |> update([rl], set: [status: :failed, failed_at: ^failed_at, error_message: ^error_message])
+    |> select([rl], rl)
+  end
+
+  def update(%__MODULE__{status: :tried} = struct, attrs) do
     struct
-    |> changeset_for_record_failed(%{
-      error_message: error_message
-    })
+    |> changeset_for_update(attrs)
   end
 end
