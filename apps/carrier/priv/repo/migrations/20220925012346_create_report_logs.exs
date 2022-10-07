@@ -17,7 +17,7 @@ defmodule Carrier.Repo.Migrations.CreateReportLogs do
       add :data_source_info, :jsonb, null: true
     end
 
-    create index(:report_logs, [:org_id, "id DESC"])
+    create index(:report_logs, [:org_id, "scheduled_at DESC"])
 
     create unique_index(:report_logs, [:org_id, :report_id, :status],
              where: "status <> 'succeeded'"
