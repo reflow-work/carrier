@@ -36,24 +36,24 @@
                 </li>
                 <li class="py-2 flex items-center gap-x-2">
                   <CarrierWeb.Components.Icon.check_black class="w-6 h-6 flex-shrink-0" />
-                  <%= ~s(시작날짜 조건에는 {{start date}} 를 넣어주세요.) %>
+                  <%= ~s(시작날짜 조건에는 {{start}} 를 넣어주세요.) %>
                 </li>
                 <li class="py-2 flex items-center gap-x-2">
                   <CarrierWeb.Components.Icon.check_black class="w-6 h-6 flex-shrink-0" />
-                  <%= ~s(종료날짜 조건 에는 {{end date}} 를 넣어주세요.) %>
+                  <%= ~s(종료날짜 조건 에는 {{end}} 를 넣어주세요.) %>
                 </li>
               </ul>
               <pre class="border-1 border-gray-200 p-2 bg-gray-200 rounded mt-6">
 <code>-- 예시</code>
-<code>SELECT</code> 
-<code>date(create_time),</code> 
+<code>SELECT</code>
+<code>date(create_time),</code>
 <code>count(distinct used_id) as ‘결제자수',</code>
-<code>sum(revenue) as ‘매출’</code>  
-<code>FROM</code> 
-<code>transaction</code> 
-<code>WHERE</code> 
-<code><%= ~s(create_time > {{start date}}) %></code>
-<code><%= ~S(AND create_time < {{end date}}) %></code>
+<code>sum(revenue) as ‘매출’</code>
+<code>FROM</code>
+<code>transaction</code>
+<code>WHERE</code>
+<code><%= ~s(create_time > {{start}}) %></code>
+<code><%= ~S(AND create_time < {{end}}) %></code>
 <code>GROUP BY 1</code>
 </pre>
             </section>
