@@ -169,40 +169,61 @@ defmodule Carrier.Data.QueryData do
     df = data |> Explorer.DataFrame.new()
     {height, _width} = df |> Explorer.DataFrame.shape()
 
-    window_sum_mutations =
+    window_sum_mutations = fn df ->
       value_columns
       |> Enum.map(fn column ->
-        {window_sum_column(column), &Explorer.Series.window_sum(&1[column], window_size)}
+        {window_sum_column(column), Explorer.Series.window_sum(df[column], window_size)}
+      end)
+    end
+
+    df = df |> Explorer.DataFrame.mutate_with(window_sum_mutations)
+
+    window_sum_offsets =
+      value_columns
+      |> Enum.map(fn column ->
+        {
+          window_sum_offset_column(column),
+          Explorer.Series.concat(
+            Explorer.Series.from_list(List.duplicate(nil, comparing_period)),
+            df[window_sum_column(column)]
+          )
+          |> Explorer.Series.head(height)
+        }
       end)
 
-    window_sum_offset_mutations =
-      value_columns
-      |> Enum.map(fn column ->
-        {window_sum_offset_column(column),
-         fn df ->
-           Explorer.Series.concat(
-             Explorer.Series.from_list(List.duplicate(nil, comparing_period)),
-             df[window_sum_column(column)]
-           )
-           |> Explorer.Series.head(height)
-         end}
-      end)
+    # https://github.com/elixir-nx/explorer/issues/355
 
-    window_sum_over_mutations =
+    # window_sum_offset_mutations = fn df ->
+    #   value_columns
+    #   |> Enum.map(fn column ->
+    #     {
+    #       window_sum_offset_column(column),
+    #       Explorer.Series.concat(
+    #         Explorer.Series.from_list(List.duplicate(nil, comparing_period)),
+    #         df[window_sum_column(column)]
+    #       )
+    #       |> Explorer.Series.head(height)
+    #     }
+    #   end)
+    # end
+
+    window_sum_over_mutations = fn df ->
       value_columns
       |> Enum.map(fn column ->
-        {window_sum_over_column(column),
-         &Explorer.Series.divide(
-           &1[window_sum_column(column)],
-           &1[window_sum_offset_column(column)]
-         )}
+        {
+          window_sum_over_column(column),
+          Explorer.Series.divide(
+            df[window_sum_column(column)],
+            df[window_sum_offset_column(column)]
+          )
+        }
       end)
+    end
 
     data =
       df
-      |> Explorer.DataFrame.mutate(window_sum_mutations)
-      |> Explorer.DataFrame.mutate(window_sum_offset_mutations)
-      |> Explorer.DataFrame.mutate(window_sum_over_mutations)
+      |> Explorer.DataFrame.mutate(window_sum_offsets)
+      |> Explorer.DataFrame.mutate_with(window_sum_over_mutations)
       |> Explorer.DataFrame.tail(period)
       |> Explorer.DataFrame.to_rows()
 
