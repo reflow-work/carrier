@@ -70,7 +70,7 @@ defmodule CarrierWeb.DataSourceLive.New do
             name: conn_info_params["name"],
             source: socket.assigns.source,
             hostname: conn_info_params["hostname"],
-            port: conn_info_params["port"],
+            port: conn_info_params["port"] |> String.to_integer(),
             username: conn_info_params["username"],
             password: conn_info_params["password"],
             database: conn_info_params["database"]
