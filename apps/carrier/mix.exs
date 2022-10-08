@@ -51,7 +51,7 @@ defmodule Carrier.MixProject do
       {:table_rex, "~> 3.1"},
       {:timex, "~> 3.7"},
       {:tzdata, "~> 1.1"},
-      {:explorer, "~> 0.2.0"},
+      {:explorer, "~> 0.3.0"},
       {:aws, "~> 0.13.1"},
       {:hackney, "~> 1.18"},
       {:kino, "~> 0.6.2", only: :dev},
