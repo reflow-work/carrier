@@ -5,6 +5,7 @@ defmodule Carrier.Reports.ReportLog do
   schema "report_logs" do
     field :org_id, :integer
     field :report_id, :integer
+    field :report_job_id, :integer
 
     field :status, Ecto.Enum,
       values: [:scheduled, :tried, :succeeded, :failed],
@@ -22,7 +23,7 @@ defmodule Carrier.Reports.ReportLog do
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
   end
 
-  @required_for_record_scheduled [:org_id, :report_id, :created_at, :scheduled_at]
+  @required_for_record_scheduled [:org_id, :report_id, :report_job_id, :created_at, :scheduled_at]
   defp changeset_for_record_scheduled(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_record_scheduled)
@@ -40,6 +41,7 @@ defmodule Carrier.Reports.ReportLog do
   def record_scheduled(%{
         org_id: org_id,
         report_id: report_id,
+        report_job_id: report_job_id,
         created_at: created_at,
         scheduled_at: scheduled_at
       }) do
@@ -47,6 +49,7 @@ defmodule Carrier.Reports.ReportLog do
     |> changeset_for_record_scheduled(%{
       org_id: org_id,
       report_id: report_id,
+      report_job_id: report_job_id,
       status: :scheduled,
       created_at: created_at,
       scheduled_at: scheduled_at
