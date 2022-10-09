@@ -84,6 +84,7 @@ defmodule CarrierWeb do
   def live_hook do
     quote do
       import Phoenix.LiveView
+      import Phoenix.Component
 
       unquote(view_helpers())
     end

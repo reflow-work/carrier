@@ -1,7 +1,5 @@
 defmodule CarrierWeb.LiveHelpers do
-  import Phoenix.LiveView
-  import Phoenix.LiveView.Helpers
-
+  import Phoenix.Component
   alias Phoenix.LiveView.JS
 
   @doc """
@@ -36,16 +34,11 @@ defmodule CarrierWeb.LiveHelpers do
         phx-key="escape"
       >
         <%= if @return_to do %>
-          <%= live_patch(
-            to: @return_to,
-            id: "close",
-            class: "phx-modal-close",
-            phx_click: hide_modal()
-          ) do %>
+          <.link patch={@return_to} id="close" class="phx-modal-close" phx-click={hide_modal()}>
             <CarrierWeb.Components.Icon.x_mark class="w-6 h-6" />
-          <% end %>
+          </.link>
         <% else %>
-          <a id="close" href="#" class="phx-modal-close" phx-click={hide_modal()}>✖</a>
+          <.link id="close" href="#" class="phx-modal-close" phx-click={hide_modal()}>✖</.link>
         <% end %>
 
         <%= render_slot(@inner_block) %>

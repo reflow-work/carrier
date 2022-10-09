@@ -9,7 +9,7 @@
     <section class="card">
       <div class="card-body">
         <h2 class="card-title">Type Query</h2>
-        <.form let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
+        <.form :let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
           <div class="flex-col gap-2 sm:grid sm:grid-cols-5 sm:gap-2">
             <%= textarea(f, :sql_template,
               class: "border rounded mt-2 p-2 w-full sm:col-span-3",
@@ -122,7 +122,7 @@
             <h3 class="text-h3">Columns</h3>
             <%= if @query_result_by_columns do %>
               <.form
-                let={f}
+                :let={f}
                 for={:data_columns}
                 phx-change="select_data_column"
                 class="flex flex-col gap-y-3 mt-4"
@@ -147,7 +147,7 @@
             <h3 class="text-h3">Window Size</h3>
             <%= if @query_result_by_columns do %>
               <.form
-                let={f}
+                :let={f}
                 for={:data_window_size}
                 phx-change="select_window_size"
                 class="flex flex-col gap-y-3 mt-4"
@@ -262,7 +262,7 @@
       <div class="card-body">
         <h2 class="card-title">Report Details</h2>
         <.form
-          let={f}
+          :let={f}
           for={:report}
           id="report_form"
           phx-submit="save_report"
@@ -308,7 +308,7 @@
     <div>
       <h3 class="font-bold text-lg">테스트 발송</h3>
       <.form
-        let={f}
+        :let={f}
         for={:send_preview_form}
         id="send_preview_form"
         phx-submit="send_preview"
