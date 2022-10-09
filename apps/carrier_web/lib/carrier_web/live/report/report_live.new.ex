@@ -290,7 +290,7 @@ defmodule CarrierWeb.ReportLive.New do
         |> put_flash_for(:info, "Report \"#{report_name}\" has been saved!",
           timeout: :timer.seconds(3)
         )
-        |> push_redirect(to: Routes.report_index_path(socket, :index))
+        |> push_navigate(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
         Logger.error(inspect(error))

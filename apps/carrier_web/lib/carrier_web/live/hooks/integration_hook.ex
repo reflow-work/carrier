@@ -9,7 +9,7 @@ defmodule CarrierWeb.IntegrationHook do
         {:cont, socket |> assign(:integration, integration)}
 
       _ ->
-        socket = socket |> push_redirect(to: Routes.integration_new_path(socket, :new))
+        socket = socket |> push_navigate(to: Routes.integration_new_path(socket, :new))
 
         {:halt, socket}
     end

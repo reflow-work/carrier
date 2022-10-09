@@ -1,5 +1,6 @@
 defmodule CarrierWeb.LayoutView do
   use CarrierWeb, :view
+  import Phoenix.Component
   import CarrierWeb.Components.Flash
 
   # Phoenix LiveDashboard is available only in development by default,

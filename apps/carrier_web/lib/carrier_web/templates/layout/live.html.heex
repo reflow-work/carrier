@@ -3,14 +3,14 @@
 
   <nav class="fixed top-0 left-0 right-0 bg-base-dark z-50">
     <div class="max-w-7xl px-6 flex mx-auto py-1 justify-between">
-      <%= live_redirect to: Routes.report_index_path(@socket, :index) do %>
+      <.link navigate={Routes.report_index_path(@socket, :index)}>
         <div class="cursor-pointer py-4 px-1">
           <CarrierWeb.Components.Icon.logo_white class="w-24 h-auto" />
         </div>
-      <% end %>
+      </.link>
 
       <div class="max-w-7xl px-6 flex flex-row">
-        <%= live_redirect to: Routes.report_index_path(@socket, :index) do %>
+        <.link navigate={Routes.report_index_path(@socket, :index)}>
           <div class="menu-item">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -28,9 +28,9 @@
             </svg>
             <span class="ml-2">Reports</span>
           </div>
-        <% end %>
+        </.link>
 
-        <%= live_redirect to: Routes.settings_path(@socket, :index) do %>
+        <.link navigate={Routes.settings_path(@socket, :index)}>
           <div class="menu-item">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +53,7 @@
             </svg>
             <span class="ml-2">Settings</span>
           </div>
-        <% end %>
+        </.link>
       </div>
     </div>
   </nav>

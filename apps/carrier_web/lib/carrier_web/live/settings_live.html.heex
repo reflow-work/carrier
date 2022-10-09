@@ -32,9 +32,13 @@
 
     <div class="card">
       <div class="card-body">
-        <%= link to: Routes.auth_path(@socket, :logout), "phx-click": "smartlook_anonymize", class: "btn" do %>
+        <.link
+          href={Routes.auth_path(@socket, :logout)}
+          phx-click="smartlook_anonymize"
+          class="btn"
+        >
           Logout
-        <% end %>
+        </.link>
       </div>
     </div>
   </div>

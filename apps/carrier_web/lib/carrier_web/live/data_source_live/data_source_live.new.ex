@@ -89,7 +89,7 @@ defmodule CarrierWeb.DataSourceLive.New do
     case do_create_conn_info(params) do
       {:ok, %DataSource{}} ->
         socket
-        |> push_redirect(to: Routes.report_new_path(socket, :new))
+        |> push_navigate(to: Routes.report_new_path(socket, :new))
 
       {:error, reason} ->
         socket

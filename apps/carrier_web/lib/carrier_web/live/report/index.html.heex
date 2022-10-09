@@ -5,10 +5,9 @@
     </h1>
 
     <div class="text-right">
-      <%= live_redirect("Create New Report",
-        to: Routes.report_new_path(@socket, :new),
-        class: "btn btn-primary"
-      ) %>
+      <.link navigate={Routes.report_new_path(@socket, :new)} class="btn btn-primary">
+        Create New Report
+      </.link>
     </div>
   </header>
 
@@ -30,10 +29,12 @@
               <td><%= report.trigger_time |> format_trigger_time(@timezone) %></td>
               <td>#<%= report.integration_info.channel_name %></td>
               <td>
-                <%= live_patch("Delete",
-                  to: Routes.report_index_path(@socket, :delete, report.id),
-                  class: "btn btn-sm"
-                ) %>
+                <.link
+                  patch={Routes.report_index_path(@socket, :delete, report.id)}
+                  class="btn btn-sm"
+                >
+                  Delete
+                </.link>
               </td>
             </tr>
           <% end %>
