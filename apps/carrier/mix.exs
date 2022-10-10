@@ -58,7 +58,8 @@ defmodule Carrier.MixProject do
       {:vega_lite, "~> 0.1.5", only: :dev},
       {:kino_vega_lite, "~> 0.1.2", only: :dev},
       {:logger_papertrail_backend, "~> 1.1"},
-      {:sentry, "~> 8.0"}
+      {:sentry, "~> 8.0"},
+      {:ex_cldr_numbers, "~> 2.0"}
     ]
   end
 

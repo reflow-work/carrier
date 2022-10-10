@@ -96,7 +96,6 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   def handle_event("select_window_size", params, socket) do
-    IO.inspect(params)
     %{"data_window_size" => %{"window_size" => window_size}} = params
 
     socket =

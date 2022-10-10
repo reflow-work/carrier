@@ -1,6 +1,7 @@
 defmodule CarrierWeb.LiveHelpers do
   import Phoenix.Component
   alias Phoenix.LiveView.JS
+  alias Carrier.Core.NumberHelper.Number
 
   @doc """
   Renders a live component inside a modal.
@@ -45,6 +46,13 @@ defmodule CarrierWeb.LiveHelpers do
       </div>
     </div>
     """
+  end
+
+  def format_number(s) do
+    case Number.to_string(s) do
+      {:ok, n} -> n
+      {:error, _msg} -> "0"
+    end
   end
 
   defp hide_modal(js \\ %JS{}) do
