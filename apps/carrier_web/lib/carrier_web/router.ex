@@ -35,7 +35,7 @@ defmodule CarrierWeb.Router do
 
   # With Auth
   scope "/", CarrierWeb do
-    pipe_through [:browser, :auth_user]
+    pipe_through :browser
 
     live_session :user, on_mount: [CarrierWeb.UserHook, CarrierWeb.TimezoneHook] do
       live "/integrations/new", IntegrationLive.New, :new
