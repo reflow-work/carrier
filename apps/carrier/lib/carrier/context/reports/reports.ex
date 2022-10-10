@@ -146,4 +146,11 @@ defmodule Carrier.Reports do
       Logger.debug("next job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}")
     end)
   end
+
+  def list_report_logs() do
+    ReportLog.list()
+    |> ReportLog.preload_report()
+    |> TenantRepo.all()
+    |> then(&{:ok, &1})
+  end
 end

@@ -1,10 +1,11 @@
 defmodule Carrier.Reports.ReportLog do
   use Carrier.Schema
-  alias Carrier.Reports.{IntegrationInfo, DataSourceInfo}
+  alias Carrier.Reports.{Report, IntegrationInfo, DataSourceInfo}
 
   schema "report_logs" do
+    belongs_to :report, Report
+
     field :org_id, :integer
-    field :report_id, :integer
     field :report_job_id, :integer
 
     field :status, Ecto.Enum,
@@ -89,5 +90,15 @@ defmodule Carrier.Reports.ReportLog do
   def update(%__MODULE__{status: :tried} = struct, attrs) do
     struct
     |> changeset_for_update(attrs)
+  end
+
+  def list() do
+    __MODULE__
+    |> order_by([rl], desc: rl.scheduled_at)
+  end
+
+  def preload_report(query) do
+    query
+    |> preload(:report)
   end
 end

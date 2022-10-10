@@ -277,4 +277,40 @@ defmodule Carrier.ReportsTest do
       assert updated_report_log.payload == payload
     end
   end
+
+  describe "list_report_logs/0" do
+    setup do
+      now = DateTime.utc_now()
+
+      org = TenantFactory.insert(:org)
+
+      report0 = TenantFactory.insert(:report, org_id: org.org_id)
+      report1 = TenantFactory.insert(:report, org_id: org.org_id)
+
+      report_log0 =
+        TenantFactory.insert(:report_log,
+          report: report0,
+          scheduled_at: now |> Timex.shift(days: -2)
+        )
+
+      report_log1 =
+        TenantFactory.insert(:report_log,
+          report: report1,
+          scheduled_at: now |> Timex.shift(days: -1)
+        )
+
+      TenantRepo.put_org_id(org.org_id)
+
+      %{report_logs: [report_log0, report_log1]}
+    end
+
+    test "test", %{report_logs: [report_log0, report_log1]} do
+      assert {:ok, [fetched_report_log0, fetched_report_log1]} = Reports.list_report_logs()
+
+      assert same_records?(fetched_report_log0, report_log1)
+      assert same_records?(fetched_report_log1, report_log0)
+
+      assert same_records?(fetched_report_log0.report, report_log1.report)
+    end
+  end
 end
