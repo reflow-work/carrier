@@ -290,27 +290,38 @@ defmodule Carrier.ReportsTest do
       report_log0 =
         TenantFactory.insert(:report_log,
           report: report0,
+          status: :succeeded,
           scheduled_at: now |> Timex.shift(days: -2)
         )
 
       report_log1 =
         TenantFactory.insert(:report_log,
           report: report1,
+          status: :scheduled,
+          scheduled_at: now |> Timex.shift(days: -1)
+        )
+
+      report_log2 =
+        TenantFactory.insert(:report_log,
+          report: report0,
+          status: :scheduled,
           scheduled_at: now |> Timex.shift(days: -1)
         )
 
       TenantRepo.put_org_id(org.org_id)
 
-      %{report_logs: [report_log0, report_log1]}
+      %{report_logs: [report_log0, report_log1, report_log2]}
     end
 
-    test "test", %{report_logs: [report_log0, report_log1]} do
-      assert {:ok, [fetched_report_log0, fetched_report_log1]} = Reports.list_report_logs()
+    test "test", %{report_logs: [report_log0, report_log1, report_log2]} do
+      assert {:ok, [fetched_report_log0, fetched_report_log1, fetched_report_log2]} =
+               Reports.list_report_logs()
 
-      assert same_records?(fetched_report_log0, report_log1)
-      assert same_records?(fetched_report_log1, report_log0)
+      assert same_records?(fetched_report_log0, report_log2)
+      assert same_records?(fetched_report_log1, report_log1)
+      assert same_records?(fetched_report_log2, report_log0)
 
-      assert same_records?(fetched_report_log0.report, report_log1.report)
+      assert same_records?(fetched_report_log0.report, report_log2.report)
     end
   end
 end

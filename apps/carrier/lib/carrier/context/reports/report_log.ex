@@ -94,7 +94,7 @@ defmodule Carrier.Reports.ReportLog do
 
   def list() do
     __MODULE__
-    |> order_by([rl], desc: rl.scheduled_at)
+    |> order_by([rl], desc: rl.scheduled_at, asc: rl.report_id)
   end
 
   def preload_report(query) do

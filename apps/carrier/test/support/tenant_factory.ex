@@ -134,6 +134,16 @@ defmodule Carrier.TenantFactory do
     |> Map.merge(%{status: :tried, tried_at: DateTime.utc_now()})
   end
 
+  defp apply_status(%ReportLog{} = report_log, :succeeded) do
+    report_log
+    |> apply_status(:tried)
+    |> Map.merge(%{
+      status: :succeeded,
+      payload: [%{"key" => "value"}],
+      succeeded_at: DateTime.utc_now()
+    })
+  end
+
   defp seq(name) when is_atom(name) do
     sequence(Atom.to_string(name))
   end
