@@ -127,7 +127,7 @@
                 phx-change="select_data_column"
                 class="flex flex-col gap-y-3 mt-4"
               >
-                <%= for column <- Enum.filter(@query_result_raw.columns, &(&1 !== "date")) do %>
+                <%= for column <- Enum.drop(@query_result_raw.columns, 1) do %>
                   <div class="flex gap-x-2 items-center">
                     <%= checkbox(f, column, value: Enum.member?(@selected_columns, column)) %>
                     <%= label(f, column, column) %>
