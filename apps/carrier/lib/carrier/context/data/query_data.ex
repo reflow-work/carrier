@@ -1,4 +1,5 @@
 defmodule Carrier.Data.QueryData do
+  require Logger
   alias Carrier.Secrets
   alias Carrier.Secrets.{DataSource, ConnInfo}
   alias Carrier.TenantRepo
@@ -8,34 +9,34 @@ defmodule Carrier.Data.QueryData do
   @start_template "{{start}}"
   @end_template "{{end}}"
 
-  def query_sample(%{
-        org_id: org_id,
-        data_source_id: data_source_id,
-        sql_template: sql_template,
-        datetime: datetime,
-        timezone: timezone,
-        period: period,
-        limit: limit
-      }) do
-    TenantRepo.put_org_id(org_id)
+  # def query_sample(%{
+  #       org_id: org_id,
+  #       data_source_id: data_source_id,
+  #       sql_template: sql_template,
+  #       datetime: datetime,
+  #       timezone: timezone,
+  #       period: period,
+  #       limit: limit
+  #     }) do
+  #   TenantRepo.put_org_id(org_id)
 
-    end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
-    data_start_datetime = end_datetime |> Timex.shift(days: -(period - 1))
+  #   end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
+  #   data_start_datetime = end_datetime |> Timex.shift(days: -(period - 1))
 
-    sql_params = [data_start_datetime, end_datetime, limit]
+  #   sql_params = [data_start_datetime, end_datetime, limit]
 
-    with :ok <- is_valid_sql?(sql_template),
-         sql = sql_template |> convert_sql_template_to_sql() |> append_limit(),
-         {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
-           Secrets.fetch_data_source(data_source_id),
-         {:ok, %{columns: columns, rows: rows}} <-
-           run_query(conn_info, sql, sql_params),
-         data = DataHelper.rows_to_map(columns, rows) do
-      {:ok, %{columns: columns, data: data}}
-    else
-      error -> error
-    end
-  end
+  #   with :ok <- is_valid_sql?(sql_template),
+  #        sql = sql_template |> convert_sql_template_to_sql() |> append_limit(),
+  #        {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
+  #          Secrets.fetch_data_source(data_source_id),
+  #        {:ok, %{columns: columns, rows: rows}} <-
+  #          run_query(conn_info, sql, sql_params),
+  #        data = DataHelper.rows_to_map(columns, rows) do
+  #     {:ok, %{columns: columns, data: data}}
+  #   else
+  #     error -> error
+  #   end
+  # end
 
   def query(%{
         org_id: org_id,
@@ -49,7 +50,11 @@ defmodule Carrier.Data.QueryData do
       }) do
     TenantRepo.put_org_id(org_id)
 
-    end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
+    end_datetime =
+      datetime
+      |> DateTime.shift_zone!(timezone)
+      |> Timex.beginning_of_day()
+      |> DateTime.shift_zone!("Etc/UTC")
 
     data_start_datetime =
       end_datetime |> Timex.shift(days: -(period - 1 + window_size + comparing_period))
@@ -57,11 +62,10 @@ defmodule Carrier.Data.QueryData do
     sql_params = [data_start_datetime, end_datetime]
 
     with :ok <- is_valid_sql?(sql_template),
-         sql = sql_template |> convert_sql_template_to_sql(),
          {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
            Secrets.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, rows: rows}} <-
-           run_query(conn_info, sql, sql_params),
+           run_query(conn_info, sql_template, sql_params),
          normalized_rows = normalize_rows(rows),
          data = DataHelper.rows_to_map(columns, normalized_rows),
          data = fill_missing_dates(data, columns, data_start_datetime, end_datetime),
@@ -75,8 +79,16 @@ defmodule Carrier.Data.QueryData do
            }) do
       {:ok, %{columns: columns, data: analyzed_date}}
     else
-      error -> error
+      {:error, reason} ->
+        Logger.error(inspect(reason))
+
+        {:error, :query_failed}
     end
+  rescue
+    e ->
+      Logger.error(inspect(e))
+
+      {:error, :query_failed}
   end
 
   def refine_data_based_on_columns(%{columns: columns, data: data}, selected_columns) do
@@ -230,23 +242,30 @@ defmodule Carrier.Data.QueryData do
     {:ok, data}
   end
 
-  defp convert_sql_template_to_sql(sql_template) do
+  defp convert_sql_template_to_sql(sql_template, :postgres) do
     sql_template
     |> String.trim_trailing(";")
     |> String.replace(@start_template, "$1::TIMESTAMP")
     |> String.replace(@end_template, "$2::TIMESTAMP")
   end
 
-  defp append_limit(sql) do
-    sql <> " LIMIT $3"
+  defp convert_sql_template_to_sql(sql_template, :mysql) do
+    sql_template
+    |> String.trim_trailing(";")
+    |> String.replace(@start_template, "TIMESTAMP(?)")
+    |> String.replace(@end_template, "TIMESTAMP(?)")
   end
+
+  # defp append_limit(sql) do
+  #   sql <> " LIMIT $3"
+  # end
 
   defp is_valid_sql?(sql_template) do
     with :ok <- is_select_query?(sql_template),
          :ok <- is_contains_required_templates?(sql_template) do
       :ok
     else
-      error -> error
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -264,7 +283,9 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params) do
+  defp run_query(%ConnInfo{source: source, info: info}, sql_template, sql_params) do
+    sql = sql_template |> convert_sql_template_to_sql(source)
+
     case source do
       :postgres ->
         credentials =
