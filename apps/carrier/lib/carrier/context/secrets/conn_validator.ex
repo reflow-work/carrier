@@ -1,4 +1,5 @@
 defmodule Carrier.Secrets.ConnValidator do
+  require Logger
   alias Carrier.Secrets.ConnInfo
   alias Carrier.Dynamic.{PostgresRepo, MySQLRepo}
 
@@ -20,7 +21,10 @@ defmodule Carrier.Secrets.ConnValidator do
 
     :ok
   rescue
-    _ -> {:error, :invalid_conn_info}
+    e ->
+      Logger.error(inspect(e))
+
+      {:error, :invalid_conn_info}
   end
 
   defp do_validate(%ConnInfo.MySQL{} = struct) do
@@ -34,7 +38,9 @@ defmodule Carrier.Secrets.ConnValidator do
 
     :ok
   rescue
-    _ ->
+    e ->
+      Logger.error(inspect(e))
+
       {:error, :invalid_conn_info}
   end
 
