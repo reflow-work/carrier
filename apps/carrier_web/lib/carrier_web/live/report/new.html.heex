@@ -28,7 +28,7 @@
               <ul class="divide-y divide-gray-200 border-t border-b border-gray-200 mt-4">
                 <li class="py-2 flex items-center gap-x-2">
                   <CarrierWeb.Components.Icon.check_black class="w-6 h-6 flex-shrink-0" />
-                  SELECT문의 첫번째 컬럼이 기준 날짜가 됩니다. date타입으로 지정해주세요.
+                  SELECT문의 첫번째 컬럼이 기준 날짜가 됩니다. date 타입으로 지정해주세요.
                 </li>
                 <li class="py-2 flex items-center gap-x-2">
                   <CarrierWeb.Components.Icon.check_black class="w-6 h-6 flex-shrink-0" />
@@ -50,8 +50,9 @@
 <code>  count(distinct used_id) as "결제자수",</code>
 <code>  sum(revenue) as "매출"</code>
 <code>FROM</code>
-<code>  transactions</code>
-<code>WHERE <%= ~s(create_time > {{start}}) %></code>
+<code>  transaction</code>
+<code>WHERE</code>
+<code>  <%= ~s(create_time > {{start}}) %></code>
 <code>  <%= ~S(AND create_time < {{end}}) %></code>
 <code>GROUP BY 1</code>
 </pre>
