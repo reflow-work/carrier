@@ -9,7 +9,7 @@ defmodule Carrier.Reports.ReportLog do
     field :report_job_id, :integer
 
     field :status, Ecto.Enum,
-      values: [:scheduled, :tried, :succeeded, :failed],
+      values: [:scheduled, :tried, :succeeded, :failed, :cancelled],
       default: :scheduled
 
     field :created_at, :utc_datetime_usec
@@ -17,6 +17,7 @@ defmodule Carrier.Reports.ReportLog do
     field :tried_at, :utc_datetime_usec
     field :succeeded_at, :utc_datetime_usec
     field :failed_at, :utc_datetime_usec
+    field :cancelled_at, :utc_datetime_usec
     field :payload, {:array, :any}
     field :error_message, :string
 
