@@ -212,49 +212,45 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("send_preview", params, socket) do
     %{"send_preview_form" => %{"channel" => channel_id}} = params
 
-    save_chart_img_params =
-      [
-        {:data, socket.assigns.query_result_by_columns},
-        {:orgId, socket.assigns.org_id},
-        {:reportId, "preview"}
-      ]
-      |> Enum.into(%{})
+    Task.start(fn ->
+      save_chart_img_params =
+        [
+          {:data, socket.assigns.query_result_by_columns},
+          {:orgId, socket.assigns.org_id},
+          {:reportId, "preview"}
+        ]
+        |> Enum.into(%{})
 
-    {:ok, %{"body" => %{"imgUrls" => img_urls}}, _full_resp} =
-      save_chart_image(save_chart_img_params)
+      {:ok, %{"body" => %{"imgUrls" => img_urls}}, _full_resp} =
+        save_chart_image(save_chart_img_params)
 
-    with {:ok, _} <-
-           Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
-           |> Enum.map(fn slack_arg ->
-             Noti.send_report_to_slack(
-               channel_id,
-               slack_arg,
-               socket.assigns.integration.conn_info.info["bot_token"]
-             )
-           end)
-           |> Traversable.traverse() do
-      socket =
-        socket
-        |> put_flash_for(:info, "Slack messages for the selected query results have been sent! 😊",
-          timeout: :timer.seconds(3)
-        )
-        |> assign(:show_preview_modal, false)
+      with {:ok, _} <-
+             Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
+             |> Enum.map(fn slack_arg ->
+               Noti.send_report_to_slack(
+                 channel_id,
+                 slack_arg,
+                 socket.assigns.integration.conn_info.info["bot_token"]
+               )
+             end)
+             |> Traversable.traverse() do
+        :ok
+      else
+        {:error, error} ->
+          Logger.error(inspect(error))
 
-      {:noreply, socket}
-    else
-      {:error, error} ->
-        Logger.error(error)
+          {:error, error}
+      end
+    end)
 
-        socket =
-          socket
-          |> put_flash_for(
-            :error,
-            "Failed to send one or more slack messages for selected query results! 😮",
-            timeout: :timer.seconds(3)
-          )
+    socket =
+      socket
+      |> put_flash_for(:info, "Slack messages for the selected query results have been sent! 😊",
+        timeout: :timer.seconds(3)
+      )
+      |> assign(:show_preview_modal, false)
 
-        {:noreply, socket}
-    end
+    {:noreply, socket}
   end
 
   def handle_event("show_preview_modal", _params, socket) do
