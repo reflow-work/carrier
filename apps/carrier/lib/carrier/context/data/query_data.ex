@@ -114,6 +114,7 @@ defmodule Carrier.Data.QueryData do
         end)
         |> Enum.reverse()
       end)
+      |> Enum.reverse()
 
     Map.put(raw_data, :data, data)
   end
