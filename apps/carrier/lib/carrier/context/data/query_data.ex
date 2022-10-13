@@ -132,11 +132,18 @@ defmodule Carrier.Data.QueryData do
 
     diff_between_period_sums_in_percentage =
       last_datum[current_to_previous_periods_sum_ratio_key]
-      |> Decimal.from_float()
-      |> Decimal.sub(1)
-      |> Decimal.round(4)
-      |> Decimal.mult(100)
-      |> Decimal.to_float()
+      |> case do
+        :nan ->
+          :nan
+
+        value ->
+          value
+          |> Decimal.from_float()
+          |> Decimal.sub(1)
+          |> Decimal.round(4)
+          |> Decimal.mult(100)
+          |> Decimal.to_float()
+      end
 
     %{
       label: key,

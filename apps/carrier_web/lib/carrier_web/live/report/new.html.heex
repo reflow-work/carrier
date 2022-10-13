@@ -195,11 +195,12 @@
                         </p>
                         <p class="text-xl text-center">
                           <span>지난 주 대비:</span>
-                          <span class={
-                            "font-bold #{if @query_result_by_columns[column].meta.diff_between_period_raws > 0,
-                              do: "text-green-500",
-                              else: "text-red-500"}"
-                          }>
+                          <span class={[
+                            "font-bold",
+                            value_color(
+                              @query_result_by_columns[column].meta.diff_between_period_raws
+                            )
+                          ]}>
                             <%= format_number(
                               @query_result_by_columns[column].meta.diff_between_period_raws
                             ) %>
@@ -215,12 +216,15 @@
                         </p>
                         <p class="text-xl text-center">
                           <span>WOW:</span>
-                          <span class={
-                            "font-bold #{if @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage > 0,
-                              do: "text-green-500",
-                              else: "text-red-500"}"
-                          }>
-                            <%= "#{@query_result_by_columns[column].meta.diff_between_period_sums_in_percentage}%" %>
+                          <span class={[
+                            "font-bold",
+                            value_color(
+                              @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                            )
+                          ]}>
+                            <%= wow_text(
+                              @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                            ) %>
                           </span>
                         </p>
                       </section>

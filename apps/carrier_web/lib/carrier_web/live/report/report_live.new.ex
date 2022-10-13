@@ -312,4 +312,18 @@ defmodule CarrierWeb.ReportLive.New do
     %{orgId: orgId, reportId: reportId, data: data}
     |> Aws.save_chart_img()
   end
+
+  defp value_color(value) do
+    value |> IO.inspect()
+
+    cond do
+      value == :nan -> ""
+      value > 0 -> "text-green-500"
+      value < 0 -> "text-red-500"
+      true -> ""
+    end
+  end
+
+  defp wow_text(:nan), do: "-"
+  defp wow_text(wow), do: "#{wow}%"
 end
