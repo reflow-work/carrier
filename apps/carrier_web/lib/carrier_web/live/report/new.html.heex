@@ -32,7 +32,7 @@
                 </li>
                 <li class="py-2 flex items-center gap-x-2">
                   <CarrierWeb.Components.Icon.check_black class="w-6 h-6 flex-shrink-0" />
-                  두번째 컬럼은 집계(컬럼명) as ‘표시명' 으로 입력해주세요.
+                  두번째 컬럼부터는 집계(컬럼명) as "표시명" 으로 입력해주세요.
                 </li>
                 <li class="py-2 flex items-center gap-x-2">
                   <CarrierWeb.Components.Icon.check_black class="w-6 h-6 flex-shrink-0" />
@@ -46,14 +46,13 @@
               <pre class="border-1 border-gray-200 p-2 bg-gray-200 rounded mt-6">
 <code>-- 예시</code>
 <code>SELECT</code>
-<code>date(create_time),</code>
-<code>count(distinct used_id) as ‘결제자수',</code>
-<code>sum(revenue) as ‘매출’</code>
+<code>  date(create_time),</code>
+<code>  count(distinct used_id) as "결제자수",</code>
+<code>  sum(revenue) as "매출"</code>
 <code>FROM</code>
-<code>transaction</code>
-<code>WHERE</code>
-<code><%= ~s(create_time > {{start}}) %></code>
-<code><%= ~S(AND create_time < {{end}}) %></code>
+<code>  transactions</code>
+<code>WHERE <%= ~s(create_time > {{start}}) %></code>
+<code>  <%= ~S(AND create_time < {{end}}) %></code>
 <code>GROUP BY 1</code>
 </pre>
             </section>
