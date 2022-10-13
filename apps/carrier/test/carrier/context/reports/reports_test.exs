@@ -210,8 +210,28 @@ defmodule Carrier.ReportsTest do
                  error_message: error_message
                })
 
+      assert failed_report_log.status == :failed
       assert failed_report_log.error_message == error_message
       assert failed_report_log.failed_at != nil
+    end
+  end
+
+  describe "record_cancelled_report_log/1" do
+    setup do
+      report = TenantFactory.insert(:report)
+      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
+
+      TenantRepo.put_org_id(report.org_id)
+
+      %{report: report}
+    end
+
+    test "with valid attrs", %{report: report} do
+      assert {:ok, cancelled_report_log} =
+               Reports.record_cancelled_report_log(%{report_id: report.id})
+
+      assert cancelled_report_log.status == :cancelled
+      assert cancelled_report_log.cancelled_at != nil
     end
   end
 

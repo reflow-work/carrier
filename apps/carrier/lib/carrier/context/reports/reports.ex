@@ -116,6 +116,20 @@ defmodule Carrier.Reports do
     end)
   end
 
+  def record_cancelled_report_log(%{report_id: report_id}) do
+    TenantRepo.wrap_transaction(fn ->
+      ReportLog.record_cancelled(%{
+        report_id: report_id,
+        cancelled_at: DateTime.utc_now()
+      })
+      |> TenantRepo.update_all([])
+      |> case do
+        {1, [%ReportLog{} = report_log]} -> {:ok, report_log}
+        _ -> {:error, :failed_to_record_cancelled_report_log}
+      end
+    end)
+  end
+
   def update_report_log(%ReportLog{} = report_log, params) do
     ReportLog.update(report_log, params)
     |> TenantRepo.update()

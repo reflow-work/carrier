@@ -88,6 +88,16 @@ defmodule Carrier.Reports.ReportLog do
     |> select([rl], rl)
   end
 
+  def record_cancelled(%{report_id: report_id, cancelled_at: cancelled_at}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.report_id == ^report_id and rl.status == :tried
+    )
+    |> update([rl], set: [status: :cancelled, cancelled_at: ^cancelled_at])
+    |> select([rl], rl)
+  end
+
   def update(%__MODULE__{status: :tried} = struct, attrs) do
     struct
     |> changeset_for_update(attrs)
