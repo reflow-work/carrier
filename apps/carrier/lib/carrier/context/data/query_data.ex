@@ -273,7 +273,7 @@ defmodule Carrier.Data.QueryData do
          :ok <- is_contains_required_templates?(sql_template) do
       :ok
     else
-      {:error, reason} -> {:error, reason}
+      {:error, reason} -> {:error, {reason, sql_template}}
     end
   end
 
