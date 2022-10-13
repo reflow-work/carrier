@@ -120,9 +120,9 @@ defmodule Carrier.Data.QueryData do
   end
 
   defp build_meta_data(date_column_name, key, data) do
-    current_period_sum_key = key <> "_window_sum"
-    previous_period_sum_key = key <> "_window_sum_offset"
-    current_to_previous_periods_sum_ratio_key = key <> "_window_sum_over"
+    current_period_sum_key = window_sum_column(key)
+    previous_period_sum_key = window_sum_offset_column(key)
+    current_to_previous_periods_sum_ratio_key = window_sum_over_column(key)
 
     last_datum =
       data
@@ -153,9 +153,9 @@ defmodule Carrier.Data.QueryData do
   end
 
   defp split_data_by_columns(key, date_column, data) do
-    current_period_sum_key = key <> "_window_sum"
-    previous_period_sum_key = key <> "_window_sum_offset"
-    current_to_previous_periods_sum_ratio = key <> "_window_sum_over"
+    current_period_sum_key = window_sum_column(key)
+    previous_period_sum_key = window_sum_offset_column(key)
+    current_to_previous_periods_sum_ratio = window_sum_over_column(key)
 
     Enum.map(
       data,
