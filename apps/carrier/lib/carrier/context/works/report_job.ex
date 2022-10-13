@@ -35,6 +35,8 @@ defmodule Carrier.Works.ReportJob do
       :ok
     else
       {:error, {:resource_not_found, %{target: Report}}} ->
+        Reports.record_cancelled_report_log(%{report_id: report_id})
+
         {:cancel, :report_is_deleted}
 
       {:error, reason} ->
