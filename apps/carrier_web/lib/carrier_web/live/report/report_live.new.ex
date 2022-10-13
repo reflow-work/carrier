@@ -45,7 +45,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:timezone, "Asia/Seoul")
       |> assign(:period, 28)
       |> assign(:window_size, 7)
-      |> assign(:comparing_period, 7)
+      |> assign(:comparing_period, 28)
 
     {:ok, socket}
   end
