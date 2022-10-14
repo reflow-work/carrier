@@ -81,8 +81,13 @@ defmodule Carrier.Data.QueryData do
            }) do
       {:ok, %{columns: columns, data: analyzed_date}}
     else
+      {:error, {:query_error, _message} = reason} ->
+        Logger.error(inspect({reason, params}))
+
+        {:error, reason}
+
       {:error, reason} ->
-        Logger.error({inspect(reason), params})
+        Logger.error(inspect({reason, params}))
 
         {:error, :query_failed}
     end
@@ -325,9 +330,14 @@ defmodule Carrier.Data.QueryData do
     end
   rescue
     error in Postgrex.Error ->
-      %Postgrex.Error{postgres: %{code: code, message: message} = postgres} = error
+      %Postgrex.Error{postgres: %{message: message}} = error
 
-      {:error, [code, message, postgres[:hint]] |> Enum.reject(&(&1 == nil)) |> Enum.join("\n")}
+      {:error, {:query_error, message}}
+
+    error in MyXQL.Error ->
+      %MyXQL.Error{message: message} = error
+
+      {:error, {:query_error, message}}
   end
 
   defp normalize_rows(rows) do
