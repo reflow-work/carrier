@@ -1,7 +1,7 @@
 defmodule CarrierWeb.LiveHelpers do
   import Phoenix.Component
   alias Phoenix.LiveView.JS
-  alias Carrier.Core.NumberHelper.Number
+  alias Carrier.Core.Cldr
 
   @doc """
   Renders a live component inside a modal.
