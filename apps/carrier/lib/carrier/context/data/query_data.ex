@@ -38,16 +38,18 @@ defmodule Carrier.Data.QueryData do
   #   end
   # end
 
-  def query(%{
-        org_id: org_id,
-        data_source_id: data_source_id,
-        sql_template: sql_template,
-        datetime: datetime,
-        timezone: timezone,
-        period: period,
-        window_size: window_size,
-        comparing_period: comparing_period
-      }) do
+  def query(
+        %{
+          org_id: org_id,
+          data_source_id: data_source_id,
+          sql_template: sql_template,
+          datetime: datetime,
+          timezone: timezone,
+          period: period,
+          window_size: window_size,
+          comparing_period: comparing_period
+        } = params
+      ) do
     TenantRepo.put_org_id(org_id)
 
     end_datetime =
@@ -80,7 +82,7 @@ defmodule Carrier.Data.QueryData do
       {:ok, %{columns: columns, data: analyzed_date}}
     else
       {:error, reason} ->
-        Logger.error(inspect(reason))
+        Logger.error({inspect(reason), params})
 
         {:error, :query_failed}
     end
@@ -273,7 +275,7 @@ defmodule Carrier.Data.QueryData do
          :ok <- is_contains_required_templates?(sql_template) do
       :ok
     else
-      {:error, reason} -> {:error, {reason, sql_template}}
+      {:error, reason} -> {:error, reason}
     end
   end
 
