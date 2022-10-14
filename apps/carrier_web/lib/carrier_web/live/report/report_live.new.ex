@@ -313,17 +313,16 @@ defmodule CarrierWeb.ReportLive.New do
     |> Aws.save_chart_img()
   end
 
-  defp value_color(value) do
-    value |> IO.inspect()
-
-    cond do
-      value == :nan -> ""
-      value > 0 -> "text-green-500"
-      value < 0 -> "text-red-500"
-      true -> ""
+  defp value_color(value) when is_number(value) do
+    case value do
+      value when value > 0 -> "text-green-500"
+      value when value < 0 -> "text-red-500"
+      _ -> ""
     end
   end
 
-  defp wow_text(:nan), do: "-"
-  defp wow_text(wow), do: "#{wow}%"
+  defp value_color(_), do: ""
+
+  defp wow_text(wow) when is_number(wow), do: "#{wow}%"
+  defp wow_text(_), do: "-"
 end
