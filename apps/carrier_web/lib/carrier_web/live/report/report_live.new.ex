@@ -268,6 +268,22 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   @impl true
+  def handle_event("refresh_slack_channel_list", _params, socket) do
+    {:ok, channels} =
+      Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
+
+    channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+
+    socket =
+      socket
+      |> assign(:channels, channel_options)
+
+    # TODO: 선택된 채널 초기화
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_params(_params, _uri, socket) do
     socket =
       socket
