@@ -36,7 +36,9 @@ defmodule Carrier.External.Slack do
   end
 
   def list_conversations(token) do
-    Tesla.get(client(token), "/conversations.list")
+    query = %{exclude_archived: true, limit: 1000}
+
+    Tesla.get(client(token), "/conversations.list", query: query)
     |> handle_response()
     |> case do
       {:ok, %{"channels" => raw_channels}} ->
