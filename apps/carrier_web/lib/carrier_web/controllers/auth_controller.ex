@@ -38,7 +38,7 @@ defmodule CarrierWeb.AuthController do
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
-    |> put_flash(:error, "Failed to authenticate.")
+    |> put_flash(:error, "로그인에 실패하였습니다. 다시 시도해주세요.")
     |> redirect(to: "/")
   end
 
@@ -54,12 +54,11 @@ defmodule CarrierWeb.AuthController do
         conn
         |> put_session(:user_id, user_id)
         |> put_session(:org_id, org_id)
-        |> put_flash(:info, "Successfully authenticated.")
         |> redirect(to: Routes.report_index_path(conn, :index, redirected: "true"))
 
       _ ->
         conn
-        |> put_flash(:error, "Failed to authenticate.")
+        |> put_flash(:error, "로그인에 실패하였습니다. 다시 시도해주세요.")
         |> redirect(to: "/")
     end
   end

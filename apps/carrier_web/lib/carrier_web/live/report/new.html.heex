@@ -1,14 +1,14 @@
 <section class="page-container">
   <header class="page-header">
     <h1 class="page-title">
-      <span class="page-title-icon">📊</span> Create New Report
+      <span class="page-title-icon">📊</span> 레포트 생성하기
     </h1>
   </header>
 
   <section class="mt-6 space-y-6">
     <section class="card">
       <div class="card-body">
-        <h2 class="card-title">Type Query</h2>
+        <h2 class="card-title">쿼리 입력하기</h2>
         <.form :let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
           <div class="flex-col gap-2 sm:grid sm:grid-cols-5 sm:gap-2">
             <%= textarea(f, :sql_template,
@@ -58,7 +58,7 @@
             </section>
           </div>
           <div class="text-right mt-2">
-            <%= submit("Run Query", class: "btn btn-primary") %>
+            <%= submit("쿼리 실행", class: "btn btn-primary") %>
           </div>
         </.form>
       </div>
@@ -116,9 +116,9 @@
     <section class="flex gap-4 flex-col lg:flex-row">
       <section class="card flex-[3_3_0%]">
         <div class="card-body">
-          <h2 class="card-title">Set up Report</h2>
+          <h2 class="card-title">레포트 설정</h2>
           <section>
-            <h3 class="text-h3">Columns</h3>
+            <h3 class="text-lg font-bold">컬럼</h3>
             <%= if @query_result_by_columns do %>
               <.form
                 :let={f}
@@ -143,7 +143,7 @@
             <% end %>
           </section>
           <section>
-            <h3 class="text-h3">Window Size</h3>
+            <h3 class="text-lg font-bold mt-10">윈도우 사이즈</h3>
             <%= if @query_result_by_columns do %>
               <.form
                 :let={f}
@@ -175,7 +175,7 @@
 
       <section class="card flex-[5_5_0%]">
         <div class="card-body">
-          <h2 class="card-title">Slack Preview</h2>
+          <h2 class="card-title">슬랙 미리보기</h2>
           <%= if @query_result_by_columns do %>
             <div class="flex flex-col gap-y-6 mt-4">
               <%= for column <- Enum.filter(@query_result_raw.columns, &(&1 !== "date")) do %>
@@ -260,7 +260,7 @@
 
     <section class="card">
       <div class="card-body">
-        <h2 class="card-title">Report Details</h2>
+        <h2 class="card-title">레포트 정보</h2>
         <.form
           :let={f}
           for={:report}

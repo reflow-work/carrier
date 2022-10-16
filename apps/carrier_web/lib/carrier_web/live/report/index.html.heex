@@ -1,12 +1,12 @@
 <section class="page-container" id="reports-index-container" phx-hook="Smartlook">
   <header class="page-header">
     <h1 class="page-title">
-      <span class="page-title-icon">📑</span> Report List
+      <span class="page-title-icon">📑</span> 레포트 목록
     </h1>
 
     <div class="text-right">
       <.link navigate={Routes.report_new_path(@socket, :new)} class="btn btn-primary">
-        Create New Report
+        새 레포트 생성
       </.link>
     </div>
   </header>
@@ -16,10 +16,10 @@
       <table class="table w-full">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Time</th>
-            <th>Channel</th>
-            <th>Actions</th>
+            <th>이름</th>
+            <th>발송 시간</th>
+            <th>슬랙 채널</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -33,7 +33,7 @@
                   patch={Routes.report_index_path(@socket, :delete, report.id)}
                   class="btn btn-sm"
                 >
-                  Delete
+                  삭제
                 </.link>
               </td>
             </tr>
@@ -47,10 +47,10 @@
 <%= if @live_action == :delete do %>
   <CarrierWeb.Components.Modal.confirm>
     <:title>
-      Are you sure you want to delete the report?
+      레포트를 정말로 삭제하시겠어요?
     </:title>
     <:actions>
-      <%= live_patch("No", to: Routes.report_index_path(@socket, :index), class: "btn btn-sm") %>
+      <%= live_patch("취소", to: Routes.report_index_path(@socket, :index), class: "btn btn-sm") %>
       <a class="btn btn-primary btn-sm" phx-click="delete_report">Yes</a>
     </:actions>
   </CarrierWeb.Components.Modal.confirm>

@@ -14,7 +14,7 @@
               1
             </div>
             <div class="text-sm text-description">
-              Integrate Slack
+              슬랙 연동하기
             </div>
           </div>
 
@@ -23,7 +23,7 @@
               2
             </div>
             <div class="text-sm font-bold">
-              Connect Data Source
+              데이터 소스 연결하기
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@
               <div class={"p-2 pt-0 border-b-2 hover:text-primary-200 #{if @step == "step-1" do
                   "border-primary font-bold"
                 end}"}>
-                1. Select Data Source
+                1. 데이터 소스 선택
               </div>
             </a>
 
@@ -66,7 +66,7 @@
               <div class={"ml-4 p-2 pt-0 border-b-2 #{if @step == "step-2" do
                   "border-primary font-bold"
                 end}"}>
-                2. Set up Connection
+                2. 연결 정보 설정
               </div>
             </a>
           </div>
@@ -105,7 +105,7 @@
           <%= if @step == "step-2" do %>
             <div class="mt-8">
               <.form
-                let={f}
+                :let={f}
                 for={@changeset}
                 as={:conn_info}
                 phx-submit="create_conn_info"
@@ -114,19 +114,19 @@
               >
                 <div>
                   <label class="label">
-                    <span class="label-text text-gray-500">Name</span>
+                    <span class="label-text text-gray-500">데이터 소스 이름</span>
                   </label>
                   <%= text_input(f, :name,
                     class: "data-source-input",
                     value: @conn_info.name,
-                    placeholder: "Data Mart"
+                    placeholder: "데이터 마트"
                   ) %>
                   <%= error_tag(f, :name) %>
                 </div>
 
                 <div>
                   <label class="label mt-2">
-                    <span class="label-text text-gray-500">Host</span>
+                    <span class="label-text text-gray-500">호스트</span>
                   </label>
                   <%= text_input(f, :hostname,
                     class: "data-source-input",
@@ -138,31 +138,31 @@
 
                 <div>
                   <label class="label mt-2">
-                    <span class="label-text text-gray-500">Port</span>
+                    <span class="label-text text-gray-500">포트</span>
                   </label>
                   <%= text_input(f, :port,
                     class: "data-source-input",
                     value: @conn_info.port,
-                    placeholder: "Type here"
+                    placeholder: "3306"
                   ) %>
                   <%= error_tag(f, :port) %>
                 </div>
 
                 <div>
                   <label class="label mt-2">
-                    <span class="label-text text-gray-500">Database</span>
+                    <span class="label-text text-gray-500">데이터베이스</span>
                   </label>
                   <%= text_input(f, :database,
                     class: "data-source-input",
                     value: @conn_info.database,
-                    placeholder: "database name"
+                    placeholder: "service_db"
                   ) %>
                   <%= error_tag(f, :database) %>
                 </div>
 
                 <div>
                   <label class="label mt-2">
-                    <span class="label-text text-gray-500">Username</span>
+                    <span class="label-text text-gray-500">유저 이름</span>
                   </label>
                   <%= text_input(f, :username,
                     class: "data-source-input",
@@ -174,7 +174,7 @@
 
                 <div>
                   <label class="label mt-2">
-                    <span class="label-text text-gray-500">Password</span>
+                    <span class="label-text text-gray-500">비밀번호</span>
                   </label>
                   <%= password_input(f, :password,
                     class: "data-source-input",
@@ -188,7 +188,7 @@
                 <% end %>
 
                 <div class="flex pt-4">
-                  <%= submit("Connect", class: "btn btn-primary") %>
+                  <%= submit("연결하기", class: "btn btn-primary") %>
                 </div>
               </.form>
             </div>

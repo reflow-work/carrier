@@ -245,9 +245,7 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
-      |> put_flash_for(:info, "Slack messages for the selected query results have been sent! 😊",
-        timeout: :timer.seconds(3)
-      )
+      |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
       |> assign(:show_preview_modal, false)
 
     {:noreply, socket}
@@ -282,9 +280,7 @@ defmodule CarrierWeb.ReportLive.New do
     case Reports.create_report(params) do
       {:ok, %Report{name: report_name}} ->
         socket
-        |> put_flash_for(:info, "Report \"#{report_name}\" has been saved!",
-          timeout: :timer.seconds(3)
-        )
+        |> put_flash_for(:info, "\"#{report_name}\"가 저장되었습니다.", timeout: :timer.seconds(3))
         |> push_navigate(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->

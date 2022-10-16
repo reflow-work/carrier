@@ -11,30 +11,40 @@ defmodule CarrierWeb.ReportLogLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Report</th>
-            <th>Status</th>
-            <th>Scheduled At</th>
-            <th>Succeeded At</th>
-          </tr>
-        </thead>
-        <tbody>
-          <%= for report_log <- @report_logs do %>
-            <tr>
-              <td><%= report_log.id %></td>
-              <td><%= report_log.report.name %></td>
-              <td><%= report_log.status %></td>
-              <td><%= report_log.scheduled_at %></td>
-              <td><%= report_log.succeeded_at %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+    <section class="page-container" id="reports-index-container" phx-hook="Smartlook">
+      <header class="page-header">
+        <h1 class="page-title">
+          <span class="page-title-icon">💾</span> 레포트 발송 기록
+        </h1>
+      </header>
+
+      <section class="mt-6">
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>레포트 이름</th>
+                <th>상태</th>
+                <th>발송 예약 시간</th>
+                <th>발송 성공 시간</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for report_log <- @report_logs do %>
+                <tr>
+                  <td><%= report_log.id %></td>
+                  <td><%= report_log.report.name %></td>
+                  <td><%= report_log.status %></td>
+                  <td><%= report_log.scheduled_at %></td>
+                  <td><%= report_log.succeeded_at %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
     """
   end
 
