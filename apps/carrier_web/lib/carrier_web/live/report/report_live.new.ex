@@ -280,7 +280,7 @@ defmodule CarrierWeb.ReportLive.New do
     case Reports.create_report(params) do
       {:ok, %Report{name: report_name}} ->
         socket
-        |> put_flash_for(:info, "\"#{report_name}\"가 저장되었습니다.", timeout: :timer.seconds(3))
+        |> put_flash_for(:info, "\"#{report_name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
         |> push_navigate(to: Routes.report_index_path(socket, :index))
 
       {:error, error} ->
