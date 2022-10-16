@@ -81,11 +81,11 @@
               <% end %>
             </button>
           </header>
-          <table class="border-collapse border border-gray-800">
+          <table class="table mt-4">
             <thead>
               <tr class="w-full">
                 <%= for header <- @query_result_for_preview.columns do %>
-                  <th class="border border-gray-800"><%= header %></th>
+                  <th class="text-center py-3"><%= header %></th>
                 <% end %>
               </tr>
             </thead>
@@ -94,7 +94,7 @@
                 <%= for row <- @query_result_for_preview.data do %>
                   <tr class="w-full">
                     <%= for value <- row do %>
-                      <td class="border border-gray-800 text-center"><%= value %></td>
+                      <td class="text-center py-2 text-sm bg-base-300"><%= value %></td>
                     <% end %>
                   </tr>
                 <% end %>
@@ -102,7 +102,7 @@
                 <%= for row <- Enum.take(@query_result_for_preview.data, 5) do %>
                   <tr class="w-full">
                     <%= for value <- row do %>
-                      <td class="border border-gray-800 text-center"><%= value %></td>
+                      <td class="text-center py-2 text-sm bg-base-300"><%= value %></td>
                     <% end %>
                   </tr>
                 <% end %>
@@ -155,7 +155,8 @@
                 <%= for window_size <- @window_sizes do %>
                   <div class="flex gap-x-2 items-center">
                     <%= radio_button(f, :window_size, window_size,
-                      checked: @window_size == window_size
+                      checked: @window_size == window_size,
+                      class: "radio"
                     ) %>
                     <%= label(f, "window_size_#{window_size}", "Window Size: #{window_size}") %>
                   </div>

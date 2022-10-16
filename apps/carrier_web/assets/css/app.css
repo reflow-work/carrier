@@ -133,6 +133,14 @@ input[type='text']:focus {
 input[type='checkbox'] {
   @apply text-primary;
 }
+
+.radio {
+  @apply h-4 w-4;
+}
+
+.radio:checked {
+  @apply shadow-none;
+}
  
 .text-h1 {
   @apply text-3xl;
