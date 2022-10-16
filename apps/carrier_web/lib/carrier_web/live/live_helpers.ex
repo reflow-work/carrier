@@ -49,7 +49,7 @@ defmodule CarrierWeb.LiveHelpers do
   end
 
   def format_number(s) do
-    case Number.to_string(s) do
+    case Carrier.Core.Cldr.Number.to_string(s) do
       {:ok, n} -> n
       {:error, _msg} -> "0"
     end
