@@ -8,7 +8,6 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Aws
   alias Carrier.Core.{TimeHelper, Traversable}
   alias CarrierWeb.Components.Empty
-  import CarrierWeb.LiveHelpers
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)

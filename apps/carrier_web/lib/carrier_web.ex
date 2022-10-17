@@ -55,6 +55,7 @@ defmodule CarrierWeb do
         layout: {CarrierWeb.LayoutView, "live.html"}
 
       require Logger
+      import CarrierWeb.LiveHelpers
       alias Phoenix.LiveView.JS
 
       def put_flash_for(socket, kind, message, opts \\ []) do
