@@ -4,9 +4,20 @@ defmodule Carrier.Accounts.User do
   schema "users" do
     field :org_id, :integer
     field :email, :string
+
+    field :signed_at, :utc_datetime_usec
+
+    field :agreed_privacy_policy_at, :utc_datetime_usec
+    field :agreed_terms_of_service_at, :utc_datetime_usec
   end
 
-  @required_for_create [:org_id, :email]
+  @required_for_create [
+    :org_id,
+    :email,
+    :signed_at,
+    :agreed_privacy_policy_at,
+    :agreed_terms_of_service_at
+  ]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create)
@@ -14,9 +25,21 @@ defmodule Carrier.Accounts.User do
     |> unique_constraint(:email)
   end
 
-  def create(%{org_id: org_id, email: email}) do
+  def create(%{
+        org_id: org_id,
+        email: email,
+        signed_at: signed_at,
+        agreed_privacy_policy_at: agreed_privacy_policy_at,
+        agreed_terms_of_service_at: agreed_terms_of_service_at
+      }) do
     %__MODULE__{}
-    |> changeset_for_create(%{org_id: org_id, email: email})
+    |> changeset_for_create(%{
+      org_id: org_id,
+      email: email,
+      signed_at: signed_at,
+      agreed_privacy_policy_at: agreed_privacy_policy_at,
+      agreed_terms_of_service_at: agreed_terms_of_service_at
+    })
   end
 
   def get(user_id) do

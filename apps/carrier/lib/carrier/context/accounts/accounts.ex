@@ -49,8 +49,19 @@ defmodule Carrier.Accounts do
     end
   end
 
-  def signup(%{org_id: org_id, email: email}) do
-    User.create(%{org_id: org_id, email: email})
+  def signup(%{
+        org_id: org_id,
+        email: email
+      }) do
+    now = DateTime.utc_now()
+
+    User.create(%{
+      org_id: org_id,
+      email: email,
+      signed_at: now,
+      agreed_privacy_policy_at: now,
+      agreed_terms_of_service_at: now
+    })
     |> Repo.insert()
   end
 end
