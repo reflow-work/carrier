@@ -1,5 +1,6 @@
 defmodule CarrierWeb.ReportLogLive.Index do
   use CarrierWeb, :live_view
+  alias Carrier.Core.TimeHelper
 
   @impl true
   def mount(_params, _session, socket) do
@@ -35,9 +36,17 @@ defmodule CarrierWeb.ReportLogLive.Index do
                 <tr>
                   <td><%= report_log.id %></td>
                   <td><%= report_log.report.name %></td>
-                  <td><%= report_log.status %></td>
-                  <td><%= report_log.scheduled_at %></td>
-                  <td><%= report_log.succeeded_at %></td>
+                  <td>
+                    <span class={"badge #{report_log.status}"}>
+                      <%= report_log.status |> format_status %>
+                    </span>
+                  </td>
+                  <td>
+                    <%= report_log.scheduled_at |> format_datetime %>
+                  </td>
+                  <td>
+                    <%= report_log.succeeded_at |> format_datetime %>
+                  </td>
                 </tr>
               <% end %>
             </tbody>
@@ -52,5 +61,32 @@ defmodule CarrierWeb.ReportLogLive.Index do
     {:ok, report_logs} = Carrier.Reports.list_report_logs()
 
     report_logs
+  end
+
+  defp format_status(status) do
+    case status do
+      :scheduled ->
+        "발송 예약"
+
+      :tried ->
+        "발송중"
+
+      :succeeded ->
+        "발송 성공"
+
+      :failed ->
+        "발송 실패"
+
+      :cancelled ->
+        "발송 취소"
+    end
+  end
+
+  defp format_datetime(datetime) do
+    if datetime == nil do
+    else
+      datetime
+      |> Timex.format!("{YYYY}년 {M}월 {D}일 {h24}시 {m}분 ({Zabbr})")
+    end
   end
 end

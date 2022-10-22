@@ -177,3 +177,23 @@ input[type='checkbox'] {
 .query {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
+
+.badge {
+  @apply p-2 border-0 rounded text-sm;
+}
+
+.badge.scheduled {
+  @apply bg-blue-300;
+}
+
+.badge.succeeded {
+  @apply bg-green-200;
+}
+
+.badge.tried {
+  @apply bg-amber-300;
+}
+
+.badge.failed {
+  @apply bg-red-300;
+}
