@@ -169,3 +169,11 @@ input[type='checkbox'] {
 .callout-icon {
   @apply mr-2;
 }
+
+.code {
+  @apply bg-red-100 rounded p-0.5;
+}
+
+.query {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}

@@ -13,11 +13,15 @@ defmodule CarrierWeb.ReportLive.New do
   on_mount(CarrierWeb.DataSourceHook)
 
   @sample_sql_template """
-  SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
-    FROM sample_data_simple
-    WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
-    GROUP BY order_date
-    ORDER BY order_date
+  SELECT
+      DATE([기준이 되는 날짜 컬럼]),
+      SUM([보고 싶은 지표 컬럼1]) AS [컬럼1 이름],
+      SUM([보고 싶은 지표 컬럼2]) AS [컬럼2 이름],
+      SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
+  FROM [테이블 이름]
+  WHERE DATE([기준이 되는 날짜 컬럼]) >= {{start}}
+     AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
+  GROUP BY 1
   """
 
   @impl true
@@ -29,6 +33,7 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> assign_new(:sample_sql_template, fn -> @sample_sql_template end)
       |> assign_new(:sql_template, fn -> @sample_sql_template end)
       |> assign_new(:query_result_raw, fn -> nil end)
       |> assign_new(:query_result_by_columns, fn -> nil end)
