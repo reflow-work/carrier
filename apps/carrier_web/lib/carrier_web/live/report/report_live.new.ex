@@ -46,6 +46,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
       |> assign(:window_sizes, [1, 7])
       |> assign(:is_report_valid, false)
+      |> assign(:is_loading_slack_channels, false)
       |> assign(:timezone, "Asia/Seoul")
       |> assign(:period, 28)
       |> assign(:window_size, 7)
@@ -274,18 +275,19 @@ defmodule CarrierWeb.ReportLive.New do
 
   @impl true
   def handle_event("refresh_slack_channel_list", _params, socket) do
-    {:ok, channels} =
-      Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
+    if socket.assigns.is_loading_slack_channels do
+      {:noreply, socket}
+    else
+      socket =
+        socket
+        |> assign(:is_loading_slack_channels, true)
+        |> load_slack_channels()
+        |> assign(:is_loading_slack_channels, false)
 
-    channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+      # TODO: 선택된 채널 초기화
 
-    socket =
-      socket
-      |> assign(:channels, channel_options)
-
-    # TODO: 선택된 채널 초기화
-
-    {:noreply, socket}
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -342,4 +344,19 @@ defmodule CarrierWeb.ReportLive.New do
 
   defp wow_text(wow) when is_number(wow), do: "#{wow}%"
   defp wow_text(_), do: "-"
+
+  defp load_slack_channels(socket) do
+    case Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"]) do
+      {:ok, channels} ->
+        channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+
+        socket
+        |> assign(:channels, channel_options)
+        |> put_flash_for(:info, "슬랙 채널 업데이트 완료", timeout: :timer.seconds(3))
+
+      {:error, _reason} ->
+        socket
+        |> put_flash_for(:error, "슬랙 채널 업데이트에 실패하였습니다. 다시 시도해주세요.", timeout: :timer.seconds(3))
+    end
+  end
 end

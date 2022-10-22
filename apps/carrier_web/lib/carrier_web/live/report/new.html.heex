@@ -321,21 +321,8 @@
           <div class="flex items-center gap-x-2">
             <%= label(f, :channel, "레포트 발송 채널", class: "label w-28 text-gray-500 text-sm") %>
             <%= select(f, :channel, @channels, class: "select select-bordered w-64") %>
-            <a class="ml-1 cursor-pointer" phx-click="refresh_slack_channel_list">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-                />
-              </svg>
+            <a class="ml-1" phx-click="refresh_slack_channel_list">
+              <CarrierWeb.Components.Icon.refresh class={"w-5 h-5 #{if @is_loading_slack_channels, do: "text-gray-100 cursor-not-allowed", else: "cursor-pointer text-neutral-content"}"} />
             </a>
             <%= error_tag(f, :channel) %>
           </div>
