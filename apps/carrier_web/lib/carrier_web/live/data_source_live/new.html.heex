@@ -108,6 +108,7 @@
                 :let={f}
                 for={@changeset}
                 as={:conn_info}
+                phx-change="validate_conn_info"
                 phx-submit="create_conn_info"
                 class="space-y-2"
                 autocomplete="off"
@@ -118,7 +119,6 @@
                   </label>
                   <%= text_input(f, :name,
                     class: "data-source-input",
-                    value: @conn_info.name,
                     placeholder: "데이터 마트"
                   ) %>
                   <%= error_tag(f, :name) %>
@@ -130,7 +130,6 @@
                   </label>
                   <%= text_input(f, :hostname,
                     class: "data-source-input",
-                    value: @conn_info.hostname,
                     placeholder: "127.0.0.1"
                   ) %>
                   <%= error_tag(f, :hostname) %>
@@ -142,7 +141,6 @@
                   </label>
                   <%= text_input(f, :port,
                     class: "data-source-input",
-                    value: @conn_info.port,
                     placeholder: "3306"
                   ) %>
                   <%= error_tag(f, :port) %>
@@ -154,7 +152,6 @@
                   </label>
                   <%= text_input(f, :database,
                     class: "data-source-input",
-                    value: @conn_info.database,
                     placeholder: "service_db"
                   ) %>
                   <%= error_tag(f, :database) %>
@@ -166,7 +163,6 @@
                   </label>
                   <%= text_input(f, :username,
                     class: "data-source-input",
-                    value: @conn_info.username,
                     placeholder: "username"
                   ) %>
                   <%= error_tag(f, :username) %>
@@ -178,9 +174,10 @@
                   </label>
                   <%= password_input(f, :password,
                     class: "data-source-input",
+                    value: input_value(f, :password),
                     placeholder: "password"
                   ) %>
-                  <%= error_tag(f, :username) %>
+                  <%= error_tag(f, :password) %>
                 </div>
 
                 <%= if @error do %>
@@ -188,7 +185,11 @@
                 <% end %>
 
                 <div class="flex pt-4">
-                  <%= submit("연결하기", class: "btn btn-primary") %>
+                  <%= submit("연결하기",
+                    class: "btn btn-primary",
+                    disabled: !@changeset.valid?,
+                    phx_disable_with: "연결중"
+                  ) %>
                 </div>
               </.form>
             </div>
