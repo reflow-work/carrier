@@ -12,20 +12,21 @@
         <div>
           ☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.
         </div>
-        <.form
-          :let={f}
-          for={:query}
-          id="query_form"
-          phx-submit="run_query"
-          autocomplete="off"
-        >
+        <.form :let={f} for={:query} id="query_form" phx-submit="run_query" autocomplete="off">
           <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
-            <%= textarea(f, :sql_template,
-              class: "border rounded w-full sm:col-span-4 query",
-              placeholder: @sample_sql_template,
-              value: @sql_template,
-              rows: 20
-            ) %>
+            <div class="sm:col-span-4">
+              <%= textarea(f, :sql_template,
+                class: "border rounded query w-full",
+                placeholder: @sample_sql_template,
+                value: @sql_template,
+                rows: 16
+              ) %>
+              <%= if @query_error_message do %>
+                <div class="text-red-500 text-sm mt-1">
+                  <%= @query_error_message %> 
+                </div>
+              <% end %>
+            </div>
             <section class="w-full px-2 sm:col-span-3 text-sm">
               <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600">
                 <div class="mr-3 text-base">
@@ -36,7 +37,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600 mt-4">
+              <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600 mt-3">
                 <div class="mr-3 text-base">
                   <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
                 </div>
@@ -45,7 +46,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600 mt-4">
+              <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600 mt-3">
                 <div class="mr-3 text-base">
                   <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
                 </div>
@@ -54,7 +55,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600 mt-4">
+              <div class="flex items-center shadow py-3 px-3 rounded border-l-8 border-l-red-600 mt-3">
                 <div class="mr-3 text-base">
                   <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
                 </div>
@@ -63,7 +64,7 @@
                 </div>
               </div>
 
-              <div class="bg-yellow-50 rounded p-3 mt-6">
+              <div class="bg-yellow-50 rounded p-3 mt-3">
                 <b>📌 TIP</b>
                 <p class="mt-2">
                   - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
@@ -73,7 +74,7 @@
                   - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
                 </p>
               </div>
-              <pre class="border-1 border-gray-200 p-2 bg-gray-200 rounded mt-6">
+              <pre class="border-1 border-gray-200 p-2 bg-gray-200 rounded mt-4">
 <code>-- 예시</code>
 <code>SELECT</code>
 <code>    date(create_time),</code>

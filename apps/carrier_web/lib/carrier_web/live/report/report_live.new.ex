@@ -50,6 +50,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:period, 28)
       |> assign(:window_size, 7)
       |> assign(:comparing_period, 28)
+      |> assign(:query_error_message, nil)
 
     {:ok, socket}
   end
@@ -93,7 +94,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> add_draw_chart_events(parsed_data, selected_columns)
 
         {:error, error} ->
-          socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
+          socket |> assign(:query_error_message, inspect(error))
       end
 
     {:noreply, socket}
