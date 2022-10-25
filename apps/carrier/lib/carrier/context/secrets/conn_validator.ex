@@ -10,7 +10,7 @@ defmodule Carrier.Secrets.ConnValidator do
     do_validate(struct)
   end
 
-  defp do_validate(%ConnInfo.Postgres{} = struct) do
+  def do_validate(%ConnInfo.Postgres{} = struct) do
     %Postgrex.Result{} =
       struct
       |> Map.from_struct()
@@ -27,7 +27,7 @@ defmodule Carrier.Secrets.ConnValidator do
       {:error, :invalid_conn_info}
   end
 
-  defp do_validate(%ConnInfo.MySQL{} = struct) do
+  def do_validate(%ConnInfo.MySQL{} = struct) do
     %MyXQL.Result{} =
       struct
       |> Map.from_struct()
@@ -44,7 +44,7 @@ defmodule Carrier.Secrets.ConnValidator do
       {:error, :invalid_conn_info}
   end
 
-  defp do_validate(_) do
+  def do_validate(_) do
     :ok
   end
 end
