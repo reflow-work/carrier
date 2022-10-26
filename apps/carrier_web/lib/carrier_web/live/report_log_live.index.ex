@@ -1,6 +1,5 @@
 defmodule CarrierWeb.ReportLogLive.Index do
   use CarrierWeb, :live_view
-  alias Carrier.Core.TimeHelper
 
   @impl true
   def mount(_params, _session, socket) do
@@ -42,10 +41,10 @@ defmodule CarrierWeb.ReportLogLive.Index do
                     </span>
                   </td>
                   <td>
-                    <%= report_log.scheduled_at |> format_datetime %>
+                    <%= report_log.scheduled_at |> format_datetime(@timezone) %>
                   </td>
                   <td>
-                    <%= report_log.succeeded_at |> format_datetime %>
+                    <%= report_log.succeeded_at |> format_datetime(@timezone) %>
                   </td>
                 </tr>
               <% end %>
@@ -82,11 +81,11 @@ defmodule CarrierWeb.ReportLogLive.Index do
     end
   end
 
-  defp format_datetime(datetime) do
-    if datetime == nil do
-    else
-      datetime
-      |> Timex.format!("{YYYY}년 {M}월 {D}일 {h24}시 {m}분 ({Zabbr})")
-    end
+  defp format_datetime(datetime, timezone) when not is_nil(datetime) and not is_nil(timezone) do
+    datetime
+    |> DateTime.shift_zone!(timezone)
+    |> Timex.format!("{YYYY}년 {M}월 {D}일 {h24}시 {m}분")
   end
+
+  defp format_datetime(_datetime, _timezone), do: nil
 end
