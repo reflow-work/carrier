@@ -42,10 +42,12 @@ defmodule Carrier.Secrets.ConnInfo do
 
   def list() do
     __MODULE__
+    |> where([ci], is_nil(ci.deleted_at))
   end
 
   def fetch(id) do
     __MODULE__
     |> where([ci], ci.id == ^id)
+    |> where([ci], is_nil(ci.deleted_at))
   end
 end

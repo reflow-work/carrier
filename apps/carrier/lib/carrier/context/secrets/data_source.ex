@@ -36,11 +36,13 @@ defmodule Carrier.Secrets.DataSource do
 
   def list() do
     __MODULE__
+    |> where([ds], is_nil(ds.deleted_at))
   end
 
   def fetch(id) do
     __MODULE__
     |> where([ds], ds.id == ^id)
+    |> where([ds], is_nil(ds.deleted_at))
   end
 
   def preload_conn_info(query) do

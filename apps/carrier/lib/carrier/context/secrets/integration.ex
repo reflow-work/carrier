@@ -34,11 +34,13 @@ defmodule Carrier.Secrets.Integration do
 
   def list() do
     __MODULE__
+    |> where([i], is_nil(i.deleted_at))
   end
 
   def fetch(id) do
     __MODULE__
     |> where([i], i.id == ^id)
+    |> where([i], is_nil(i.deleted_at))
   end
 
   def preload_conn_info(query) do
