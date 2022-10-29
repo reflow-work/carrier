@@ -1,5 +1,6 @@
 defmodule Carrier.Secrets.ConnInfo.Postgres do
   use Carrier.Secrets.ConnInfo.Info
+  import Carrier.Secrets.ConnInfo.RDB
 
   embedded_schema do
     field :hostname, :string
@@ -7,6 +8,7 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
     field :username, :string
     field :password, :string, redact: true
     field :database, :string
+    field :ssl, :boolean
   end
 
   @impl true
@@ -15,5 +17,6 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
     struct
     |> cast(attrs, @required)
     |> validate_required(@required)
+    |> set_ssl()
   end
 end
