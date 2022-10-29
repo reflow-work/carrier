@@ -9,6 +9,8 @@ defmodule Carrier.Secrets.ConnInfo do
     field :source, Ecto.Enum, values: [:postgres, :mysql, :slack]
     field :info, Types.Map, source: :encrypted_info, redact: true
 
+    field :deleted_at, :utc_datetime_usec
+
     timestamps()
   end
 

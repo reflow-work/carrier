@@ -7,6 +7,8 @@ defmodule Carrier.Secrets.Integration do
 
     field :org_id, :integer
     field :service_name, Ecto.Enum, values: [:slack]
+
+    field :deleted_at, :utc_datetime_usec
   end
 
   @required_for_create [:org_id, :service_name, :conn_info_id]
