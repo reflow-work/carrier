@@ -1,16 +1,17 @@
 defmodule Carrier.Secrets.ConnValidator do
   require Logger
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Secrets.{ConnInfo, DataSource}
   alias Carrier.Dynamic.{PostgresRepo, MySQLRepo}
+  alias Carrier.Repo
 
   def validate(source, info) do
     module = ConnInfo.Info.get_module_from_source(source)
-    struct = struct(module, info)
+    struct = module.changeset(info) |> Ecto.Changeset.apply_changes()
 
     do_validate(struct)
   end
 
-  defp do_validate(%ConnInfo.Postgres{} = struct) do
+  def do_validate(%ConnInfo.Postgres{} = struct) do
     %Postgrex.Result{} =
       struct
       |> Map.from_struct()
@@ -27,7 +28,7 @@ defmodule Carrier.Secrets.ConnValidator do
       {:error, :invalid_conn_info}
   end
 
-  defp do_validate(%ConnInfo.MySQL{} = struct) do
+  def do_validate(%ConnInfo.MySQL{} = struct) do
     %MyXQL.Result{} =
       struct
       |> Map.from_struct()
@@ -44,7 +45,19 @@ defmodule Carrier.Secrets.ConnValidator do
       {:error, :invalid_conn_info}
   end
 
-  defp do_validate(_) do
+  def do_validate(_) do
     :ok
+  end
+
+  def validate_data_sources() do
+    DataSource
+    |> DataSource.preload_conn_info()
+    |> Repo.all()
+    |> Enum.map(fn %DataSource{
+                     id: data_source_id,
+                     conn_info: %ConnInfo{source: source, info: info}
+                   } ->
+      {data_source_id, validate(source, info)}
+    end)
   end
 end
