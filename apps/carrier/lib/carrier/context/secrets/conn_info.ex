@@ -9,6 +9,8 @@ defmodule Carrier.Secrets.ConnInfo do
     field :source, Ecto.Enum, values: [:postgres, :mysql, :slack]
     field :info, Types.Map, source: :encrypted_info, redact: true
 
+    field :deleted_at, :utc_datetime_usec
+
     timestamps()
   end
 
@@ -40,10 +42,12 @@ defmodule Carrier.Secrets.ConnInfo do
 
   def list() do
     __MODULE__
+    |> where([ci], is_nil(ci.deleted_at))
   end
 
   def fetch(id) do
     __MODULE__
     |> where([ci], ci.id == ^id)
+    |> where([ci], is_nil(ci.deleted_at))
   end
 end

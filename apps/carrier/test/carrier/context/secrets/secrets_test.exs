@@ -99,7 +99,10 @@ defmodule Carrier.SecretsTest do
 
   describe "list_integrations/0" do
     setup do
-      integration = TenantFactory.insert(:integration)
+      org = TenantFactory.insert(:org)
+
+      integration = TenantFactory.insert(:integration, org_id: org.org_id)
+      TenantFactory.insert(:integration, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       TenantRepo.put_org_id(integration.org_id)
 
@@ -114,23 +117,35 @@ defmodule Carrier.SecretsTest do
 
   describe "fetch_integration/1" do
     setup do
-      integration = TenantFactory.insert(:integration)
+      org = TenantFactory.insert(:org)
+
+      integration = TenantFactory.insert(:integration, org_id: org.org_id)
+
+      deleted_integration =
+        TenantFactory.insert(:integration, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       TenantRepo.put_org_id(integration.org_id)
 
-      %{integration: integration}
+      %{integration: integration, deleted_integration: deleted_integration}
     end
 
-    test "with valid params", %{integration: integration} do
+    test "with valid id", %{integration: integration} do
       assert {:ok, fetched_integration} = Secrets.fetch_integration(integration.id)
       assert same_records?(fetched_integration, integration)
       assert %ConnInfo{} = fetched_integration.conn_info
+    end
+
+    test "with deleted id", %{deleted_integration: deleted_integration} do
+      assert {:error, {:resource_not_found, _}} =
+               Secrets.fetch_integration(deleted_integration.id)
     end
   end
 
   describe "list_data_source/0" do
     setup do
-      data_source = TenantFactory.insert(:data_source)
+      org = TenantFactory.insert(:org)
+      data_source = TenantFactory.insert(:data_source, org_id: org.org_id)
+      TenantFactory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       TenantRepo.put_org_id(data_source.org_id)
 
@@ -147,11 +162,15 @@ defmodule Carrier.SecretsTest do
 
   describe "fetch_data_source/1" do
     setup do
+      org = TenantFactory.insert(:org)
       data_source = TenantFactory.insert(:data_source)
+
+      deleted_data_source =
+        TenantFactory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       TenantRepo.put_org_id(data_source.org_id)
 
-      %{data_source: data_source}
+      %{data_source: data_source, deleted_data_source: deleted_data_source}
     end
 
     test "with valid id", %{data_source: data_source} do
@@ -160,6 +179,11 @@ defmodule Carrier.SecretsTest do
 
       assert same_records?(fetched_data_source, data_source)
       assert %ConnInfo{} = fetched_data_source.conn_info
+    end
+
+    test "with deleted id", %{deleted_data_source: deleted_data_source} do
+      assert {:error, {:resource_not_found, _}} =
+               Secrets.fetch_data_source(deleted_data_source.id)
     end
   end
 end

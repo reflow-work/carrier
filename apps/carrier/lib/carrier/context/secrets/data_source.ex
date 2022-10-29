@@ -8,6 +8,8 @@ defmodule Carrier.Secrets.DataSource do
     field :org_id, :id
     field :source, Ecto.Enum, values: [:postgres, :mysql]
     field :name, :string
+
+    field :deleted_at, :utc_datetime_usec
   end
 
   @required_for_create [:org_id, :name, :source, :conn_info_id]
@@ -34,11 +36,13 @@ defmodule Carrier.Secrets.DataSource do
 
   def list() do
     __MODULE__
+    |> where([ds], is_nil(ds.deleted_at))
   end
 
   def fetch(id) do
     __MODULE__
     |> where([ds], ds.id == ^id)
+    |> where([ds], is_nil(ds.deleted_at))
   end
 
   def preload_conn_info(query) do

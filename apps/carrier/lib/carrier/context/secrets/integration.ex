@@ -7,6 +7,8 @@ defmodule Carrier.Secrets.Integration do
 
     field :org_id, :integer
     field :service_name, Ecto.Enum, values: [:slack]
+
+    field :deleted_at, :utc_datetime_usec
   end
 
   @required_for_create [:org_id, :service_name, :conn_info_id]
@@ -32,11 +34,13 @@ defmodule Carrier.Secrets.Integration do
 
   def list() do
     __MODULE__
+    |> where([i], is_nil(i.deleted_at))
   end
 
   def fetch(id) do
     __MODULE__
     |> where([i], i.id == ^id)
+    |> where([i], is_nil(i.deleted_at))
   end
 
   def preload_conn_info(query) do
