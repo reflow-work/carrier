@@ -14,7 +14,7 @@ defmodule CarrierWeb.DataSourceLive.New do
       socket
       |> assign(:step, "step-1")
       |> assign(:source, nil)
-      |> assign(:conn_info_module, nil)
+      |> assign(:data_source_module, nil)
       |> assign(:changeset, nil)
       |> assign(:error, nil)
 
@@ -32,7 +32,7 @@ defmodule CarrierWeb.DataSourceLive.New do
   def handle_event("select_source", %{"source" => source_str}, socket) do
     source = String.to_existing_atom(source_str)
 
-    conn_info_module =
+    data_source_module =
       case source do
         :postgres ->
           ConnInfoParams.Postgres
@@ -45,15 +45,15 @@ defmodule CarrierWeb.DataSourceLive.New do
       socket
       |> assign(:step, "step-2")
       |> assign(:source, source)
-      |> assign(:conn_info_module, conn_info_module)
-      |> assign(:changeset, conn_info_module.changeset(conn_info_module.init_attrs()))
+      |> assign(:data_source_module, data_source_module)
+      |> assign(:changeset, data_source_module.changeset(data_source_module.init_attrs()))
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("validate_conn_info", %{"conn_info" => conn_info_inputs}, socket) do
-    changeset = validate_changeset(socket, conn_info_inputs)
+  def handle_event("validate_data_source", %{"data_source" => data_source_inputs}, socket) do
+    changeset = validate_changeset(socket, data_source_inputs)
 
     socket = socket |> assign(:changeset, changeset)
 
@@ -61,17 +61,18 @@ defmodule CarrierWeb.DataSourceLive.New do
   end
 
   @impl true
-  def handle_event("create_conn_info", %{"conn_info" => conn_info_inputs}, socket) do
-    changeset = validate_changeset(socket, conn_info_inputs)
-    conn_info_params = apply_changes(changeset)
+  def handle_event("create_data_source", %{"data_source" => data_source_inputs}, socket) do
+    data_source_params =
+      validate_changeset(socket, data_source_inputs)
+      |> Params.to_map()
 
-    socket = socket |> create_conn_info(conn_info_params)
+    socket = socket |> create_data_source(data_source_params)
 
     {:noreply, socket}
   end
 
-  defp create_conn_info(socket, params) do
-    case do_create_conn_info(params) do
+  defp create_data_source(socket, params) do
+    case do_create_data_source(params) do
       {:ok, %DataSource{}} ->
         socket
         |> push_navigate(to: Routes.report_new_path(socket, :new))
@@ -90,43 +91,21 @@ defmodule CarrierWeb.DataSourceLive.New do
       socket |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
   end
 
-  defp do_create_conn_info(%{
-         org_id: org_id,
-         name: name,
-         source: source,
-         hostname: hostname,
-         port: port,
-         username: username,
-         password: password,
-         database: database,
-         ssl: ssl
-       }) do
-    Secrets.create_data_source(%{
-      org_id: org_id,
-      name: name,
-      source: source,
-      conn_info: %{
-        hostname: hostname,
-        port: port,
-        username: username,
-        password: password,
-        database: database,
-        ssl: ssl
-      }
-    })
+  defp do_create_data_source(params) do
+    Secrets.create_data_source(params)
   end
 
-  defp validate_changeset(socket, conn_info_inputs) do
-    conn_info_module = socket.assigns.conn_info_module
+  defp validate_changeset(socket, data_source_inputs) do
+    data_source_module = socket.assigns.data_source_module
 
     params =
-      conn_info_inputs
+      data_source_inputs
       |> Map.merge(%{
         "org_id" => socket.assigns.org_id
       })
 
     _changeset =
-      conn_info_module.changeset(params)
-      |> set_action(:validate)
+      data_source_module.changeset(params)
+      |> Params.set_action(:validate)
   end
 end

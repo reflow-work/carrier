@@ -6,22 +6,33 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.MySQL do
     field :org_id, :integer
     field :name, :string
     field :source, Ecto.Enum, values: [:mysql], default: :mysql
-    field :hostname, :string
-    field :port, :integer
-    field :database, :string
-    field :username, :string
-    field :password, :string
-    field :ssl, :boolean
+
+    embeds_one :conn_info, ConnInfo do
+      field :hostname, :string
+      field :port, :integer
+      field :database, :string
+      field :username, :string
+      field :password, :string
+      field :ssl, :boolean
+    end
   end
 
-  @required [:org_id, :name, :hostname, :port, :database, :username, :password, :ssl]
+  @required [:org_id, :name]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)
     |> validate_required(@required)
+    |> cast_embed(:conn_info, with: &changeset_for_conn_info/2)
+  end
+
+  @required_for_conn_info [:hostname, :port, :database, :username, :password, :ssl]
+  defp changeset_for_conn_info(%__MODULE__.ConnInfo{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_conn_info)
+    |> validate_required(@required_for_conn_info)
   end
 
   def init_attrs() do
-    %{port: 3306, ssl: false}
+    %{conn_info: %{port: 3306, ssl: false}}
   end
 end

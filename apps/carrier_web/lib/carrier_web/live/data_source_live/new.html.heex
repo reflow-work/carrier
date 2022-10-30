@@ -107,9 +107,9 @@
               <.form
                 :let={f}
                 for={@changeset}
-                as={:conn_info}
-                phx-change="validate_conn_info"
-                phx-submit="create_conn_info"
+                as={:data_source}
+                phx-change="validate_data_source"
+                phx-submit="create_data_source"
                 class="space-y-2"
                 autocomplete="off"
               >
@@ -124,69 +124,71 @@
                   <%= error_tag(f, :name) %>
                 </div>
 
-                <div>
-                  <label class="label mt-2">
-                    <span class="label-text text-gray-500">호스트</span>
-                  </label>
-                  <%= text_input(f, :hostname,
-                    class: "data-source-input",
-                    placeholder: "127.0.0.1"
-                  ) %>
-                  <%= error_tag(f, :hostname) %>
-                </div>
+                <%= inputs_for f, :conn_info, fn fci -> %>
+                  <div>
+                    <label class="label mt-2">
+                      <span class="label-text text-gray-500">호스트</span>
+                    </label>
+                    <%= text_input(fci, :hostname,
+                      class: "data-source-input",
+                      placeholder: "127.0.0.1"
+                    ) %>
+                    <%= error_tag(fci, :hostname) %>
+                  </div>
 
-                <div>
-                  <label class="label mt-2">
-                    <span class="label-text text-gray-500">포트</span>
-                  </label>
-                  <%= text_input(f, :port,
-                    class: "data-source-input",
-                    placeholder: "3306"
-                  ) %>
-                  <%= error_tag(f, :port) %>
-                </div>
+                  <div>
+                    <label class="label mt-2">
+                      <span class="label-text text-gray-500">포트</span>
+                    </label>
+                    <%= text_input(fci, :port,
+                      class: "data-source-input",
+                      placeholder: "3306"
+                    ) %>
+                    <%= error_tag(fci, :port) %>
+                  </div>
 
-                <div>
-                  <label class="label mt-2">
-                    <span class="label-text text-gray-500">데이터베이스</span>
-                  </label>
-                  <%= text_input(f, :database,
-                    class: "data-source-input",
-                    placeholder: "service_db"
-                  ) %>
-                  <%= error_tag(f, :database) %>
-                </div>
+                  <div>
+                    <label class="label mt-2">
+                      <span class="label-text text-gray-500">데이터베이스</span>
+                    </label>
+                    <%= text_input(fci, :database,
+                      class: "data-source-input",
+                      placeholder: "service_db"
+                    ) %>
+                    <%= error_tag(fci, :database) %>
+                  </div>
 
-                <div>
-                  <label class="label mt-2">
-                    <span class="label-text text-gray-500">유저 이름</span>
-                  </label>
-                  <%= text_input(f, :username,
-                    class: "data-source-input",
-                    placeholder: "username"
-                  ) %>
-                  <%= error_tag(f, :username) %>
-                </div>
+                  <div>
+                    <label class="label mt-2">
+                      <span class="label-text text-gray-500">유저 이름</span>
+                    </label>
+                    <%= text_input(fci, :username,
+                      class: "data-source-input",
+                      placeholder: "username"
+                    ) %>
+                    <%= error_tag(fci, :username) %>
+                  </div>
 
-                <div>
-                  <label class="label mt-2">
-                    <span class="label-text text-gray-500">비밀번호</span>
-                  </label>
-                  <%= password_input(f, :password,
-                    class: "data-source-input",
-                    value: input_value(f, :password),
-                    placeholder: "password"
-                  ) %>
-                  <%= error_tag(f, :password) %>
-                </div>
+                  <div>
+                    <label class="label mt-2">
+                      <span class="label-text text-gray-500">비밀번호</span>
+                    </label>
+                    <%= password_input(fci, :password,
+                      class: "data-source-input",
+                      value: input_value(fci, :password),
+                      placeholder: "password"
+                    ) %>
+                    <%= error_tag(fci, :password) %>
+                  </div>
 
-                <div>
-                  <label class="label mt-2">
-                    <span class="label-text text-gray-500">SSL 사용 여부</span>
-                  </label>
-                  <%= checkbox(f, :ssl, value: input_value(f, :ssl)) %>
-                  <%= error_tag(f, :password) %>
-                </div>
+                  <div>
+                    <label class="label mt-2">
+                      <span class="label-text text-gray-500">SSL 사용 여부</span>
+                    </label>
+                    <%= checkbox(fci, :ssl, value: input_value(fci, :ssl)) %>
+                    <%= error_tag(fci, :ssl) %>
+                  </div>
+                <% end %>
 
                 <%= if @error do %>
                   <%= error_tag(@error) %>
