@@ -300,14 +300,10 @@ defmodule Carrier.Data.QueryData do
 
   defp run_query(%ConnInfo{source: source, info: info}, sql_template, sql_params) do
     sql = sql_template |> convert_sql_template_to_sql(source)
+    credentials = ConnInfo.Info.to_credentials(source, info)
 
     case source do
       :postgres ->
-        credentials =
-          info
-          |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
-          |> Keyword.new()
-
         %{columns: columns, rows: rows} =
           PostgresRepo.with_dynamic_repo(credentials, fn ->
             PostgresRepo.query!(sql, sql_params)
@@ -316,11 +312,6 @@ defmodule Carrier.Data.QueryData do
         {:ok, %{columns: columns, rows: rows}}
 
       :mysql ->
-        credentials =
-          info
-          |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
-          |> Keyword.new()
-
         %{columns: columns, rows: rows} =
           MySQLRepo.with_dynamic_repo(credentials, fn ->
             MySQLRepo.query!(sql, sql_params)

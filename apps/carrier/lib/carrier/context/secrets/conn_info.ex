@@ -25,8 +25,7 @@ defmodule Carrier.Secrets.ConnInfo do
 
   defp validate_info(%Ecto.Changeset{changes: %{source: source}} = changeset) do
     validate_change(changeset, :info, fn :info, info ->
-      info_module = ConnInfo.Info.get_module_from_source(source)
-      info_changeset = info_module.changeset(info)
+      info_changeset = ConnInfo.Info.get_changeset(source, info)
 
       case info_changeset.valid? do
         true -> []

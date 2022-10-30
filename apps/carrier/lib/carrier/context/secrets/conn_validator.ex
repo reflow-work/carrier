@@ -5,8 +5,7 @@ defmodule Carrier.Secrets.ConnValidator do
   alias Carrier.Repo
 
   def validate(source, info) do
-    module = ConnInfo.Info.get_module_from_source(source)
-    struct = module.changeset(info) |> Ecto.Changeset.apply_changes()
+    struct = ConnInfo.Info.get_struct(source, info)
 
     do_validate(struct)
   end

@@ -1,4 +1,5 @@
 defmodule Carrier.Secrets.ConnInfo.Info do
+  import Ecto.Changeset, only: [apply_changes: 1]
   alias Carrier.Secrets.ConnInfo
 
   @callback changeset(struct :: struct(), attrs :: map()) :: %Ecto.Changeset{}
@@ -12,7 +13,22 @@ defmodule Carrier.Secrets.ConnInfo.Info do
     end
   end
 
-  def get_module_from_source(source) do
+  def get_changeset(source, info) do
+    module = get_module(source)
+    module.changeset(info)
+  end
+
+  def get_struct(source, info) do
+    get_changeset(source, info)
+    |> apply_changes()
+  end
+
+  def to_credentials(source, info) do
+    struct = get_struct(source, info)
+    struct |> Map.from_struct() |> Keyword.new()
+  end
+
+  defp get_module(source) do
     case source do
       :postgres -> ConnInfo.Postgres
       :mysql -> ConnInfo.MySQL
