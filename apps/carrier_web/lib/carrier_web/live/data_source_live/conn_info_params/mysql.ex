@@ -11,9 +11,10 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.MySQL do
     field :database, :string
     field :username, :string
     field :password, :string
+    field :ssl, :boolean
   end
 
-  @required [:org_id, :name, :hostname, :port, :database, :username, :password]
+  @required [:org_id, :name, :hostname, :port, :database, :username, :password, :ssl]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)
@@ -21,6 +22,6 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.MySQL do
   end
 
   def init_attrs() do
-    %{port: 3306}
+    %{port: 3306, ssl: false}
   end
 end

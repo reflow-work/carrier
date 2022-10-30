@@ -180,6 +180,14 @@
                   <%= error_tag(f, :password) %>
                 </div>
 
+                <div>
+                  <label class="label mt-2">
+                    <span class="label-text text-gray-500">SSL 사용 여부</span>
+                  </label>
+                  <%= checkbox(f, :ssl, value: input_value(f, :ssl)) %>
+                  <%= error_tag(f, :password) %>
+                </div>
+
                 <%= if @error do %>
                   <%= error_tag(@error) %>
                 <% end %>

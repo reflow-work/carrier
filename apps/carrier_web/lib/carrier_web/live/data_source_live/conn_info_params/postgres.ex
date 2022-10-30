@@ -11,9 +11,10 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.Postgres do
     field :database, :string
     field :username, :string
     field :password, :string
+    field :ssl, :boolean
   end
 
-  @required [:org_id, :name, :hostname, :port, :database, :username, :password]
+  @required [:org_id, :name, :hostname, :port, :database, :username, :password, :ssl]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)
@@ -21,6 +22,6 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.Postgres do
   end
 
   def init_attrs() do
-    %{port: 5432}
+    %{port: 5432, ssl: false}
   end
 end

@@ -98,7 +98,8 @@ defmodule CarrierWeb.DataSourceLive.New do
          port: port,
          username: username,
          password: password,
-         database: database
+         database: database,
+         ssl: ssl
        }) do
     Secrets.create_data_source(%{
       org_id: org_id,
@@ -109,7 +110,8 @@ defmodule CarrierWeb.DataSourceLive.New do
         port: port,
         username: username,
         password: password,
-        database: database
+        database: database,
+        ssl: ssl
       }
     })
   end
