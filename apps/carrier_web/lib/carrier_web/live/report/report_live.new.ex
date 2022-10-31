@@ -86,6 +86,7 @@ defmodule CarrierWeb.ReportLive.New do
 
           socket
           |> assign(:data_loaded, true)
+          |> assign(:query_error_message, nil)
           |> assign(:preview, preview)
           |> assign(:query_result_by_columns, parsed_data)
           |> assign(:columns, columns)
@@ -143,6 +144,7 @@ defmodule CarrierWeb.ReportLive.New do
 
           socket
           |> assign(:data_loaded, true)
+          |> assign(:query_error_message, nil)
           |> assign(:preview, preview)
           |> assign(:query_result_by_columns, parsed_data)
           |> assign(:columns, columns)
@@ -170,7 +172,7 @@ defmodule CarrierWeb.ReportLive.New do
           )
 
         {:error, error} ->
-          socket |> put_flash_for(:error, inspect(error), timeout: :timer.seconds(3))
+          socket |> assign(:query_error_message, inspect(error))
       end
 
     {:noreply, socket}
