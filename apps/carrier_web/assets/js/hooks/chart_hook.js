@@ -8,6 +8,18 @@ const colors = {
   previous: "#d95f02",
 }
 
+const getMinScale = (ns) => {
+  const [significantFigures, exponent] = (Math.min(...ns)).toPrecision(2).split('e')
+  const flooredSignificantFigures = ((Math.floor(parseFloat(significantFigures) * 2)) / 2).toString()
+  return parseFloat(`${flooredSignificantFigures}e${exponent}`)
+}
+
+const getMaxScale = (ns) => {
+  const [significantFigures, exponent] = (Math.max(...ns)).toPrecision(2).split('e')
+  const ceiledSignificantFigures = ((Math.ceil(parseFloat(significantFigures) * 2)) / 2).toString()
+  return parseFloat(`${ceiledSignificantFigures}e${exponent}`)
+}
+
 const ChartHook = {
   mounted() {
     const ctx = this.el.getContext('2d')
@@ -45,7 +57,7 @@ const ChartHook = {
               }
             },
             ticks: {
-              count: 4,
+              count: 5,
               font: {
                 size: 20,
                 weight: 700,
@@ -107,6 +119,9 @@ const ChartHook = {
         borderColor: colors.previous,
         borderDash: [3, 3],
       }
+      const all_data = current.concat(previous)
+      chart.options.scales.y.max = getMaxScale(all_data)
+      chart.options.scales.y.min = getMinScale(all_data)
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
       chart.update()

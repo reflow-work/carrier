@@ -169,7 +169,7 @@
                 <h2 class="card-title">슬랙 미리보기</h2>
                 <%= if @data_loaded do %>
                   <div class="flex flex-col gap-y-6 mt-4">
-                    <%= for column <- Enum.filter(@columns, &(&1 !== "date")) do %>
+                    <%= for column <- Enum.drop(@columns, 1) do %>
                       <%= inputs_for f, :data_source_info, fn fdsi -> %>
                         <section class={"border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody #{if column not in input_value(fdsi, :columns), do: "hidden"}"}>
                           <h3 class="text-xl font-bold pb-2">
