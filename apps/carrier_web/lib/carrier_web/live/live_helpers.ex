@@ -26,7 +26,7 @@ defmodule CarrierWeb.LiveHelpers do
     assigns = assign_new(assigns, :return_to, fn -> nil end)
 
     ~H"""
-    <div id="modal" class="modal modal-open fade-in" phx-remove={hide_modal()}>
+    <div id="modal" class="hidden modal modal-open fade-in" phx-remove={hide_modal()}>
       <div
         id="modal-content"
         class="modal-box fade-in-scale"
@@ -48,16 +48,22 @@ defmodule CarrierWeb.LiveHelpers do
     """
   end
 
+  def show_modal(js \\ %JS{}) do
+    js
+    |> JS.show(to: "#modal", display: "flex")
+    |> JS.show(to: "#modal-content")
+  end
+
+  def hide_modal(js \\ %JS{}) do
+    js
+    |> JS.hide(to: "#modal", transition: "fade-out")
+    |> JS.hide(to: "#modal-content", transition: "fade-out-scale")
+  end
+
   def format_number(s) do
     case Carrier.Core.Cldr.Number.to_string(s) do
       {:ok, n} -> n
       {:error, _msg} -> "0"
     end
-  end
-
-  defp hide_modal(js \\ %JS{}) do
-    js
-    |> JS.hide(to: "#modal", transition: "fade-out")
-    |> JS.hide(to: "#modal-content", transition: "fade-out-scale")
   end
 end

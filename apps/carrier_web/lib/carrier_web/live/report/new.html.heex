@@ -283,7 +283,12 @@
                 <% end %>
 
                 <div class="flex gap-x-4 justify-end">
-                  <button class="btn btn-outline" type="button" phx-click="show_preview_modal">
+                  <button
+                    class="btn btn-outline"
+                    type="button"
+                    phx-click={show_modal()}
+                    disabled={!@data_loaded}
+                  >
                     테스트 발송
                   </button>
                   <%= submit("레포트 저장",
@@ -300,27 +305,25 @@
   </section>
 </section>
 
-<%= if @show_preview_modal == true do %>
-  <.modal return_to={Routes.report_new_path(@socket, :new)}>
-    <div>
-      <h3 class="font-bold text-lg">테스트 발송</h3>
-      <.form
-        :let={f}
-        for={:send_preview_form}
-        id="send_preview_form"
-        phx-submit="send_preview"
-        autocomplete="off"
-        class="space-y-4"
-      >
-        <div class="flex items-center gap-x-2">
-          <%= label(f, :channel, "레포트 발송 채널", class: "label w-28 text-gray-500 text-sm") %>
-          <%= select(f, :channel, @channels, class: "select select-bordered w-64") %>
-          <%= error_tag(f, :channel) %>
-        </div>
-        <div class="flex justify-end">
-          <%= submit("발송", class: "btn btn-primary text-right") %>
-        </div>
-      </.form>
-    </div>
-  </.modal>
-<% end %>
+<.modal>
+  <div>
+    <h3 class="font-bold text-lg">테스트 발송</h3>
+    <.form
+      :let={f}
+      for={:send_preview_form}
+      id="send_preview_form"
+      phx-submit="send_preview"
+      autocomplete="off"
+      class="space-y-4"
+    >
+      <div class="flex items-center gap-x-2">
+        <%= label(f, :channel, "레포트 발송 채널", class: "label w-28 text-gray-500 text-sm") %>
+        <%= select(f, :channel, @channels, class: "select select-bordered w-64") %>
+        <%= error_tag(f, :channel) %>
+      </div>
+      <div class="flex justify-end">
+        <%= submit("발송", class: "btn btn-primary text-right") %>
+      </div>
+    </.form>
+  </div>
+</.modal>
