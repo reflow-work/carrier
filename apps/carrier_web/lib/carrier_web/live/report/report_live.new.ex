@@ -421,6 +421,5 @@ defmodule CarrierWeb.ReportLive.New do
     _changeset =
       ReportParams.changeset(attrs)
       |> Params.set_action(:validate)
-      |> IO.inspect()
   end
 end
