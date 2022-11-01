@@ -53,6 +53,8 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:is_loading_slack_channels, false)
       |> assign(:show_preview_modal, false)
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
+      |> assign(:tables, ["TODO: 임시 테이블 이름"])
+      |> assign(:aggregations, ["집계", "SUM", "AVG", "COUNT", "MAX", "MIN"])
 
     {:ok, socket}
   end

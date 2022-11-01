@@ -8,10 +8,19 @@
   <section class="mt-6 space-y-6">
     <section class="card">
       <div class="card-body">
-        <h2 class="card-title">쿼리 입력하기</h2>
-        <div>
-          ☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.
+        <div class="flex justify-between">
+          <div>
+            <h2 class="card-title mb-3">쿼리 입력하기</h2>
+            <div>
+              ☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.
+            </div>
+          </div>
+
+          <label for="query-maker" class="btn btn-primary ml-2">
+            <CarrierWeb.Components.Icon.package class="w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
+          </label>
         </div>
+
         <.form :let={f} for={:query} phx-submit="run_query" autocomplete="off">
           <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
             <div class="sm:col-span-4">
@@ -327,3 +336,149 @@
     </.form>
   </div>
 </.modal>
+
+<input type="checkbox" id="query-maker" class="modal-toggle" />
+<label for="query-maker" class="modal cursor-pointer">
+  <label class="modal-box relative w-full max-w-4xl mx-8" for="">
+    <div class="flex items-center">
+      <h3 class="text-lg font-bold">쿼리 자동 입력기</h3> <CarrierWeb.Components.Icon.help_circle class="w-5 h-5 ml-1" />
+
+      <label for="query-maker" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    </div>
+
+    <div class="mt-6">
+      <.form
+        :let={f}
+        for={:send_preview_form}
+        id="send_preview_form"
+        phx-submit="send_preview"
+        autocomplete="off"
+        class="space-y-4"
+      >
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :table, "테이블", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :table, @tables, class: "select select-bordered w-60") %>
+          <%= error_tag(f, :table) %>
+        </div>
+
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :date, "날짜 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :date, @tables, class: "select select-bordered w-60") %>
+          <%= error_tag(f, :date) %>
+        </div>
+
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :report_column, "지표 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :report_column, ["컬럼 선택"], class: "select select-bordered w-60") %>
+          <%= select(f, :report_column, @aggregations, class: "select select-bordered w-60") %>
+          <%= text_input(f, :report_column,
+                    placeholder: "보여줄 컬럼 이름",
+                    class: "input input-bordered w-64",
+                    value: input_value(f, :report_column)
+                  ) %>
+          <%= error_tag(f, :report_column) %>
+        </div>
+      </.form>
+    </div>
+
+    <div class="divider" />
+
+    <div>
+      <table class="table mt-4 w-full">
+        <thead>
+          <tr class="w-full">
+            <th class="text-center py-3">header</th>
+            <th class="text-center py-3">header</th>
+            <th class="text-center py-3">header</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="w-full">
+            <td class="text-center py-2 text-sm bg-base-300">value</td>
+            <td class="text-center py-2 text-sm bg-base-300">value</td>
+            <td class="text-center py-2 text-sm bg-base-300">value</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-12">
+      <button class="w-full btn btn-primary">
+        쿼리 생성
+      </button>
+    </div>
+  </label>
+</label>
+
+<input type="checkbox" id="query-maker" class="modal-toggle" />
+<label for="query-maker" class="modal cursor-pointer">
+  <label class="modal-box relative w-full max-w-4xl mx-8" for="">
+    <div class="flex items-center">
+      <h3 class="text-lg font-bold">쿼리 자동 입력기</h3> <CarrierWeb.Components.Icon.help_circle class="w-5 h-5 ml-1" />
+
+      <label for="query-maker" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    </div>
+
+    <div class="mt-6">
+      <.form
+        :let={f}
+        for={:send_preview_form}
+        id="send_preview_form"
+        phx-submit="send_preview"
+        autocomplete="off"
+        class="space-y-4"
+      >
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :table, "테이블", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :table, @tables, class: "select select-bordered w-60") %>
+          <%= error_tag(f, :table) %>
+        </div>
+
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :date, "날짜 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :date, @tables, class: "select select-bordered w-60") %>
+          <%= error_tag(f, :date) %>
+        </div>
+
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :report_column, "지표 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :report_column, ["컬럼 선택"], class: "select select-bordered w-60") %>
+          <%= select(f, :report_column, @aggregations, class: "select select-bordered w-60") %>
+          <%= text_input(f, :report_column,
+                    placeholder: "보여줄 컬럼 이름",
+                    class: "input input-bordered w-64",
+                    value: input_value(f, :report_column)
+                  ) %>
+          <%= error_tag(f, :report_column) %>
+        </div>
+      </.form>
+    </div>
+
+    <div class="divider" />
+
+    <div>
+      <table class="table mt-4 w-full">
+        <thead>
+          <tr class="w-full">
+            <th class="text-center py-3">header</th>
+            <th class="text-center py-3">header</th>
+            <th class="text-center py-3">header</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="w-full">
+            <td class="text-center py-2 text-sm bg-base-300">value</td>
+            <td class="text-center py-2 text-sm bg-base-300">value</td>
+            <td class="text-center py-2 text-sm bg-base-300">value</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-12">
+      <button class="w-full btn btn-primary">
+        쿼리 생성
+      </button>
+    </div>
+  </label>
+</label>
