@@ -81,15 +81,10 @@ defmodule Carrier.Data.QueryData do
            }) do
       {:ok, %{columns: columns, data: analyzed_date}}
     else
-      {:error, {:query_error, _message} = reason} ->
-        Logger.error(inspect({reason, params}))
-
-        {:error, reason}
-
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
 
-        {:error, :query_failed}
+        {:error, reason}
     end
   rescue
     e ->
