@@ -74,19 +74,6 @@
                   - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
                 </p>
               </div>
-              <pre class="border-1 border-gray-200 p-2 bg-gray-200 rounded mt-4">
-<code>-- 예시</code>
-<code>SELECT</code>
-<code>    date(create_time),</code>
-<code>    count(distinct used_id) as "결제자수",</code>
-<code>    sum(cost) as "매출"</code>
-<code>FROM</code>
-<code>    revenue</code>
-<code>WHERE</code>
-<code>    <%= ~s(create_time > {{start}}) %></code>
-<code>    <%= ~S(AND create_time < {{end}}) %></code>
-<code>GROUP BY 1</code>
-</pre>
             </section>
           </div>
           <div class="text-right mt-2">
