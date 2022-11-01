@@ -114,7 +114,13 @@ defmodule CarrierWeb.ReportLive.New do
           )
 
         {:error, error} ->
-          socket |> assign(:query_error_message, inspect(error))
+          message =
+            case error do
+              {:query_error, message} -> message
+              error -> inspect(error)
+            end
+
+          socket |> assign(:query_error_message, message)
       end
 
     {:noreply, socket}
