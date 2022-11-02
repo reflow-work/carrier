@@ -98,6 +98,16 @@ defmodule Carrier.Reports.ReportLog do
     |> select([rl], rl)
   end
 
+  def retry_failed(%{report_log_id: report_log_id}) do
+    __MODULE__
+    |> where(
+      [rl],
+      rl.id == ^report_log_id and rl.status == :failed
+    )
+    |> update([rl], set: [status: :scheduled])
+    |> select([rl], rl)
+  end
+
   def update(%__MODULE__{status: :tried} = struct, attrs) do
     struct
     |> changeset_for_update(attrs)
