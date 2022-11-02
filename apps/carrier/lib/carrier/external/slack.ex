@@ -99,6 +99,14 @@ defmodule Carrier.External.Slack do
     Tesla.client([
       {Tesla.Middleware.BaseUrl, @host},
       {Tesla.Middleware.BearerAuth, token: token},
+      {Tesla.Middleware.Retry,
+       delay: 500,
+       max_retries: 3,
+       max_delay: 4_000,
+       should_retry: fn
+         {:ok, %{status: 200, body: %{"ok" => true}}} -> false
+         _ -> true
+       end},
       Tesla.Middleware.JSON
     ])
   end
