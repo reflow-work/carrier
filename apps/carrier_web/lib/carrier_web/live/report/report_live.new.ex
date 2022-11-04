@@ -55,8 +55,20 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
       |> assign(:tables, ["TODO: 임시 테이블 이름"])
       |> assign(:aggregations, ["집계", "SUM", "AVG", "COUNT", "MAX", "MIN"])
+      |> assign(:contains_start_template, false)
+      |> assign(:contains_end_template, false)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("validate_query", params, socket) do
+    %{"query" => %{"sql_template" => sql_template}} = params
+
+    socket = assign(socket, :contains_start_template, String.contains?(sql_template, "{{start}}"))
+    socket = assign(socket, :contains_end_template, String.contains?(sql_template, "{{end}}"))
+
+    {:noreply, socket}
   end
 
   @impl true
