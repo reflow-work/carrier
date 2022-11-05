@@ -15,3 +15,10 @@ services:
       POSTGRES_DB: customer_db
     ports:
       - '48141:5432'
+  customer_mysql_db:
+    image: mysql:8.0.30
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: customer_db
+    ports:
+      - '48142:3306'
