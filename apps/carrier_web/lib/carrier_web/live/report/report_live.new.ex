@@ -16,13 +16,13 @@ defmodule CarrierWeb.ReportLive.New do
 
   @sample_sql_template """
   SELECT
-      DATE([기준이 되는 날짜 컬럼]),
-      SUM([보고 싶은 지표 컬럼1]) AS [컬럼1 이름],
-      SUM([보고 싶은 지표 컬럼2]) AS [컬럼2 이름],
-      SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
+    DATE([기준이 되는 날짜 컬럼]),
+    SUM([보고 싶은 지표 컬럼1]) AS [컬럼1 이름],
+    SUM([보고 싶은 지표 컬럼2]) AS [컬럼2 이름],
+    SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
   FROM [테이블 이름]
   WHERE DATE([기준이 되는 날짜 컬럼]) >= {{start}}
-     AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
+    AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
   GROUP BY 1
   """
   @sql_template_by_maker """
