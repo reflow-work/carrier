@@ -68,6 +68,7 @@ defmodule Carrier.Data.QueryData do
            Secrets.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, sql_template, sql_params),
+         :ok <- validate_query_result(columns, rows),
          normalized_rows = normalize_rows(rows),
          data = DataHelper.rows_to_map(columns, normalized_rows),
          data = fill_missing_dates(data, columns, data_start_datetime, end_datetime),
@@ -324,6 +325,35 @@ defmodule Carrier.Data.QueryData do
       %MyXQL.Error{message: message} = error
 
       {:error, {:query_error, message}}
+  end
+
+  defp validate_query_result(columns, []), do: :ok
+
+  defp validate_query_result(columns, [first_row | _]) do
+    with :ok <- is_date_type_at_first_column(first_row),
+         :ok <- is_number_type_after_first_column(first_row) do
+      :ok
+    end
+  end
+
+  defp is_date_type_at_first_column(row) do
+    case row do
+      [%Date{} | _] -> :ok
+      _ -> {:error, :first_column_is_not_date_type}
+    end
+  end
+
+  defp is_number_type_after_first_column([_date | values]) do
+    values
+    |> Enum.all?(fn
+      value when is_number(value) -> true
+      %Decimal{} -> true
+      _ -> false
+    end)
+    |> case do
+      true -> :ok
+      false -> {:error, :not_number_type_after_first_column}
+    end
   end
 
   defp normalize_rows(rows) do

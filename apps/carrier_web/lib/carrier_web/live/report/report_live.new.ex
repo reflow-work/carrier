@@ -132,11 +132,15 @@ defmodule CarrierWeb.ReportLive.New do
         {:error, error} ->
           message =
             case error do
+              :not_number_type_after_first_column -> "첫 번째 컬럼 이후에는 숫자 타입의 컬럼만 사용할 수 있습니다."
+              :first_column_is_not_date_type -> "첫 번째 컬럼은 Date 타입이어야 합니다."
+              :sql_not_a_select_query -> "SELECT 문으로 시작되어야 합니다."
+              :query_failed -> "쿼리 실행에 실패했습니다."
               {:query_error, message} -> message
               error -> inspect(error)
             end
 
-          socket |> assign(:query_error_message, message)
+          socket |> assign(:query_error_message, "쿼리 실행 중 오류: #{message}")
       end
 
     {:noreply, socket}
@@ -299,42 +303,38 @@ defmodule CarrierWeb.ReportLive.New do
   def render_query_preview(assigns) do
     ~H"""
     <%= if @preview do %>
-      <section class="card">
-        <div class="card-body">
-          <header class="flex justify-between">
-            <h2 class="card-title">쿼리 결과 데이터</h2>
-            <button
-              class="btn btn-outline btn-sm"
-              type="button"
-              phx-click="toggle_show_full_preview_data"
-            >
-              <%= if @show_full_preview_data do %>
-                숨기기
-              <% else %>
-                전체 보기
+      <header class="flex justify-between mt-6">
+        <h2 class="card-title">쿼리 결과 데이터</h2>
+      </header>
+      <table class="table mt-4">
+        <thead>
+          <tr class="w-full">
+            <%= for header <- @preview.columns do %>
+              <th class="text-center py-3"><%= header %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for row <- preview_data(@preview.data, @show_full_preview_data) do %>
+            <tr class="w-full">
+              <%= for value <- row do %>
+                <td class="text-center py-2 text-sm bg-base-300"><%= value %></td>
               <% end %>
-            </button>
-          </header>
-          <table class="table mt-4">
-            <thead>
-              <tr class="w-full">
-                <%= for header <- @preview.columns do %>
-                  <th class="text-center py-3"><%= header %></th>
-                <% end %>
-              </tr>
-            </thead>
-            <tbody>
-              <%= for row <- preview_data(@preview.data, @show_full_preview_data) do %>
-                <tr class="w-full">
-                  <%= for value <- row do %>
-                    <td class="text-center py-2 text-sm bg-base-300"><%= value %></td>
-                  <% end %>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </section>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <button
+        class="btn btn-outline btn-sm mt-2"
+        type="button"
+        phx-click="toggle_show_full_preview_data"
+      >
+        <%= if @show_full_preview_data do %>
+          숨기기
+        <% else %>
+          전체 보기
+        <% end %>
+      </button>
     <% end %>
     """
   end
