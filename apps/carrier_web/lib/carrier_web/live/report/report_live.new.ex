@@ -25,6 +25,15 @@ defmodule CarrierWeb.ReportLive.New do
      AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
   GROUP BY 1
   """
+  @sql_template_by_maker """
+  SELECT
+      <%= date_column %>,
+      <%= aggregation %>(<%= value_column %>) AS "<%= value_column_name %>"
+  FROM <%= table_name %>
+  WHERE <%= date_column %> >= {{start}}
+     AND <%= date_column %> < {{end}}
+  GROUP BY 1
+  """
 
   @impl true
   def mount(_params, _session, socket) do
@@ -95,38 +104,34 @@ defmodule CarrierWeb.ReportLive.New do
     {:noreply, socket}
   end
 
-  defp load_date_columns(socket, table_name) do
+  @impl true
+  def handle_event("create_query", params, socket) do
+    %{
+      "query_maker_form" => %{
+        "aggregation" => aggregation,
+        "value_column" => value_column,
+        "date_column" => date_column,
+        "value_column_name" => value_column_name,
+        "table" => table
+      }
+    } = params
+
+    value =
+      @sql_template_by_maker
+      |> EEx.eval_string(
+        aggregation: aggregation,
+        date_column: date_column,
+        value_column: value_column,
+        value_column_name: value_column_name,
+        table_name: table
+      )
+
     socket =
-      QueryData.fetch_date_column_names(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        table_name: table_name
-      })
-      |> case do
-        {:ok, date_columns} ->
-          socket
-          |> assign(:date_columns, date_columns)
+      socket
+      |> assign(:sql_template, value)
+      |> push_event("js-exec", %{to: "#query-maker", attr: "data-hide-modal"})
 
-        {:error, _} ->
-          socket
-      end
-  end
-
-  defp load_all_columns(socket, table_name) do
-    socket =
-      QueryData.fetch_all_column_names(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        table_name: table_name
-      })
-      |> case do
-        {:ok, columns} ->
-          socket
-          |> assign(:columns, columns)
-
-        {:error, _} ->
-          socket
-      end
+    {:noreply, socket}
   end
 
   @impl true
@@ -398,6 +403,40 @@ defmodule CarrierWeb.ReportLive.New do
       </button>
     <% end %>
     """
+  end
+
+  defp load_date_columns(socket, table_name) do
+    socket =
+      QueryData.fetch_date_column_names(%{
+        org_id: socket.assigns.org_id,
+        data_source_id: socket.assigns.data_source.id,
+        table_name: table_name
+      })
+      |> case do
+        {:ok, date_columns} ->
+          socket
+          |> assign(:date_columns, date_columns)
+
+        {:error, _} ->
+          socket
+      end
+  end
+
+  defp load_all_columns(socket, table_name) do
+    socket =
+      QueryData.fetch_all_column_names(%{
+        org_id: socket.assigns.org_id,
+        data_source_id: socket.assigns.data_source.id,
+        table_name: table_name
+      })
+      |> case do
+        {:ok, columns} ->
+          socket
+          |> assign(:columns, columns)
+
+        {:error, _} ->
+          socket
+      end
   end
 
   defp create_report(socket, params) do

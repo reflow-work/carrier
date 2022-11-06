@@ -346,7 +346,13 @@
 
 <.modal id="query-maker">
   <div class="mt-6">
-    <.form :let={f} for={:query_maker_form} autocomplete="off" class="space-y-4">
+    <.form
+      :let={f}
+      for={:query_maker_form}
+      autocomplete="off"
+      class="space-y-4"
+      phx-submit="create_query"
+    >
       <div class="flex items-center gap-x-2">
         <%= label(f, :table, "테이블", class: "label w-20 text-gray-500 text-sm") %>
         <%= select(f, :table, @tables,
@@ -358,36 +364,34 @@
       </div>
 
       <div class="flex items-center gap-x-2">
-        <%= label(f, :date, "날짜 컬럼", class: "label w-20 text-gray-500 text-sm") %>
-        <%= select(f, :date, @date_columns,
+        <%= label(f, :date_column, "날짜 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+        <%= select(f, :date_column, @date_columns,
           class: "select select-bordered w-60",
           selected: @date_columns |> List.first(),
           phx_change: "change_date_column"
         ) %>
-        <%= error_tag(f, :date) %>
+        <%= error_tag(f, :date_column) %>
       </div>
 
       <div class="flex items-center gap-x-2">
         <%= label(f, :columns, "지표 컬럼", class: "label w-20 text-gray-500 text-sm") %>
-        <%= text_input(f, :report_column_name,
+        <%= text_input(f, :value_column_name,
           placeholder: "보여줄 컬럼 이름",
           class: "input input-bordered w-60",
-          value: input_value(f, :report_column)
+          value: input_value(f, :value_column_name)
         ) %>
         <%= select(f, :aggregation, @aggregations,
           class: "select select-bordered w-60",
           selected: @aggregations |> List.first()
         ) %>
-        <%= select(f, :column, @columns,
+        <%= select(f, :value_column, @columns,
           class: "select select-bordered w-60",
           selected: @columns |> List.first()
         ) %>
-        <%= error_tag(f, :report_column) %>
+        <%= error_tag(f, :value_column) %>
       </div>
-    </.form>
-  </div>
 
-  <div class="divider" />
+      <%!-- <div class="divider" />
 
   <div>
     <table class="table mt-4 w-full">
@@ -406,11 +410,13 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  </div> --%>
 
-  <div class="mt-12">
-    <button class="w-full btn btn-primary">
-      쿼리 생성
-    </button>
+      <div class="mt-12">
+        <button type="submit" class="w-full btn btn-primary">
+          쿼리 생성
+        </button>
+      </div>
+    </.form>
   </div>
 </.modal>
