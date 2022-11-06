@@ -1,7 +1,6 @@
 defmodule CarrierWeb.LiveHelpers do
   import Phoenix.Component
   alias Phoenix.LiveView.JS
-  alias Carrier.Core.Cldr
 
   @doc """
   Renders a live component inside a modal.
@@ -11,36 +10,31 @@ defmodule CarrierWeb.LiveHelpers do
 
   ## Examples
 
-      <.modal return_to={Routes.user_index_path(@socket, :index)}>
+      <.modal id="modal-1" data-show-modal}>
         <.live_component
           module={AppWeb.UserLive.FormComponent}
           id={@user.id || :new}
           title={@page_title}
           action={@live_action}
-          return_to={Routes.user_index_path(@socket, :index)}
           user: @user
         />
       </.modal>
   """
   def modal(assigns) do
-    assigns = assign_new(assigns, :return_to, fn -> nil end)
-
     ~H"""
-    <div id="modal" class="hidden modal modal-open fade-in" phx-remove={hide_modal()}>
+    <div
+      id={@id}
+      class="hidden modal modal-open fade-in"
+      data-show-modal={show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+    >
       <div
-        id="modal-content"
-        class="modal-box fade-in-scale"
-        phx-click-away={JS.dispatch("click", to: "#close")}
-        phx-window-keydown={JS.dispatch("click", to: "#close")}
+        class="modal-content modal-box w-auto max-w-full fade-in-scale"
+        phx-click-away={JS.dispatch("click", to: "##{@id}.close")}
+        phx-window-keydown={JS.dispatch("click", to: "##{@id}.close")}
         phx-key="escape"
       >
-        <%= if @return_to do %>
-          <.link patch={@return_to} id="close" class="phx-modal-close" phx-click={hide_modal()}>
-            <CarrierWeb.Components.Icon.x_mark class="w-6 h-6" />
-          </.link>
-        <% else %>
-          <.link id="close" href="#" class="phx-modal-close" phx-click={hide_modal()}>✖</.link>
-        <% end %>
+        <.link href="#" class="close phx-modal-close" phx-click={hide_modal(@id)}>✖</.link>
 
         <%= render_slot(@inner_block) %>
       </div>
@@ -48,16 +42,16 @@ defmodule CarrierWeb.LiveHelpers do
     """
   end
 
-  def show_modal(js \\ %JS{}) do
+  def show_modal(id, js \\ %JS{}) do
     js
-    |> JS.show(to: "#modal", display: "flex")
-    |> JS.show(to: "#modal-content")
+    |> JS.show(to: "##{id}", display: "flex")
+    |> JS.show(to: "##{id}.modal-content")
   end
 
-  def hide_modal(js \\ %JS{}) do
+  def hide_modal(id, js \\ %JS{}) do
     js
-    |> JS.hide(to: "#modal", transition: "fade-out")
-    |> JS.hide(to: "#modal-content", transition: "fade-out-scale")
+    |> JS.hide(to: "##{id}", transition: "fade-out")
+    |> JS.hide(to: "##{id}.modal-content", transition: "fade-out-scale")
   end
 
   def format_number(s) do

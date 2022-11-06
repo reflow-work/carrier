@@ -53,11 +53,31 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:is_loading_slack_channels, false)
       |> assign(:show_preview_modal, false)
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
-      |> assign(:tables, ["TODO: 임시 테이블 이름"])
+      |> assign(:tables, [])
       |> assign(:aggregations, ["집계", "SUM", "AVG", "COUNT", "MAX", "MIN"])
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("open_query_maker", _params, socket) do
+    socket =
+      QueryData.fetch_tablenames(%{
+        org_id: socket.assigns.org_id,
+        data_source_id: socket.assigns.data_source.id
+      })
+      |> case do
+        {:ok, tables} ->
+          socket
+          |> assign(:tables, tables)
+          |> push_event("js-exec", %{to: "#query-maker", attr: "data-show-modal"})
+
+        {:error, _} ->
+          socket
+      end
+
+    {:noreply, socket}
   end
 
   @impl true

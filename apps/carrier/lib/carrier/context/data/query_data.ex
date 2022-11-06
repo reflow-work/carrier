@@ -8,6 +8,10 @@ defmodule Carrier.Data.QueryData do
 
   @start_template "{{start}}"
   @end_template "{{end}}"
+  @postgres_query_tables "SELECT *
+  FROM pg_catalog.pg_tables
+  WHERE schemaname != 'pg_catalog' AND
+      schemaname != 'information_schema';"
 
   # def query_sample(%{
   #       org_id: org_id,
@@ -64,10 +68,11 @@ defmodule Carrier.Data.QueryData do
     sql_params = [data_start_datetime, end_datetime]
 
     with :ok <- is_valid_sql?(sql_template),
-         {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
+         {:ok, %DataSource{conn_info: %ConnInfo{source: source} = conn_info}} <-
            Secrets.fetch_data_source(data_source_id),
+         sql = sql_template |> convert_sql_template_to_sql(source),
          {:ok, %{columns: columns, rows: rows}} <-
-           run_query(conn_info, sql_template, sql_params),
+           run_query(conn_info, sql, sql_params),
          :ok <- validate_query_result(columns, rows),
          normalized_rows = normalize_rows(rows),
          data = DataHelper.rows_to_map(columns, normalized_rows),
@@ -120,6 +125,27 @@ defmodule Carrier.Data.QueryData do
       |> Enum.reverse()
 
     Map.put(raw_data, :data, data)
+  end
+
+  def fetch_tablenames(
+        %{
+          org_id: org_id,
+          data_source_id: data_source_id
+        } = params
+      ) do
+    TenantRepo.put_org_id(org_id)
+
+    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} <-
+           Secrets.fetch_data_source(data_source_id),
+         {:ok, %{columns: columns, rows: rows}} <-
+           run_query(conn_info, @postgres_query_tables, []) do
+      {:ok, DataHelper.rows_to_map(columns, rows) |> Enum.map(& &1["tablename"]) |> Enum.sort()}
+    else
+      {:error, reason} ->
+        Logger.error(inspect({reason, params}))
+
+        {:error, reason}
+    end
   end
 
   defp build_meta_data(date_column_name, key, data) do
@@ -294,8 +320,7 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp run_query(%ConnInfo{source: source, info: info}, sql_template, sql_params) do
-    sql = sql_template |> convert_sql_template_to_sql(source)
+  defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params) do
     credentials = ConnInfo.Info.to_credentials(source, info)
 
     case source do
@@ -327,9 +352,9 @@ defmodule Carrier.Data.QueryData do
       {:error, {:query_error, message}}
   end
 
-  defp validate_query_result(columns, []), do: :ok
+  defp validate_query_result(_columns, []), do: :ok
 
-  defp validate_query_result(columns, [first_row | _]) do
+  defp validate_query_result(_columns, [first_row | _]) do
     with :ok <- is_date_type_at_first_column(first_row),
          :ok <- is_number_type_after_first_column(first_row) do
       :ok
