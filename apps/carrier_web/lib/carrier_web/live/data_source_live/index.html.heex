@@ -1,0 +1,35 @@
+<section class="page-container">
+  <header class="page-header">
+    <h1 class="page-title">
+      <span class="page-title-icon">💾</span> 데이터 소스
+    </h1>
+  </header>
+
+  <div class="space-y-8 mt-6">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title">
+          데이터 소스 정보
+        </h2>
+
+        <div class="flex mt-4 items-center">
+          <div class="text-sm text-gray-500 w-40">
+            이름
+          </div>
+          <div>
+            <%= @data_source.name %>
+          </div>
+        </div>
+
+        <div class="flex mt-4 items-center">
+          <div class="text-sm text-gray-500 w-40">
+            타입
+          </div>
+          <div>
+            <%= @data_source.source %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
