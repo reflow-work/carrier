@@ -423,20 +423,19 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   defp load_all_columns(socket, table_name) do
-    socket =
-      QueryData.fetch_all_column_names(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        table_name: table_name
-      })
-      |> case do
-        {:ok, columns} ->
-          socket
-          |> assign(:columns, columns)
+    QueryData.fetch_all_column_names(%{
+      org_id: socket.assigns.org_id,
+      data_source_id: socket.assigns.data_source.id,
+      table_name: table_name
+    })
+    |> case do
+      {:ok, columns} ->
+        socket
+        |> assign(:columns, columns)
 
-        {:error, _} ->
-          socket
-      end
+      {:error, _} ->
+        socket
+    end
   end
 
   defp create_report(socket, params) do
