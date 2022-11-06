@@ -27,11 +27,11 @@ defmodule CarrierWeb.ReportLive.New do
   """
   @sql_template_by_maker """
   SELECT
-      <%= date_column %>,
-      <%= aggregation %>(<%= value_column %>) AS "<%= value_column_name %>"
+    DATE(<%= date_column %>),
+    <%= aggregation %>(<%= value_column %>) AS "<%= value_column_name %>"
   FROM <%= table_name %>
   WHERE <%= date_column %> >= {{start}}
-     AND <%= date_column %> < {{end}}
+    AND <%= date_column %> < {{end}}
   GROUP BY 1
   """
 
