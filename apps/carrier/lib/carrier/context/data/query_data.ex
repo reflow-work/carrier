@@ -187,6 +187,35 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
+  def fetch_all_column_names(
+        %{
+          org_id: org_id,
+          data_source_id: data_source_id,
+          table_name: table_name
+        } = params
+      ) do
+    TenantRepo.put_org_id(org_id)
+
+    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} <-
+           Secrets.fetch_data_source(data_source_id),
+         {:ok, %{columns: columns, rows: rows}} <-
+           run_query(
+             conn_info,
+             @postgres_query_date_columns,
+             [table_name]
+           ) do
+      {:ok,
+       DataHelper.rows_to_map(columns, rows)
+       |> Enum.map(& &1["column_name"])
+       |> Enum.sort()}
+    else
+      {:error, reason} ->
+        Logger.error(inspect({reason, params}))
+
+        {:error, reason}
+    end
+  end
+
   defp build_meta_data(date_column_name, key, data) do
     current_period_sum_key = window_sum_column(key)
     previous_period_sum_key = window_sum_offset_column(key)
