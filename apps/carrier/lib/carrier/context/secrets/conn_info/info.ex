@@ -28,7 +28,7 @@ defmodule Carrier.Secrets.ConnInfo.Info do
     struct |> Map.from_struct() |> Keyword.new()
   end
 
-  defp get_module(source) do
+  def get_module(source) do
     case source do
       :postgres -> ConnInfo.Postgres
       :mysql -> ConnInfo.MySQL

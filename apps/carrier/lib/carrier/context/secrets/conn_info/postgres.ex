@@ -17,4 +17,33 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
     |> cast(attrs, @required)
     |> validate_required(@required)
   end
+
+  def tables_query() do
+    """
+    SELECT *
+      FROM pg_catalog.pg_tables
+      WHERE schemaname != 'pg_catalog' AND
+          schemaname != 'information_schema'
+    """
+  end
+
+  def columns_query() do
+    """
+    SELECT
+      column_name,
+      data_type
+    FROM
+      information_schema.columns
+    WHERE
+      table_name = $1;
+    """
+  end
+
+  def is_date_type?(type) do
+    cond do
+      type == "date" -> true
+      type |> String.starts_with?("timestamp") -> true
+      true -> false
+    end
+  end
 end

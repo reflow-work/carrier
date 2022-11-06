@@ -8,19 +8,6 @@ defmodule Carrier.Data.QueryData do
 
   @start_template "{{start}}"
   @end_template "{{end}}"
-  @postgres_query_tables "SELECT *
-  FROM pg_catalog.pg_tables
-  WHERE schemaname != 'pg_catalog' AND
-      schemaname != 'information_schema';"
-  @postgres_query_date_columns """
-  SELECT
-    column_name,
-    data_type
-  FROM
-    information_schema.columns
-  WHERE
-    table_name = $1;
-  """
 
   # def query_sample(%{
   #       org_id: org_id,
@@ -144,10 +131,10 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} <-
+    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
-         {:ok, %{columns: columns, rows: rows}} <-
-           run_query(conn_info, @postgres_query_tables, []) do
+         tables_query = DataSource.tables_query(data_source),
+         {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, tables_query) do
       {:ok, DataHelper.rows_to_map(columns, rows) |> Enum.map(& &1["tablename"]) |> Enum.sort()}
     else
       {:error, reason} ->
@@ -166,26 +153,22 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{conn_info: %ConnInfo{source: source} = conn_info}} <-
+    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
+         columns_query = DataSource.columns_query(data_source),
          {:ok, %{columns: columns, rows: rows}} <-
-           run_query(
-             conn_info,
-             @postgres_query_date_columns,
-             [table_name]
-           ) do
+           run_query(conn_info, columns_query, [table_name]) do
       columns =
         DataHelper.rows_to_map(columns, rows)
         |> Enum.group_by(
           fn %{"data_type" => type} ->
             cond do
-              is_date_type?(source, type) -> :date_columns
+              DataSource.is_date_type?(data_source, type) -> :date_columns
               true -> :value_columns
             end
           end,
           & &1["column_name"]
         )
-        |> IO.inspect()
 
       columns = %{
         date_columns: columns |> Map.get(:date_columns) |> Enum.sort(),
@@ -193,58 +176,6 @@ defmodule Carrier.Data.QueryData do
       }
 
       {:ok, columns}
-    else
-      {:error, reason} ->
-        Logger.error(inspect({reason, params}))
-
-        {:error, reason}
-    end
-  end
-
-  defp is_date_type?(:postgres, type) do
-    cond do
-      type == "date" -> true
-      type |> String.starts_with?("timestamp") -> true
-      true -> false
-    end
-  end
-
-  defp is_number_type?(:postgres, type) do
-    type in [
-      "smallint",
-      "integer",
-      "bigint",
-      "decimal",
-      "numeric",
-      "real",
-      "double precision",
-      "smallserial",
-      "serial",
-      "bigserial"
-    ]
-  end
-
-  def fetch_all_column_names(
-        %{
-          org_id: org_id,
-          data_source_id: data_source_id,
-          table_name: table_name
-        } = params
-      ) do
-    TenantRepo.put_org_id(org_id)
-
-    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} <-
-           Secrets.fetch_data_source(data_source_id),
-         {:ok, %{columns: columns, rows: rows}} <-
-           run_query(
-             conn_info,
-             @postgres_query_date_columns,
-             [table_name]
-           ) do
-      {:ok,
-       DataHelper.rows_to_map(columns, rows)
-       |> Enum.map(& &1["column_name"])
-       |> Enum.sort()}
     else
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
@@ -425,7 +356,7 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params) do
+  defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params \\ []) do
     credentials = ConnInfo.Info.to_credentials(source, info)
 
     case source do
