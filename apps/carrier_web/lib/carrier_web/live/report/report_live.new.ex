@@ -57,7 +57,6 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
       |> assign(:window_sizes, [1, 7])
       |> assign(:is_loading_slack_channels, false)
-      |> assign(:show_preview_modal, false)
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
 
@@ -332,15 +331,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
-      |> assign(:show_preview_modal, false)
-
-    {:noreply, socket}
-  end
-
-  def handle_event("show_preview_modal", _params, socket) do
-    socket =
-      socket
-      |> assign(:show_preview_modal, true)
+      |> push_event("js-exec", %{to: "#send-preview", attr: "data-hide-modal"})
 
     {:noreply, socket}
   end

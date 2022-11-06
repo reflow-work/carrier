@@ -26,7 +26,7 @@ defmodule CarrierWeb.LiveHelpers do
       id={@id}
       class="hidden modal modal-open fade-in"
       data-show-modal={show_modal(@id)}
-      phx-remove={hide_modal(@id)}
+      data-hide-modal={hide_modal(@id)}
     >
       <div
         class="modal-content modal-box w-auto max-w-full fade-in-scale"

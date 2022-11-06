@@ -302,7 +302,7 @@
                   <button
                     class="btn btn-outline"
                     type="button"
-                    phx-click={show_modal("test_send")}
+                    phx-click={show_modal("send-preview")}
                     disabled={!@data_loaded}
                   >
                     테스트 발송
@@ -321,7 +321,7 @@
   </section>
 </section>
 
-<.modal id="test_send">
+<.modal id="send-preview">
   <div>
     <h3 class="font-bold text-lg">테스트 발송</h3>
     <.form
