@@ -47,7 +47,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(
         tables: [],
         date_columns: [],
-        columns: [],
+        value_columns: [],
         aggregations: ["SUM", "AVG", "COUNT", "MAX", "MIN"]
       )
       |> assign(%{
@@ -84,8 +84,7 @@ defmodule CarrierWeb.ReportLive.New do
           socket
           |> assign(:tables, tables)
           |> push_event("js-exec", %{to: "#query-maker", attr: "data-show-modal"})
-          |> load_date_columns(tables |> List.first())
-          |> load_all_columns(tables |> List.first())
+          |> load_columns(tables |> List.first())
 
         {:error, _} ->
           socket
@@ -98,8 +97,7 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("change_table", params, socket) do
     %{"query_maker_form" => %{"table" => table}} = params
 
-    socket = load_date_columns(socket, table)
-    socket = load_all_columns(socket, table)
+    socket = load_columns(socket, table)
 
     {:noreply, socket}
   end
@@ -405,33 +403,17 @@ defmodule CarrierWeb.ReportLive.New do
     """
   end
 
-  defp load_date_columns(socket, table_name) do
-    socket =
-      QueryData.fetch_date_column_names(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        table_name: table_name
-      })
-      |> case do
-        {:ok, date_columns} ->
-          socket
-          |> assign(:date_columns, date_columns)
-
-        {:error, _} ->
-          socket
-      end
-  end
-
-  defp load_all_columns(socket, table_name) do
-    QueryData.fetch_all_column_names(%{
+  defp load_columns(socket, table_name) do
+    QueryData.fetch_columns(%{
       org_id: socket.assigns.org_id,
       data_source_id: socket.assigns.data_source.id,
       table_name: table_name
     })
     |> case do
-      {:ok, columns} ->
+      {:ok, %{date_columns: date_columns, value_columns: value_columns}} ->
         socket
-        |> assign(:columns, columns)
+        |> assign(:date_columns, date_columns)
+        |> assign(:value_columns, value_columns)
 
       {:error, _} ->
         socket
