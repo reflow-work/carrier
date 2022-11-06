@@ -371,7 +371,7 @@ defmodule CarrierWeb.ReportLive.New do
         <thead>
           <tr class="w-full">
             <%= for header <- @preview.columns do %>
-              <th class="text-center py-3"><%= header %></th>
+              <th class="text-center py-3 normal-case"><%= header %></th>
             <% end %>
           </tr>
         </thead>
