@@ -35,6 +35,7 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> assign(tables: [], date_columns: [])
       |> assign(%{
         sample_sql_template: @sample_sql_template,
         sql_template: @sample_sql_template,
@@ -53,7 +54,6 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:is_loading_slack_channels, false)
       |> assign(:show_preview_modal, false)
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
-      |> assign(:tables, [])
       |> assign(:aggregations, ["집계", "SUM", "AVG", "COUNT", "MAX", "MIN"])
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
 
@@ -72,12 +72,39 @@ defmodule CarrierWeb.ReportLive.New do
           socket
           |> assign(:tables, tables)
           |> push_event("js-exec", %{to: "#query-maker", attr: "data-show-modal"})
+          |> load_date_columns(tables |> List.first())
 
         {:error, _} ->
           socket
       end
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("change_table", params, socket) do
+    %{"query_maker_form" => %{"table" => table}} = params
+
+    socket = load_date_columns(socket, table)
+
+    {:noreply, socket}
+  end
+
+  defp load_date_columns(socket, table_name) do
+    socket =
+      QueryData.fetch_date_column_names(%{
+        org_id: socket.assigns.org_id,
+        data_source_id: socket.assigns.data_source.id,
+        table_name: table_name
+      })
+      |> case do
+        {:ok, date_columns} ->
+          socket
+          |> assign(:date_columns, date_columns)
+
+        {:error, _} ->
+          socket
+      end
   end
 
   @impl true

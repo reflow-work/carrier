@@ -12,6 +12,15 @@ defmodule Carrier.Data.QueryData do
   FROM pg_catalog.pg_tables
   WHERE schemaname != 'pg_catalog' AND
       schemaname != 'information_schema';"
+  @postgres_query_date_columns """
+  SELECT
+    column_name,
+    data_type
+  FROM
+    information_schema.columns
+  WHERE
+    table_name = $1;
+  """
 
   # def query_sample(%{
   #       org_id: org_id,
@@ -140,6 +149,36 @@ defmodule Carrier.Data.QueryData do
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, @postgres_query_tables, []) do
       {:ok, DataHelper.rows_to_map(columns, rows) |> Enum.map(& &1["tablename"]) |> Enum.sort()}
+    else
+      {:error, reason} ->
+        Logger.error(inspect({reason, params}))
+
+        {:error, reason}
+    end
+  end
+
+  def fetch_date_column_names(
+        %{
+          org_id: org_id,
+          data_source_id: data_source_id,
+          table_name: table_name
+        } = params
+      ) do
+    TenantRepo.put_org_id(org_id)
+
+    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} <-
+           Secrets.fetch_data_source(data_source_id),
+         {:ok, %{columns: columns, rows: rows}} <-
+           run_query(
+             conn_info,
+             @postgres_query_date_columns,
+             [table_name]
+           ) do
+      {:ok,
+       DataHelper.rows_to_map(columns, rows)
+       |> Enum.filter(&(&1["data_type"] == "date"))
+       |> Enum.map(& &1["column_name"])
+       |> Enum.sort()}
     else
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
