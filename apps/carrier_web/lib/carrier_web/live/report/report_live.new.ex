@@ -55,8 +55,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
       |> assign(:tables, ["TODO: 임시 테이블 이름"])
       |> assign(:aggregations, ["집계", "SUM", "AVG", "COUNT", "MAX", "MIN"])
-      |> assign(:contains_start_template, false)
-      |> assign(:contains_end_template, false)
+      |> assign(:query_validations, %{contains_start: true, contains_end: true})
 
     {:ok, socket}
   end
@@ -65,8 +64,11 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("validate_query", params, socket) do
     %{"query" => %{"sql_template" => sql_template}} = params
 
-    socket = assign(socket, :contains_start_template, String.contains?(sql_template, "{{start}}"))
-    socket = assign(socket, :contains_end_template, String.contains?(sql_template, "{{end}}"))
+    socket =
+      assign(socket, :query_validations, %{
+        contains_start: sql_template |> String.contains?("{{start}}"),
+        contains_end: sql_template |> String.contains?("{{end}}")
+      })
 
     {:noreply, socket}
   end
@@ -433,5 +435,9 @@ defmodule CarrierWeb.ReportLive.New do
     _changeset =
       ReportParams.changeset(attrs)
       |> Params.set_action(:validate)
+  end
+
+  defp is_valid_sql_template(query_validations) do
+    query_validations |> Map.values() |> Enum.all?()
   end
 end

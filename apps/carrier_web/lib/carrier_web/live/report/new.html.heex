@@ -43,9 +43,9 @@
               <% end %>
             </div>
             <section class="w-full px-2 sm:col-span-3 text-sm">
-              <div class={"flex items-center shadow py-3 px-3 rounded border-l-8 #{if @contains_start_template, do: "border-l-green-600", else: "border-l-red-600"}"}>
+              <div class={"flex items-center shadow py-3 px-3 rounded border-l-8 #{if @query_validations.contains_start, do: "border-l-green-600", else: "border-l-red-600"}"}>
                 <div class="mr-3 text-base">
-                  <%= if @contains_start_template do %>
+                  <%= if @query_validations.contains_start do %>
                     <CarrierWeb.Components.Icon.check_circle class="w-6 h-6 text-green-600" />
                   <% else %>
                     <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
@@ -56,9 +56,9 @@
                 </div>
               </div>
 
-              <div class={"flex items-center shadow py-3 px-3 rounded border-l-8 mt-4 #{if @contains_end_template, do: "border-l-green-600", else: "border-l-red-600"}"}>
+              <div class={"flex items-center shadow py-3 px-3 rounded border-l-8 mt-4 #{if @query_validations.contains_end, do: "border-l-green-600", else: "border-l-red-600"}"}>
                 <div class="mr-3 text-base">
-                  <%= if @contains_end_template do %>
+                  <%= if @query_validations.contains_end do %>
                     <CarrierWeb.Components.Icon.check_circle class="w-6 h-6 text-green-600" />
                   <% else %>
                     <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
@@ -91,7 +91,7 @@
             </section>
           </div>
           <div class="text-right mt-2">
-            <%= submit("쿼리 실행", class: "btn btn-primary") %>
+            <%= submit("쿼리 실행", class: "btn btn-primary", disabled: !is_valid_sql_template(@query_validations)) %>
           </div>
         </.form>
       </div>
@@ -347,7 +347,7 @@
   <label class="modal-box relative w-full max-w-4xl mx-8" for="">
     <div class="flex items-center">
       <h3 class="text-lg font-bold">쿼리 자동 입력기</h3>
-       <CarrierWeb.Components.Icon.help_circle class="w-5 h-5 ml-1" />
+      <CarrierWeb.Components.Icon.help_circle class="w-5 h-5 ml-1" />
 
       <label for="query-maker" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
     </div>
