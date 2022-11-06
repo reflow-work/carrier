@@ -75,7 +75,7 @@ defmodule CarrierWeb.ReportLive.New do
   @impl true
   def handle_event("open_query_maker", _params, socket) do
     socket =
-      QueryData.fetch_tablenames(%{
+      QueryData.fetch_table_names(%{
         org_id: socket.assigns.org_id,
         data_source_id: socket.assigns.data_source.id
       })

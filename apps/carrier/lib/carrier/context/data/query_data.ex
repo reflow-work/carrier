@@ -123,7 +123,7 @@ defmodule Carrier.Data.QueryData do
     Map.put(raw_data, :data, data)
   end
 
-  def fetch_tablenames(
+  def fetch_table_names(
         %{
           org_id: org_id,
           data_source_id: data_source_id
@@ -135,7 +135,12 @@ defmodule Carrier.Data.QueryData do
            Secrets.fetch_data_source(data_source_id),
          tables_query = DataSource.tables_query(data_source),
          {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, tables_query) do
-      {:ok, DataHelper.rows_to_map(columns, rows) |> Enum.map(& &1["tablename"]) |> Enum.sort()}
+      table_names =
+        DataHelper.rows_to_map(columns, rows)
+        |> Enum.map(&"#{&1["table_name"]}")
+        |> Enum.sort()
+
+      {:ok, table_names}
     else
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
@@ -171,8 +176,8 @@ defmodule Carrier.Data.QueryData do
         )
 
       columns = %{
-        date_columns: columns |> Map.get(:date_columns) |> Enum.sort(),
-        value_columns: columns |> Map.get(:value_columns) |> Enum.sort()
+        date_columns: columns |> Map.get(:date_columns, []),
+        value_columns: columns |> Map.get(:value_columns, [])
       }
 
       {:ok, columns}

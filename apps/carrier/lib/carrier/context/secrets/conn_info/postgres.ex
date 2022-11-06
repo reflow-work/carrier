@@ -20,10 +20,9 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
 
   def tables_query() do
     """
-    SELECT *
-      FROM pg_catalog.pg_tables
-      WHERE schemaname != 'pg_catalog' AND
-          schemaname != 'information_schema'
+    SELECT table_schema, table_name
+      FROM information_schema.tables
+      WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
     """
   end
 
@@ -34,8 +33,9 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
       data_type
     FROM
       information_schema.columns
-    WHERE
-      table_name = $1;
+    WHERE table_schema = 'public'
+      AND table_name = $1
+    ORDER BY ordinal_position
     """
   end
 
