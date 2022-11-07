@@ -9,6 +9,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Aws
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper}
   alias CarrierWeb.Components.Empty
+  alias CarrierWeb.Components.SlackImgTrend
   alias CarrierWeb.ReportLive.New.ReportParams
 
   on_mount(CarrierWeb.IntegrationHook)
@@ -443,23 +444,20 @@ defmodule CarrierWeb.ReportLive.New do
     end)
   end
 
-  defp save_chart_image(%{orgId: orgId, reportId: reportId, data: data}) do
-    %{orgId: orgId, reportId: reportId, data: data}
-    |> Aws.save_chart_img()
-  end
-
   defp value_color(value) when is_number(value) do
     case value do
-      value when value > 0 -> "text-green-500"
-      value when value < 0 -> "text-red-500"
+      value when value > 0 -> "text-slackImgBlue"
+      value when value < 0 -> "text-slackImgRed"
       _ -> ""
     end
   end
 
   defp value_color(_), do: ""
 
-  defp wow_text(wow) when is_number(wow), do: "#{wow}%"
-  defp wow_text(_), do: "-"
+  defp save_chart_image(%{orgId: orgId, reportId: reportId, data: data}) do
+    %{orgId: orgId, reportId: reportId, data: data}
+    |> Aws.save_chart_img()
+  end
 
   defp load_slack_channels(socket) do
     case Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"]) do

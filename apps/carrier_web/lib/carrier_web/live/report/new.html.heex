@@ -200,58 +200,87 @@
                   <div class="flex flex-col gap-y-6 mt-4">
                     <%= for column <- @columns do %>
                       <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                        <section class={"border-l-2 border-gray-200 py-2 pl-4 font-lato text-slackBody #{if column not in input_value(fdsi, :columns), do: "hidden"}"}>
-                          <h3 class="text-xl font-bold pb-2">
-                            📊 <%= "#{@query_result_by_columns[column].meta.label} (#{DateTime.now("Asia/Seoul") |> elem(1) |> DateTime.to_date() |> Date.to_string()})" %>
+                        <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in input_value(fdsi, :columns), do: "hidden"}"}>
+                          <h3 class="font-bold text-base-dark">
+                            📊 <%= "#{DateTime.now("Asia/Seoul") |> elem(1) |> format_date()} - #{@query_result_by_columns[column].meta.label}" %>
                           </h3>
-                          <div class="grid grid-cols-2 gap-x-2">
-                            <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">
-                              <h4 class="text-xl font-bold">어제</h4>
-                              <p class="text-center text-3xl font-bold">
+                          <div class="flex justify-between py-4 px-5 rounded shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                            <section>
+                              <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
+                              <p class="text-2xl font-bold mt-2">
                                 <%= format_number(
                                   @query_result_by_columns[column].meta.current_period_last_tick_raw
                                 ) %>
                               </p>
-                              <p class="text-xl text-center">
-                                <span>지난 주 대비:</span>
-                                <span class={[
-                                  "font-bold",
-                                  value_color(
+                              <div class="flex space-x-2 mt-1">
+                                <SlackImgTrend.trend_icon value={
+                                  @query_result_by_columns[column].meta.diff_between_period_raws
+                                } />
+                                <p class="text-slackImgGrey">
+                                  <span>지난 주 대비</span>
+                                  <span class={
+                                    value_color(
+                                      @query_result_by_columns[column].meta.diff_between_period_raws
+                                    )
+                                  }>
+                                    <%= @query_result_by_columns[column].meta.diff_between_period_raws %>
+                                  </span>
+                                  <span>만큼 </span>
+                                  <SlackImgTrend.trend_text value={
                                     @query_result_by_columns[column].meta.diff_between_period_raws
-                                  )
-                                ]}>
-                                  <%= format_number(
-                                    @query_result_by_columns[column].meta.diff_between_period_raws
-                                  ) %>
-                                </span>
-                              </p>
+                                  } />
+                                  <br />
+                                  <span class={
+                                    value_color(
+                                      @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                                    )
+                                  }>
+                                    <%= "#{@query_result_by_columns[column].meta.diff_between_period_raws_in_percentage}%" %>
+                                  </span>
+                                  <span>올랐어요.</span>
+                                </p>
+                              </div>
                             </section>
-                            <section class="border border-gray-200 p-4 rounded-lg flex flex-col gap-y-2">
-                              <h4 class="text-xl font-bold">최근 7일 합계</h4>
-                              <p class="text-center text-3xl font-bold">
+                            <section class="pl-5">
+                              <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
+                              <p class="text-2xl font-bold mt-2">
                                 <%= format_number(
                                   @query_result_by_columns[column].meta.current_period_sum
                                 ) %>
                               </p>
-                              <p class="text-xl text-center">
-                                <span>WOW:</span>
-                                <span class={[
-                                  "font-bold",
-                                  value_color(
-                                    @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
-                                  )
-                                ]}>
-                                  <%= wow_text(
-                                    @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
-                                  ) %>
-                                </span>
-                              </p>
+                              <div class="flex space-x-2 mt-1">
+                                <SlackImgTrend.trend_icon value={
+                                  @query_result_by_columns[column].meta.diff_between_period_sums
+                                } />
+                                <p class="text-slackImgGrey">
+                                  <span>지난 주 대비</span>
+                                  <span class={
+                                    value_color(
+                                      @query_result_by_columns[column].meta.diff_between_period_sums
+                                    )
+                                  }>
+                                    <%= @query_result_by_columns[column].meta.diff_between_period_sums %>
+                                  </span>
+                                  <span>만큼 </span>
+                                  <SlackImgTrend.trend_text value={
+                                    @query_result_by_columns[column].meta.diff_between_period_sums
+                                  } />
+                                  <br />
+                                  <span class={
+                                    value_color(
+                                      @query_result_by_columns[column].meta.diff_between_period_sums
+                                    )
+                                  }>
+                                    <%= "#{@query_result_by_columns[column].meta.diff_between_period_sums_in_percentage}%" %>
+                                  </span>
+                                  <span>올랐어요.</span>
+                                </p>
+                              </div>
                             </section>
                           </div>
                           <section
                             id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
                             phx-update="ignore"
-                            class="pt-2"
                           >
                             <canvas
                               id={"chart-#{@query_result_by_columns[column].meta.label}"}

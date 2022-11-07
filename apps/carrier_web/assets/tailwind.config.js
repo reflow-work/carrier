@@ -15,7 +15,11 @@ module.exports = {
         base: "#F7F7F7",
         "base-dark": "#111111",
         "base-dark-hover": "#1F1F1F",
-        "description": "#888888"
+        "description": "#888888",
+        "slackImgLightGrey": "#F3F3F3",
+        "slackImgGrey": "#929292",
+        "slackImgBlue": "#004ADB",
+        "slackImgRed": "#C91000"
       },
       fontFamily: {
         lato: ["Lato", "ui-sans-serif", "system-ui"],
@@ -36,6 +40,9 @@ module.exports = {
       },
       zIndex: {
         '60': '60',
+      },
+      boxShadow: {
+        'slackImgSection': '1px 2px 5px rgba(74, 74, 74, 0.15)'
       }
     },
   },
@@ -54,7 +61,6 @@ module.exports = {
           primary: "#000000",
           "primary-content": "#FFFFFF",
           accent: "#B22317",
-
           neutral: "#f0f0f0",
           "neutral-content": "#000000",
           "base-200": "#f0f0f0",

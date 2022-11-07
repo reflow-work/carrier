@@ -60,7 +60,8 @@ defmodule Carrier.MixProject do
       {:logger_papertrail_backend, "~> 1.1"},
       {:sentry, "~> 8.0"},
       {:ex_cldr_numbers, "~> 2.0"},
-      {:hashids, "~> 2.0"}
+      {:hashids, "~> 2.0"},
+      {:ex_cldr_dates_times, "~> 2.0"}
     ]
   end
 

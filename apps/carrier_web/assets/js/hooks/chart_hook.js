@@ -4,8 +4,8 @@ Chart.register(...registerables)
 
 const colors = {
   default: "#1C110A",
-  current: "#1b9e77",
-  previous: "#d95f02",
+  current: "#C91000",
+  previous: "#92B3F4",
 }
 
 const getMinScale = (ns) => {
@@ -20,6 +20,18 @@ const getMaxScale = (ns) => {
   return parseFloat(`${ceiledSignificantFigures}e${exponent}`)
 }
 
+const bgColorPlugIn = {
+  id: 'custom_canvas_background_color',
+  beforeDraw: (chart) => {
+    const { ctx } = chart;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  }
+};
+
 const ChartHook = {
   mounted() {
     const ctx = this.el.getContext('2d')
@@ -30,6 +42,7 @@ const ChartHook = {
         datasets: [],
         labels: [],
       },
+      plugins: [bgColorPlugIn],
       options: {
         elements: {
           point: {
@@ -43,8 +56,21 @@ const ChartHook = {
               font: {
                 size: 18,
                 weight: 700,
-              }
-            }
+              },
+              boxHeight: 1,
+            },
+            position: 'right',
+          },
+          title: {
+            display: true,
+            color: '#929292',
+            font: {
+              weight: 'bold',
+              size: 12,
+            },
+            text: 'TITLE',
+            padding: 30,
+            align: 'start',
           }
         },
         scales: {
@@ -56,6 +82,9 @@ const ChartHook = {
                 weight: 700,
               }
             },
+            grid: {
+              borderDash: [6, 6],
+            },
             ticks: {
               count: 5,
               font: {
@@ -63,6 +92,9 @@ const ChartHook = {
                 weight: 700,
               },
             },
+            padding: {
+              left: -60,
+            }
           },
           x: {
             title: {
@@ -124,6 +156,7 @@ const ChartHook = {
       chart.options.scales.y.min = getMinScale(all_data)
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
+      chart.options.plugins.title.text = `${key} 일일 데이터`
       chart.update()
     })
   }
