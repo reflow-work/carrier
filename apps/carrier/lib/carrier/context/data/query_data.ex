@@ -137,7 +137,7 @@ defmodule Carrier.Data.QueryData do
          {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, tables_query) do
       table_names =
         DataHelper.rows_to_map(columns, rows)
-        |> Enum.map(&"#{&1["table_name"]}")
+        |> Enum.map(&"#{&1[DataSource.table_name_field(data_source)]}")
         |> Enum.sort()
 
       {:ok, table_names}
@@ -163,21 +163,25 @@ defmodule Carrier.Data.QueryData do
          columns_query = DataSource.columns_query(data_source),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, columns_query, [table_name]) do
-      columns =
+      %{date_columns: date_columns, other_columns: other_columns} =
         DataHelper.rows_to_map(columns, rows)
         |> Enum.group_by(
-          fn %{"data_type" => type} ->
+          fn row ->
+            data_type = row |> Map.get(DataSource.data_type_field(data_source))
+
             cond do
-              DataSource.is_date_type?(data_source, type) -> :date_columns
-              true -> :value_columns
+              DataSource.is_date_type?(data_source, data_type) -> :date_columns
+              true -> :other_columns
             end
           end,
-          & &1["column_name"]
+          & &1[DataSource.column_name_field(data_source)]
         )
+        |> Map.put_new(:date_columns, [])
+        |> Map.put_new(:other_columns, [])
 
       columns = %{
-        date_columns: columns |> Map.get(:date_columns, []),
-        value_columns: columns |> Map.get(:value_columns, [])
+        date_columns: date_columns,
+        value_columns: other_columns ++ date_columns
       }
 
       {:ok, columns}

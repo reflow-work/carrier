@@ -22,21 +22,30 @@ defmodule Carrier.Secrets.ConnInfo.Postgres do
     """
     SELECT table_schema, table_name
       FROM information_schema.tables
-      WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+      WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
     """
+  end
+
+  def table_name_field() do
+    "table_name"
   end
 
   def columns_query() do
     """
-    SELECT
-      column_name,
-      data_type
-    FROM
-      information_schema.columns
-    WHERE table_schema = 'public'
-      AND table_name = $1
-    ORDER BY ordinal_position
+    SELECT *
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = $1
+      ORDER BY ordinal_position;
     """
+  end
+
+  def column_name_field() do
+    "column_name"
+  end
+
+  def data_type_field() do
+    "data_type"
   end
 
   def is_date_type?(type) do
