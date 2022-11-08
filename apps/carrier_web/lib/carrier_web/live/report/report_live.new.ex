@@ -153,14 +153,12 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:sql_template, sql_template)
 
-    {:ok, datetime} = DateTime.now(socket.assigns.timezone)
-
     socket =
       QueryData.query(%{
         org_id: socket.assigns.org_id,
         data_source_id: socket.assigns.data_source.id,
         sql_template: sql_template,
-        datetime: datetime,
+        datetime: DateTime.utc_now(),
         timezone: socket.assigns.timezone,
         period: 28,
         window_size: 7,
@@ -221,14 +219,12 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("select_window_size", %{"value" => window_size_str}, socket) do
     window_size = window_size_str |> String.to_integer()
 
-    {:ok, datetime} = DateTime.now(socket.assigns.timezone)
-
     socket =
       QueryData.query(%{
         org_id: socket.assigns.org_id,
         data_source_id: socket.assigns.data_source.id,
         sql_template: socket.assigns.sql_template,
-        datetime: datetime,
+        datetime: DateTime.utc_now(),
         timezone: socket.assigns.timezone,
         period: 28,
         window_size: window_size,
