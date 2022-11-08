@@ -28,7 +28,7 @@ defmodule CarrierWeb.ReportLive.New do
   @sql_template_by_maker """
   SELECT
     DATE(<%= date_column %>),
-    <%= aggregation %>(<%= value_column %>) AS "<%= value_column_name %>"
+    <%= aggregation %>(<%= value_column %>) AS "<%= if value_column_name != "", do: value_column_name, else: value_column %>"
   FROM <%= table_name %>
   WHERE <%= date_column %> >= {{start}}
     AND <%= date_column %> < {{end}}
