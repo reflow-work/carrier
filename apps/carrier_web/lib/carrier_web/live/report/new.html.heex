@@ -115,7 +115,7 @@
 
         <div class="space-y-6">
           <section class="flex gap-4 flex-col lg:flex-row">
-            <section class="card flex-[3_3_0%]">
+            <section class="card flex-[2_2_0%]">
               <div class="card-body">
                 <section>
                   <h2 class="card-title">레포트 설정</h2>
@@ -193,7 +193,7 @@
               </div>
             </section>
 
-            <section class="card flex-[5_5_0%]">
+            <section class="card flex-[6_6_0%]">
               <div class="card-body">
                 <h2 class="card-title">슬랙 미리보기</h2>
                 <%= if @data_loaded do %>
@@ -204,7 +204,7 @@
                           <h3 class="font-bold text-base-dark">
                             📊 <%= "#{DateTime.now("Asia/Seoul") |> elem(1) |> format_date()} - #{@query_result_by_columns[column].meta.label}" %>
                           </h3>
-                          <div class="flex justify-between py-4 px-5 rounded shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                          <div class="grid grid-cols-2 py-4 px-5 rounded shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
                             <section>
                               <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
                               <p class="text-2xl font-bold mt-2">
@@ -213,32 +213,17 @@
                                 ) %>
                               </p>
                               <div class="flex space-x-2 mt-1">
-                                <SlackImgTrend.trend_icon value={
+                                <SlackImgMetaData.trend_icon value={
                                   @query_result_by_columns[column].meta.diff_between_period_raws
                                 } />
-                                <p class="text-slackImgGrey">
-                                  <span>지난 주 대비</span>
-                                  <span class={
-                                    value_color(
-                                      @query_result_by_columns[column].meta.diff_between_period_raws
-                                    )
-                                  }>
-                                    <%= @query_result_by_columns[column].meta.diff_between_period_raws %>
-                                  </span>
-                                  <span>만큼 </span>
-                                  <SlackImgTrend.trend_text value={
+                                <SlackImgMetaData.card
+                                  diff_value_raw={
                                     @query_result_by_columns[column].meta.diff_between_period_raws
-                                  } />
-                                  <br />
-                                  <span class={
-                                    value_color(
-                                      @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
-                                    )
-                                  }>
-                                    <%= "#{@query_result_by_columns[column].meta.diff_between_period_raws_in_percentage}%" %>
-                                  </span>
-                                  <span>올랐어요.</span>
-                                </p>
+                                  }
+                                  diff_value_percentage={
+                                    @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                                  }
+                                />
                               </div>
                             </section>
                             <section class="pl-5">
@@ -249,32 +234,17 @@
                                 ) %>
                               </p>
                               <div class="flex space-x-2 mt-1">
-                                <SlackImgTrend.trend_icon value={
+                                <SlackImgMetaData.trend_icon value={
                                   @query_result_by_columns[column].meta.diff_between_period_sums
                                 } />
-                                <p class="text-slackImgGrey">
-                                  <span>지난 주 대비</span>
-                                  <span class={
-                                    value_color(
-                                      @query_result_by_columns[column].meta.diff_between_period_sums
-                                    )
-                                  }>
-                                    <%= @query_result_by_columns[column].meta.diff_between_period_sums %>
-                                  </span>
-                                  <span>만큼 </span>
-                                  <SlackImgTrend.trend_text value={
+                                <SlackImgMetaData.card
+                                  diff_value_raw={
                                     @query_result_by_columns[column].meta.diff_between_period_sums
-                                  } />
-                                  <br />
-                                  <span class={
-                                    value_color(
-                                      @query_result_by_columns[column].meta.diff_between_period_sums
-                                    )
-                                  }>
-                                    <%= "#{@query_result_by_columns[column].meta.diff_between_period_sums_in_percentage}%" %>
-                                  </span>
-                                  <span>올랐어요.</span>
-                                </p>
+                                  }
+                                  diff_value_percentage={
+                                    @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                                  }
+                                />
                               </div>
                             </section>
                           </div>

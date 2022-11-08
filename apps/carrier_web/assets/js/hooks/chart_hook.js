@@ -20,6 +20,23 @@ const getMaxScale = (ns) => {
   return parseFloat(`${ceiledSignificantFigures}e${exponent}`)
 }
 
+const deriveTickCount = (min, max) => {
+  const diff = max - min
+  if (diff % 5 === 0) {
+    return 6
+  } else if (diff % 6 === 0) {
+    return 7
+  } else if (diff % 4 === 0) {
+    return 5
+  } else if (diff % 3 === 0) {
+    return 4
+  } else if (diff % 2 === 0) {
+    return 3
+  } else {
+    return 2
+  }
+}
+
 const bgColorPlugIn = {
   id: 'custom_canvas_background_color',
   beforeDraw: (chart) => {
@@ -54,8 +71,9 @@ const ChartHook = {
             display: true,
             labels: {
               font: {
-                size: 18,
+                size: 12,
                 weight: 700,
+                color: '#929292',
               },
               boxHeight: 1,
             },
@@ -70,7 +88,6 @@ const ChartHook = {
             },
             text: 'TITLE',
             padding: 30,
-            align: 'start',
           }
         },
         scales: {
@@ -152,8 +169,11 @@ const ChartHook = {
         borderDash: [3, 3],
       }
       const all_data = current.concat(previous)
-      chart.options.scales.y.max = getMaxScale(all_data)
-      chart.options.scales.y.min = getMinScale(all_data)
+      const maxScale = getMaxScale(all_data)
+      const minScale = getMinScale(all_data)
+      chart.options.scales.y.max = maxScale
+      chart.options.scales.y.min = minScale
+      chart.options.scales.y.ticks.count = deriveTickCount(minScale, maxScale)
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
       chart.options.plugins.title.text = `${key} 일일 데이터`

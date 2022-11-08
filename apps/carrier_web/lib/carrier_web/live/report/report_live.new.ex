@@ -9,7 +9,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.External.Aws
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper}
   alias CarrierWeb.Components.Empty
-  alias CarrierWeb.Components.SlackImgTrend
+  alias CarrierWeb.Components.SlackImgMetaData
   alias CarrierWeb.ReportLive.New.ReportParams
 
   on_mount(CarrierWeb.IntegrationHook)
