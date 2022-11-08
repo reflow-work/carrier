@@ -189,7 +189,7 @@ defmodule CarrierWeb.ReportLive.New do
                   "integration_id" => socket.assigns.integration.id
                 },
                 "data_source_info" => %{
-                  "data_source_id" => socket.assigns.integration.id,
+                  "data_source_id" => socket.assigns.data_source.id,
                   "sql_template" => sql_template,
                   "timezone" => socket.assigns.timezone,
                   "period" => 28,
@@ -257,7 +257,7 @@ defmodule CarrierWeb.ReportLive.New do
                   "integration_id" => socket.assigns.integration.id
                 },
                 "data_source_info" => %{
-                  "data_source_id" => socket.assigns.integration.id,
+                  "data_source_id" => socket.assigns.data_source.id,
                   "sql_template" => socket.assigns.sql_template,
                   "timezone" => socket.assigns.timezone,
                   "period" => 28,
