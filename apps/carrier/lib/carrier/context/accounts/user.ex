@@ -4,6 +4,7 @@ defmodule Carrier.Accounts.User do
   schema "users" do
     field :org_id, :integer
     field :email, :string
+    field :position, :string
 
     field :signed_at, :utc_datetime_usec
 
