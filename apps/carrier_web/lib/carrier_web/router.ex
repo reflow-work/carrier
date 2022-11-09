@@ -38,6 +38,7 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     live_session :user, on_mount: [CarrierWeb.UserHook, CarrierWeb.TimezoneHook] do
+      live "/company", CompanyLive, :index
       live "/integrations/new", IntegrationLive.New, :new
       live "/data-sources", DataSourceLive.Index, :index
       live "/data-sources/new", DataSourceLive.New, :new
