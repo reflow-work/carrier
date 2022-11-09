@@ -26,6 +26,15 @@ defmodule Carrier.Accounts.User do
     |> unique_constraint(:email)
   end
 
+  @required_for_update [
+    :position
+  ]
+  defp changeset_for_update(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_update)
+    |> validate_required(@required_for_update)
+  end
+
   def create(%{
         org_id: org_id,
         email: email,
@@ -51,5 +60,24 @@ defmodule Carrier.Accounts.User do
   def get_by_email(email) do
     __MODULE__
     |> where([u], u.email == ^email)
+  end
+
+  def update(%__MODULE__{} = struct, attrs \\ %{}) do
+    struct
+    |> changeset_for_update(attrs)
+  end
+
+  def positions do
+    [
+      "CEO/대표",
+      "고위 경영진",
+      "매니저",
+      "비즈니스 전문가/분석가",
+      "소프트웨어 엔지니어",
+      "데이터 엔지니어",
+      "데이터 분석가/데이터 사이언티스트",
+      "마케터",
+      "컨설턴트"
+    ]
   end
 end
