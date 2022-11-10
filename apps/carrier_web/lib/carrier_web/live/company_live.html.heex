@@ -1,0 +1,39 @@
+<section class="page-container">
+  <header class="page-header">
+    <h1 class="page-title">
+      <span class="page-title-icon">💼</span> 회사 정보 입력하기
+    </h1>
+  </header>
+
+  <div class="space-y-8 mt-6">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title">
+          회사 정보
+        </h2>
+
+        <div>
+          <.form :let={f} for={:user_params} phx-submit="update_user">
+            <div>
+              <label class="label">
+                <span class="label-text text-gray-500">직무</span>
+              </label>
+              <%= select(f, :position, User.positions(),
+                class: "data-source-input",
+                selected: User.positions() |> List.first()
+              ) %>
+              <%= error_tag(f, :position) %>
+            </div>
+
+            <div class="mt-6">
+              <%= submit("저장하기",
+                class: "btn btn-primary",
+                phx_disable_with: "저장중"
+              ) %>
+            </div>
+          </.form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

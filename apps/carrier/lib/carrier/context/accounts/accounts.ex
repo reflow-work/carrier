@@ -64,4 +64,10 @@ defmodule Carrier.Accounts do
     })
     |> Repo.insert()
   end
+
+  def update_user(%User{} = user, attr) do
+    user
+    |> User.update(attr)
+    |> Repo.update()
+  end
 end
