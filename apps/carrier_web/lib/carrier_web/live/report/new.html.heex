@@ -379,6 +379,9 @@
           selected: @date_columns |> List.first()
         ) %>
         <%= error_tag(f, :date_column) %>
+        <%= if length(@date_columns) == 0 do %>
+          <div class="text-red-500 text-sm">선택하신 테이블에 날짜 컬럼이 없습니다.</div>
+        <% end %>
       </div>
 
       <div class="flex items-center gap-x-2">
