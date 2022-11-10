@@ -396,7 +396,7 @@ defmodule CarrierWeb.ReportLive.New do
         <%= if @show_full_preview_data do %>
           숨기기
         <% else %>
-          전체 보기
+          더보기
         <% end %>
       </button>
     <% end %>
