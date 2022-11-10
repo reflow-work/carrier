@@ -119,9 +119,9 @@
                 <section>
                   <h2 class="card-title">레포트 설정</h2>
                   <section>
-                    <h3 class="text-lg font-bold">컬럼</h3>
+                    <h3 class="font-bold mt-6">레포트를 발송할 지표</h3>
                     <%= if @data_loaded do %>
-                      <div class="flex flex-col gap-y-3 mt-4">
+                      <div class="flex flex-col gap-y-3 mt-2">
                         <%= inputs_for f, :data_source_info, fn fdsi -> %>
                           <%= hidden_input(fdsi, :data_source_id) %>
                           <%= hidden_input(fdsi, :sql_template) %>
@@ -153,19 +153,28 @@
                   </section>
                 </section>
                 <section>
-                  <h3 class="text-lg font-bold mt-10">윈도우 사이즈</h3>
+                  <h3 class="font-bold mt-10">그래프 값 옵션</h3>
                   <%= if @data_loaded do %>
-                    <div class="flex flex-col gap-y-3 mt-4">
+                    <div class="flex flex-col mt-2">
                       <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                        <%= for window_size <- @window_sizes do %>
-                          <div class="flex gap-x-2 items-center">
-                            <%= radio_button(fdsi, :window_size, window_size,
-                              class: "radio",
-                              phx_click: "select_window_size"
-                            ) %>
-                            <%= label(f, :window_size, "Window Size: #{window_size}") %>
-                          </div>
-                        <% end %>
+                        <div class="flex gap-x-2 items-center">
+                          <%= radio_button(fdsi, :window_size, "일반",
+                            class: "radio",
+                            phx_click: "select_window_size"
+                          ) %>
+                          <%= label(f, :window_size, "일반") %>
+                        </div>
+
+                        <div class="flex gap-x-2 items-center mt-4">
+                          <%= radio_button(fdsi, :window_size, "이동합계",
+                            class: "radio",
+                            phx_click: "select_window_size"
+                          ) %>
+                          <%= label(f, :window_size, "이동합계") %>
+                        </div>
+                        <div class="text-sm text-gray-500 ml-6 mt-1">
+                          요일별 추이를 제거하고 보기위해 최근 7일간의 합계로 그래프를 보여줍니다.
+                        </div>
                       <% end %>
                     </div>
                   <% else %>

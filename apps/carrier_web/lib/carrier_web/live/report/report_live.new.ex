@@ -64,7 +64,6 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:selected_columns, [])
       |> assign(:channels, channel_options)
       |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
-      |> assign(:window_sizes, [1, 7])
       |> assign(:is_loading_slack_channels, false)
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
@@ -219,7 +218,7 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   def handle_event("select_window_size", %{"value" => window_size_str}, socket) do
-    window_size = window_size_str |> String.to_integer()
+    window_size = window_size_str |> convert_window_size()
 
     {:ok, datetime} = DateTime.now(socket.assigns.timezone)
 
@@ -521,4 +520,7 @@ defmodule CarrierWeb.ReportLive.New do
   defp is_valid_sql_template(query_validations) do
     query_validations |> Map.values() |> Enum.all?()
   end
+
+  defp convert_window_size("일반"), do: 1
+  defp convert_window_size("이동합계"), do: 7
 end
