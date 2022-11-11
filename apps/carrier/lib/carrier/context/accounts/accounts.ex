@@ -18,9 +18,10 @@ defmodule Carrier.Accounts do
     end
   end
 
-  def update_user(%User{} = user, attr) do
-    user
-    |> User.update(attr)
-    |> Repo.update()
+  def update_user(user_id, attrs) do
+    with {:ok, %User{} = user} <- fetch_user(user_id),
+         {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
+      {:ok, updated_user}
+    end
   end
 end

@@ -20,7 +20,7 @@ defmodule CarrierWeb.CompanyLive do
   def handle_event("update_user", %{"user_params" => user_params}, socket) do
     %{"position" => position} = user_params
 
-    case Accounts.update_user(socket.assigns.user, %{position: position}) do
+    case Accounts.update_user(socket.assigns.user.id, %{position: position}) do
       {:ok, _} ->
         socket =
           socket

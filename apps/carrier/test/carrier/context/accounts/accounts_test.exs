@@ -20,4 +20,24 @@ defmodule Carrier.AccountsTest do
       assert same_records?(fetched_user, user)
     end
   end
+
+  describe "update_user/2" do
+    setup do
+      user = TenantFactory.insert(:user)
+
+      TenantRepo.put_org_id(user.org_id)
+
+      {:ok, %{user: user}}
+    end
+
+    test "with valid user_id and attrs", %{user: user} do
+      attrs = %{
+        position: "CEO/대표"
+      }
+
+      assert {:ok, %User{} = updated_user} = Accounts.update_user(user.id, attrs)
+
+      assert same_fields?(updated_user, attrs, [:position])
+    end
+  end
 end
