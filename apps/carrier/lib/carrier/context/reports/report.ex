@@ -4,6 +4,7 @@ defmodule Carrier.Reports.Report do
 
   schema "reports" do
     field :org_id, :integer
+    field :user_id, :integer
     field :name, :string
     field :trigger_time, :time
 
