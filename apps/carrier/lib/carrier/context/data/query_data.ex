@@ -9,35 +9,6 @@ defmodule Carrier.Data.QueryData do
   @start_template "{{start}}"
   @end_template "{{end}}"
 
-  # def query_sample(%{
-  #       org_id: org_id,
-  #       data_source_id: data_source_id,
-  #       sql_template: sql_template,
-  #       datetime: datetime,
-  #       timezone: timezone,
-  #       period: period,
-  #       limit: limit
-  #     }) do
-  #   TenantRepo.put_org_id(org_id)
-
-  #   end_datetime = datetime |> DateTime.shift_zone!(timezone) |> Timex.beginning_of_day()
-  #   data_start_datetime = end_datetime |> Timex.shift(days: -(period - 1))
-
-  #   sql_params = [data_start_datetime, end_datetime, limit]
-
-  #   with :ok <- is_valid_sql?(sql_template),
-  #        sql = sql_template |> convert_sql_template_to_sql() |> append_limit(),
-  #        {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info}} =
-  #          Secrets.fetch_data_source(data_source_id),
-  #        {:ok, %{columns: columns, rows: rows}} <-
-  #          run_query(conn_info, sql, sql_params),
-  #        data = DataHelper.rows_to_map(columns, rows) do
-  #     {:ok, %{columns: columns, data: data}}
-  #   else
-  #     error -> error
-  #   end
-  # end
-
   def query(
         %{
           org_id: org_id,
@@ -52,16 +23,17 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    end_datetime =
+    end_date =
       datetime
       |> DateTime.shift_zone!(timezone)
-      |> Timex.beginning_of_day()
-      |> DateTime.shift_zone!("Etc/UTC")
+      |> DateTime.to_date()
 
-    data_start_datetime =
-      end_datetime |> Timex.shift(days: -(period - 1 + window_size + comparing_period))
+    start_date = end_date |> Timex.shift(days: -period)
 
-    sql_params = [data_start_datetime, end_datetime]
+    query_start_date = start_date |> Timex.shift(days: -(window_size + comparing_period + 1))
+    query_end_date = end_date |> Timex.shift(days: 1)
+
+    sql_params = [query_start_date, query_end_date]
 
     with :ok <- is_valid_sql?(sql_template),
          {:ok, %DataSource{conn_info: %ConnInfo{source: source} = conn_info}} <-
@@ -72,9 +44,9 @@ defmodule Carrier.Data.QueryData do
          :ok <- validate_query_result(columns, rows),
          normalized_rows = normalize_rows(rows),
          data = DataHelper.rows_to_map(columns, normalized_rows),
-         data = fill_missing_dates(data, columns, data_start_datetime, end_datetime),
+         filled_data = fill_missing_dates(data, columns, query_start_date, end_date),
          {:ok, analyzed_date} <-
-           data
+           filled_data
            |> analyze(%{
              columns: columns,
              period: period,
@@ -327,15 +299,15 @@ defmodule Carrier.Data.QueryData do
   defp convert_sql_template_to_sql(sql_template, :postgres) do
     sql_template
     |> String.trim_trailing(";")
-    |> String.replace(@start_template, "$1::TIMESTAMP")
-    |> String.replace(@end_template, "$2::TIMESTAMP")
+    |> String.replace(@start_template, "$1::DATE")
+    |> String.replace(@end_template, "$2::DATE")
   end
 
   defp convert_sql_template_to_sql(sql_template, :mysql) do
     sql_template
     |> String.trim_trailing(";")
-    |> String.replace(@start_template, "TIMESTAMP(?)")
-    |> String.replace(@end_template, "TIMESTAMP(?)")
+    |> String.replace(@start_template, "DATE(?)")
+    |> String.replace(@end_template, "DATE(?)")
   end
 
   # defp append_limit(sql) do
@@ -440,12 +412,9 @@ defmodule Carrier.Data.QueryData do
   defp fill_missing_dates(
          data,
          [date_column | value_columns],
-         %DateTime{} = start_datetime,
-         %DateTime{} = end_datetime
+         %Date{} = start_date,
+         %Date{} = end_date
        ) do
-    start_date = start_datetime |> DateTime.to_date()
-    end_date = end_datetime |> DateTime.to_date()
-
     date_range = Date.range(start_date, end_date |> Date.add(-1))
 
     date_datum_map =
@@ -453,23 +422,15 @@ defmodule Carrier.Data.QueryData do
       |> Enum.map(fn datum -> {datum[date_column], datum} end)
       |> Map.new()
 
-    filled_date_datum_map =
+    _filled_data =
       date_range
-      |> Enum.reduce(date_datum_map, fn date, date_datum_map ->
-        case Map.has_key?(date_datum_map, date) do
-          true ->
-            date_datum_map
-
-          false ->
-            empty_data = empty_datum(date, date_column, value_columns)
-
-            date_datum_map |> Map.put(date, empty_data)
+      |> Enum.reduce([], fn date, acc ->
+        case Map.get(date_datum_map, date) do
+          nil -> [empty_datum(date, date_column, value_columns) | acc]
+          datum -> [datum | acc]
         end
       end)
-
-    filled_date_datum_map
-    |> Map.values()
-    |> Enum.sort_by(fn %{^date_column => date} -> date end, {:asc, Date})
+      |> Enum.reverse()
   end
 
   defp empty_datum(%Date{} = date, date_column, value_columns) do
