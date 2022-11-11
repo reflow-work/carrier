@@ -66,14 +66,6 @@ defmodule Carrier.External.Slack do
     |> Enum.map(fn {k, v} ->
       %{
         title: v.meta.label,
-        raw: %{
-          yesterday: v.meta.current_period_last_tick_raw,
-          last_week: v.meta.previous_period_last_tick_raw
-        },
-        weekly_sum: %{
-          last_week: v.meta.current_period_sum,
-          week_over_week: v.meta.diff_between_period_sums_in_percentage
-        },
         img_url: Map.get(img_urls, k)
       }
     end)
