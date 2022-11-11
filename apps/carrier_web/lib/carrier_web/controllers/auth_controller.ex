@@ -49,7 +49,7 @@ defmodule CarrierWeb.AuthController do
       }
     } = auth
 
-    case Accounts.auth(email) do
+    case Accounts.Super.auth(email) do
       {:ok, {_, %User{id: user_id, org_id: org_id}}} ->
         conn
         |> put_session(:user_id, user_id)
