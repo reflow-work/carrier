@@ -83,7 +83,6 @@ defmodule CarrierWeb.ReportLive.New do
           socket
           |> assign(:tables, tables)
           |> push_event("js-exec", %{to: "#query-maker", attr: "data-show-modal"})
-          |> load_columns(tables |> List.first())
 
         {:error, _} ->
           socket

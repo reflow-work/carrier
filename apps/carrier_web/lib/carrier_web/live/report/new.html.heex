@@ -366,7 +366,7 @@
         <%= label(f, :table, "테이블", class: "label w-20 text-gray-500 text-sm") %>
         <%= select(f, :table, @tables,
           class: "select select-bordered w-60",
-          selected: @tables |> List.first(),
+          prompt: [key: "테이블을 선택해주세요", disabled: true, selected: true],
           phx_change: "change_table"
         ) %>
         <%= error_tag(f, :table) %>
