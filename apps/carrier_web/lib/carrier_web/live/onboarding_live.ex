@@ -1,4 +1,4 @@
-defmodule CarrierWeb.CompanyLive do
+defmodule CarrierWeb.OnboardingLive do
   use CarrierWeb, :live_view
 
   alias Carrier.Accounts.User
@@ -6,19 +6,12 @@ defmodule CarrierWeb.CompanyLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign(
-        :user_params,
-        %{}
-      )
-
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("update_user", %{"user_params" => user_params}, socket) do
-    %{"position" => position} = user_params
+  def handle_event("update_user", %{"user" => user_inputs}, socket) do
+    %{"position" => position} = user_inputs
 
     case Accounts.update_user(socket.assigns.user.id, %{position: position}) do
       {:ok, _} ->
