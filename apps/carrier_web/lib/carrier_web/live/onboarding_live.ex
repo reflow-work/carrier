@@ -6,13 +6,6 @@ defmodule CarrierWeb.OnboardingLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign(
-        :user_params,
-        %{}
-      )
-
     {:ok, socket}
   end
 
