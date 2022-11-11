@@ -14,6 +14,7 @@ defmodule Carrier.Reports do
 
   def create_report(%{
         org_id: org_id,
+        user_id: user_id,
         name: name,
         trigger_time: trigger_time,
         integration_info: integration_info,
@@ -23,6 +24,7 @@ defmodule Carrier.Reports do
       with {:ok, %Report{} = report} <-
              Report.create(%{
                org_id: org_id,
+               user_id: user_id,
                name: name,
                trigger_time: trigger_time,
                integration_info: integration_info,

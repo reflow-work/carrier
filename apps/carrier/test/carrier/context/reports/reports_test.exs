@@ -9,15 +9,22 @@ defmodule Carrier.ReportsTest do
   describe "create_report/1" do
     setup do
       org = TenantFactory.insert(:org)
+      user = TenantFactory.insert(:user, org_id: org.org_id)
       integration = TenantFactory.insert(:integration, org_id: org.org_id)
       data_source = TenantFactory.insert(:data_source, org_id: org.org_id, source: :postgres)
 
-      %{org: org, integration: integration, data_source: data_source}
+      %{org: org, user: user, integration: integration, data_source: data_source}
     end
 
-    test "with valid attrs", %{org: org, integration: integration, data_source: data_source} do
+    test "with valid attrs", %{
+      org: org,
+      user: user,
+      integration: integration,
+      data_source: data_source
+    } do
       params = %{
         org_id: org.org_id,
+        user_id: user.id,
         name: "Daily Report",
         trigger_time: ~T[10:00:00],
         integration_info: %{
@@ -37,7 +44,7 @@ defmodule Carrier.ReportsTest do
       }
 
       assert {:ok, created_report} = Reports.create_report(params)
-      assert same_fields?(created_report, params, [:org_id, :name, :trigger_time])
+      assert same_fields?(created_report, params, [:org_id, :user_id, :name, :trigger_time])
 
       # ReportJob
 

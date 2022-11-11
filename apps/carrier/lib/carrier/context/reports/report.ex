@@ -16,7 +16,7 @@ defmodule Carrier.Reports.Report do
     timestamps()
   end
 
-  @required_for_create [:org_id, :name, :trigger_time]
+  @required_for_create [:org_id, :user_id, :name, :trigger_time]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create)
@@ -40,6 +40,7 @@ defmodule Carrier.Reports.Report do
 
   def create(%{
         org_id: org_id,
+        user_id: user_id,
         name: name,
         trigger_time: trigger_time,
         integration_info: integration_info,
@@ -48,6 +49,7 @@ defmodule Carrier.Reports.Report do
     %__MODULE__{}
     |> changeset_for_create(%{
       org_id: org_id,
+      user_id: user_id,
       name: name,
       trigger_time: trigger_time,
       integration_info: integration_info,

@@ -3,9 +3,10 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
   import Ecto.Changeset
 
   embedded_schema do
-    field(:org_id, :integer)
-    field(:name, :string)
-    field(:trigger_time, :time)
+    field :org_id, :integer
+    field :user_id, :integer
+    field :name, :string
+    field :trigger_time, :time
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete do
       field :integration_id, :integer
@@ -24,7 +25,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     end
   end
 
-  @required [:org_id, :name, :trigger_time]
+  @required [:org_id, :user_id, :name, :trigger_time]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)

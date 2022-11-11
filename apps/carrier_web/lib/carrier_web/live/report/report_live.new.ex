@@ -181,6 +181,7 @@ defmodule CarrierWeb.ReportLive.New do
             ReportParams.changeset(
               ReportParams.init_attrs(%{
                 "org_id" => socket.assigns.org_id,
+                "user_id" => socket.assigns.user.id,
                 "integration_info" => %{
                   "integration_id" => socket.assigns.integration.id
                 },
