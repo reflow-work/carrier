@@ -215,7 +215,7 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   def handle_event("select_window_size", %{"value" => window_size_str}, socket) do
-    window_size = window_size_str |> convert_window_size()
+    window_size = window_size_str |> String.to_integer()
 
     socket =
       QueryData.query(%{
@@ -515,7 +515,4 @@ defmodule CarrierWeb.ReportLive.New do
   defp is_valid_sql_template(query_validations) do
     query_validations |> Map.values() |> Enum.all?()
   end
-
-  defp convert_window_size("일반"), do: 1
-  defp convert_window_size("이동합계"), do: 7
 end

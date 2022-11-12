@@ -158,7 +158,7 @@
                     <div class="flex flex-col mt-2">
                       <%= inputs_for f, :data_source_info, fn fdsi -> %>
                         <div class="flex gap-x-2 items-center">
-                          <%= radio_button(fdsi, :window_size, "일반",
+                          <%= radio_button(fdsi, :window_size, 1,
                             class: "radio",
                             phx_click: "select_window_size"
                           ) %>
@@ -166,7 +166,7 @@
                         </div>
 
                         <div class="flex gap-x-2 items-center mt-4">
-                          <%= radio_button(fdsi, :window_size, "이동합계",
+                          <%= radio_button(fdsi, :window_size, 7,
                             class: "radio",
                             phx_click: "select_window_size"
                           ) %>
