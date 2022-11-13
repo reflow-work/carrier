@@ -444,16 +444,6 @@ defmodule CarrierWeb.ReportLive.New do
     end)
   end
 
-  defp value_color(value) when is_number(value) do
-    case value do
-      value when value > 0 -> "text-slackImgBlue"
-      value when value < 0 -> "text-slackImgRed"
-      _ -> ""
-    end
-  end
-
-  defp value_color(_), do: ""
-
   defp save_chart_image(%{orgId: orgId, reportId: reportId, data: data}) do
     %{orgId: orgId, reportId: reportId, data: data}
     |> Aws.save_chart_img()
