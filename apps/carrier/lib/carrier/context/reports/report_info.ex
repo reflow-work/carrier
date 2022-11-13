@@ -20,4 +20,10 @@ defmodule Carrier.Reports.ReportInfo do
     %__MODULE__{}
     |> changeset_for_create(%{org_id: org_id})
   end
+
+  def fetch(report_info_id) do
+    __MODULE__
+    |> where([ri], ri.id == ^report_info_id)
+    |> where([ri], is_nil(ri.deleted_at))
+  end
 end

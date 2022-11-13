@@ -12,6 +12,20 @@ defmodule Carrier.Reports do
     end
   end
 
+  def fetch_report_info(report_info_id) do
+    ReportInfo.fetch(report_info_id)
+    |> TenantRepo.one()
+    |> case do
+      %ReportInfo{} = report_info ->
+        {:ok, report_info}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: ReportInfo, conditions: %{report_info_id: report_info_id}}}}
+    end
+  end
+
   def create_report(%{
         org_id: org_id,
         user_id: user_id,

@@ -7,6 +7,30 @@ defmodule Carrier.ReportsTest do
 
   @moduletag repo: TenantRepo
 
+  describe "fetch_report_info/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
+
+      %{org: org, report_info: report_info}
+    end
+
+    test "with valid report_info_id", %{report_info: report_info} do
+      assert {:ok, fetched_report_info} = Reports.fetch_report_info(report_info.id)
+      assert same_records?(fetched_report_info, report_info)
+    end
+
+    test "with deleted report_info_id", %{org: org} do
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+
+      assert {:error, {:resource_not_found, _}} =
+               Reports.fetch_report_info(deleted_report_info.id)
+    end
+  end
+
   describe "create_report/1" do
     setup do
       org = TenantFactory.insert(:org)
