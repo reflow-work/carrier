@@ -15,10 +15,19 @@ defmodule CarrierWeb.OnboardingLive do
       "position" => position,
       "name" => name,
       "industry" => industry,
-      "employee_count" => employee_count
+      "employee_count" => employee_count,
+      "agreed_terms_of_service" => agreed_terms_of_service,
+      "agreed_privacy_policy" => agreed_privacy_policy
     } = onboarding_inputs
 
-    with {:ok, %User{}} <- Accounts.update_user(socket.assigns.user.id, %{position: position}),
+    with :ok <- validate_policy(agreed_terms_of_service, agreed_privacy_policy),
+         now = DateTime.utc_now(),
+         {:ok, %User{}} <-
+           Accounts.update_user(socket.assigns.user.id, %{
+             position: position,
+             agreed_terms_of_service_at: now,
+             agreed_privacy_policy_at: now
+           }),
          {:ok, %Org{}} <-
            Accounts.update_org(%{
              name: name,
@@ -31,10 +40,35 @@ defmodule CarrierWeb.OnboardingLive do
 
       {:noreply, socket}
     else
-      {:error, _} ->
-        socket = socket |> put_flash(:error, "회사 정보 입력에 실패하였습니다. 다시 시도해주세요.")
+      {:error, {:validation_error, message}} ->
+        socket =
+          socket
+          |> put_flash_for(:error, message, timeout: :timer.seconds(3))
 
         {:noreply, socket}
+
+      {:error, _} ->
+        socket =
+          socket
+          |> put_flash_for(:error, "회사 정보 입력에 실패하였습니다. 다시 시도해주세요.", timeout: :timer.seconds(3))
+
+        {:noreply, socket}
+    end
+  end
+
+  defp validate_policy(agreed_terms_of_service, agreed_privacy_policy) do
+    case {agreed_terms_of_service, agreed_privacy_policy} do
+      {"true", "true"} ->
+        :ok
+
+      {"false", _} ->
+        {:error, {:validation_error, "이용약관에 동의해주세요."}}
+
+      {_, "false"} ->
+        {:error, {:validation_error, "개인정보 처리방침에 동의해주세요."}}
+
+      _ ->
+        {:error, {:validation_error, "약관에 동의해주세요."}}
     end
   end
 end
