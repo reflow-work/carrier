@@ -4,29 +4,14 @@ defmodule CarrierWeb.OnboardingHook do
   require Logger
 
   def on_mount(:default, _params, _session, socket) do
-    case load_org() do
-      %Org{} = org ->
-        org |> IO.inspect()
+    if socket.assigns.org.name == "organization" do
+      socket =
+        socket
+        |> redirect(to: Routes.onboarding_path(socket, :index))
 
-        if org.name == "" || org.name == "organization" do
-          socket =
-            socket
-            |> redirect(to: Routes.onboarding_path(socket, :index))
-
-          {:halt, socket}
-        else
-          {:cont, socket}
-        end
-
-      _ ->
-        {:cont, socket}
-    end
-  end
-
-  defp load_org() do
-    case Accounts.fetch_org() do
-      {:ok, %Org{} = org} -> org
-      _ -> nil
+      {:halt, socket}
+    else
+      {:cont, socket}
     end
   end
 end
