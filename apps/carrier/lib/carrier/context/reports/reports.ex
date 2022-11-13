@@ -1,6 +1,6 @@
 defmodule Carrier.Reports do
   require Logger
-  alias Carrier.Reports.{Report, ReportLog}
+  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
   alias Carrier.Works.ReportJob
   alias Carrier.TenantRepo
   alias Carrier.Core.DateTimeHelper
@@ -8,7 +8,21 @@ defmodule Carrier.Reports do
   defmacro __using__([]) do
     quote do
       alias unquote(__MODULE__)
-      alias unquote(__MODULE__).{Report, ReportLog}
+      alias unquote(__MODULE__).{ReportInfo, Report, ReportLog}
+    end
+  end
+
+  def fetch_report_info(report_info_id) do
+    ReportInfo.fetch(report_info_id)
+    |> TenantRepo.one()
+    |> case do
+      %ReportInfo{} = report_info ->
+        {:ok, report_info}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: ReportInfo, conditions: %{report_info_id: report_info_id}}}}
     end
   end
 
@@ -21,9 +35,12 @@ defmodule Carrier.Reports do
         data_source_info: data_source_info
       }) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %Report{} = report} <-
+      with {:ok, %ReportInfo{} = report_info} <-
+             ReportInfo.create(%{org_id: org_id}) |> TenantRepo.insert(),
+           {:ok, %Report{} = report} <-
              Report.create(%{
                org_id: org_id,
+               report_info_id: report_info.id,
                user_id: user_id,
                name: name,
                trigger_time: trigger_time,
@@ -57,20 +74,24 @@ defmodule Carrier.Reports do
 
   def delete_report(report_id) do
     with {:ok, %Report{} = report} <- fetch_report(report_id),
-         {:ok, deleted_report} <-
-           report |> Report.delete(DateTime.utc_now()) |> TenantRepo.update() do
-      {:ok, deleted_report}
+         {:ok, %ReportInfo{} = report_info} <- fetch_report_info(report.report_info_id),
+         deleted_at = DateTime.utc_now(),
+         {:ok, _deleted_report_info} <-
+           report_info |> ReportInfo.delete(deleted_at) |> TenantRepo.update() do
+      {:ok, %Report{report | deleted_at: deleted_at}}
     end
   end
 
   def record_scheduled_report_log(%{
         org_id: org_id,
+        report_info_id: report_info_id,
         report_id: report_id,
         report_job_id: report_job_id,
         scheduled_at: scheduled_at
       }) do
     ReportLog.record_scheduled(%{
       org_id: org_id,
+      report_info_id: report_info_id,
       report_id: report_id,
       report_job_id: report_job_id,
       created_at: DateTime.utc_now(),
@@ -142,7 +163,12 @@ defmodule Carrier.Reports do
 
     TenantRepo.wrap_transaction(fn ->
       with {:ok, report_job} <-
-             %{org_id: report.org_id, report_id: report.id, datetime: scheduled_at}
+             %{
+               org_id: report.org_id,
+               report_id: report.id,
+               report_info_id: report.report_info_id,
+               datetime: scheduled_at
+             }
              |> ReportJob.new(
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
@@ -151,6 +177,7 @@ defmodule Carrier.Reports do
            {:ok, %ReportLog{}} <-
              record_scheduled_report_log(%{
                org_id: report.org_id,
+               report_info_id: report.report_info_id,
                report_id: report.id,
                report_job_id: report_job.id,
                scheduled_at: scheduled_at

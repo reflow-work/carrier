@@ -1,10 +1,35 @@
 defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
-  use Oban.Testing, repo: TenantRepo
-  alias Carrier.Reports
-  alias Carrier.Reports.{Report, ReportLog}
+  use Carrier.Reports
+  use Oban.Testing, repo: Carrier.TenantRepo
+  alias Carrier.TenantFactory
+  alias Carrier.TenantRepo
 
   @moduletag repo: TenantRepo
+
+  describe "fetch_report_info/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
+
+      %{org: org, report_info: report_info}
+    end
+
+    test "with valid report_info_id", %{report_info: report_info} do
+      assert {:ok, fetched_report_info} = Reports.fetch_report_info(report_info.id)
+      assert same_records?(fetched_report_info, report_info)
+    end
+
+    test "with deleted report_info_id", %{org: org} do
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+
+      assert {:error, {:resource_not_found, _}} =
+               Reports.fetch_report_info(deleted_report_info.id)
+    end
+  end
 
   describe "create_report/1" do
     setup do
@@ -46,12 +71,29 @@ defmodule Carrier.ReportsTest do
       assert {:ok, created_report} = Reports.create_report(params)
       assert same_fields?(created_report, params, [:org_id, :user_id, :name, :trigger_time])
 
-      # ReportJob
-
       TenantRepo.set_skip_org_id()
 
-      assert [%{scheduled_at: scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
-      assert scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
+      # ReportInfo
+
+      assert %ReportInfo{} =
+               report_info = TenantRepo.get_by(ReportInfo, id: created_report.report_info_id)
+
+      assert report_info.org_id == org.org_id
+
+      # ReportJob
+
+      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
+               all_enqueued(worker: Carrier.Works.ReportJob)
+
+      assert job_args == %{
+               "org_id" => org.org_id,
+               "report_id" => created_report.id,
+               "report_info_id" => created_report.report_info_id,
+               "datetime" =>
+                 job_scheduled_at |> DateTime.truncate(:second) |> DateTime.to_iso8601()
+             }
+
+      assert job_scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
 
       # ReportLog
 
@@ -67,8 +109,28 @@ defmodule Carrier.ReportsTest do
       org = TenantFactory.insert(:org)
       TenantRepo.put_org_id(org.org_id)
 
-      report = TenantFactory.insert(:report, org_id: org.org_id)
-      TenantFactory.insert(:report, org_id: org.org_id, deleted_at: DateTime.utc_now())
+      report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
+
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+
+      now = DateTime.utc_now()
+
+      report =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: report_info,
+          created_at: now |> Timex.shift(days: -1)
+        )
+
+      TenantFactory.insert(:report,
+        org_id: org.org_id,
+        report_info: report_info,
+        created_at: now |> Timex.shift(days: -2)
+      )
+
+      TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+
       TenantFactory.insert(:report)
 
       %{reports: [report]}
@@ -100,8 +162,11 @@ defmodule Carrier.ReportsTest do
     end
 
     test "with deleted report_id", %{org: org} do
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+
       deleted_report =
-        TenantFactory.insert(:report, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
 
       assert {:error, {:resource_not_found, %{target: Report}}} =
                Reports.fetch_report(deleted_report.id)
@@ -121,9 +186,16 @@ defmodule Carrier.ReportsTest do
     test "with report_id", %{report: report} do
       assert {:ok, deleted_report} = Reports.delete_report(report.id)
       assert same_records?(deleted_report, report)
+      assert deleted_report.deleted_at != nil
 
-      assert %{deleted_at: deleted_at} = TenantRepo.get_by(Report, id: report.id)
-      assert deleted_at != nil
+      # ReportInfo
+
+      TenantRepo.set_skip_org_id()
+
+      assert %ReportInfo{} =
+               report_info = TenantRepo.get_by(ReportInfo, id: report.report_info_id)
+
+      assert report_info.deleted_at != nil
     end
   end
 
@@ -137,6 +209,7 @@ defmodule Carrier.ReportsTest do
     test "with valid attrs", %{report: report} do
       params = %{
         org_id: report.org_id,
+        report_info_id: report.report_info_id,
         report_id: report.id,
         report_job_id: 1,
         scheduled_at: DateTime.utc_now() |> Timex.shift(days: 1)
@@ -146,6 +219,7 @@ defmodule Carrier.ReportsTest do
 
       assert same_fields?(scheduled_report_log, params, [
                :org_id,
+               :report_info_id,
                :report_id,
                :report_job_id,
                :scheduled_at

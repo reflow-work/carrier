@@ -1,8 +1,9 @@
 defmodule Carrier.Reports.ReportLog do
   use Carrier.Schema
-  alias Carrier.Reports.{Report, IntegrationInfo, DataSourceInfo}
+  alias Carrier.Reports.{ReportInfo, Report, IntegrationInfo, DataSourceInfo}
 
   schema "report_logs" do
+    belongs_to :report_info, ReportInfo
     belongs_to :report, Report
 
     field :org_id, :integer
@@ -25,7 +26,14 @@ defmodule Carrier.Reports.ReportLog do
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
   end
 
-  @required_for_record_scheduled [:org_id, :report_id, :report_job_id, :created_at, :scheduled_at]
+  @required_for_record_scheduled [
+    :org_id,
+    :report_info_id,
+    :report_id,
+    :report_job_id,
+    :created_at,
+    :scheduled_at
+  ]
   defp changeset_for_record_scheduled(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_record_scheduled)
@@ -42,6 +50,7 @@ defmodule Carrier.Reports.ReportLog do
 
   def record_scheduled(%{
         org_id: org_id,
+        report_info_id: report_info_id,
         report_id: report_id,
         report_job_id: report_job_id,
         created_at: created_at,
@@ -50,6 +59,7 @@ defmodule Carrier.Reports.ReportLog do
     %__MODULE__{}
     |> changeset_for_record_scheduled(%{
       org_id: org_id,
+      report_info_id: report_info_id,
       report_id: report_id,
       report_job_id: report_job_id,
       status: :scheduled,
