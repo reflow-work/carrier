@@ -6,8 +6,8 @@ defmodule CarrierWeb.AnalyticsHook do
 
   def on_mount(:default, _params, _session, socket) do
     socket =
-      case @env do
-        :prod ->
+      case {connected?(socket), @env} do
+        {true, :prod} ->
           socket
           |> init_analytics()
           |> attach_hook(:analytics_hook, :handle_params, fn
