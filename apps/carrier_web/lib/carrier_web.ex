@@ -56,6 +56,7 @@ defmodule CarrierWeb do
 
       require Logger
       import CarrierWeb.LiveHelpers
+      import CarrierWeb.AnalyticsHelper
       alias Phoenix.LiveView.JS
 
       def put_flash_for(socket, kind, message, opts \\ []) do
@@ -86,6 +87,7 @@ defmodule CarrierWeb do
     quote do
       import Phoenix.LiveView
       import Phoenix.Component
+      import CarrierWeb.AnalyticsHelper
 
       unquote(view_helpers())
     end
