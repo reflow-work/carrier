@@ -3,13 +3,14 @@ defmodule CarrierWeb.SettingsLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    case connected?(socket) do
-      true ->
-        socket = socket |> push_event("amplitude_log_event", %{eventName: "view_settings"})
+    socket =
+      case connected?(socket) do
+        true ->
+          socket |> log_event("view_settings")
 
-      false ->
-        socket
-    end
+        false ->
+          socket
+      end
 
     {:ok, socket}
   end

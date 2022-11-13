@@ -24,11 +24,11 @@ import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
-import { init } from '@amplitude/analytics-browser'
 import topbar from "../vendor/topbar"
 import Hooks from "./hooks"
+import { initAnalytics } from "./analytics"
 
-init("9c77fc06bfcc14223518ab4a3979e459")
+initAnalytics()
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
