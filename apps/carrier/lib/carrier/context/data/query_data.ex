@@ -14,8 +14,8 @@ defmodule Carrier.Data.QueryData do
           org_id: org_id,
           data_source_id: data_source_id,
           sql_template: sql_template,
-          datetime: datetime,
-          timezone: timezone,
+          datetime: utc_datetime,
+          timezone: _timezone,
           period: period,
           window_size: window_size,
           comparing_period: comparing_period
@@ -23,15 +23,11 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    end_date =
-      datetime
-      |> DateTime.shift_zone!(timezone)
-      |> DateTime.to_date()
+    end_date = utc_datetime |> DateTime.to_date()
+    start_date = end_date |> Date.add(-period)
 
-    start_date = end_date |> Timex.shift(days: -period)
-
-    query_start_date = start_date |> Timex.shift(days: -(window_size + comparing_period + 1))
-    query_end_date = end_date |> Timex.shift(days: 1)
+    query_start_date = start_date |> Date.add(-(window_size + comparing_period + 1))
+    query_end_date = end_date |> Date.add(1)
 
     sql_params = [query_start_date, query_end_date]
 
