@@ -38,7 +38,12 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     live_session :user,
-      on_mount: [CarrierWeb.UserHook, CarrierWeb.TimezoneHook, CarrierWeb.AnalyticsHook] do
+      on_mount: [
+        CarrierWeb.UserHook,
+        CarrierWeb.TimezoneHook,
+        CarrierWeb.AnalyticsHook,
+        CarrierWeb.ChanneltalkHook
+      ] do
       live "/onboarding", OnboardingLive, :index
       live "/integrations/new", IntegrationLive.New, :new
       live "/data-sources", DataSourceLive.Index, :index
