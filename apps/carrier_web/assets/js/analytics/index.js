@@ -1,5 +1,7 @@
-import { initAmplitude } from './amplitude'
+import { init as initAmplitude } from './amplitude'
 
-export function initAnalytics() {
-  initAmplitude()
-}
+window.addEventListener("phx:analytics-init", ({ detail }) => {
+  const { user_id: userId } = detail
+
+  initAmplitude(userId)
+})

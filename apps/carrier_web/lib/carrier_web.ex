@@ -87,6 +87,7 @@ defmodule CarrierWeb do
     quote do
       import Phoenix.LiveView
       import Phoenix.Component
+      import CarrierWeb.AnalyticsHelper
 
       unquote(view_helpers())
     end
