@@ -4,6 +4,8 @@ defmodule Carrier.Accounts.Org do
   @primary_key {:org_id, :id, autogenerate: true}
   schema "orgs" do
     field :name, :string
+    field :industry, :string
+    field :employee_count, :string
   end
 
   @required_for_create [:name]
