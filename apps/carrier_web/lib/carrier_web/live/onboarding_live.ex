@@ -10,8 +10,8 @@ defmodule CarrierWeb.OnboardingLive do
   end
 
   @impl true
-  def handle_event("update_user", %{"user" => user_inputs}, socket) do
-    %{"position" => position} = user_inputs
+  def handle_event("update_onboarding", %{"onboarding" => onboarding_inputs}, socket) do
+    %{"position" => position} = onboarding_inputs
 
     case Accounts.update_user(socket.assigns.user.id, %{position: position}) do
       {:ok, _} ->
