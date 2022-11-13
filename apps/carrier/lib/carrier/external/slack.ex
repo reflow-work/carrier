@@ -102,20 +102,4 @@ defmodule Carrier.External.Slack do
       Tesla.Middleware.JSON
     ])
   end
-
-  def sample_args() do
-    %{
-      title: "total_sales",
-      raw: %{
-        yesterday: "123,456",
-        last_week: "1.5"
-      },
-      weekly_sum: %{
-        last_week: "901,552",
-        week_over_week: "-8.3"
-      },
-      img_url:
-        "https://www.investopedia.com/thmb/MCCSOI-i2RokZiuwSSDNae1xt8I=/660x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_INV_Final_Line_Chart_Jan_2021-01-d2dc4eb9a59c43468e48c03e15501ebe.jpg"
-    }
-  end
 end

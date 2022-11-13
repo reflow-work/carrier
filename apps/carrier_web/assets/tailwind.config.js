@@ -21,9 +21,6 @@ module.exports = {
         "slackImgBlue": "#004ADB",
         "slackImgRed": "#C91000"
       },
-      fontFamily: {
-        lato: ["Lato", "ui-sans-serif", "system-ui"],
-      },
       fontSize: {
         h1: ["42px", { "lineHeight": "48px", "fontWeight": "700" }],
         h2: ["36px", { "lineHeight": "44px", "fontWeight": "700" }],

@@ -76,9 +76,19 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
         <span></span>
         """
 
+      assigns.diff_value_percentage == :negative_infinity ->
+        ~H"""
+        <span>데이터에 문제가 있어 값을 계산할 수 없습니다.</span>
+        """
+
+      assigns.diff_value_percentage == :infinity ->
+        ~H"""
+        <span>데이터에 문제가 있어 값을 계산할 수 없습니다.</span>
+        """
+
       assigns.diff_value_percentage == :nan ->
         ~H"""
-        <span>오류 - 잘못된 값이 입력되었습니다.</span>
+        <span>데이터에 문제가 있어 값을 계산할 수 없습니다.</span>
         """
 
       assigns.diff_value_percentage > 0 ->

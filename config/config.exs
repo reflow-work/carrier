@@ -42,7 +42,6 @@ config :esbuild,
   default: [
     args: ~w(
       js/app.js
-      vendor/fonts/Lato/lato.css
       --loader:.woff2=file
       --loader:.woff=file
       --loader:.ttf=file
