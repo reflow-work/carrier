@@ -163,7 +163,10 @@
                             class: "radio",
                             phx_click: "select_window_size"
                           ) %>
-                          <%= label(f, :window_size, "일반") %>
+                          <%= label(f, :window_size, "당일 지표") %>
+                        </div>
+                        <div class="text-sm text-gray-500 ml-6 mt-1">
+                          당일의 지표를 추가적인 집계 없이 그래프에 표시합니다.
                         </div>
 
                         <div class="flex gap-x-2 items-center mt-4">
@@ -174,7 +177,7 @@
                           <%= label(f, :window_size, "이동합계") %>
                         </div>
                         <div class="text-sm text-gray-500 ml-6 mt-1">
-                          요일별 추이를 제거하고 보기위해 최근 7일간의 합계로 그래프를 보여줍니다.
+                          요일별 추이를 제거하고 보기위해 최근 7일간의 합계로 그래프에 표시합니다.
                         </div>
                       <% end %>
                     </div>
