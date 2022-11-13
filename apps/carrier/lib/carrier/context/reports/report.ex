@@ -65,18 +65,24 @@ defmodule Carrier.Reports.Report do
     __MODULE__
     |> join(:inner, [r], ri in assoc(r, :report_info))
     |> distinct([r], r.report_info_id)
-    |> where([r, ri], is_nil(ri.deleted_at))
+    |> query_not_deleted()
     |> order_by([r], desc: r.created_at)
   end
 
   def fetch(report_id) do
     __MODULE__
+    |> join(:inner, [r], ri in assoc(r, :report_info))
     |> where([r], r.id == ^report_id)
-    |> where([r], is_nil(r.deleted_at))
+    |> query_not_deleted()
   end
 
   def delete(%__MODULE__{} = struct, %DateTime{} = deleted_at) do
     struct
     |> changeset_for_delete(%{deleted_at: deleted_at})
+  end
+
+  defp query_not_deleted(query) do
+    query
+    |> where([r, ri], is_nil(ri.deleted_at))
   end
 end
