@@ -39,11 +39,19 @@ defmodule CarrierWeb.UserHook do
     |> assign_new(:org_id, fn -> org_id end)
     |> assign_new(:user_id, fn -> user_id end)
     |> assign_new(:user, fn -> load_user(user_id) end)
+    |> assign_new(:org, fn -> load_org() end)
   end
 
   defp load_user(user_id) do
     case Accounts.fetch_user(user_id) do
       {:ok, %User{} = user} -> user
+      _ -> nil
+    end
+  end
+
+  defp load_org() do
+    case Accounts.fetch_org() do
+      {:ok, %Org{} = org} -> org
       _ -> nil
     end
   end
