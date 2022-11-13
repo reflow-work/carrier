@@ -25,7 +25,9 @@ defmodule Carrier.Accounts.User do
   end
 
   @required_for_update [
-    :position
+    :position,
+    :agreed_privacy_policy_at,
+    :agreed_terms_of_service_at
   ]
   defp changeset_for_update(%__MODULE__{} = struct, attrs) do
     struct

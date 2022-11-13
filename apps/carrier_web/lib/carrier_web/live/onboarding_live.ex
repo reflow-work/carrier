@@ -21,7 +21,13 @@ defmodule CarrierWeb.OnboardingLive do
     } = onboarding_inputs
 
     with :ok <- validate_policy(agreed_terms_of_service, agreed_privacy_policy),
-         {:ok, %User{}} <- Accounts.update_user(socket.assigns.user.id, %{position: position}),
+         now = DateTime.utc_now(),
+         {:ok, %User{}} <-
+           Accounts.update_user(socket.assigns.user.id, %{
+             position: position,
+             agreed_terms_of_service_at: now,
+             agreed_privacy_policy_at: now
+           }),
          {:ok, %Org{}} <-
            Accounts.update_org(%{
              name: name,
