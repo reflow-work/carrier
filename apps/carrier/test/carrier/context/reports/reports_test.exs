@@ -186,9 +186,16 @@ defmodule Carrier.ReportsTest do
     test "with report_id", %{report: report} do
       assert {:ok, deleted_report} = Reports.delete_report(report.id)
       assert same_records?(deleted_report, report)
+      assert deleted_report.deleted_at != nil
 
-      assert %{deleted_at: deleted_at} = TenantRepo.get_by(Report, id: report.id)
-      assert deleted_at != nil
+      # ReportInfo
+
+      TenantRepo.set_skip_org_id()
+
+      assert %ReportInfo{} =
+               report_info = TenantRepo.get_by(ReportInfo, id: report.report_info_id)
+
+      assert report_info.deleted_at != nil
     end
   end
 
