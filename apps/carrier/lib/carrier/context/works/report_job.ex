@@ -30,8 +30,8 @@ defmodule Carrier.Works.ReportJob do
          {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
          {:ok, %ReportLog{} = _updated_report_log} <-
            Reports.update_report_log(updated_report_log, %{payload: slack_args}),
-         {:ok, _next_job} <-
-           send_report(%{report: report, slack_args: slack_args, datetime: datetime}) do
+         {:ok, _result} <- send_report(%{report: report, slack_args: slack_args}),
+         {:ok, _next_job} <- Reports.create_job_from_report(report, datetime) do
       :ok
     else
       {:error, {:resource_not_found, %{target: Report}}} ->
@@ -93,28 +93,25 @@ defmodule Carrier.Works.ReportJob do
   end
 
   defp send_report(%{
-         report:
-           %Report{
-             id: report_id,
-             integration_info: %{
-               integration_id: integration_id,
-               channel_id: channel_id
-             }
-           } = report,
-         slack_args: slack_args,
-         datetime: datetime
+         report: %Report{
+           id: report_id,
+           integration_info: %{
+             integration_id: integration_id,
+             channel_id: channel_id
+           }
+         },
+         slack_args: slack_args
        }) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
-           {:ok, _} <-
+           {:ok, send_result} <-
              slack_args
              |> Enum.map(
                &Noti.send_report_to_slack(channel_id, &1, integration.conn_info.info["bot_token"])
              )
              |> Traversable.traverse(),
-           {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}),
-           {:ok, next_job} <- Reports.create_job_from_report(report, datetime) do
-        {:ok, next_job}
+           {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}) do
+        {:ok, send_result}
       end
     end)
   end
