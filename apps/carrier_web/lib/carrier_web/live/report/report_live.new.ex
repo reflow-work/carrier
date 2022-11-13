@@ -51,6 +51,7 @@ defmodule CarrierWeb.ReportLive.New do
         value_columns: [],
         aggregations: ["SUM", "AVG", "COUNT", "MAX", "MIN"]
       )
+      |> assign(:query_maker_button_font_size, 14)
       |> assign(%{
         sample_sql_template: @sample_sql_template,
         sql_template: @sample_sql_template,
@@ -170,6 +171,7 @@ defmodule CarrierWeb.ReportLive.New do
           columns = parsed_data |> Map.keys()
 
           socket
+          |> assign(:query_maker_button_font_size, 14)
           |> assign(:data_loaded, true)
           |> assign(:query_error_message, nil)
           |> assign(:preview, preview)
@@ -210,7 +212,9 @@ defmodule CarrierWeb.ReportLive.New do
               error -> inspect(error)
             end
 
-          socket |> assign(:query_error_message, "쿼리 실행 중 오류: #{message}")
+          socket
+          |> assign(:query_error_message, "쿼리 실행 중 오류: #{message}")
+          |> update(:query_maker_button_font_size, &(&1 + 1))
       end
 
     {:noreply, socket}
