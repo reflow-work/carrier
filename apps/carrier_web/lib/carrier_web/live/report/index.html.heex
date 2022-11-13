@@ -33,6 +33,12 @@
               <td>#<%= report.integration_info.channel_name %></td>
               <td>
                 <.link
+                  navigate={Routes.report_new_path(@socket, :edit, report.id)}
+                  class="btn btn-sm"
+                >
+                  수정
+                </.link>
+                <.link
                   patch={Routes.report_index_path(@socket, :delete, report.id)}
                   class="btn btn-sm"
                 >
