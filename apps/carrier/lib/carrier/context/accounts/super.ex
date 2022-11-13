@@ -42,9 +42,7 @@ defmodule Carrier.Accounts.Super do
     User.create(%{
       org_id: org_id,
       email: email,
-      signed_at: now,
-      agreed_privacy_policy_at: now,
-      agreed_terms_of_service_at: now
+      signed_at: now
     })
     |> Repo.insert()
   end
