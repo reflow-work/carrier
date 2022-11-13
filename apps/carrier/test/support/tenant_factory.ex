@@ -128,6 +128,7 @@ defmodule Carrier.TenantFactory do
 
     %ReportLog{
       org_id: report.org_id,
+      report_info: report.report_info,
       report: report,
       report_job_id: seq(:report_log_report_job_id, & &1),
       created_at: DateTime.utc_now()

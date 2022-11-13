@@ -209,6 +209,7 @@ defmodule Carrier.ReportsTest do
     test "with valid attrs", %{report: report} do
       params = %{
         org_id: report.org_id,
+        report_info_id: report.report_info_id,
         report_id: report.id,
         report_job_id: 1,
         scheduled_at: DateTime.utc_now() |> Timex.shift(days: 1)
@@ -218,6 +219,7 @@ defmodule Carrier.ReportsTest do
 
       assert same_fields?(scheduled_report_log, params, [
                :org_id,
+               :report_info_id,
                :report_id,
                :report_job_id,
                :scheduled_at
