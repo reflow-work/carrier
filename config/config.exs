@@ -13,6 +13,8 @@ import Config
 config :carrier,
   ecto_repos: [Carrier.Repo]
 
+config :carrier, env: config_env()
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
