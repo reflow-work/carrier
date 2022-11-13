@@ -1,8 +1,8 @@
 defmodule CarrierWeb.OnboardingLive do
   use CarrierWeb, :live_view
 
-  alias Carrier.Accounts.User
   alias Carrier.Accounts
+  alias Carrier.Accounts.{Org, User}
 
   @impl true
   def mount(_params, _session, socket) do

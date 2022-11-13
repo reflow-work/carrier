@@ -18,4 +18,27 @@ defmodule Carrier.Accounts.Org do
     %__MODULE__{}
     |> changeset_for_create(%{name: name})
   end
+
+  def industries do
+    [
+      "IT 서비스",
+      "온라인 교육",
+      "B2B",
+      "쇼핑몰",
+      "오프라인 기반 (병원, 학원, 숙박 등)",
+      "기타 (비영리, 제조업 등)",
+    ]
+  end
+
+  def employee_counts do
+    [
+      "1~4명",
+      "5~9명",
+      "10~19명",
+      "20~49명",
+      "50~99명",
+      "100~299명",
+      "300명 이상",
+    ]
+  end
 end

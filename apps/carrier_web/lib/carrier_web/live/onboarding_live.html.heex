@@ -14,6 +14,39 @@
 
         <div>
           <.form :let={f} for={:onboarding} phx-submit="update_onboarding">
+            <div class="mt-4">
+              <label class="label">
+                <span class="label-text text-gray-500">회사 이름</span>
+              </label>
+              <%= text_input(f, :name,
+                class: "data-source-input",
+                placeholder: "리플로우"
+              ) %>
+              <%= error_tag(f, :name) %>
+            </div>
+
+            <div class="mt-4">
+              <label class="label">
+                <span class="label-text text-gray-500">회사 업종</span>
+              </label>
+              <%= select(f, :industry, Org.industries(),
+                class: "data-source-input",
+                selected: Org.industries() |> List.first()
+              ) %>
+              <%= error_tag(f, :industry) %>
+            </div>
+
+            <div class="mt-4">
+              <label class="label">
+                <span class="label-text text-gray-500">회사 업종</span>
+              </label>
+              <%= select(f, :employee_count, Org.employee_counts(),
+                class: "data-source-input",
+                selected: Org.employee_counts() |> List.first()
+              ) %>
+              <%= error_tag(f, :employee_count) %>
+            </div>
+
             <div>
               <label class="label">
                 <span class="label-text text-gray-500">직무</span>
