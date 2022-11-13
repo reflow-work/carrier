@@ -1,8 +1,8 @@
 defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
-  use Oban.Testing, repo: TenantRepo
-  alias Carrier.Reports
-  alias Carrier.Reports.{Report, ReportLog}
+  use Carrier.Reports
+  use Oban.Testing, repo: Carrier.TenantRepo
+  alias Carrier.TenantRepo
 
   @moduletag repo: TenantRepo
 
@@ -46,12 +46,29 @@ defmodule Carrier.ReportsTest do
       assert {:ok, created_report} = Reports.create_report(params)
       assert same_fields?(created_report, params, [:org_id, :user_id, :name, :trigger_time])
 
-      # ReportJob
-
       TenantRepo.set_skip_org_id()
 
-      assert [%{scheduled_at: scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
-      assert scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
+      # ReportInfo
+
+      assert %ReportInfo{} =
+               report_info = TenantRepo.get_by(ReportInfo, id: created_report.report_info_id)
+
+      assert report_info.org_id == org.org_id
+
+      # ReportJob
+
+      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
+               all_enqueued(worker: Carrier.Works.ReportJob)
+
+      assert job_args == %{
+               "org_id" => org.org_id,
+               "report_id" => created_report.id,
+               "report_info_id" => created_report.report_info_id,
+               "datetime" =>
+                 job_scheduled_at |> DateTime.truncate(:second) |> DateTime.to_iso8601()
+             }
+
+      assert job_scheduled_at |> DateTime.to_time() |> Time.compare(~T[10:00:00]) == :eq
 
       # ReportLog
 

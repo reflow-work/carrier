@@ -1,6 +1,6 @@
 defmodule Carrier.Reports do
   require Logger
-  alias Carrier.Reports.{Report, ReportLog}
+  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
   alias Carrier.Works.ReportJob
   alias Carrier.TenantRepo
   alias Carrier.Core.DateTimeHelper
@@ -8,7 +8,7 @@ defmodule Carrier.Reports do
   defmacro __using__([]) do
     quote do
       alias unquote(__MODULE__)
-      alias unquote(__MODULE__).{Report, ReportLog}
+      alias unquote(__MODULE__).{ReportInfo, Report, ReportLog}
     end
   end
 
@@ -21,9 +21,12 @@ defmodule Carrier.Reports do
         data_source_info: data_source_info
       }) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %Report{} = report} <-
+      with {:ok, %ReportInfo{} = report_info} <-
+             ReportInfo.create(%{org_id: org_id}) |> TenantRepo.insert(),
+           {:ok, %Report{} = report} <-
              Report.create(%{
                org_id: org_id,
+               report_info_id: report_info.id,
                user_id: user_id,
                name: name,
                trigger_time: trigger_time,
@@ -142,7 +145,12 @@ defmodule Carrier.Reports do
 
     TenantRepo.wrap_transaction(fn ->
       with {:ok, report_job} <-
-             %{org_id: report.org_id, report_id: report.id, datetime: scheduled_at}
+             %{
+               org_id: report.org_id,
+               report_id: report.id,
+               report_info_id: report.report_info_id,
+               datetime: scheduled_at
+             }
              |> ReportJob.new(
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
