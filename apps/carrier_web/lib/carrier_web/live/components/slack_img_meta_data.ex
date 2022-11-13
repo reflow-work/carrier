@@ -14,10 +14,13 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
 
   def trend_icon(assigns) do
     ~H"""
-    <%= if @value >= 0 do %>
+    <%= if @value > 0 do %>
       <Icon.trend_up class="w-5 h-5" />
     <% else %>
-      <Icon.trend_down class="w-5 h-5" />
+      <%= if @value < 0 do %>
+        <Icon.trend_down class="w-5 h-5" />
+      <% else %>
+      <% end %>
     <% end %>
     """
   end
@@ -68,6 +71,16 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
 
   defp second_line(assigns) do
     cond do
+      assigns.diff_value_percentage == 0 ->
+        ~H"""
+        <span></span>
+        """
+
+      assigns.diff_value_percentage == :nan ->
+        ~H"""
+        <span>오류 - 잘못된 값이 입력되었습니다.</span>
+        """
+
       assigns.diff_value_percentage > 0 ->
         ~H"""
         <span class={value_color(@diff_value_percentage)}>
@@ -82,11 +95,6 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
           <%= "#{@diff_value_percentage}%" %>
         </span>
         <span> 떨어졌어요. </span>
-        """
-
-      assigns.diff_value_percentage == 0 ->
-        ~H"""
-        <span></span>
         """
 
       true ->

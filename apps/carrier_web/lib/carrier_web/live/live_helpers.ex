@@ -55,14 +55,14 @@ defmodule CarrierWeb.LiveHelpers do
   end
 
   def format_number(s) do
-    case Cldr.Number.to_string(s) do
+    case Cldr.Number.to_string(s, CarrierWeb.Cldr) do
       {:ok, n} -> n
       {:error, _msg} -> "0"
     end
   end
 
   def format_date(d) do
-    case Cldr.Date.to_string(d, format: :long) do
+    case Cldr.Date.to_string(d, CarrierWeb.Cldr, format: :long) do
       {:ok, s} -> s
       {:error, _msg} -> "INVALID DATE"
     end

@@ -8,24 +8,75 @@ const colors = {
   previous: "#92B3F4",
 }
 
-const getMinScale = (ns) => {
-  const [significantFigures, exponent] = (Math.min(...ns)).toPrecision(2).split('e')
-  const flooredSignificantFigures = ((Math.floor(parseFloat(significantFigures) * 2)) / 2).toString()
-  return parseFloat(`${flooredSignificantFigures}e${exponent}`)
+const getScaleBounds = (ns) => {
+  const { value: flooredMinSF, e: flooredMinE } = getFlooredMin(ns)
+  const { value: ceiledMaxSF, e: ceiledMaxE } = getCeiledMax(ns)
+  const flooredMin = parseFloat(`${flooredMinSF}e${flooredMinE}`)
+  const ceiledMax = parseFloat(`${ceiledMaxSF}e${ceiledMaxE}`)
+  let finalMin, finalMax
+  if (ceiledMaxE > flooredMinE) {
+    finalMax = ceiledMax
+    finalMin = getMaxNumberWithEButSmallerThanGivenValue(ceiledMaxE, flooredMin)
+  } else if (ceiledMaxE < flooredMinE) {
+    finalMax = getMinNumberWithEButLargerThanGivenValue(flooredMinE, ceiledMax)
+    finalMin = flooredMin
+  } else {
+    finalMax = ceiledMax
+    finalMin = flooredMin
+  }
+  return { max: finalMax, min: finalMin }
 }
 
-const getMaxScale = (ns) => {
-  const [significantFigures, exponent] = (Math.max(...ns)).toPrecision(2).split('e')
-  const ceiledSignificantFigures = ((Math.ceil(parseFloat(significantFigures) * 2)) / 2).toString()
-  return parseFloat(`${ceiledSignificantFigures}e${exponent}`)
+const getMinNumberWithEButLargerThanGivenValue = (e, value) => {
+  const rec = (candidateSF, value) => {
+    const candidate = parseFloat(`${candidateSF}e${e}`)
+    if (candidate >= value) {
+      return candidate
+    } else {
+      return rec(candidateSF + 1, value)
+    }
+  }
+  return rec(-9, value)
 }
 
-const deriveTickCount = (min, max) => {
-  const diff = max - min
-  if (diff % 5 === 0) {
+const getMaxNumberWithEButSmallerThanGivenValue = (e, value) => {
+  const rec = (candidateSF, value) => {
+    const candidate = parseFloat(`${candidateSF}e${e}`)
+    if (candidate <= value) {
+      return candidate
+    } else {
+      return rec(candidateSF - 1, value)
+    }
+  }
+  return rec(9, value)
+}
+
+const getFlooredMin = (ns) => {
+  const [significantFigures, exponent] = (Math.min(...ns)).toExponential().split('e')
+  const flooredSignificantFigures = Math.floor(parseFloat(significantFigures)).toString()
+  return { value: flooredSignificantFigures, e: parseInt(exponent) }
+}
+
+const getCeiledMax = (ns) => {
+  const [significantFigures, exponent] = (Math.max(...ns)).toExponential().split('e')
+  const ceiledSignificantFigures = Math.ceil(parseFloat(significantFigures)).toString()
+  return { value: ceiledSignificantFigures, e: parseInt(exponent) }
+}
+
+const getTickCount = (min, max) => {
+  const diff = (max - min) / parseInt(`1e${min.toExponential().split('e')[1]}`)
+  if (diff % 19 === 0) {
+    return 20
+  } else if (diff % 17 === 0) {
+    return 18
+  } else if (diff % 13 === 0) {
+    return 14
+  } else if (diff % 11 === 0) {
+    return 12
+  } else if (diff % 7 === 0) {
+    return 8
+  } else if (diff % 5 === 0) {
     return 6
-  } else if (diff % 6 === 0) {
-    return 7
   } else if (diff % 4 === 0) {
     return 5
   } else if (diff % 3 === 0) {
@@ -169,11 +220,10 @@ const ChartHook = {
         borderDash: [3, 3],
       }
       const all_data = current.concat(previous)
-      const maxScale = getMaxScale(all_data)
-      const minScale = getMinScale(all_data)
+      const { max: maxScale, min: minScale } = getScaleBounds(all_data)
       chart.options.scales.y.max = maxScale
       chart.options.scales.y.min = minScale
-      chart.options.scales.y.ticks.count = deriveTickCount(minScale, maxScale)
+      chart.options.scales.y.ticks.count = getTickCount(minScale, maxScale)
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
       chart.options.plugins.title.text = `${key} 일일 데이터`

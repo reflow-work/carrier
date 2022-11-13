@@ -1,4 +1,4 @@
-defmodule Carrier.Core.Cldr do
+defmodule CarrierWeb.Cldr do
   use Cldr,
     default_locale: :ko,
     locales: [:ko, :en],
