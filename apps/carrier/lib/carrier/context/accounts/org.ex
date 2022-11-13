@@ -14,9 +14,25 @@ defmodule Carrier.Accounts.Org do
     |> cast(attrs, @required_for_create)
   end
 
+  @required_for_update [
+    :name,
+    :industry,
+    :employee_count
+  ]
+  defp changeset_for_update(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_update)
+    |> validate_required(@required_for_update)
+  end
+
   def create(%{name: name}) do
     %__MODULE__{}
     |> changeset_for_create(%{name: name})
+  end
+
+  def update(%__MODULE__{} = struct, attrs \\ %{}) do
+    struct
+    |> changeset_for_update(attrs)
   end
 
   def industries do
@@ -26,7 +42,7 @@ defmodule Carrier.Accounts.Org do
       "B2B",
       "쇼핑몰",
       "오프라인 기반 (병원, 학원, 숙박 등)",
-      "기타 (비영리, 제조업 등)",
+      "기타 (비영리, 제조업 등)"
     ]
   end
 
@@ -38,7 +54,7 @@ defmodule Carrier.Accounts.Org do
       "20~49명",
       "50~99명",
       "100~299명",
-      "300명 이상",
+      "300명 이상"
     ]
   end
 end

@@ -18,10 +18,26 @@ defmodule Carrier.Accounts do
     end
   end
 
+  def fetch_org() do
+    Org
+    |> TenantRepo.one()
+    |> case do
+      %Org{} = org -> {:ok, org}
+      nil -> {:error, {:resource_not_found, %{target: Org}}}
+    end
+  end
+
   def update_user(user_id, attrs) do
     with {:ok, %User{} = user} <- fetch_user(user_id),
          {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
       {:ok, updated_user}
+    end
+  end
+
+  def update_org(attrs) do
+    with {:ok, %Org{} = org} <- fetch_org(),
+         {:ok, %Org{} = updated_org} <- Org.update(org, attrs) |> TenantRepo.update() do
+      {:ok, updated_org}
     end
   end
 end
