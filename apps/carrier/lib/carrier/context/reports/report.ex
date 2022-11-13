@@ -33,13 +33,6 @@ defmodule Carrier.Reports.Report do
     )
   end
 
-  @required_for_delete [:deleted_at]
-  defp changeset_for_delete(%__MODULE__{} = struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_delete)
-    |> validate_required(@required_for_delete)
-  end
-
   def create(%{
         org_id: org_id,
         report_info_id: report_info_id,
@@ -74,11 +67,6 @@ defmodule Carrier.Reports.Report do
     |> join(:inner, [r], ri in assoc(r, :report_info))
     |> where([r], r.id == ^report_id)
     |> query_not_deleted()
-  end
-
-  def delete(%__MODULE__{} = struct, %DateTime{} = deleted_at) do
-    struct
-    |> changeset_for_delete(%{deleted_at: deleted_at})
   end
 
   defp query_not_deleted(query) do
