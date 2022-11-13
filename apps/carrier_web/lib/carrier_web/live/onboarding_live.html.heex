@@ -58,6 +58,38 @@
               <%= error_tag(f, :position) %>
             </div>
 
+            <div class="mt-4 text-gray-500">
+              <div class="text-sm">
+                <%= checkbox(f, :agreed_terms_of_service,
+                  value: input_value(f, :agreed_terms_of_service),
+                  class: "mr-1"
+                ) %>
+                <a
+                  href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
+                  target="_blank"
+                  class="underline"
+                >
+                  이용약관
+                </a>
+                에 동의합니다.
+              </div>
+
+              <div class="text-sm mt-2">
+                <%= checkbox(f, :agreed_privacy_policy,
+                  value: input_value(f, :agreed_privacy_policy),
+                  class: "mr-1"
+                ) %>
+                <a
+                  href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
+                  target="_blank"
+                  class="underline"
+                >
+                  개인정보 처리방침
+                </a>
+                에 동의합니다.
+              </div>
+            </div>
+
             <div class="mt-6">
               <%= submit("저장하기",
                 class: "btn btn-primary",
