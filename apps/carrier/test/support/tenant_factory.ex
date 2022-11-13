@@ -2,7 +2,7 @@ defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
   alias Carrier.Accounts.{Org, User}
   alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
-  alias Carrier.Reports.{Report, ReportLog}
+  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
 
   def org_factory() do
     %Org{
@@ -71,6 +71,15 @@ defmodule Carrier.TenantFactory do
     |> merge_attributes(attrs)
   end
 
+  def report_info_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    %ReportInfo{
+      org_id: org_id
+    }
+    |> merge_attributes(attrs)
+  end
+
   @sql_template """
   SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
     FROM sample_data_simple
@@ -82,6 +91,9 @@ defmodule Carrier.TenantFactory do
   def report_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
+    {report_info, attrs} =
+      attrs |> Map.pop_lazy(:report_info, fn -> insert(:report_info, org_id: org_id) end)
+
     {integration_id, attrs} =
       attrs |> Map.pop_lazy(:integration_id, fn -> insert(:integration, org_id: org_id).id end)
 
@@ -90,6 +102,7 @@ defmodule Carrier.TenantFactory do
 
     %Report{
       org_id: org_id,
+      report_info: report_info,
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
       integration_info: %{

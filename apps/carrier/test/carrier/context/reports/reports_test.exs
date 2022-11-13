@@ -2,6 +2,7 @@ defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
   use Carrier.Reports
   use Oban.Testing, repo: Carrier.TenantRepo
+  alias Carrier.TenantFactory
   alias Carrier.TenantRepo
 
   @moduletag repo: TenantRepo
@@ -84,8 +85,28 @@ defmodule Carrier.ReportsTest do
       org = TenantFactory.insert(:org)
       TenantRepo.put_org_id(org.org_id)
 
-      report = TenantFactory.insert(:report, org_id: org.org_id)
-      TenantFactory.insert(:report, org_id: org.org_id, deleted_at: DateTime.utc_now())
+      report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
+
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+
+      now = DateTime.utc_now()
+
+      report =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: report_info,
+          created_at: now |> Timex.shift(days: -1)
+        )
+
+      TenantFactory.insert(:report,
+        org_id: org.org_id,
+        report_info: report_info,
+        created_at: now |> Timex.shift(days: -2)
+      )
+
+      TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+
       TenantFactory.insert(:report)
 
       %{reports: [report]}

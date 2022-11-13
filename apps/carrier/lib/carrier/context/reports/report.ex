@@ -1,10 +1,11 @@
 defmodule Carrier.Reports.Report do
   use Carrier.Schema
-  alias Carrier.Reports.{IntegrationInfo, DataSourceInfo}
+  alias Carrier.Reports.{ReportInfo, IntegrationInfo, DataSourceInfo}
 
   schema "reports" do
+    belongs_to :report_info, ReportInfo
+
     field :org_id, :integer
-    field :report_info_id, :integer
     field :user_id, :integer
     field :name, :string
     field :trigger_time, :time
@@ -62,7 +63,10 @@ defmodule Carrier.Reports.Report do
 
   def list() do
     __MODULE__
-    |> where([r], is_nil(r.deleted_at))
+    |> join(:inner, [r], ri in assoc(r, :report_info))
+    |> distinct([r], r.report_info_id)
+    |> where([r, ri], is_nil(ri.deleted_at))
+    |> order_by([r], desc: r.created_at)
   end
 
   def fetch(report_id) do
