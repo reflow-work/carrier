@@ -43,31 +43,13 @@
               <% end %>
             </div>
             <section class="w-full px-2 sm:col-span-3 text-sm">
-              <div class={"flex items-center shadow py-3 px-3 rounded border-l-8 #{if @query_validations.contains_start, do: "border-l-green-600", else: "border-l-red-600"}"}>
-                <div class="mr-3 text-base">
-                  <%= if @query_validations.contains_start do %>
-                    <CarrierWeb.Components.Icon.check_circle class="w-6 h-6 text-green-600" />
-                  <% else %>
-                    <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
-                  <% end %>
-                </div>
-                <div>
-                  <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
-                </div>
-              </div>
+              <QueryChecker.checker checked={@query_validations.contains_start}>
+                <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
+              </QueryChecker.checker>
 
-              <div class={"flex items-center shadow py-3 px-3 rounded border-l-8 mt-4 #{if @query_validations.contains_end, do: "border-l-green-600", else: "border-l-red-600"}"}>
-                <div class="mr-3 text-base">
-                  <%= if @query_validations.contains_end do %>
-                    <CarrierWeb.Components.Icon.check_circle class="w-6 h-6 text-green-600" />
-                  <% else %>
-                    <CarrierWeb.Components.Icon.x_circle class="w-6 h-6 text-red-600" />
-                  <% end %>
-                </div>
-                <div>
-                  <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
-                </div>
-              </div>
+              <QueryChecker.checker class="mt-2" checked={@query_validations.contains_end}>
+                <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
+              </QueryChecker.checker>
 
               <div class="bg-yellow-50 rounded p-3 mt-3">
                 <b>📌 Check point</b>
