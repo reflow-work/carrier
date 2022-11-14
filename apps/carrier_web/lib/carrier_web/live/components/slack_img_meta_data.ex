@@ -4,7 +4,7 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
 
   def card(assigns) do
     ~H"""
-    <p class="text-slackImgGrey font-bold">
+    <p class="text-slackImgGrey font-bold text-sm">
       <%= first_line(assigns) %>
       <br />
       <%= second_line(assigns) %>

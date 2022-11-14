@@ -112,6 +112,11 @@ const ChartHook = {
       },
       plugins: [bgColorPlugIn],
       options: {
+        layout: {
+          padding: {
+            right: 14
+          }
+        },
         elements: {
           point: {
             radius: 0,
@@ -122,8 +127,8 @@ const ChartHook = {
             display: true,
             labels: {
               font: {
-                size: 12,
-                weight: 700,
+                size: 14,
+                weight: 500,
                 color: '#929292',
               },
               boxHeight: 1,
@@ -135,10 +140,13 @@ const ChartHook = {
             color: '#929292',
             font: {
               weight: 'bold',
-              size: 12,
+              size: 15,
             },
             text: 'TITLE',
-            padding: 30,
+            padding: {
+              top: 26,
+              bottom: 34
+            },
           }
         },
         scales: {
@@ -146,8 +154,9 @@ const ChartHook = {
             title: {
               display: true,
               font: {
-                size: 20,
+                size: 14,
                 weight: 700,
+                color: '#929292'
               }
             },
             grid: {
@@ -156,8 +165,9 @@ const ChartHook = {
             ticks: {
               count: 5,
               font: {
-                size: 20,
+                size: 14,
                 weight: 700,
+                color: '#929292'
               },
             },
             padding: {
@@ -168,8 +178,9 @@ const ChartHook = {
             title: {
               display: true,
               font: {
-                size: 20,
+                size: 14,
                 weight: 700,
+                color: '#929292'
               }
             },
             grid: {
@@ -184,8 +195,9 @@ const ChartHook = {
                 }
               },
               font: {
-                size: 20,
+                size: 14,
                 weight: 700,
+                color: '#929292'
               }
             },
           }
