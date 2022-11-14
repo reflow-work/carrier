@@ -6,6 +6,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     field :org_id, :integer
     field :user_id, :integer
     field :name, :string
+    field :hour, :string
     field :trigger_time, :time
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete do
@@ -25,7 +26,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     end
   end
 
-  @required [:org_id, :user_id, :name, :trigger_time]
+  @required [:org_id, :user_id, :name, :hour, :trigger_time]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)
@@ -35,7 +36,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
   end
 
   def init_attrs(attrs \\ %{}) do
-    attrs |> Map.merge(%{})
+    attrs
   end
 
   @required_integration_info [:integration_id, :channel_id, :channel_name]
@@ -55,8 +56,6 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     :columns
   ]
   defp changeset_data_source_info(%__MODULE__.DataSourceInfo{} = struct, attrs) do
-    attrs = attrs |> Map.put_new("columns", [])
-
     struct
     |> cast(attrs, @required_data_source_info)
     |> validate_required(@required_data_source_info)

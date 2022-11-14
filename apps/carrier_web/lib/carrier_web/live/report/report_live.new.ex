@@ -53,18 +53,14 @@ defmodule CarrierWeb.ReportLive.New do
         aggregations: ["SUM", "AVG", "COUNT", "MAX", "MIN"]
       )
       |> assign(:query_maker_button_font_size, 14)
-      |> assign(%{
-        sample_sql_template: @sample_sql_template,
-        sql_template: @sample_sql_template,
-        query_error_message: nil
-      })
+      |> assign(:sample_sql_template, @sample_sql_template)
+      |> assign(:query_error_message, nil)
       |> assign(:data_loaded, false)
       |> assign(%{
         preview: nil,
         show_full_preview_data: false
       })
       |> assign(:query_result_by_columns, nil)
-      |> assign(:selected_columns, [])
       |> assign(:channels, channel_options)
       |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
       |> assign(:is_loading_slack_channels, false)
@@ -72,6 +68,92 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    socket =
+      case socket.assigns.live_action do
+        :new ->
+          socket
+          |> assign(:sql_template, @sample_sql_template)
+
+        :edit ->
+          %{"id" => report_id_str} = params
+          report_id = report_id_str |> String.to_integer()
+
+          socket =
+            socket
+            |> assign(:report_id, report_id)
+            |> load_report()
+            |> assign_new(:sql_template, fn %{report: report} ->
+              report.data_source_info.sql_template
+            end)
+
+          report = socket.assigns.report
+
+          hour =
+            report.trigger_time
+            |> TimeHelper.from_utc_time(report.data_source_info.timezone)
+            |> Map.get(:hour)
+            |> to_string()
+
+          QueryData.query(%{
+            org_id: report.org_id,
+            data_source_id: report.data_source_info.data_source_id,
+            sql_template: report.data_source_info.sql_template,
+            datetime: DateTime.utc_now(),
+            timezone: report.data_source_info.timezone,
+            period: report.data_source_info.period,
+            window_size: report.data_source_info.window_size,
+            comparing_period: report.data_source_info.comparing_period
+          })
+          |> case do
+            {:ok, raw_data} ->
+              preview = QueryData.format_data_for_preview(raw_data)
+              parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+
+              socket
+              |> assign(:query_maker_button_font_size, 14)
+              |> assign(:data_loaded, true)
+              |> assign(:query_error_message, nil)
+              |> assign(:preview, preview)
+              |> assign(:query_result_by_columns, parsed_data)
+              |> assign(:columns, report.data_source_info.columns)
+              |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
+              |> assign(
+                :report_changeset,
+                ReportParams.changeset(
+                  ReportParams.init_attrs(%{
+                    org_id: socket.assigns.org_id,
+                    user_id: socket.assigns.user_id,
+                    name: report.name,
+                    hour: hour,
+                    trigger_time: report.trigger_time,
+                    integration_info: %{
+                      integration_id: report.integration_info.integration_id,
+                      channel_id: report.integration_info.channel_id,
+                      channel_name: report.integration_info.channel_name
+                    },
+                    data_source_info: %{
+                      data_source_id: report.data_source_info.data_source_id,
+                      sql_template: report.data_source_info.sql_template,
+                      timezone: report.data_source_info.timezone,
+                      period: report.data_source_info.period,
+                      window_size: report.data_source_info.window_size,
+                      comparing_period: report.data_source_info.comparing_period,
+                      columns: report.data_source_info.columns
+                    }
+                  })
+                )
+              )
+
+            _ ->
+              socket
+          end
+      end
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -178,25 +260,25 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:preview, preview)
           |> assign(:query_result_by_columns, parsed_data)
           |> assign(:columns, columns)
-          |> assign(:selected_columns, columns)
           |> add_draw_chart_events(parsed_data, columns)
-          |> assign(
+          |> update(
             :report_changeset,
-            ReportParams.changeset(
+            &ReportParams.changeset(
+              &1 |> Params.to_params(),
               ReportParams.init_attrs(%{
-                "org_id" => socket.assigns.org_id,
-                "user_id" => socket.assigns.user.id,
-                "integration_info" => %{
-                  "integration_id" => socket.assigns.integration.id
+                org_id: socket.assigns.org_id,
+                user_id: socket.assigns.user.id,
+                integration_info: %{
+                  integration_id: socket.assigns.integration.id
                 },
-                "data_source_info" => %{
-                  "data_source_id" => socket.assigns.data_source.id,
-                  "sql_template" => sql_template,
-                  "timezone" => socket.assigns.timezone,
-                  "period" => 28,
-                  "window_size" => 7,
-                  "comparing_period" => 7,
-                  "columns" => columns
+                data_source_info: %{
+                  data_source_id: socket.assigns.data_source.id,
+                  sql_template: sql_template,
+                  timezone: socket.assigns.timezone,
+                  period: 28,
+                  window_size: 7,
+                  comparing_period: 7,
+                  columns: columns
                 }
               })
             )
@@ -247,24 +329,23 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:preview, preview)
           |> assign(:query_result_by_columns, parsed_data)
           |> assign(:columns, columns)
-          |> assign(:selected_columns, columns)
           |> add_draw_chart_events(parsed_data, columns)
           |> assign(
             :report_changeset,
             ReportParams.changeset(
               ReportParams.init_attrs(%{
-                "org_id" => socket.assigns.org_id,
-                "integration_info" => %{
-                  "integration_id" => socket.assigns.integration.id
+                org_id: socket.assigns.org_id,
+                integration_info: %{
+                  integration_id: socket.assigns.integration.id
                 },
-                "data_source_info" => %{
-                  "data_source_id" => socket.assigns.data_source.id,
-                  "sql_template" => socket.assigns.sql_template,
-                  "timezone" => socket.assigns.timezone,
-                  "period" => 28,
-                  "window_size" => window_size,
-                  "comparing_period" => 7,
-                  "columns" => columns
+                data_source_info: %{
+                  data_source_id: socket.assigns.data_source.id,
+                  sql_template: socket.assigns.sql_template,
+                  timezone: socket.assigns.timezone,
+                  period: 28,
+                  window_size: window_size,
+                  comparing_period: 7,
+                  columns: columns
                 }
               })
             )
@@ -292,7 +373,11 @@ defmodule CarrierWeb.ReportLive.New do
       validate_report_changeset(socket, report_inputs)
       |> Params.to_map()
 
-    socket = socket |> create_report(report_params)
+    socket =
+      case socket.assigns.live_action do
+        :new -> socket |> create_report(report_params)
+        :edit -> socket |> update_report(socket.assigns.report.id, report_params)
+      end
 
     {:noreply, socket}
   end
@@ -421,8 +506,42 @@ defmodule CarrierWeb.ReportLive.New do
     end
   end
 
+  defp load_report(socket) do
+    case Reports.fetch_report(socket.assigns.report_id) do
+      {:ok, %Report{} = report} ->
+        socket
+        |> assign(:report, report)
+
+      {:error, error} ->
+        Logger.error(inspect(error))
+
+        socket
+        |> put_flash_for(:error, "레포트 불러오기에 실패하였습니다.", timeout: :timer.seconds(3))
+        |> push_navigate(to: Routes.report_index_path(socket, :index))
+    end
+  end
+
   defp create_report(socket, params) do
     case Reports.create_report(params) do
+      {:ok, %Report{name: report_name}} ->
+        socket
+        |> put_flash_for(:info, "\"#{report_name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
+        |> push_navigate(to: Routes.report_index_path(socket, :index))
+
+      {:error, error} ->
+        Logger.error(inspect(error))
+
+        socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
+    end
+  rescue
+    e ->
+      Logger.error(inspect(e))
+
+      socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
+  end
+
+  defp update_report(socket, report_id, params) do
+    case Reports.update_report(report_id, params) do
       {:ok, %Report{name: report_name}} ->
         socket
         |> put_flash_for(:info, "\"#{report_name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))

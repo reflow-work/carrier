@@ -72,13 +72,44 @@ defmodule Carrier.Reports do
     end
   end
 
+  def update_report(report_id, %{
+        org_id: org_id,
+        user_id: user_id,
+        name: name,
+        trigger_time: trigger_time,
+        integration_info: integration_info,
+        data_source_info: data_source_info
+      }) do
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %Report{} = report} <- fetch_report(report_id),
+           {:ok, %Report{} = created_report} <-
+             Report.create(%{
+               org_id: org_id,
+               report_info_id: report.report_info_id,
+               user_id: user_id,
+               name: name,
+               trigger_time: trigger_time,
+               integration_info: integration_info,
+               data_source_info: data_source_info
+             })
+             |> TenantRepo.insert(),
+           {:ok, _deleted_report} <-
+             report |> Report.delete(DateTime.utc_now()) |> TenantRepo.update(),
+           {:ok, _job} <- create_job_from_report(created_report, created_report.created_at) do
+        {:ok, created_report}
+      end
+    end)
+  end
+
   def delete_report(report_id) do
     with {:ok, %Report{} = report} <- fetch_report(report_id),
          {:ok, %ReportInfo{} = report_info} <- fetch_report_info(report.report_info_id),
          deleted_at = DateTime.utc_now(),
+         {:ok, deleted_report} <-
+           report |> Report.delete(deleted_at) |> TenantRepo.update(),
          {:ok, _deleted_report_info} <-
            report_info |> ReportInfo.delete(deleted_at) |> TenantRepo.update() do
-      {:ok, %Report{report | deleted_at: deleted_at}}
+      {:ok, deleted_report}
     end
   end
 
