@@ -12,10 +12,12 @@ defmodule CarrierWeb.Params do
     %Changeset{changeset | action: action}
   end
 
-  def to_map(%Changeset{} = changeset) do
-    struct = changeset |> apply_changes()
+  def to_params(%Changeset{} = changeset) do
+    changeset |> apply_changes()
+  end
 
-    do_to_map(struct)
+  def to_map(%Changeset{} = changeset) do
+    changeset |> to_params() |> do_to_map()
   end
 
   defp do_to_map(%module{} = struct) when is_struct(struct) do

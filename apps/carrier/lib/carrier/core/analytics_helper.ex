@@ -30,6 +30,7 @@ defmodule Carrier.Core.AnalyticsHelper do
       path ->
         cond do
           Regex.match?(~r/\/report\/\d+\/delete/, path) -> "report_deletion"
+          Regex.match?(~r/\/report\/\d+\/edit/, path) -> "report_editing"
           true -> nil
         end
     end
