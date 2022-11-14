@@ -57,6 +57,7 @@ defmodule Carrier.Reports do
   def list_reports() do
     Report.list()
     |> TenantRepo.all()
+    |> Enum.sort_by(& &1.created_at, {:desc, DateTime})
     |> then(&{:ok, &1})
   end
 
