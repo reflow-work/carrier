@@ -89,7 +89,7 @@ config :carrier_worker, Oban,
     Oban.Plugins.Reindexer,
     Oban.Plugins.Stager
   ],
-  queues: [default: 10, sample: 10]
+  queues: [default: 1, sample: 1]
 
 config :carrier, Carrier.Vault, json_library: Jason
 
