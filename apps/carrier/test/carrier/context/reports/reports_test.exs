@@ -165,8 +165,12 @@ defmodule Carrier.ReportsTest do
       deleted_report_info =
         TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
+      report = TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+
+      assert {:error, {:resource_not_found, %{target: Report}}} = Reports.fetch_report(report.id)
+
       deleted_report =
-        TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+        TenantFactory.insert(:report, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       assert {:error, {:resource_not_found, %{target: Report}}} =
                Reports.fetch_report(deleted_report.id)
