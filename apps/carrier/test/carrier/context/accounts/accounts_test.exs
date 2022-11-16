@@ -31,8 +31,12 @@ defmodule Carrier.AccountsTest do
     end
 
     test "with valid user_id and attrs", %{user: user} do
+      now = DateTime.utc_now()
+
       attrs = %{
-        position: "CEO/대표"
+        position: "CEO/대표",
+        agreed_privacy_policy_at: now,
+        agreed_terms_of_service_at: now
       }
 
       assert {:ok, %User{} = updated_user} = Accounts.update_user(user.id, attrs)
