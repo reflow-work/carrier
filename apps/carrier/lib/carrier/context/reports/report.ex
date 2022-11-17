@@ -66,6 +66,7 @@ defmodule Carrier.Reports.Report do
     |> join(:inner, [r], ri in assoc(r, :report_info))
     |> distinct([r], r.report_info_id)
     |> where([r, ri], is_nil(ri.deleted_at))
+    |> order_by([r], desc: r.created_at)
     |> select([r, ri], %{r | created_at: ri.created_at})
   end
 
