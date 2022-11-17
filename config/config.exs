@@ -13,6 +13,9 @@ import Config
 config :carrier,
   ecto_repos: [Carrier.Repo]
 
+config :carrier, Carrier.Repo, timeout: :timer.seconds(30)
+config :carrier, Carrier.TenantRepo, timeout: :timer.seconds(30)
+
 config :carrier, env: config_env()
 
 # Configures the mailer
