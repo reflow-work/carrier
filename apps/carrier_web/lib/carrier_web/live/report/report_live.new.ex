@@ -595,11 +595,13 @@ defmodule CarrierWeb.ReportLive.New do
     end
   end
 
-  defp validate_report_changeset(
-         socket,
-         %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} =
-           report_inputs
-       ) do
+  defp validate_report_changeset(socket, report_inputs) do
+    report_inputs =
+      %{"data_source_info" => %{"columns" => []}}
+      |> MapHelper.deep_merge(report_inputs)
+
+    %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} = report_inputs
+
     trigger_time =
       TimeHelper.from!(hour: hour_str |> String.to_integer())
       |> TimeHelper.to_utc_time(socket.assigns.timezone)
