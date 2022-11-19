@@ -16,7 +16,12 @@
             </div>
           </div>
 
-          <label for="query-maker" class="btn btn-primary ml-2" phx-click="open_query_maker" style={"font-size:#{@query_maker_button_font_size}px;"}>
+          <label
+            for="query-maker"
+            class="btn btn-primary ml-2"
+            phx-click="open_query_maker"
+            style={"font-size:#{@query_maker_button_font_size}px;"}
+          >
             <CarrierWeb.Components.Icon.package class="w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
           </label>
         </div>
@@ -97,7 +102,7 @@
 
         <div class="space-y-6">
           <section class="flex gap-4 flex-col lg:flex-row">
-            <section class="card flex-[2_2_0%]">
+            <section class="card flex-[3_3_0%]">
               <div class="card-body">
                 <section>
                   <h2 class="card-title">레포트 설정</h2>
@@ -175,7 +180,7 @@
               </div>
             </section>
 
-            <section class="card flex-[6_6_0%]">
+            <section class="card flex-[7_7_0%]">
               <div class="card-body">
                 <h2 class="card-title">슬랙 미리보기</h2>
                 <%= if @data_loaded do %>
@@ -186,7 +191,7 @@
                           <h3 class="font-bold text-base-dark">
                             📊 <%= "#{DateTime.now("Asia/Seoul") |> elem(1) |> format_date()} - #{@query_result_by_columns[column].meta.label}" %>
                           </h3>
-                          <div class="grid grid-cols-2 py-4 px-5 rounded shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                          <div class="grid grid-cols-2 py-6 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
                             <section>
                               <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
                               <p class="text-2xl font-bold mt-2">
@@ -236,7 +241,7 @@
                           >
                             <canvas
                               id={"chart-#{@query_result_by_columns[column].meta.label}"}
-                              class="border border-gray-200 rounded-lg"
+                              class="rounded-lg shadow-slackImgSection"
                               phx-hook="Chart"
                             >
                             </canvas>
