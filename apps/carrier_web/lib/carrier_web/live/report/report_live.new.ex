@@ -18,22 +18,22 @@ defmodule CarrierWeb.ReportLive.New do
 
   @sample_sql_template """
   SELECT
-    DATE([기준이 되는 날짜 컬럼]),
-    SUM([보고 싶은 지표 컬럼1]) AS [컬럼1 이름],
-    SUM([보고 싶은 지표 컬럼2]) AS [컬럼2 이름],
-    SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
+  DATE([기준이 되는 날짜 컬럼]),
+  SUM([보고 싶은 지표 컬럼1]) AS [컬럼1 이름],
+  SUM([보고 싶은 지표 컬럼2]) AS [컬럼2 이름],
+  SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
   FROM [테이블 이름]
   WHERE DATE([기준이 되는 날짜 컬럼]) >= {{start}}
-    AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
+  AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
   GROUP BY 1
   """
   @sql_template_by_maker """
   SELECT
-    DATE(<%= date_column %>),
-    <%= aggregation %>(<%= value_column %>) AS "<%= if value_column_name != "", do: value_column_name, else: value_column %>"
+  DATE(<%= date_column %>),
+  <%= aggregation %>(<%= value_column %>) AS "<%= if value_column_name != "", do: value_column_name, else: value_column %>"
   FROM <%= table_name %>
   WHERE <%= date_column %> >= {{start}}
-    AND <%= date_column %> < {{end}}
+  AND <%= date_column %> < {{end}}
   GROUP BY 1
   """
 
@@ -62,10 +62,18 @@ defmodule CarrierWeb.ReportLive.New do
       })
       |> assign(:query_result_by_columns, nil)
       |> assign(:channels, channel_options)
+      |> assign(:channel_suggestions, [])
+      |> assign(:channel_id, "")
+      |> assign(:channel_search_term, "")
       |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
+      |> assign(:hour, "0")
       |> assign(:is_loading_slack_channels, false)
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
+      |> assign(:report_name, "")
+      |> assign(:period, 28)
+      |> assign(:window_size, 7)
+      |> assign(:comparing_period, 7)
 
     {:ok, socket}
   end
@@ -243,9 +251,9 @@ defmodule CarrierWeb.ReportLive.New do
         sql_template: sql_template,
         datetime: DateTime.utc_now(),
         timezone: socket.assigns.timezone,
-        period: 28,
-        window_size: 7,
-        comparing_period: 7
+        period: socket.assigns.period,
+        window_size: socket.assigns.window_size,
+        comparing_period: socket.assigns.comparing_period
       })
       |> case do
         {:ok, raw_data} ->
@@ -275,9 +283,9 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_id: socket.assigns.data_source.id,
                   sql_template: sql_template,
                   timezone: socket.assigns.timezone,
-                  period: 28,
-                  window_size: 7,
-                  comparing_period: 7,
+                  period => socket.assigns.period,
+                  window_size => socket.assigns.window_size,
+                  comparing_period => socket.assigns.comparing_period,
                   columns: columns
                 }
               })
@@ -313,9 +321,9 @@ defmodule CarrierWeb.ReportLive.New do
         sql_template: socket.assigns.sql_template,
         datetime: DateTime.utc_now(),
         timezone: socket.assigns.timezone,
-        period: 28,
+        period: socket.assigns.period,
         window_size: window_size,
-        comparing_period: 7
+        comparing_period: socket.assigns.comparing_period
       })
       |> case do
         {:ok, raw_data} ->
@@ -329,6 +337,8 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:preview, preview)
           |> assign(:query_result_by_columns, parsed_data)
           |> assign(:columns, columns)
+          |> assign(:selected_columns, columns)
+          |> assign(:window_size, window_size)
           |> add_draw_chart_events(parsed_data, columns)
           |> assign(
             :report_changeset,
@@ -342,9 +352,9 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_id: socket.assigns.data_source.id,
                   sql_template: socket.assigns.sql_template,
                   timezone: socket.assigns.timezone,
-                  period: 28,
+                  period => socket.assigns.period,
                   window_size: window_size,
-                  comparing_period: 7,
+                  comparing_period => socket.assigns.comparing_period,
                   columns: columns
                 }
               })
@@ -362,7 +372,117 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("validate_report", %{"report" => report_inputs}, socket) do
     report_changeset = validate_report_changeset(socket, report_inputs)
 
-    socket = socket |> assign(:report_changeset, report_changeset)
+    socket =
+      socket
+      |> assign(:report_changeset, report_changeset)
+      |> assign(:report_name, report_inputs["name"])
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "search_slack_channels",
+        %{
+          "report" => %{
+            "integration_info" => %{
+              "channel_search_term" => channel_search_term
+            }
+          }
+        },
+        socket
+      ) do
+    channel_suggestions =
+      socket.assigns.channels
+      |> Enum.filter(fn {label, _id} -> String.contains?(label, channel_search_term) end)
+
+    socket =
+      socket
+      |> assign(:channel_suggestions, channel_suggestions)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select_slack_channel", %{"channel_id" => channel_id}, socket) do
+    channel_name =
+      socket.assigns.channels
+      |> Enum.find_value(fn
+        {channel_name, ^channel_id} -> channel_name
+        _ -> nil
+      end)
+
+    trigger_time =
+      TimeHelper.from!(hour: socket.assigns.hour |> String.to_integer())
+      |> TimeHelper.to_utc_time(socket.assigns.timezone)
+
+    socket =
+      QueryData.query(%{
+        org_id: socket.assigns.org_id,
+        data_source_id: socket.assigns.data_source.id,
+        sql_template: socket.assigns.sql_template,
+        datetime: DateTime.utc_now(),
+        timezone: socket.assigns.timezone,
+        period: socket.assigns.period,
+        window_size: socket.assigns.window_size,
+        comparing_period: socket.assigns.comparing_period
+      })
+      |> case do
+        {:ok, raw_data} ->
+          preview = QueryData.format_data_for_preview(raw_data)
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+          columns = parsed_data |> Map.keys()
+
+          socket
+          |> assign(:data_loaded, true)
+          |> assign(:query_error_message, nil)
+          |> assign(:preview, preview)
+          |> assign(:query_result_by_columns, parsed_data)
+          |> assign(:columns, columns)
+          |> assign(:selected_columns, columns)
+          |> assign(:window_size, socket.assigns.window_size)
+          |> assign(:channel_suggestions, [])
+          |> assign(:channel_id, channel_id)
+          |> assign(:channel_search_term, channel_name)
+          |> add_draw_chart_events(parsed_data, columns)
+          |> assign(
+            :report_changeset,
+            ReportParams.changeset(
+              ReportParams.init_attrs(%{
+                "org_id" => socket.assigns.org_id,
+                "user_id" => socket.assigns.user_id,
+                "trigger_time" => trigger_time,
+                "name" => socket.assigns.report_name,
+                "integration_info" => %{
+                  "integration_id" => socket.assigns.integration.id,
+                  "channel_id" => channel_id,
+                  "channel_name" => channel_name
+                },
+                "data_source_info" => %{
+                  "data_source_id" => socket.assigns.data_source.id,
+                  "sql_template" => socket.assigns.sql_template,
+                  "timezone" => socket.assigns.timezone,
+                  "period" => socket.assigns.period,
+                  "window_size" => socket.assigns.window_size,
+                  "comparing_period" => socket.assigns.comparing_period,
+                  "columns" => columns
+                }
+              })
+            )
+          )
+
+        {:error, error} ->
+          socket |> assign(:query_error_message, inspect(error))
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("clear_channel_suggestions", _params, socket) do
+    socket =
+      socket
+      |> assign(:channel_suggestions, [])
 
     {:noreply, socket}
   end
@@ -618,7 +738,8 @@ defmodule CarrierWeb.ReportLive.New do
       |> MapHelper.deep_merge(%{
         "trigger_time" => trigger_time,
         "integration_info" => %{
-          "channel_name" => channel_name
+          "channel_name" => channel_name,
+          "channel_id" => channel_id
         }
       })
 

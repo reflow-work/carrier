@@ -97,8 +97,8 @@
         phx-submit="save_report"
         autocomplete="off"
       >
-        <%= hidden_input(f, :org_id) %>
-        <%= hidden_input(f, :user_id) %>
+        <%= hidden_input(f, :org_id, value: @org_id) %>
+        <%= hidden_input(f, :user_id, value: @user_id) %>
 
         <div class="space-y-6">
           <section class="flex gap-4 flex-col lg:flex-row">
@@ -111,11 +111,11 @@
                     <%= if @data_loaded do %>
                       <div class="flex flex-col gap-y-3 mt-2">
                         <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                          <%= hidden_input(fdsi, :data_source_id) %>
-                          <%= hidden_input(fdsi, :sql_template) %>
-                          <%= hidden_input(fdsi, :timezone) %>
-                          <%= hidden_input(fdsi, :period) %>
-                          <%= hidden_input(fdsi, :comparing_period) %>
+                          <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>
+                          <%= hidden_input(fdsi, :sql_template, value: @sql_template) %>
+                          <%= hidden_input(fdsi, :timezone, value: @timezone) %>
+                          <%= hidden_input(fdsi, :period, value: @period) %>
+                          <%= hidden_input(fdsi, :comparing_period, value: @comparing_period) %>
 
                           <%= for column <- @columns do %>
                             <div class="flex gap-x-2 items-center">
@@ -123,7 +123,7 @@
                                 type="checkbox"
                                 name="report[data_source_info][columns][]"
                                 value={column}
-                                checked={column in input_value(fdsi, :columns)}
+                                checked={column in @columns}
                               />
                               <%= label(fdsi, :columns, column) %>
                             </div>
@@ -148,7 +148,8 @@
                         <div class="flex gap-x-2 items-center">
                           <%= radio_button(fdsi, :window_size, 1,
                             class: "radio",
-                            phx_click: "select_window_size"
+                            phx_click: "select_window_size",
+                            selected: @window_size === 1
                           ) %>
                           <%= label(f, :window_size, "당일 지표") %>
                         </div>
@@ -159,7 +160,8 @@
                         <div class="flex gap-x-2 items-center mt-4">
                           <%= radio_button(fdsi, :window_size, 7,
                             class: "radio",
-                            phx_click: "select_window_size"
+                            phx_click: "select_window_size",
+                            selected: @window_size === 7
                           ) %>
                           <%= label(f, :window_size, "이동합계") %>
                         </div>
@@ -187,7 +189,7 @@
                   <div class="flex flex-col gap-y-6 mt-4">
                     <%= for column <- @columns do %>
                       <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                        <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in input_value(fdsi, :columns), do: "hidden"}"}>
+                        <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @columns, do: "hidden"}"}>
                           <h3 class="font-bold text-base-dark">
                             📊 <%= "#{DateTime.now("Asia/Seoul") |> elem(1) |> format_date()} - #{@query_result_by_columns[column].meta.label}" %>
                           </h3>
@@ -262,7 +264,7 @@
             </section>
           </section>
 
-          <section class="card">
+          <section class="card overflow-auto">
             <div class="card-body">
               <h2 class="card-title">레포트 정보</h2>
               <div class="space-y-4">
@@ -271,25 +273,51 @@
                   <%= text_input(f, :name,
                     placeholder: "데일리 유저 지표",
                     class: "input input-bordered w-64",
-                    value: input_value(f, :name)
+                    value: @report_name
                   ) %>
                   <%= error_tag(f, :name) %>
                 </div>
 
                 <div class="flex items-center gap-x-2">
                   <%= label(f, :hour, "레포트 발송 시간", class: "label w-28 text-gray-500 text-sm") %>
-                  <%= select(f, :hour, @hours, class: "select select-bordered w-64") %>
+                  <%= select(f, :hour, @hours, value: @hour, class: "select select-bordered w-64") %>
                   <%= error_tag(f, :hour) %>
                 </div>
 
                 <%= inputs_for f, :integration_info, fn fii -> %>
-                  <%= hidden_input(fii, :integration_id) %>
+                  <%= hidden_input(fii, :integration_id, value: @integration.id) %>
+                  <%= hidden_input(fii, :channel_id, value: @channel_id) %>
 
-                  <div class="flex items-center gap-x-2">
-                    <%= label(fii, :channel_id, "레포트 발송 채널",
+                  <div id="integration_info" class="flex items-center gap-x-2" phx-hook="Slack">
+                    <%= label(fii, :channel_search_term, "레포트 발송 채널",
                       class: "label w-28 text-gray-500 text-sm"
                     ) %>
-                    <%= select(fii, :channel_id, @channels, class: "select select-bordered w-64") %>
+                    <div class="relative">
+                      <%= text_input(fii, :channel_search_term,
+                        placeholder: "데일리 유저 지표",
+                        class: "input input-bordered w-64",
+                        value: @channel_search_term,
+                        phx_change: "search_slack_channels"
+                      ) %>
+                      <%= if (!Enum.empty?(@channel_suggestions)) do %>
+                        <ul class="absolute max-h-64 bottom-[50px] border border-gray-400 divide-y divide-y-gray400 w-64 bg-white overflow-y-auto overflow-x-clip rounded-lg">
+                          <%= for {label, id} <- @channel_suggestions do %>
+                            <li>
+                              <button
+                                class="w-64 p-2 hover:bg-gray-200 text-left text-sm"
+                                phx-click-away="clear_channel_suggestions"
+                                phx-click={
+                                  JS.push("select_slack_channel", value: %{channel_id: id})
+                                }
+                                type="button"
+                              >
+                                <%= "##{label}" %>
+                              </button>
+                            </li>
+                          <% end %>
+                        </ul>
+                      <% end %>
+                    </div>
                     <a class="ml-1" phx-click="refresh_slack_channel_list">
                       <CarrierWeb.Components.Icon.refresh class={"w-5 h-5 #{if @is_loading_slack_channels, do: "text-gray-100 cursor-not-allowed", else: "cursor-pointer text-neutral-content"}"} />
                     </a>
@@ -394,24 +422,24 @@
 
       <%!-- <div class="divider" />
 
-  <div>
-    <table class="table mt-4 w-full">
-      <thead>
-        <tr class="w-full">
-          <th class="text-center py-3">header</th>
-          <th class="text-center py-3">header</th>
-          <th class="text-center py-3">header</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="w-full">
-          <td class="text-center py-2 text-sm bg-base-300">value</td>
-          <td class="text-center py-2 text-sm bg-base-300">value</td>
-          <td class="text-center py-2 text-sm bg-base-300">value</td>
-        </tr>
-      </tbody>
-    </table>
-  </div> --%>
+<div>
+  <table class="table mt-4 w-full">
+   <thead>
+      <tr class="w-full">
+        <th class="text-center py-3">header</th>
+      <th class="text-center py-3">header</th>
+    <th class="text-center py-3">header</th>
+  </tr>
+</thead>
+<tbody>
+      <tr class="w-full">
+        <td class="text-center py-2 text-sm bg-base-300">value</td>
+        <td class="text-center py-2 text-sm bg-base-300">value</td>
+      <td class="text-center py-2 text-sm bg-base-300">value</td>
+    </tr>
+  </tbody>
+</table>
+</div> --%>
 
       <div class="mt-12">
         <button type="submit" class="w-full btn btn-primary">

@@ -5,7 +5,7 @@ defmodule CarrierWeb.Components.Slack do
     ~H"""
     <a
       href={generate_url()}
-      style="align-items:center;color:#000;background-color:#fff;border:1px solid #ddd;border-radius:4px;display:inline-flex;font-family:Lato, sans-serif;font-size:14px;font-weight:600;height:44px;justify-content:center;text-decoration:none;width:204px"
+      style="align-items:center;color:#000;background-color:#fff;border:1px solid #ddd;border-radius:4px;display:inline-flex;font-size:14px;font-weight:600;height:44px;justify-content:center;text-decoration:none;width:204px"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
