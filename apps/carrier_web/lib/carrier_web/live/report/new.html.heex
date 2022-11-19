@@ -288,7 +288,7 @@
                   <%= hidden_input(fii, :integration_id, value: @integration.id) %>
                   <%= hidden_input(fii, :channel_id, value: @channel_id) %>
 
-                  <div id="integration_info" class="flex items-center gap-x-2" phx-hook="Slack">
+                  <div id="integration_info" class="flex items-center gap-x-2">
                     <%= label(fii, :channel_search_term, "레포트 발송 채널",
                       class: "label w-28 text-gray-500 text-sm"
                     ) %>
