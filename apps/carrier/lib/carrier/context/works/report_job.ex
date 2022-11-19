@@ -48,7 +48,7 @@ defmodule Carrier.Works.ReportJob do
   rescue
     e ->
       Reports.record_failed_report_log(%{report_id: report_id, error_message: inspect(e)})
-      Logger.error("Failed to send report: #{inspect(e)}")
+      Logger.error("Failed to send report: #{Exception.format(:error, e, __STACKTRACE__)}")
 
       {:error, e}
   end
