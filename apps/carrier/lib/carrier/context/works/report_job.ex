@@ -80,7 +80,7 @@ defmodule Carrier.Works.ReportJob do
              window_size: window_size,
              comparing_period: comparing_period
            }),
-         parsed_data = QueryData.refine_data_based_on_columns(raw_data, value_columns),
+         parsed_data = QueryData.refine_data_based_on_columns(raw_data, value_columns, window_size),
          {:ok, %{"body" => %{"imgUrls" => img_urls}}, _} <-
            Aws.save_chart_img(%{
              data: parsed_data,

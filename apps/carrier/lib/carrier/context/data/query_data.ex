@@ -63,14 +63,14 @@ defmodule Carrier.Data.QueryData do
       {:error, :query_failed}
   end
 
-  def refine_data_based_on_columns(%{columns: columns, data: data}, selected_columns) do
+  def refine_data_based_on_columns(%{columns: columns, data: data}, selected_columns, window_size) do
     [date_column | value_columns] = columns
 
     value_columns
     |> Enum.filter(&(&1 in selected_columns))
     |> Enum.map(fn value_column ->
       data_by_column = split_data_by_columns(value_column, date_column, data)
-      meta_data = build_meta_data(date_column, value_column, data_by_column)
+      meta_data = build_meta_data(date_column, value_column, data_by_column, window_size)
 
       {value_column, Enum.into([{:meta, meta_data}, {:data, data_by_column}], %{})}
     end)
@@ -161,7 +161,7 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp build_meta_data(date_column_name, key, data) do
+  defp build_meta_data(date_column_name, key, data, window_size) do
     current_period_sum_key = window_sum_column(key)
     previous_period_sum_key = window_sum_offset_column(key)
     current_to_previous_periods_sum_ratio_key = window_sum_over_column(key)
@@ -203,6 +203,7 @@ defmodule Carrier.Data.QueryData do
     %{
       label: key,
       date_column_name: date_column_name,
+      window_size: window_size,
       current_period_last_tick_raw: last_datum[key],
       previous_period_last_tick_raw: previous_period_last_datum[key],
       current_period_sum: last_datum[current_period_sum_key],

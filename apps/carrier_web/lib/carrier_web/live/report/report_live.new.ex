@@ -119,7 +119,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> case do
             {:ok, raw_data} ->
               preview = QueryData.format_data_for_preview(raw_data)
-              parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+              parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, report.data_source_info.window_size)
 
               socket
               |> assign(:query_maker_button_font_size, 14)
@@ -258,7 +258,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, raw_data} ->
           preview = QueryData.format_data_for_preview(raw_data)
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, socket.assigns.window_size)
           columns = parsed_data |> Map.keys()
 
           socket
@@ -328,7 +328,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, raw_data} ->
           preview = QueryData.format_data_for_preview(raw_data)
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, window_size)
           columns = parsed_data |> Map.keys()
 
           socket
@@ -430,7 +430,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, raw_data} ->
           preview = QueryData.format_data_for_preview(raw_data)
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns)
+          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, socket.assigns.window_size)
           columns = parsed_data |> Map.keys()
 
           socket

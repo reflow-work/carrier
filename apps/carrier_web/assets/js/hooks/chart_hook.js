@@ -233,12 +233,13 @@ const ChartHook = {
       }
       const all_data = current.concat(previous)
       const { max: maxScale, min: minScale } = getScaleBounds(all_data)
+      const titleText = meta.window_size === 1 ? `${key} 일일 데이터` : `${key} 7일 이동합계`
       chart.options.scales.y.max = maxScale
       chart.options.scales.y.min = minScale
       chart.options.scales.y.ticks.count = getTickCount(minScale, maxScale)
       chart.data.datasets = [current_dataset, previous_dataset]
       chart.data.labels = labels
-      chart.options.plugins.title.text = `${key} 일일 데이터`
+      chart.options.plugins.title.text = titleText
       chart.update()
     })
   }
