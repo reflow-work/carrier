@@ -283,9 +283,9 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_id: socket.assigns.data_source.id,
                   sql_template: sql_template,
                   timezone: socket.assigns.timezone,
-                  period => socket.assigns.period,
-                  window_size => socket.assigns.window_size,
-                  comparing_period => socket.assigns.comparing_period,
+                  period: socket.assigns.period,
+                  window_size: socket.assigns.window_size,
+                  comparing_period: socket.assigns.comparing_period,
                   columns: columns
                 }
               })
@@ -352,9 +352,9 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_id: socket.assigns.data_source.id,
                   sql_template: socket.assigns.sql_template,
                   timezone: socket.assigns.timezone,
-                  period => socket.assigns.period,
+                  period: socket.assigns.period,
                   window_size: window_size,
-                  comparing_period => socket.assigns.comparing_period,
+                  comparing_period: socket.assigns.comparing_period,
                   columns: columns
                 }
               })
@@ -453,6 +453,7 @@ defmodule CarrierWeb.ReportLive.New do
                 "user_id" => socket.assigns.user_id,
                 "trigger_time" => trigger_time,
                 "name" => socket.assigns.report_name,
+                "hour" => socket.assigns.hour,
                 "integration_info" => %{
                   "integration_id" => socket.assigns.integration.id,
                   "channel_id" => channel_id,
