@@ -175,11 +175,11 @@
                     <%= error_tag(fci, :password) %>
                   </div>
 
-                  <div>
-                    <label class="label mt-2">
+                  <div class="flex mt-5 items-center">
+                    <%= checkbox(fci, :ssl, value: input_value(fci, :ssl)) %>
+                    <label class="label ml-1">
                       <span class="label-text text-gray-500">SSL 사용 여부</span>
                     </label>
-                    <%= checkbox(fci, :ssl, value: input_value(fci, :ssl)) %>
                     <%= error_tag(fci, :ssl) %>
                   </div>
                 <% end %>
