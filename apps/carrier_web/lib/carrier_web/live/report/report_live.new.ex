@@ -119,7 +119,13 @@ defmodule CarrierWeb.ReportLive.New do
           |> case do
             {:ok, raw_data} ->
               preview = QueryData.format_data_for_preview(raw_data)
-              parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, report.data_source_info.window_size)
+
+              parsed_data =
+                QueryData.refine_data_based_on_columns(
+                  raw_data,
+                  raw_data.columns,
+                  report.data_source_info.window_size
+                )
 
               socket
               |> assign(:query_maker_button_font_size, 14)
@@ -166,6 +172,12 @@ defmodule CarrierWeb.ReportLive.New do
 
   @impl true
   def handle_event("open_query_maker", _params, socket) do
+    socket =
+      socket
+      |> log_event("open_query_maker", %{
+        pane_name: "report_new"
+      })
+
     socket =
       QueryData.fetch_table_names(%{
         org_id: socket.assigns.org_id,
@@ -217,6 +229,9 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> log_event("make_query_on_query_maker", %{
+        pane_name: "report_new"
+      })
       |> assign(:sql_template, value)
       |> push_event("js-exec", %{to: "#query-maker", attr: "data-hide-modal"})
 
@@ -242,6 +257,9 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> log_event("run_query", %{
+        pane_name: "report_new"
+      })
       |> assign(:sql_template, sql_template)
 
     socket =
@@ -258,7 +276,14 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, raw_data} ->
           preview = QueryData.format_data_for_preview(raw_data)
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, socket.assigns.window_size)
+
+          parsed_data =
+            QueryData.refine_data_based_on_columns(
+              raw_data,
+              raw_data.columns,
+              socket.assigns.window_size
+            )
+
           columns = parsed_data |> Map.keys()
 
           socket
@@ -304,6 +329,10 @@ defmodule CarrierWeb.ReportLive.New do
             end
 
           socket
+          |> log_event("error_query", %{
+            pane_name: "report_new",
+            error_message: message
+          })
           |> assign(:query_error_message, "쿼리 실행 중 오류: #{message}")
           |> update(:query_maker_button_font_size, &(&1 + 1))
       end
@@ -328,7 +357,10 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, raw_data} ->
           preview = QueryData.format_data_for_preview(raw_data)
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, window_size)
+
+          parsed_data =
+            QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, window_size)
+
           columns = parsed_data |> Map.keys()
 
           socket
@@ -430,7 +462,14 @@ defmodule CarrierWeb.ReportLive.New do
       |> case do
         {:ok, raw_data} ->
           preview = QueryData.format_data_for_preview(raw_data)
-          parsed_data = QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, socket.assigns.window_size)
+
+          parsed_data =
+            QueryData.refine_data_based_on_columns(
+              raw_data,
+              raw_data.columns,
+              socket.assigns.window_size
+            )
+
           columns = parsed_data |> Map.keys()
 
           socket
@@ -540,6 +579,9 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> log_event("send_test_report", %{
+        page_name: "report_new"
+      })
       |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
       |> push_event("js-exec", %{to: "#send-preview", attr: "data-hide-modal"})
 
@@ -547,6 +589,12 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   def handle_event("toggle_show_full_preview_data", _params, socket) do
+    socket =
+      case socket.assigns.show_full_preview_data do
+        false -> log_event(socket, "show_more_query_result", %{page: "report_new"})
+        _ -> socket
+      end
+
     socket =
       socket
       |> assign(:show_full_preview_data, !socket.assigns.show_full_preview_data)
