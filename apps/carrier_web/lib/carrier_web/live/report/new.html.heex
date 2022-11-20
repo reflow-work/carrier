@@ -404,13 +404,13 @@
 
       <div class="flex items-center gap-x-2">
         <%= label(f, :value_column_name, "지표 컬럼", class: "label w-20 text-gray-500 text-sm") %>
-        <%= select(f, :aggregation, @aggregations,
-          class: "select select-bordered w-60",
-          selected: @aggregations |> List.first()
-        ) %>
         <%= select(f, :value_column, @value_columns,
           class: "select select-bordered w-60",
           selected: @value_columns |> List.first()
+        ) %>
+        <%= select(f, :aggregation, @aggregations,
+          class: "select select-bordered w-60",
+          selected: @aggregations |> List.first()
         ) %>
         <%= text_input(f, :value_column_name,
           placeholder: "보여줄 컬럼 이름",
