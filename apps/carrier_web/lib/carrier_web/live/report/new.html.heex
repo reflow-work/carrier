@@ -292,12 +292,13 @@
                     <%= label(fii, :channel_search_term, "레포트 발송 채널",
                       class: "label w-28 text-gray-500 text-sm"
                     ) %>
-                    <div class="relative">
+                    <div class="relative" phx-click-away="clear_channel_suggestions">
                       <%= text_input(fii, :channel_search_term,
                         placeholder: "데일리 유저 지표",
                         class: "input input-bordered w-64",
                         value: @channel_search_term,
-                        phx_change: "search_slack_channels"
+                        phx_change: "search_slack_channels",
+                        phx_focus: "search_slack_channels"
                       ) %>
                       <%= if (!Enum.empty?(@channel_suggestions)) do %>
                         <ul class="absolute max-h-64 bottom-[50px] border border-gray-400 divide-y divide-y-gray400 w-64 bg-white overflow-y-auto overflow-x-clip rounded-lg">
@@ -305,7 +306,6 @@
                             <li>
                               <button
                                 class="w-64 p-2 hover:bg-gray-200 text-left text-sm"
-                                phx-click-away="clear_channel_suggestions"
                                 phx-click={
                                   JS.push("select_slack_channel", value: %{channel_id: id})
                                 }

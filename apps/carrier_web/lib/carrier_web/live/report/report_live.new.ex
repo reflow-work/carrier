@@ -425,8 +425,33 @@ defmodule CarrierWeb.ReportLive.New do
         socket
       ) do
     channel_suggestions =
-      socket.assigns.channels
-      |> Enum.filter(fn {label, _id} -> String.contains?(label, channel_search_term) end)
+      if String.length(channel_search_term) == 0 do
+        socket.assigns.channels
+      else
+        socket.assigns.channels
+        |> Enum.filter(fn {label, _id} -> String.contains?(label, channel_search_term) end)
+      end
+
+    socket =
+      socket
+      |> assign(:channel_suggestions, channel_suggestions)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "search_slack_channels",
+        %{"value" => channel_search_term},
+        socket
+      ) do
+    channel_suggestions =
+      if String.length(channel_search_term) == 0 do
+        socket.assigns.channels
+      else
+        socket.assigns.channels
+        |> Enum.filter(fn {label, _id} -> String.contains?(label, channel_search_term) end)
+      end
 
     socket =
       socket
