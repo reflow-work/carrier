@@ -35,7 +35,7 @@ defmodule CarrierWeb.ReportLogLive.Index do
             <tbody>
               <%= for report_log <- @report_logs do %>
                 <tr>
-                  <td><%= report_log.id |> Crypto.obfuscate() %></td>
+                  <td><%= report_log.report_info_id |> Crypto.obfuscate() %></td>
                   <td><%= report_log.report.name %></td>
                   <td>
                     <span class={"badge #{report_log.status}"}>

@@ -125,6 +125,7 @@ defmodule Carrier.Reports.ReportLog do
 
   def list() do
     __MODULE__
+    |> where([rl], rl.status != :cancelled)
     |> order_by([rl], desc: rl.scheduled_at, asc: rl.report_id)
   end
 
