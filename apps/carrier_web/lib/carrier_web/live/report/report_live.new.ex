@@ -100,6 +100,8 @@ defmodule CarrierWeb.ReportLive.New do
 
           report = socket.assigns.report
 
+          IO.inspect(report)
+
           hour =
             report.trigger_time
             |> TimeHelper.from_utc_time(report.data_source_info.timezone)
@@ -134,6 +136,9 @@ defmodule CarrierWeb.ReportLive.New do
               |> assign(:preview, preview)
               |> assign(:query_result_by_columns, parsed_data)
               |> assign(:columns, report.data_source_info.columns)
+              |> assign(:report_name, report.name)
+              |> assign(:channel_id, report.integration_info.channel_id)
+              |> assign(:channel_search_term, report.integration_info.channel_name)
               |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
               |> assign(
                 :report_changeset,
@@ -408,6 +413,7 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:report_changeset, report_changeset)
       |> assign(:report_name, report_inputs["name"])
+      |> assign(:hour, report_inputs["hour"])
 
     {:noreply, socket}
   end
@@ -509,6 +515,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:channel_id, channel_id)
           |> assign(:channel_search_term, channel_name)
           |> add_draw_chart_events(parsed_data, columns)
+          |> assign(:hour, socket.assigns.hour)
           |> assign(
             :report_changeset,
             ReportParams.changeset(

@@ -280,7 +280,10 @@
 
                 <div class="flex items-center gap-x-2">
                   <%= label(f, :hour, "레포트 발송 시간", class: "label w-28 text-gray-500 text-sm") %>
-                  <%= select(f, :hour, @hours, value: @hour, class: "select select-bordered w-64") %>
+                  <%= select(f, :hour, @hours,
+                    selected: @hour,
+                    class: "select select-bordered w-64"
+                  ) %>
                   <%= error_tag(f, :hour) %>
                 </div>
 
