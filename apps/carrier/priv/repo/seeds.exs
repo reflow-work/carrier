@@ -97,9 +97,9 @@ Repo.transaction(fn ->
         data_source_info: %DataSourceInfo{
           data_source_id: data_source0.id,
           sql_template: """
-          SELECT DATE(order_date) as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
-            FROM sample_data_simple
-            WHERE DATE(order_date) >= {{start}} AND DATE(order_date) < {{end}}
+          SELECT order_date as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
+            FROM sample_data
+            WHERE order_date >= {{start}} AND order_date < {{end}}
             GROUP BY order_date
             ORDER BY order_date
           """,
