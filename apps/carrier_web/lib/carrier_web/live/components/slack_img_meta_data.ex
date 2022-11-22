@@ -4,6 +4,7 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
 
   def card(assigns) do
     ~H"""
+    <.trend_icon value={assigns.diff_value_raw} />
     <p class="text-slackImgGrey font-bold text-sm">
       <%= first_line(assigns) %>
       <br />

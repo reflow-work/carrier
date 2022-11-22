@@ -185,19 +185,50 @@ defmodule Carrier.Data.QueryData do
         |> Decimal.to_float()
       end
 
+    # FIXME: All window_size == 1 handling is temporary and bad and should be removed
+
+    {previous_period_sum, current_period_sum} =
+      if window_size == 1 do
+        {previous_period_data, current_period_data} =
+          data
+          |> Enum.take(-14)
+          |> Enum.map(fn d -> d[key] end)
+          |> Enum.split(7)
+
+        previous_period_sum = Enum.sum(previous_period_data)
+        current_period_sum = Enum.sum(current_period_data)
+        {previous_period_sum, current_period_sum}
+      else
+        {last_datum[previous_period_sum_key], last_datum[current_period_sum_key]}
+      end
+
+    diff_between_period_sums = current_period_sum - previous_period_sum
+
     diff_between_period_sums_in_percentage =
-      last_datum[current_to_previous_periods_sum_ratio_key]
-      |> case do
-        value when is_number(value) ->
-          value
+      if previous_period_sum == 0 do
+        :nan
+      else
+        if window_size == 1 do
+          (diff_between_period_sums / previous_period_sum)
           |> Decimal.from_float()
-          |> Decimal.sub(1)
           |> Decimal.round(4)
           |> Decimal.mult(100)
           |> Decimal.to_float()
+        else
+          last_datum[current_to_previous_periods_sum_ratio_key]
+          |> case do
+            value when is_number(value) ->
+              value
+              |> Decimal.from_float()
+              |> Decimal.sub(1)
+              |> Decimal.round(4)
+              |> Decimal.mult(100)
+              |> Decimal.to_float()
 
-        value when is_atom(value) ->
-          value
+            value when is_atom(value) ->
+              value
+          end
+        end
       end
 
     %{
@@ -206,13 +237,12 @@ defmodule Carrier.Data.QueryData do
       window_size: window_size,
       current_period_last_tick_raw: last_datum[key],
       previous_period_last_tick_raw: previous_period_last_datum[key],
-      current_period_sum: last_datum[current_period_sum_key],
-      previous_period_sum: last_datum[previous_period_sum_key],
+      current_period_sum: current_period_sum,
+      previous_period_sum: previous_period_sum,
       current_to_previous_periods_sum_ratio:
         last_datum[current_to_previous_periods_sum_ratio_key],
       diff_between_period_raws: diff_between_period_raws,
-      diff_between_period_sums:
-        last_datum[current_period_sum_key] - last_datum[previous_period_sum_key],
+      diff_between_period_sums: diff_between_period_sums,
       diff_between_period_raws_in_percentage: diff_between_period_raws_in_percentage,
       diff_between_period_sums_in_percentage: diff_between_period_sums_in_percentage
     }
