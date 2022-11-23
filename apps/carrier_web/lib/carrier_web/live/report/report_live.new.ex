@@ -73,7 +73,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_name, "")
       |> assign(:period, 28)
       |> assign(:window_size, 7)
-      |> assign(:comparing_period, 7)
+      |> assign(:comparing_period, 28)
 
     {:ok, socket}
   end
@@ -99,8 +99,6 @@ defmodule CarrierWeb.ReportLive.New do
             end)
 
           report = socket.assigns.report
-
-          IO.inspect(report)
 
           hour =
             report.trigger_time
