@@ -45,7 +45,7 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
           <%= @diff_value_raw %>
         </span>
         <span>만큼 </span>
-        <span class={value_color(@diff_value_raw)}> 증가</span><span>하여</span>
+        <span class={value_color(@diff_value_raw)}> 증가</span><span>했어요.</span>
         """
 
       assigns.diff_value_raw < 0 ->
@@ -55,7 +55,7 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
           <%= @diff_value_raw %>
         </span>
         <span>만큼 </span>
-        <span class={value_color(@diff_value_raw)}> 감소</span><span>하여</span>
+        <span class={value_color(@diff_value_raw)}> 감소</span><span>했어요.</span>
         """
 
       assigns.diff_value_raw == 0 ->
@@ -71,47 +71,50 @@ defmodule CarrierWeb.Components.SlackImgMetaData do
   end
 
   defp second_line(assigns) do
-    cond do
-      assigns.diff_value_percentage == 0 ->
+    case assigns.diff_value_percentage do
+      0 ->
         ~H"""
         <span></span>
         """
 
-      assigns.diff_value_percentage == :negative_infinity ->
+      :negative_infinity ->
         ~H"""
-        <span>데이터에 문제가 있어 값을 계산할 수 없습니다.</span>
+        <span>비율을 계산할 수 없어요.</span>
         """
 
-      assigns.diff_value_percentage == :infinity ->
+      :infinity ->
         ~H"""
-        <span>데이터에 문제가 있어 값을 계산할 수 없습니다.</span>
+        <span>비율을 계산할 수 없어요.</span>
         """
 
-      assigns.diff_value_percentage == :nan ->
+      :nan ->
         ~H"""
-        <span>데이터에 문제가 있어 값을 계산할 수 없습니다.</span>
+        <span>비율을 계산할 수 없어요.</span>
         """
 
-      assigns.diff_value_percentage > 0 ->
-        ~H"""
-        <span class={value_color(@diff_value_percentage)}>
-          <%= "#{@diff_value_percentage}%" %>
-        </span>
-        <span> 올랐어요.</span>
-        """
+      n ->
+        cond do
+          n > 0 ->
+            ~H"""
+            <span class={value_color(@diff_value_percentage)}>
+              <%= "#{@diff_value_percentage}%" %>
+            </span>
+            <span> 올랐어요.</span>
+            """
 
-      assigns.diff_value_percentage < 0 ->
-        ~H"""
-        <span class={value_color(@diff_value_percentage)}>
-          <%= "#{@diff_value_percentage}%" %>
-        </span>
-        <span> 떨어졌어요. </span>
-        """
+          n < 0 ->
+            ~H"""
+            <span class={value_color(@diff_value_percentage)}>
+              <%= "#{@diff_value_percentage}%" %>
+            </span>
+            <span> 떨어졌어요. </span>
+            """
 
-      true ->
-        ~H"""
-        <span>오류 - 잘못된 값이 입력되었습니다.</span>
-        """
+          true ->
+            ~H"""
+            <span>오류 - 잘못된 값이 입력되었습니다.</span>
+            """
+        end
     end
   end
 end

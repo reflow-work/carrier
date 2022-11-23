@@ -176,7 +176,7 @@ defmodule Carrier.Data.QueryData do
 
     diff_between_period_raws_in_percentage =
       if previous_period_last_datum[key] == 0 do
-        0
+        :nan
       else
         (diff_between_period_raws / previous_period_last_datum[key])
         |> Decimal.from_float()
@@ -199,7 +199,8 @@ defmodule Carrier.Data.QueryData do
         current_period_sum = Enum.sum(current_period_data)
         {previous_period_sum, current_period_sum}
       else
-        {last_datum[previous_period_sum_key], last_datum[current_period_sum_key]}
+        {normalize_zero(last_datum[previous_period_sum_key]),
+         normalize_zero(last_datum[current_period_sum_key])}
       end
 
     diff_between_period_sums = current_period_sum - previous_period_sum
@@ -493,5 +494,13 @@ defmodule Carrier.Data.QueryData do
 
   defp window_sum_over_column(column) do
     column <> "_window_sum_over"
+  end
+
+  defp normalize_zero(n) when is_number(n) do
+    if n == 0 do
+      0
+    else
+      n
+    end
   end
 end
