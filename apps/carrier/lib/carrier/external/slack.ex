@@ -99,7 +99,7 @@ defmodule Carrier.External.Slack do
          {:ok, %{status: 200, body: %{"ok" => true}}} -> false
          _ -> true
        end},
-      Tesla.Middleware.JSON
+      {Tesla.Middleware.JSON, encode_content_type: "application/json; charset=utf-8"}
     ])
   end
 end
