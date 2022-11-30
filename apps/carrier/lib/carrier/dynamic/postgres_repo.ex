@@ -3,9 +3,21 @@ defmodule Carrier.Dynamic.PostgresRepo do
     otp_app: :carrier,
     adapter: Ecto.Adapters.Postgres
 
-  def with_dynamic_repo(credentials, callback) do
+  @default_opts [
+    name: nil,
+    pool_size: 1,
+    max_restarts: 1,
+    queue_interval: :timer.seconds(2),
+    timeout: :timer.seconds(30)
+  ]
+  def with_dynamic_repo(credentials, opts \\ [], callback) when is_function(callback, 0) do
     default_dynamic_repo = get_dynamic_repo()
-    start_opts = [name: nil, pool_size: 1, timeout: :timer.seconds(30)] ++ credentials
+
+    start_opts =
+      @default_opts
+      |> Keyword.merge(opts)
+      |> Keyword.merge(credentials)
+
     {:ok, repo} = __MODULE__.start_link(start_opts)
 
     try do

@@ -4,18 +4,20 @@ defmodule Carrier.Secrets.ConnValidator do
   alias Carrier.Dynamic.{PostgresRepo, MySQLRepo}
   alias Carrier.Repo
 
-  def validate(source, info) do
+  def validate(source, info, opts \\ []) do
     struct = ConnInfo.Info.get_struct(source, info)
 
-    do_validate(struct)
+    do_validate(struct, opts)
   end
 
-  def do_validate(%ConnInfo.Postgres{} = struct) do
+  def do_validate(struct, opts \\ [])
+
+  def do_validate(%ConnInfo.Postgres{} = struct, opts) do
     %Postgrex.Result{} =
       struct
       |> Map.from_struct()
       |> Keyword.new()
-      |> PostgresRepo.with_dynamic_repo(fn ->
+      |> PostgresRepo.with_dynamic_repo(opts, fn ->
         PostgresRepo.query!("SELECT 1")
       end)
 
@@ -27,12 +29,12 @@ defmodule Carrier.Secrets.ConnValidator do
       {:error, :invalid_conn_info}
   end
 
-  def do_validate(%ConnInfo.MySQL{} = struct) do
+  def do_validate(%ConnInfo.MySQL{} = struct, opts) do
     %MyXQL.Result{} =
       struct
       |> Map.from_struct()
       |> Keyword.new()
-      |> MySQLRepo.with_dynamic_repo(fn ->
+      |> MySQLRepo.with_dynamic_repo(opts, fn ->
         MySQLRepo.query!("SELECT 1")
       end)
 
@@ -44,7 +46,7 @@ defmodule Carrier.Secrets.ConnValidator do
       {:error, :invalid_conn_info}
   end
 
-  def do_validate(_) do
+  def do_validate(_, _) do
     :ok
   end
 
