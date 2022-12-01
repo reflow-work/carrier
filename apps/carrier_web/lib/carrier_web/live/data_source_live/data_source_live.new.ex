@@ -23,7 +23,11 @@ defmodule CarrierWeb.DataSourceLive.New do
 
   @impl true
   def handle_event("change_step", %{"step" => step}, socket) do
-    socket = socket |> assign(:step, step)
+    socket =
+      case socket.assigns.source do
+        nil -> socket
+        _ -> socket |> assign(:step, step)
+      end
 
     {:noreply, socket}
   end
