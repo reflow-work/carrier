@@ -1,14 +1,22 @@
 defmodule Carrier.Reports do
   require Logger
-  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
-  alias Carrier.Works.ReportJob
+  alias Carrier.Reports.{ReportInfo, Report, ReportLog, ReportJob}
+  alias Carrier.Works
   alias Carrier.TenantRepo
   alias Carrier.Core.DateTimeHelper
 
   defmacro __using__([]) do
     quote do
-      alias unquote(__MODULE__)
-      alias unquote(__MODULE__).{ReportInfo, Report, ReportLog}
+      alias Carrier.Reports
+
+      alias Carrier.Reports.{
+        ReportInfo,
+        Report,
+        ReportLog,
+        ReportJob,
+        DataSourceInfo,
+        IntegrationInfo
+      }
     end
   end
 
@@ -201,7 +209,7 @@ defmodule Carrier.Reports do
                report_info_id: report.report_info_id,
                datetime: scheduled_at
              }
-             |> ReportJob.new(
+             |> Works.ReportJob.new(
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
              )

@@ -3,6 +3,14 @@ defmodule Carrier.Secrets do
   alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
   alias Carrier.TenantRepo
 
+  defmacro __using__([]) do
+    quote do
+      alias Carrier.Secrets
+      alias Carrier.Secrets.ConnValidator
+      alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
+    end
+  end
+
   def create_integration(%{
         org_id: org_id,
         service_name: service_name,
