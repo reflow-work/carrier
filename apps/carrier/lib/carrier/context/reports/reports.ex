@@ -204,7 +204,7 @@ defmodule Carrier.Reports do
   def create_job_from_report(
         %Report{} = report,
         %DateTime{} = base_datetime,
-        reader \\ %{repo: TenanatRepo}
+        reader \\ %{repo: TenantRepo}
       ) do
     scheduled_at = DateTimeHelper.get_next_with_time(base_datetime, report.trigger_time)
 
