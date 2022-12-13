@@ -32,10 +32,21 @@ defmodule Carrier.DataCase do
   end
 
   setup tags do
-    pid =
-      Ecto.Adapters.SQL.Sandbox.start_owner!(tags[:repo] || Carrier.Repo, shared: not tags[:async])
+    repos = tags[:repos] || [tags[:repo]] || Carrier.Repo
 
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    pids =
+      repos
+      |> Enum.map(fn repo ->
+        Ecto.Adapters.SQL.Sandbox.start_owner!(repo, shared: not tags[:async])
+      end)
+
+    on_exit(fn ->
+      pids
+      |> Enum.map(fn pid ->
+        Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+      end)
+    end)
+
     :ok
   end
 

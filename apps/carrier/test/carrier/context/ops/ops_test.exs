@@ -4,7 +4,7 @@ defmodule Carrier.OpsTest do
   alias Carrier.Ops
 
   describe "delete_org/2" do
-    @describetag repo: TenantRepo
+    @describetag repos: [Repo, TenantRepo]
 
     setup do
       org = TenantFactory.insert(:org)
@@ -30,7 +30,7 @@ defmodule Carrier.OpsTest do
     end
 
     test "with invalid name", %{org: org} do
-      assert {:error, nil} = Ops.delete_org(org.org_id, "invalid name")
+      assert {:error, :invalid_org} = Ops.delete_org(org.org_id, "invalid name")
     end
   end
 end
