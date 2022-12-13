@@ -1,6 +1,6 @@
 defmodule Carrier.Ops do
-  alias Carrier.Reports.{ReportLog, ReportJob}
-  alias Carrier.Repo
+  use Carrier.{Accounts, Secrets, Reports}
+  alias Carrier.{Repo, TenantRepo}
 
   def restart_failed_report(report_log_id) do
     Repo.wrap_transaction(fn ->
@@ -10,6 +10,32 @@ defmodule Carrier.Ops do
         {:ok, nil}
       end
     end)
+  end
+
+  def delete_org(org_id, org_name) do
+    TenantRepo.put_org_id(org_id)
+
+    with {:ok, org} <-
+           TenantRepo.wrap_transaction(fn ->
+             with {:ok, %Org{name: ^org_name} = org} <- Accounts.fetch_org() do
+               TenantRepo.delete_all(ReportLog)
+               TenantRepo.delete_all(Report)
+               TenantRepo.delete_all(ReportInfo)
+               TenantRepo.delete_all(DataSource)
+               TenantRepo.delete_all(Integration)
+               TenantRepo.delete_all(ConnInfo)
+               TenantRepo.delete_all(User)
+               TenantRepo.delete_all(Org)
+
+               {:ok, org}
+             else
+               _ -> {:error, :invalid_org}
+             end
+           end) do
+      ReportJob.list_by_org_id(org_id) |> Repo.delete_all()
+
+      {:ok, org}
+    end
   end
 
   defp retry_failed_report_log(report_log_id) do

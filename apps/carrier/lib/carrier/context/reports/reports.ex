@@ -1,14 +1,22 @@
 defmodule Carrier.Reports do
   require Logger
-  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
-  alias Carrier.Works.ReportJob
+  alias Carrier.Reports.{ReportInfo, Report, ReportLog, ReportJob}
+  alias Carrier.Works
   alias Carrier.TenantRepo
   alias Carrier.Core.DateTimeHelper
 
   defmacro __using__([]) do
     quote do
-      alias unquote(__MODULE__)
-      alias unquote(__MODULE__).{ReportInfo, Report, ReportLog}
+      alias Carrier.Reports
+
+      alias Carrier.Reports.{
+        ReportInfo,
+        Report,
+        ReportLog,
+        ReportJob,
+        DataSourceInfo,
+        IntegrationInfo
+      }
     end
   end
 
@@ -114,13 +122,16 @@ defmodule Carrier.Reports do
     end
   end
 
-  def record_scheduled_report_log(%{
-        org_id: org_id,
-        report_info_id: report_info_id,
-        report_id: report_id,
-        report_job_id: report_job_id,
-        scheduled_at: scheduled_at
-      }) do
+  def record_scheduled_report_log(
+        %{
+          org_id: org_id,
+          report_info_id: report_info_id,
+          report_id: report_id,
+          report_job_id: report_job_id,
+          scheduled_at: scheduled_at
+        },
+        reader \\ %{repo: TenantRepo}
+      ) do
     ReportLog.record_scheduled(%{
       org_id: org_id,
       report_info_id: report_info_id,
@@ -129,7 +140,7 @@ defmodule Carrier.Reports do
       created_at: DateTime.utc_now(),
       scheduled_at: scheduled_at
     })
-    |> TenantRepo.insert()
+    |> reader.repo.insert()
   end
 
   def record_tried_report_log(%{
@@ -190,10 +201,14 @@ defmodule Carrier.Reports do
     |> TenantRepo.update()
   end
 
-  def create_job_from_report(%Report{} = report, %DateTime{} = base_datetime) do
+  def create_job_from_report(
+        %Report{} = report,
+        %DateTime{} = base_datetime,
+        reader \\ %{repo: TenanatRepo}
+      ) do
     scheduled_at = DateTimeHelper.get_next_with_time(base_datetime, report.trigger_time)
 
-    TenantRepo.wrap_transaction(fn ->
+    reader.repo.wrap_transaction(fn ->
       with {:ok, report_job} <-
              %{
                org_id: report.org_id,
@@ -201,19 +216,22 @@ defmodule Carrier.Reports do
                report_info_id: report.report_info_id,
                datetime: scheduled_at
              }
-             |> ReportJob.new(
+             |> Works.ReportJob.new(
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
              )
-             |> TenantRepo.insert(),
+             |> reader.repo.insert(),
            {:ok, %ReportLog{}} <-
-             record_scheduled_report_log(%{
-               org_id: report.org_id,
-               report_info_id: report.report_info_id,
-               report_id: report.id,
-               report_job_id: report_job.id,
-               scheduled_at: scheduled_at
-             }) do
+             record_scheduled_report_log(
+               %{
+                 org_id: report.org_id,
+                 report_info_id: report.report_info_id,
+                 report_id: report.id,
+                 report_job_id: report_job.id,
+                 scheduled_at: scheduled_at
+               },
+               reader
+             ) do
         {:ok, report_job}
       end
     end)
