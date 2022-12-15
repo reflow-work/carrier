@@ -52,6 +52,11 @@ defmodule Carrier.External.Slack do
     end
   end
 
+  def get_conversation(channel_id, token) do
+    Tesla.get(client(token), "/conversations.info", query: %{channel: channel_id})
+    |> handle_response()
+  end
+
   defp parse_channel(%{"id" => id, "name" => name}) do
     %{
       id: id,
@@ -99,7 +104,8 @@ defmodule Carrier.External.Slack do
          {:ok, %{status: 200, body: %{"ok" => true}}} -> false
          _ -> true
        end},
-      {Tesla.Middleware.JSON, encode_content_type: "application/json; charset=utf-8"}
+      {Tesla.Middleware.JSON, encode_content_type: "application/json; charset=utf-8"},
+      {Tesla.Middleware.Timeout, timeout: :timer.seconds(10)}
     ])
   end
 end
