@@ -22,7 +22,7 @@ defmodule Carrier.Data.Source.MySQL do
     """
     SELECT *
       FROM information_schema.columns
-      WHERE TABLE_NAME = ?
+      WHERE TABLE_NAME = {{table_name}}
       ORDER BY ORDINAL_POSITION;
     """
   end
@@ -40,6 +40,11 @@ defmodule Carrier.Data.Source.MySQL do
   @impl Carrier.Data.Source.RDB
   def is_date_type?(type) do
     type in ["date", "datetime", "timestamp"]
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def param(_n) do
+    "?"
   end
 
   @impl Carrier.Data.Source.RDB

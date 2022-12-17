@@ -23,7 +23,7 @@ defmodule Carrier.Data.Source.Postgres do
     SELECT *
       FROM information_schema.columns
       WHERE table_schema = 'public'
-        AND table_name = $1
+        AND table_name = {{table_name}}
       ORDER BY ordinal_position;
     """
   end
@@ -45,6 +45,11 @@ defmodule Carrier.Data.Source.Postgres do
       type |> String.starts_with?("timestamp") -> true
       true -> false
     end
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def param(n) do
+    "$#{n}"
   end
 
   @impl Carrier.Data.Source.RDB

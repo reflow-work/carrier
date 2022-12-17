@@ -5,8 +5,10 @@ defmodule Carrier.Data.QueryData do
   alias Carrier.TenantRepo
   alias Carrier.Core.DataHelper
 
-  @start_template "{{start}}"
-  @end_template "{{end}}"
+  @start_template_key "start"
+  @end_template_key "end"
+  @start_template "{{#{@start_template_key}}}"
+  @end_template "{{#{@end_template_key}}}"
 
   def query(
         %{
@@ -27,13 +29,12 @@ defmodule Carrier.Data.QueryData do
     query_start_date = start_date |> Date.add(-(window_size + comparing_period + 1))
     query_end_date = end_date |> Date.add(1)
 
-    sql_params = [query_start_date, query_end_date]
+    query_params = %{"start" => query_start_date, "end" => query_end_date}
 
     with :ok <- is_valid_sql?(sql_template),
-         {:ok, %DataSource{source: source} = data_source} <-
+         {:ok, %DataSource{} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
-         sql = sql_template |> convert_sql_template_to_sql(source),
-         {:ok, %{columns: columns, rows: rows}} <- run_query(data_source, sql, sql_params),
+         {:ok, %{columns: columns, rows: rows}} <- run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(columns, rows),
          normalized_rows = normalize_rows(rows),
          data = DataHelper.rows_to_map(columns, normalized_rows),
@@ -129,7 +130,7 @@ defmodule Carrier.Data.QueryData do
          source_module = Source.get_module(source),
          columns_query = source_module.columns_query(),
          {:ok, %{columns: columns, rows: rows}} <-
-           run_query(data_source, columns_query, [table_name]) do
+           run_query(data_source, columns_query, %{"table_name" => table_name}) do
       %{date_columns: date_columns, other_columns: other_columns} =
         DataHelper.rows_to_map(columns, rows)
         |> Enum.group_by(
@@ -339,20 +340,6 @@ defmodule Carrier.Data.QueryData do
     {:ok, data}
   end
 
-  defp convert_sql_template_to_sql(sql_template, :postgres) do
-    sql_template
-    |> String.trim_trailing(";")
-    |> String.replace(@start_template, "$1")
-    |> String.replace(@end_template, "$2")
-  end
-
-  defp convert_sql_template_to_sql(sql_template, :mysql) do
-    sql_template
-    |> String.trim_trailing(";")
-    |> String.replace(@start_template, "?")
-    |> String.replace(@end_template, "?")
-  end
-
   # defp append_limit(sql) do
   #   sql <> " LIMIT $3"
   # end
@@ -383,11 +370,11 @@ defmodule Carrier.Data.QueryData do
   defp run_query(
          %DataSource{source: source, conn_info: %ConnInfo{} = conn_info},
          sql,
-         sql_params \\ []
+         query_params \\ %{}
        ) do
     credentials = ConnInfo.to_credentials(conn_info)
 
-    Source.get_module(source).run_query(credentials, sql, sql_params)
+    Source.run_query(source, credentials, sql, query_params)
   end
 
   defp validate_query_result(_columns, []), do: :ok

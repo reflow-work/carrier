@@ -5,6 +5,7 @@ defmodule Carrier.Data.Source.RDB do
   @callback column_name_field() :: String.t()
   @callback data_type_field() :: String.t()
   @callback is_date_type?(type :: String.t()) :: boolean()
-  @callback run_query(credentials :: map(), sql :: String.t(), sql_params :: String.t()) ::
-              {:ok, %{columns: list(), rows: list()}} | {:error, {:query_error, String.t()}}
+  @callback param(n :: integer()) :: String.t()
+  @callback run_query(credentials :: map(), sql :: String.t(), params :: map()) ::
+              {:ok, %{columns: list(), rows: list()}} | {:error, any()}
 end
