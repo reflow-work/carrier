@@ -342,15 +342,15 @@ defmodule Carrier.Data.QueryData do
   defp convert_sql_template_to_sql(sql_template, :postgres) do
     sql_template
     |> String.trim_trailing(";")
-    |> String.replace(@start_template, "$1::DATE")
-    |> String.replace(@end_template, "$2::DATE")
+    |> String.replace(@start_template, "$1")
+    |> String.replace(@end_template, "$2")
   end
 
   defp convert_sql_template_to_sql(sql_template, :mysql) do
     sql_template
     |> String.trim_trailing(";")
-    |> String.replace(@start_template, "DATE(?)")
-    |> String.replace(@end_template, "DATE(?)")
+    |> String.replace(@start_template, "?")
+    |> String.replace(@end_template, "?")
   end
 
   # defp append_limit(sql) do

@@ -32,8 +32,8 @@ defmodule CarrierWeb.ReportLive.New do
   DATE(<%= date_column %>),
   <%= aggregation %>(<%= value_column %>) AS "<%= if value_column_name != "", do: value_column_name, else: value_column %>"
   FROM <%= table_name %>
-  WHERE <%= date_column %> >= {{start}}
-  AND <%= date_column %> < {{end}}
+  WHERE DATE(<%= date_column %>) >= {{start}}
+  AND DATE(<%= date_column %>) < {{end}}
   GROUP BY 1
   """
 
