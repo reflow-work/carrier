@@ -49,4 +49,8 @@ defmodule Carrier.Secrets.ConnInfo do
     |> where([ci], ci.id == ^id)
     |> where([ci], is_nil(ci.deleted_at))
   end
+
+  def to_credentials(%__MODULE__{source: source, info: info}) do
+    __MODULE__.Info.to_credentials(source, info)
+  end
 end

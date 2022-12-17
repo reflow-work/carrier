@@ -30,11 +30,10 @@ defmodule Carrier.Data.QueryData do
     sql_params = [query_start_date, query_end_date]
 
     with :ok <- is_valid_sql?(sql_template),
-         {:ok, %DataSource{conn_info: %ConnInfo{source: source} = conn_info}} <-
+         {:ok, %DataSource{source: source} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
          sql = sql_template |> convert_sql_template_to_sql(source),
-         {:ok, %{columns: columns, rows: rows}} <-
-           run_query(conn_info, sql, sql_params),
+         {:ok, %{columns: columns, rows: rows}} <- run_query(data_source, sql, sql_params),
          :ok <- validate_query_result(columns, rows),
          normalized_rows = normalize_rows(rows),
          data = DataHelper.rows_to_map(columns, normalized_rows),
@@ -97,11 +96,11 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{source: source, conn_info: %ConnInfo{} = conn_info}} <-
+    with {:ok, %DataSource{source: source} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          tables_query = source_module.tables_query(),
-         {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, tables_query) do
+         {:ok, %{columns: columns, rows: rows}} <- run_query(data_source, tables_query) do
       table_names =
         DataHelper.rows_to_map(columns, rows)
         |> Enum.map(&"#{&1[source_module.table_name_field()]}")
@@ -125,12 +124,12 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{source: source, conn_info: %ConnInfo{} = conn_info}} <-
+    with {:ok, %DataSource{source: source} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          columns_query = source_module.columns_query(),
          {:ok, %{columns: columns, rows: rows}} <-
-           run_query(conn_info, columns_query, [table_name]) do
+           run_query(data_source, columns_query, [table_name]) do
       %{date_columns: date_columns, other_columns: other_columns} =
         DataHelper.rows_to_map(columns, rows)
         |> Enum.group_by(
@@ -381,10 +380,14 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params \\ []) do
-    credentials = ConnInfo.Info.to_credentials(source, info)
+  defp run_query(
+         %DataSource{source: source, conn_info: %ConnInfo{} = conn_info},
+         sql,
+         sql_params \\ []
+       ) do
+    credentials = ConnInfo.to_credentials(conn_info)
 
-    Carrier.Data.Source.get_module(source).run_query(credentials, sql, sql_params)
+    Source.get_module(source).run_query(credentials, sql, sql_params)
   end
 
   defp validate_query_result(_columns, []), do: :ok
