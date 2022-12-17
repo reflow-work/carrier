@@ -14,7 +14,15 @@ use Carrier.{Accounts, Secrets, Reports}
 alias Carrier.Repo
 
 Repo.transaction(fn ->
-  {_, [org0, org1]} = Repo.insert_all(Org, [%{name: "org0"}, %{name: "org1"}], returning: true)
+  {_, [org0, org1]} =
+    Repo.insert_all(
+      Org,
+      [
+        %{name: "org0", industry: "IT 서비스", employee_count: "1~4명"},
+        %{name: "org1", industry: "IT 서비스", employee_count: "1~4명"}
+      ],
+      returning: true
+    )
 
   {_, _} =
     Repo.insert_all(User, [
