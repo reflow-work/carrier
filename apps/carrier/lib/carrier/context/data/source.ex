@@ -1,5 +1,6 @@
 defmodule Carrier.Data.Source do
   alias Carrier.Data.Source
+  alias Carrier.Core.DataHelper
 
   def get_module(source) do
     case source do
@@ -14,7 +15,8 @@ defmodule Carrier.Data.Source do
     with {:ok, {query, sql_params}} <- parameterize_query(query, query_params, &source_module.param/1),
          {:ok, %{columns: columns, rows: rows}} <-
            source_module.run_query(credentials, query, sql_params) do
-      {:ok, %{columns: columns, rows: rows}}
+      data = DataHelper.rows_to_map(columns, rows)
+      {:ok, %{columns: columns, data: data}}
     else
       {:error, reason} ->
         {:error, reason}

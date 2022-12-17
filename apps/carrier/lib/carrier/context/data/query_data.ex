@@ -3,7 +3,6 @@ defmodule Carrier.Data.QueryData do
   use Carrier.Secrets
   alias Carrier.Data.Source
   alias Carrier.TenantRepo
-  alias Carrier.Core.DataHelper
 
   @start_template_key "start"
   @end_template_key "end"
@@ -34,11 +33,10 @@ defmodule Carrier.Data.QueryData do
     with :ok <- is_valid_sql?(sql_template),
          {:ok, %DataSource{} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
-         {:ok, %{columns: columns, rows: rows}} <- run_query(data_source, sql_template, query_params),
-         :ok <- validate_query_result(columns, rows),
-         normalized_rows = normalize_rows(rows),
-         data = DataHelper.rows_to_map(columns, normalized_rows),
-         filled_data = fill_missing_dates(data, columns, query_start_date, end_date),
+         {:ok, %{columns: columns, data: data}} <- run_query(data_source, sql_template, query_params),
+         :ok <- validate_query_result(columns, data),
+         normalized_data = normalize_data(data),
+         filled_data = fill_missing_dates(normalized_data, columns, query_start_date, end_date),
          {:ok, analyzed_date} <-
            filled_data
            |> analyze(%{
@@ -101,9 +99,9 @@ defmodule Carrier.Data.QueryData do
            Secrets.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          tables_query = source_module.tables_query(),
-         {:ok, %{columns: columns, rows: rows}} <- run_query(data_source, tables_query) do
+         {:ok, %{data: data}} <- run_query(data_source, tables_query) do
       table_names =
-        DataHelper.rows_to_map(columns, rows)
+        data
         |> Enum.map(&"#{&1[source_module.table_name_field()]}")
         |> Enum.sort()
 
@@ -129,10 +127,9 @@ defmodule Carrier.Data.QueryData do
            Secrets.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          columns_query = source_module.columns_query(),
-         {:ok, %{columns: columns, rows: rows}} <-
-           run_query(data_source, columns_query, %{"table_name" => table_name}) do
+         {:ok, %{data: data}} <- run_query(data_source, columns_query, %{"table_name" => table_name}) do
       %{date_columns: date_columns, other_columns: other_columns} =
-        DataHelper.rows_to_map(columns, rows)
+        data
         |> Enum.group_by(
           fn row ->
             data_type = row |> Map.get(source_module.data_type_field())
@@ -379,22 +376,23 @@ defmodule Carrier.Data.QueryData do
 
   defp validate_query_result(_columns, []), do: :ok
 
-  defp validate_query_result(_columns, [first_row | _]) do
-    with :ok <- is_date_type_at_first_column(first_row),
-         :ok <- is_number_type_after_first_column(first_row) do
+  defp validate_query_result(columns, [first_datum | _]) do
+    with :ok <- is_date_type_at_first_column(columns, first_datum),
+         :ok <- is_number_type_after_first_column(columns, first_datum) do
       :ok
     end
   end
 
-  defp is_date_type_at_first_column(row) do
-    case row do
-      [%Date{} | _] -> :ok
+  defp is_date_type_at_first_column([first_column | _], datum) do
+    case datum |> Map.get(first_column) do
+      %Date{} -> :ok
       _ -> {:error, :first_column_is_not_date_type}
     end
   end
 
-  defp is_number_type_after_first_column([_date | values]) do
-    values
+  defp is_number_type_after_first_column([_ | rest_columns], datum) do
+    rest_columns
+    |> Enum.map(&Map.get(datum, &1))
     |> Enum.all?(fn
       value when is_number(value) -> true
       %Decimal{} -> true
@@ -406,13 +404,14 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  defp normalize_rows(rows) do
-    rows
-    |> Enum.map(fn row ->
-      row
-      |> Enum.map(fn
-        %Decimal{} = value -> Decimal.to_float(value)
-        value -> value
+  defp normalize_data(data) do
+    data
+    |> Enum.map(fn datum ->
+      datum
+      |> Map.new(fn
+        {key, %Decimal{} = value} -> {key, Decimal.to_float(value)}
+        {key, nil} -> {key, 0}
+        pair -> pair
       end)
     end)
   end
