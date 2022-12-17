@@ -1,9 +1,8 @@
 defmodule Carrier.Data.QueryData do
   require Logger
-  alias Carrier.Secrets
-  alias Carrier.Secrets.{DataSource, ConnInfo}
+  use Carrier.Secrets
+  alias Carrier.Data.Source
   alias Carrier.TenantRepo
-  alias Carrier.Dynamic.{PostgresRepo, MySQLRepo}
   alias Carrier.Core.DataHelper
 
   @start_template "{{start}}"
@@ -98,13 +97,14 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info} = data_source} <-
+    with {:ok, %DataSource{source: source, conn_info: %ConnInfo{} = conn_info}} <-
            Secrets.fetch_data_source(data_source_id),
-         tables_query = DataSource.tables_query(data_source),
+         source_module = Source.get_module(source),
+         tables_query = source_module.tables_query(),
          {:ok, %{columns: columns, rows: rows}} <- run_query(conn_info, tables_query) do
       table_names =
         DataHelper.rows_to_map(columns, rows)
-        |> Enum.map(&"#{&1[DataSource.table_name_field(data_source)]}")
+        |> Enum.map(&"#{&1[source_module.table_name_field()]}")
         |> Enum.sort()
 
       {:ok, table_names}
@@ -125,23 +125,24 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{conn_info: %ConnInfo{} = conn_info} = data_source} <-
+    with {:ok, %DataSource{source: source, conn_info: %ConnInfo{} = conn_info}} <-
            Secrets.fetch_data_source(data_source_id),
-         columns_query = DataSource.columns_query(data_source),
+         source_module = Source.get_module(source),
+         columns_query = source_module.columns_query(),
          {:ok, %{columns: columns, rows: rows}} <-
            run_query(conn_info, columns_query, [table_name]) do
       %{date_columns: date_columns, other_columns: other_columns} =
         DataHelper.rows_to_map(columns, rows)
         |> Enum.group_by(
           fn row ->
-            data_type = row |> Map.get(DataSource.data_type_field(data_source))
+            data_type = row |> Map.get(source_module.data_type_field())
 
             cond do
-              DataSource.is_date_type?(data_source, data_type) -> :date_columns
+              source_module.is_date_type?(data_type) -> :date_columns
               true -> :other_columns
             end
           end,
-          & &1[DataSource.column_name_field(data_source)]
+          & &1[source_module.column_name_field()]
         )
         |> Map.put_new(:date_columns, [])
         |> Map.put_new(:other_columns, [])
@@ -383,33 +384,7 @@ defmodule Carrier.Data.QueryData do
   defp run_query(%ConnInfo{source: source, info: info}, sql, sql_params \\ []) do
     credentials = ConnInfo.Info.to_credentials(source, info)
 
-    case source do
-      :postgres ->
-        %{columns: columns, rows: rows} =
-          PostgresRepo.with_dynamic_repo(credentials, fn ->
-            PostgresRepo.query!(sql, sql_params)
-          end)
-
-        {:ok, %{columns: columns, rows: rows}}
-
-      :mysql ->
-        %{columns: columns, rows: rows} =
-          MySQLRepo.with_dynamic_repo(credentials, fn ->
-            MySQLRepo.query!(sql, sql_params)
-          end)
-
-        {:ok, %{columns: columns, rows: rows}}
-    end
-  rescue
-    error in Postgrex.Error ->
-      %Postgrex.Error{postgres: %{message: message}} = error
-
-      {:error, {:query_error, message}}
-
-    error in MyXQL.Error ->
-      %MyXQL.Error{message: message} = error
-
-      {:error, {:query_error, message}}
+    Carrier.Data.Source.get_module(source).run_query(credentials, sql, sql_params)
   end
 
   defp validate_query_result(_columns, []), do: :ok

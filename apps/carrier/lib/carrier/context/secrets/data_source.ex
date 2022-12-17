@@ -48,28 +48,4 @@ defmodule Carrier.Secrets.DataSource do
   def preload_conn_info(query) do
     query |> preload([:conn_info])
   end
-
-  def tables_query(%__MODULE__{source: source}) do
-    ConnInfo.Info.get_module(source).tables_query()
-  end
-
-  def table_name_field(%__MODULE__{source: source}) do
-    ConnInfo.Info.get_module(source).table_name_field()
-  end
-
-  def columns_query(%__MODULE__{source: source}) do
-    ConnInfo.Info.get_module(source).columns_query()
-  end
-
-  def column_name_field(%__MODULE__{source: source}) do
-    ConnInfo.Info.get_module(source).column_name_field()
-  end
-
-  def data_type_field(%__MODULE__{source: source}) do
-    ConnInfo.Info.get_module(source).data_type_field()
-  end
-
-  def is_date_type?(%__MODULE__{source: source}, type) do
-    ConnInfo.Info.get_module(source).is_date_type?(type)
-  end
 end
