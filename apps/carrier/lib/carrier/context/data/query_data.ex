@@ -15,7 +15,6 @@ defmodule Carrier.Data.QueryData do
           data_source_id: data_source_id,
           sql_template: sql_template,
           datetime: utc_datetime,
-          timezone: _timezone,
           period: period,
           window_size: window_size,
           comparing_period: comparing_period
