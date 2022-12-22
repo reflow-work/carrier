@@ -67,32 +67,21 @@
 
           <%= if @step == "step-1" do %>
             <div class="mt-10 space-y-4">
-              <div
-                phx-click="select_source"
-                phx-value-source="mysql"
-                class={
-                  "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == :mysql do
-                    "bg-black text-white"
-                  else
-                    "bg-white text-black"
-                  end}"
-                }
-              >
-                MySQL <Icon.arrow_right class="w-4" />
-              </div>
-              <div
-                phx-click="select_source"
-                phx-value-source="postgres"
-                class={
-                  "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == :postgres do
-                    "bg-black text-white"
-                  else
-                    "bg-white text-black"
-                  end}"
-                }
-              >
-                PostgreSQL <Icon.arrow_right class="w-4" />
-              </div>
+              <%= for {source, source_name} <- [{:mysql, "MySQL"}, {:postgres, "PostgreSQL"}] do %>
+                <div
+                  phx-click="select_source"
+                  phx-value-source={source}
+                  class={
+                    "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == source do
+                      "bg-black text-white"
+                    else
+                      "bg-white text-black"
+                    end}"
+                  }
+                >
+                  <%= source_name %> <Icon.arrow_right class="w-4" />
+                </div>
+              <% end %>
             </div>
           <% end %>
 
