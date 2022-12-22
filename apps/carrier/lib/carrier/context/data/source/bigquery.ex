@@ -1,6 +1,14 @@
 defmodule Carrier.Data.Source.BigQuery do
+  @behaviour Carrier.Data.Source.RDB
+
   require Logger
 
+  @impl Carrier.Data.Source.RDB
+  def param(_n) do
+    "?"
+  end
+
+  @impl Carrier.Data.Source.RDB
   def run_query(
         %{project_id: project_id, credentials_json: credentials_json} = _credential,
         sql,
