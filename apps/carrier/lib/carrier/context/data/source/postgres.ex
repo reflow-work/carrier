@@ -4,6 +4,31 @@ defmodule Carrier.Data.Source.Postgres do
   alias Carrier.Dynamic.PostgresRepo
 
   @impl Carrier.Data.Source.RDB
+  def validation_query() do
+    "SELECT 1"
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def param(n) do
+    "$#{n}"
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def run_query(credentials, sql, sql_params \\ [], opts \\ []) do
+    %{columns: columns, rows: rows} =
+      PostgresRepo.with_dynamic_repo(credentials, opts, fn ->
+        PostgresRepo.query!(sql, sql_params)
+      end)
+
+    {:ok, %{columns: columns, rows: rows}}
+  rescue
+    error in Postgrex.Error ->
+      %Postgrex.Error{postgres: %{message: message}} = error
+
+      {:error, {:query_error, message}}
+  end
+
+  @impl Carrier.Data.Source.RDB
   def tables_query() do
     """
     SELECT table_schema, table_name
@@ -45,25 +70,5 @@ defmodule Carrier.Data.Source.Postgres do
       type |> String.starts_with?("timestamp") -> true
       true -> false
     end
-  end
-
-  @impl Carrier.Data.Source.RDB
-  def param(n) do
-    "$#{n}"
-  end
-
-  @impl Carrier.Data.Source.RDB
-  def run_query(credentials, sql, sql_params \\ []) do
-    %{columns: columns, rows: rows} =
-      PostgresRepo.with_dynamic_repo(credentials, fn ->
-        PostgresRepo.query!(sql, sql_params)
-      end)
-
-    {:ok, %{columns: columns, rows: rows}}
-  rescue
-    error in Postgrex.Error ->
-      %Postgrex.Error{postgres: %{message: message}} = error
-
-      {:error, {:query_error, message}}
   end
 end

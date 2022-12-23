@@ -4,6 +4,31 @@ defmodule Carrier.Data.Source.MySQL do
   alias Carrier.Dynamic.MySQLRepo
 
   @impl Carrier.Data.Source.RDB
+  def validation_query() do
+    "SELECT 1"
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def param(_n) do
+    "?"
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def run_query(credentials, sql, sql_params \\ [], opts \\ []) do
+    %{columns: columns, rows: rows} =
+      MySQLRepo.with_dynamic_repo(credentials, opts, fn ->
+        MySQLRepo.query!(sql, sql_params)
+      end)
+
+    {:ok, %{columns: columns, rows: rows}}
+  rescue
+    error in MyXQL.Error ->
+      %MyXQL.Error{message: message} = error
+
+      {:error, {:query_error, message}}
+  end
+
+  @impl Carrier.Data.Source.RDB
   def tables_query() do
     """
     SELECT *
@@ -40,25 +65,5 @@ defmodule Carrier.Data.Source.MySQL do
   @impl Carrier.Data.Source.RDB
   def is_date_type?(type) do
     type in ["date", "datetime", "timestamp"]
-  end
-
-  @impl Carrier.Data.Source.RDB
-  def param(_n) do
-    "?"
-  end
-
-  @impl Carrier.Data.Source.RDB
-  def run_query(credentials, sql, sql_params \\ []) do
-    %{columns: columns, rows: rows} =
-      MySQLRepo.with_dynamic_repo(credentials, fn ->
-        MySQLRepo.query!(sql, sql_params)
-      end)
-
-    {:ok, %{columns: columns, rows: rows}}
-  rescue
-    error in MyXQL.Error ->
-      %MyXQL.Error{message: message} = error
-
-      {:error, {:query_error, message}}
   end
 end
