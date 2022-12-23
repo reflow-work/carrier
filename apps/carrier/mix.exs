@@ -58,7 +58,10 @@ defmodule Carrier.MixProject do
       {:sentry, "~> 8.0"},
       {:ex_cldr_numbers, "~> 2.0"},
       {:hashids, "~> 2.0"},
-      {:ex_cldr_dates_times, "~> 2.0"}
+      {:ex_cldr_dates_times, "~> 2.0"},
+      {:goth, "~> 1.3.0"},
+      {:req, "~> 0.3"},
+      {:req_bigquery, "~> 0.1.0"}
     ]
   end
 

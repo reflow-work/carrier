@@ -13,7 +13,8 @@ defmodule Carrier.Application do
       {Phoenix.PubSub, name: Carrier.PubSub},
       {Oban, Application.fetch_env!(:carrier, Oban)},
       Carrier.Vault,
-      {Finch, name: Carrier.Finch, pools: %{default: [size: 100]}}
+      {Finch, name: Carrier.Finch, pools: %{default: [size: 100]}},
+      {DynamicSupervisor, strategy: :one_for_one, name: Carrier.GothSupervisor}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Carrier.Supervisor)

@@ -24,14 +24,15 @@ defmodule Carrier.Secrets.ConnInfo.Info do
   end
 
   def to_credentials(source, info) do
-    struct = get_struct(source, info)
-    struct |> Map.from_struct() |> Keyword.new()
+    get_struct(source, info)
+    |> Map.from_struct()
   end
 
   def get_module(source) do
     case source do
       :postgres -> ConnInfo.Postgres
       :mysql -> ConnInfo.MySQL
+      :bigquery -> ConnInfo.BigQuery
       :slack -> ConnInfo.Slack
     end
   end

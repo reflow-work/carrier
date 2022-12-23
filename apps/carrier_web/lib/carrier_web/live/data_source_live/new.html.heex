@@ -33,14 +33,14 @@
             <div class="callout-icon">
               <Icon.alert_circle class="w-4 h-4 mt-0.5" />
             </div>
-            사용하시는 데이터베이스의 접속정보를 넣어주세요. <br /> 모든 데이터는 높은 수준의 암호화로 관리됩니다.
+            사용하시는 데이터 소스의 접속정보를 넣어주세요. <br /> 모든 정보는 높은 수준의 암호화로 관리됩니다.
           </div>
 
           <div class="callout mt-2">
             <div class="callout-icon">
               <Icon.alert_circle class="w-4 h-4 mt-0.5" />
             </div>
-            데이터베이스 접속정보를 모르실 경우 일반적으로 백엔드 엔지니어에게 문의해주시면 됩니다.
+            데이터 소스 접속정보를 모르실 경우 일반적으로 백엔드 엔지니어에게 문의해주시면 됩니다.
           </div>
         </div>
       </div>
@@ -67,32 +67,21 @@
 
           <%= if @step == "step-1" do %>
             <div class="mt-10 space-y-4">
-              <div
-                phx-click="select_source"
-                phx-value-source="mysql"
-                class={
-                  "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == :mysql do
-                    "bg-black text-white"
-                  else
-                    "bg-white text-black"
-                  end}"
-                }
-              >
-                MySQL <Icon.arrow_right class="w-4" />
-              </div>
-              <div
-                phx-click="select_source"
-                phx-value-source="postgres"
-                class={
-                  "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == :postgres do
-                    "bg-black text-white"
-                  else
-                    "bg-white text-black"
-                  end}"
-                }
-              >
-                PostgreSQL <Icon.arrow_right class="w-4" />
-              </div>
+              <%= for {source, source_name} <- [{:mysql, "MySQL"}, {:postgres, "PostgreSQL"}, {:bigquery, "BigQuery"}] do %>
+                <div
+                  phx-click="select_source"
+                  phx-value-source={source}
+                  class={
+                    "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == source do
+                      "bg-black text-white"
+                    else
+                      "bg-white text-black"
+                    end}"
+                  }
+                >
+                  <%= source_name %> <Icon.arrow_right class="w-4" />
+                </div>
+              <% end %>
             </div>
           <% end %>
 
@@ -119,69 +108,93 @@
                 </div>
 
                 <%= inputs_for f, :conn_info, fn fci -> %>
-                  <div>
-                    <label class="label mt-2">
-                      <span class="label-text text-gray-500">호스트</span>
-                    </label>
-                    <%= text_input(fci, :hostname,
-                      class: "data-source-input",
-                      placeholder: "127.0.0.1"
-                    ) %>
-                    <%= error_tag(fci, :hostname) %>
-                  </div>
+                  <%= case @source do %>
+                    <% source when source in [:postgres, :mysql] -> %>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">호스트</span>
+                        </label>
+                        <%= text_input(fci, :hostname,
+                          class: "data-source-input",
+                          placeholder: "127.0.0.1"
+                        ) %>
+                        <%= error_tag(fci, :hostname) %>
+                      </div>
 
-                  <div>
-                    <label class="label mt-2">
-                      <span class="label-text text-gray-500">포트</span>
-                    </label>
-                    <%= text_input(fci, :port,
-                      class: "data-source-input",
-                      placeholder: "3306"
-                    ) %>
-                    <%= error_tag(fci, :port) %>
-                  </div>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">포트</span>
+                        </label>
+                        <%= text_input(fci, :port,
+                          class: "data-source-input",
+                          placeholder: "3306"
+                        ) %>
+                        <%= error_tag(fci, :port) %>
+                      </div>
 
-                  <div>
-                    <label class="label mt-2">
-                      <span class="label-text text-gray-500">데이터베이스</span>
-                    </label>
-                    <%= text_input(fci, :database,
-                      class: "data-source-input",
-                      placeholder: "service_db"
-                    ) %>
-                    <%= error_tag(fci, :database) %>
-                  </div>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">데이터베이스</span>
+                        </label>
+                        <%= text_input(fci, :database,
+                          class: "data-source-input",
+                          placeholder: "service_db"
+                        ) %>
+                        <%= error_tag(fci, :database) %>
+                      </div>
 
-                  <div>
-                    <label class="label mt-2">
-                      <span class="label-text text-gray-500">유저 이름</span>
-                    </label>
-                    <%= text_input(fci, :username,
-                      class: "data-source-input",
-                      placeholder: "username"
-                    ) %>
-                    <%= error_tag(fci, :username) %>
-                  </div>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">유저 이름</span>
+                        </label>
+                        <%= text_input(fci, :username,
+                          class: "data-source-input",
+                          placeholder: "username"
+                        ) %>
+                        <%= error_tag(fci, :username) %>
+                      </div>
 
-                  <div>
-                    <label class="label mt-2">
-                      <span class="label-text text-gray-500">비밀번호</span>
-                    </label>
-                    <%= password_input(fci, :password,
-                      class: "data-source-input",
-                      value: input_value(fci, :password),
-                      placeholder: "password"
-                    ) %>
-                    <%= error_tag(fci, :password) %>
-                  </div>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">비밀번호</span>
+                        </label>
+                        <%= password_input(fci, :password,
+                          class: "data-source-input",
+                          value: input_value(fci, :password),
+                          placeholder: "password"
+                        ) %>
+                        <%= error_tag(fci, :password) %>
+                      </div>
 
-                  <div class="flex mt-5 items-center">
-                    <%= checkbox(fci, :ssl, value: input_value(fci, :ssl)) %>
-                    <label class="label ml-1">
-                      <span class="label-text text-gray-500">SSL 사용 여부</span>
-                    </label>
-                    <%= error_tag(fci, :ssl) %>
-                  </div>
+                      <div class="flex mt-5 items-center">
+                        <%= checkbox(fci, :ssl, value: input_value(fci, :ssl)) %>
+                        <label class="label ml-1">
+                          <span class="label-text text-gray-500">SSL 사용 여부</span>
+                        </label>
+                        <%= error_tag(fci, :ssl) %>
+                      </div>
+                    <% :bigquery -> %>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Project ID</span>
+                        </label>
+                        <%= text_input(fci, :project_id,
+                          class: "data-source-input",
+                          placeholder: "Project ID"
+                        ) %>
+                        <%= error_tag(fci, :project_id) %>
+                      </div>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Credentials Key</span>
+                        </label>
+                        <%= text_input(fci, :credentials_json,
+                          class: "data-source-input",
+                          placeholder: "Credentials Key"
+                        ) %>
+                        <%= error_tag(fci, :credentials_json) %>
+                      </div>
+                  <% end %>
                 <% end %>
 
                 <%= if @error do %>

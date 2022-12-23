@@ -16,7 +16,7 @@ defmodule Carrier.Dynamic.MySQLRepo do
     start_opts =
       @default_opts
       |> Keyword.merge(opts)
-      |> Keyword.merge(credentials)
+      |> Keyword.merge(Keyword.new(credentials))
 
     {:ok, repo} = __MODULE__.start_link(start_opts)
 

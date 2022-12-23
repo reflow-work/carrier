@@ -50,6 +50,9 @@ defmodule CarrierWeb.DataSourceLive.New do
 
         :mysql ->
           ConnInfoParams.MySQL
+
+        :bigquery ->
+          ConnInfoParams.BigQuery
       end
 
     socket =

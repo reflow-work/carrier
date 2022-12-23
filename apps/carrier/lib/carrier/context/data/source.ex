@@ -6,15 +6,17 @@ defmodule Carrier.Data.Source do
     case source do
       :postgres -> Source.Postgres
       :mysql -> Source.MySQL
+      :bigquery -> Source.BigQuery
     end
   end
 
-  def run_query(source, credentials, query, query_params \\ %{}) do
+  def run_query(source, credentials, query, query_params \\ %{}, opts \\ []) do
     source_module = get_module(source)
 
-    with {:ok, {query, sql_params}} <- parameterize_query(query, query_params, &source_module.param/1),
+    with {:ok, {query, sql_params}} <-
+           parameterize_query(query, query_params, &source_module.param/1),
          {:ok, %{columns: columns, rows: rows}} <-
-           source_module.run_query(credentials, query, sql_params) do
+           source_module.run_query(credentials, query, sql_params, opts) do
       data = DataHelper.rows_to_map(columns, rows)
       {:ok, %{columns: columns, data: data}}
     else
