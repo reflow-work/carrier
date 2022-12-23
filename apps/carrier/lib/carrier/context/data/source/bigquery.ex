@@ -4,6 +4,11 @@ defmodule Carrier.Data.Source.BigQuery do
   require Logger
 
   @impl Carrier.Data.Source.RDB
+  def validation_query() do
+    "SELECT 1"
+  end
+
+  @impl Carrier.Data.Source.RDB
   def param(_n) do
     "?"
   end
@@ -12,7 +17,8 @@ defmodule Carrier.Data.Source.BigQuery do
   def run_query(
         %{project_id: project_id, credentials_json: credentials_json} = _credential,
         sql,
-        sql_params \\ []
+        sql_params \\ [],
+        _opts \\ []
       ) do
     with {:ok, _pid} <- start_credential_process(project_id, credentials_json),
          {:ok, %{body: %ReqBigQuery.Result{} = result}} <-

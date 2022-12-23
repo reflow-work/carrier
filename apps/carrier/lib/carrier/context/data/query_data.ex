@@ -33,7 +33,8 @@ defmodule Carrier.Data.QueryData do
     with :ok <- is_valid_sql?(sql_template),
          {:ok, %DataSource{} = data_source} <-
            Secrets.fetch_data_source(data_source_id),
-         {:ok, %{columns: columns, data: data}} <- run_query(data_source, sql_template, query_params),
+         {:ok, %{columns: columns, data: data}} <-
+           run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(columns, data),
          normalized_data = normalize_data(data),
          filled_data = fill_missing_dates(normalized_data, columns, query_start_date, end_date),
@@ -127,7 +128,8 @@ defmodule Carrier.Data.QueryData do
            Secrets.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          columns_query = source_module.columns_query(),
-         {:ok, %{data: data}} <- run_query(data_source, columns_query, %{"table_name" => table_name}) do
+         {:ok, %{data: data}} <-
+           run_query(data_source, columns_query, %{"table_name" => table_name}) do
       %{date_columns: date_columns, other_columns: other_columns} =
         data
         |> Enum.group_by(

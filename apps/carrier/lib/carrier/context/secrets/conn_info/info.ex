@@ -32,6 +32,7 @@ defmodule Carrier.Secrets.ConnInfo.Info do
     case source do
       :postgres -> ConnInfo.Postgres
       :mysql -> ConnInfo.MySQL
+      :bigquery -> ConnInfo.BigQuery
       :slack -> ConnInfo.Slack
     end
   end

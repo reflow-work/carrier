@@ -6,6 +6,7 @@ defmodule Carrier.Data.Source do
     case source do
       :postgres -> Source.Postgres
       :mysql -> Source.MySQL
+      :bigquery -> Source.BigQuery
     end
   end
 
