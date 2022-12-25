@@ -71,9 +71,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:report_name, "")
-      |> assign(:period, 28)
       |> assign(:window_size, 7)
-      |> assign(:comparing_period, 28)
 
     {:ok, socket}
   end
@@ -270,9 +268,9 @@ defmodule CarrierWeb.ReportLive.New do
         data_source_id: socket.assigns.data_source.id,
         sql_template: sql_template,
         datetime: DateTime.utc_now(),
-        period: socket.assigns.period,
+        period: 28,
         window_size: socket.assigns.window_size,
-        comparing_period: socket.assigns.comparing_period
+        comparing_period: 28
       })
       |> case do
         {:ok, raw_data} ->
@@ -309,9 +307,9 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_id: socket.assigns.data_source.id,
                   sql_template: sql_template,
                   timezone: socket.assigns.timezone,
-                  period: socket.assigns.period,
+                  period: 28,
                   window_size: socket.assigns.window_size,
-                  comparing_period: socket.assigns.comparing_period,
+                  comparing_period: 28,
                   columns: columns
                 }
               })
@@ -350,9 +348,9 @@ defmodule CarrierWeb.ReportLive.New do
         data_source_id: socket.assigns.data_source.id,
         sql_template: socket.assigns.sql_template,
         datetime: DateTime.utc_now(),
-        period: socket.assigns.period,
+        period: 28,
         window_size: window_size,
-        comparing_period: socket.assigns.comparing_period
+        comparing_period: 28
       })
       |> case do
         {:ok, raw_data} ->
@@ -384,9 +382,9 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_id: socket.assigns.data_source.id,
                   sql_template: socket.assigns.sql_template,
                   timezone: socket.assigns.timezone,
-                  period: socket.assigns.period,
+                  period: 28,
                   window_size: window_size,
-                  comparing_period: socket.assigns.comparing_period,
+                  comparing_period: 28,
                   columns: columns
                 }
               })
@@ -480,9 +478,9 @@ defmodule CarrierWeb.ReportLive.New do
         data_source_id: socket.assigns.data_source.id,
         sql_template: socket.assigns.sql_template,
         datetime: DateTime.utc_now(),
-        period: socket.assigns.period,
+        period: 28,
         window_size: socket.assigns.window_size,
-        comparing_period: socket.assigns.comparing_period
+        comparing_period: 28
       })
       |> case do
         {:ok, raw_data} ->
@@ -528,9 +526,9 @@ defmodule CarrierWeb.ReportLive.New do
                   "data_source_id" => socket.assigns.data_source.id,
                   "sql_template" => socket.assigns.sql_template,
                   "timezone" => socket.assigns.timezone,
-                  "period" => socket.assigns.period,
+                  "period" => 28,
                   "window_size" => socket.assigns.window_size,
-                  "comparing_period" => socket.assigns.comparing_period,
+                  "comparing_period" => 28,
                   "columns" => columns
                 }
               })

@@ -114,8 +114,8 @@
                           <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>
                           <%= hidden_input(fdsi, :sql_template, value: @sql_template) %>
                           <%= hidden_input(fdsi, :timezone, value: @timezone) %>
-                          <%= hidden_input(fdsi, :period, value: @period) %>
-                          <%= hidden_input(fdsi, :comparing_period, value: @comparing_period) %>
+                          <%= hidden_input(fdsi, :period, value: 28) %>
+                          <%= hidden_input(fdsi, :comparing_period, value: 28) %>
 
                           <%= for column <- @columns do %>
                             <div class="flex gap-x-2 items-center">
@@ -188,62 +188,60 @@
                 <%= if @data_loaded do %>
                   <div class="flex flex-col gap-y-6 mt-4">
                     <%= for column <- @columns do %>
-                      <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                        <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @columns, do: "hidden"}"}>
-                          <h3 class="font-bold text-base-dark">
-                            📊 <%= "#{DateTime.now("Asia/Seoul") |> elem(1) |> format_date()} - #{@query_result_by_columns[column].meta.label}" %>
-                          </h3>
-                          <div class="grid grid-cols-2 py-6 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
-                            <section>
-                              <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
-                              <p class="text-2xl font-bold mt-2">
-                                <%= format_number(
-                                  @query_result_by_columns[column].meta.current_period_last_tick_raw
-                                ) %>
-                              </p>
-                              <div class="flex space-x-2 mt-1">
-                                <SlackImgMetaData.card
-                                  diff_value_raw={
-                                    @query_result_by_columns[column].meta.diff_between_period_raws
-                                  }
-                                  diff_value_percentage={
-                                    @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
-                                  }
-                                />
-                              </div>
-                            </section>
-                            <section class="pl-5">
-                              <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
-                              <p class="text-2xl font-bold mt-2">
-                                <%= format_number(
-                                  @query_result_by_columns[column].meta.current_period_sum
-                                ) %>
-                              </p>
-                              <div class="flex space-x-2 mt-1">
-                                <SlackImgMetaData.card
-                                  diff_value_raw={
-                                    @query_result_by_columns[column].meta.diff_between_period_sums
-                                  }
-                                  diff_value_percentage={
-                                    @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
-                                  }
-                                />
-                              </div>
-                            </section>
-                          </div>
-                          <section
-                            id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
-                            phx-update="ignore"
-                          >
-                            <canvas
-                              id={"chart-#{@query_result_by_columns[column].meta.label}"}
-                              class="rounded-lg shadow-slackImgSection"
-                              phx-hook="Chart"
-                            >
-                            </canvas>
+                      <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @columns, do: "hidden"}"}>
+                        <h3 class="font-bold text-base-dark">
+                          📊 <%= "#{DateTime.now("Asia/Seoul") |> elem(1) |> format_date()} - #{@query_result_by_columns[column].meta.label}" %>
+                        </h3>
+                        <div class="grid grid-cols-2 py-6 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                          <section>
+                            <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
+                            <p class="text-2xl font-bold mt-2">
+                              <%= format_number(
+                                @query_result_by_columns[column].meta.current_period_last_tick_raw
+                              ) %>
+                            </p>
+                            <div class="flex space-x-2 mt-1">
+                              <SlackImgMetaData.card
+                                diff_value_raw={
+                                  @query_result_by_columns[column].meta.diff_between_period_raws
+                                }
+                                diff_value_percentage={
+                                  @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                                }
+                              />
+                            </div>
                           </section>
+                          <section class="pl-5">
+                            <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
+                            <p class="text-2xl font-bold mt-2">
+                              <%= format_number(
+                                @query_result_by_columns[column].meta.current_period_sum
+                              ) %>
+                            </p>
+                            <div class="flex space-x-2 mt-1">
+                              <SlackImgMetaData.card
+                                diff_value_raw={
+                                  @query_result_by_columns[column].meta.diff_between_period_sums
+                                }
+                                diff_value_percentage={
+                                  @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                                }
+                              />
+                            </div>
+                          </section>
+                        </div>
+                        <section
+                          id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
+                          phx-update="ignore"
+                        >
+                          <canvas
+                            id={"chart-#{@query_result_by_columns[column].meta.label}"}
+                            class="rounded-lg shadow-slackImgSection"
+                            phx-hook="Chart"
+                          >
+                          </canvas>
                         </section>
-                      <% end %>
+                      </section>
                     <% end %>
                   </div>
                 <% else %>
@@ -416,28 +414,6 @@
         ) %>
         <%= error_tag(f, :value_column) %>
       </div>
-
-      <%!-- <div class="divider" />
-
-<div>
-  <table class="table mt-4 w-full">
-   <thead>
-      <tr class="w-full">
-        <th class="text-center py-3">header</th>
-      <th class="text-center py-3">header</th>
-    <th class="text-center py-3">header</th>
-  </tr>
-</thead>
-<tbody>
-      <tr class="w-full">
-        <td class="text-center py-2 text-sm bg-base-300">value</td>
-        <td class="text-center py-2 text-sm bg-base-300">value</td>
-      <td class="text-center py-2 text-sm bg-base-300">value</td>
-    </tr>
-  </tbody>
-</table>
-</div> --%>
-
       <div class="mt-12">
         <button type="submit" class="w-full btn btn-primary">
           쿼리 생성
