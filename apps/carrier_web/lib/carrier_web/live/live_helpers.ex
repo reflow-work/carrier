@@ -67,4 +67,8 @@ defmodule CarrierWeb.LiveHelpers do
       {:error, _msg} -> "INVALID DATE"
     end
   end
+
+  def js_exec(js \\ %JS{}, to, call, args) do
+    JS.dispatch(js, "js:exec", to: to, detail: %{call: call, args: args})
+  end
 end

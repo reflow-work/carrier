@@ -87,29 +87,29 @@
 
           <%= if @step == "step-2" do %>
             <div class="mt-8">
-              <.form
-                :let={f}
-                for={@changeset}
-                as={:data_source}
-                phx-change="validate_data_source"
-                phx-submit="create_data_source"
-                class="space-y-2"
-                autocomplete="off"
-              >
-                <div>
-                  <label class="label">
-                    <span class="label-text text-gray-500">데이터 소스 이름</span>
-                  </label>
-                  <%= text_input(f, :name,
-                    class: "data-source-input",
-                    placeholder: "데이터 마트"
-                  ) %>
-                  <%= error_tag(f, :name) %>
-                </div>
+              <%= case @source do %>
+                <% source when source in [:postgres, :mysql] -> %>
+                  <.form
+                    :let={f}
+                    for={@changeset}
+                    as={:data_source}
+                    phx-change="validate_data_source"
+                    phx-submit="create_data_source"
+                    class="space-y-2"
+                    autocomplete="off"
+                  >
+                    <div>
+                      <label class="label">
+                        <span class="label-text text-gray-500">데이터 소스 이름</span>
+                      </label>
+                      <%= text_input(f, :name,
+                        class: "data-source-input",
+                        placeholder: "데이터 마트"
+                      ) %>
+                      <%= error_tag(f, :name) %>
+                    </div>
 
-                <%= inputs_for f, :conn_info, fn fci -> %>
-                  <%= case @source do %>
-                    <% source when source in [:postgres, :mysql] -> %>
+                    <%= inputs_for f, :conn_info, fn fci -> %>
                       <div>
                         <label class="label mt-2">
                           <span class="label-text text-gray-500">호스트</span>
@@ -173,42 +173,104 @@
                         </label>
                         <%= error_tag(fci, :ssl) %>
                       </div>
-                    <% :bigquery -> %>
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Project ID</span>
-                        </label>
-                        <%= text_input(fci, :project_id,
-                          class: "data-source-input",
-                          placeholder: "Project ID"
-                        ) %>
-                        <%= error_tag(fci, :project_id) %>
-                      </div>
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Credentials Key</span>
-                        </label>
-                        <%= text_input(fci, :credentials_json,
-                          class: "data-source-input",
-                          placeholder: "Credentials Key"
-                        ) %>
-                        <%= error_tag(fci, :credentials_json) %>
-                      </div>
-                  <% end %>
-                <% end %>
+                    <% end %>
 
-                <%= if @error do %>
-                  <%= error_tag(@error) %>
-                <% end %>
+                    <%= if @error do %>
+                      <%= error_tag(@error) %>
+                    <% end %>
 
-                <div class="flex pt-4">
-                  <%= submit("연결하기",
-                    class: "btn btn-primary",
-                    disabled: !@changeset.valid?,
-                    phx_disable_with: "연결중"
-                  ) %>
-                </div>
-              </.form>
+                    <div class="flex pt-4">
+                      <%= submit("연결하기",
+                        class: "btn btn-primary",
+                        disabled: !@changeset.valid?,
+                        phx_disable_with: "연결중"
+                      ) %>
+                    </div>
+                  </.form>
+                <% :bigquery -> %>
+                  <.form
+                    :let={f}
+                    for={@changeset}
+                    as={:data_source}
+                    phx-change="validate_data_source"
+                    phx-submit="create_data_source"
+                  >
+                    <div>
+                      <label class="label">
+                        <span class="label-text text-gray-500">데이터 소스 이름</span>
+                      </label>
+                      <%= text_input(f, :name,
+                        class: "data-source-input",
+                        placeholder: "데이터 마트"
+                      ) %>
+                      <%= error_tag(f, :name) %>
+                    </div>
+
+                    <%= inputs_for f, :conn_info, fn fci -> %>
+                      <%= hidden_input(fci, :project_id) %>
+                      <%= hidden_input(fci, :credentials_json) %>
+                    <% end %>
+
+                    <div>
+                      <label class="label">
+                        <span class="label-text text-gray-500">Credentials JSON</span>
+                      </label>
+                      <%= if @changeset.changes[:conn_info] do %>
+                        <%= inspect(@changeset.changes[:conn_info].changes[:project_id]) %>
+                      <% end %>
+                      <div class="sm:grid sm:border-gray-200">
+                        <div class="mt-1 sm:mt-0" phx-drop-target={@uploads.credentials.ref}>
+                          <div class="max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                              <svg
+                                class="mx-auto h-12 w-12 text-gray-400"
+                                stroke="currentColor"
+                                fill="none"
+                                viewBox="0 0 48 48"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                </path>
+                              </svg>
+                              <div class="flex text-sm text-gray-600">
+                                <label
+                                  for="file-upload"
+                                  class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                                >
+                                  <span phx-click={
+                                    js_exec("##{@uploads.credentials.ref}", "click", [])
+                                  }>
+                                    Upload file
+                                  </span>
+                                  <.live_file_input
+                                    upload={@uploads.credentials}
+                                    class="sr-only"
+                                    tabindex="0"
+                                  />
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                              </div>
+                              <p class="text-xs text-gray-500">
+                                .json file
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <%= submit("연결하기",
+                      class: "btn btn-primary",
+                      disabled: !@changeset.valid?,
+                      phx_disable_with: "연결중"
+                    ) %>
+                  </.form>
+              <% end %>
             </div>
           <% end %>
         </div>

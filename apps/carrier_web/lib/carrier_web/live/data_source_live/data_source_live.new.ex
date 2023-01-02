@@ -17,6 +17,12 @@ defmodule CarrierWeb.DataSourceLive.New do
       |> assign(:data_source_module, nil)
       |> assign(:changeset, nil)
       |> assign(:error, nil)
+      |> allow_upload(:credentials,
+        accept: ~w(.json),
+        max_entries: 1,
+        auto_upload: true,
+        progress: &handle_progress/3
+      )
 
     {:ok, socket}
   end
@@ -83,6 +89,39 @@ defmodule CarrierWeb.DataSourceLive.New do
     socket = socket |> create_data_source(data_source_params)
 
     {:noreply, socket}
+  end
+
+  defp handle_progress(:credentials, entry, socket) do
+    case entry.done? do
+      true ->
+        [data_source_inputs] =
+          socket
+          |> consume_uploaded_entries(:credentials, fn %{path: path}, _entry ->
+            credentials_json = path |> File.read!()
+            %{"project_id" => project_id} = credentials_json |> Jason.decode!()
+
+            {:ok,
+             %{
+               "conn_info" => %{
+                 "project_id" => project_id,
+                 "credentials_json" => credentials_json
+               }
+             }}
+          end)
+
+        # hard coding
+        name = socket.assigns.changeset.changes[:name]
+        data_source_inputs = Map.put(data_source_inputs, "name", name)
+
+        changeset = validate_changeset(socket, data_source_inputs)
+
+        socket = socket |> assign(:changeset, changeset)
+
+        {:noreply, socket}
+
+      false ->
+        {:noreply, socket}
+    end
   end
 
   defp create_data_source(socket, params) do

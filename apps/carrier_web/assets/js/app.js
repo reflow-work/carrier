@@ -44,6 +44,7 @@ window.addEventListener("phx:js-exec", ({ detail }) => {
     liveSocket.execJS(el, el.getAttribute(detail.attr))
   })
 })
+window.addEventListener("js:exec", e => e.target[e.detail.call](...e.detail.args))
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
