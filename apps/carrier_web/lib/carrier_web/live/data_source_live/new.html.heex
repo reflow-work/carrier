@@ -211,13 +211,10 @@
                       <%= hidden_input(fci, :credentials_json) %>
                     <% end %>
 
-                    <div>
+                    <div class="mt-2">
                       <label class="label">
                         <span class="label-text text-gray-500">Credentials JSON</span>
                       </label>
-                      <%= if @changeset.changes[:conn_info] do %>
-                        <%= inspect(@changeset.changes[:conn_info].changes[:project_id]) %>
-                      <% end %>
                       <div class="sm:grid sm:border-gray-200">
                         <div class="mt-1 sm:mt-0" phx-drop-target={@uploads.credentials.ref}>
                           <div class="max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
@@ -262,10 +259,13 @@
                           </div>
                         </div>
                       </div>
+                      <div>
+                        <%= @file_name %>
+                      </div>
                     </div>
 
                     <%= submit("연결하기",
-                      class: "btn btn-primary",
+                      class: "btn btn-primary mt-4",
                       disabled: !@changeset.valid?,
                       phx_disable_with: "연결중"
                     ) %>
