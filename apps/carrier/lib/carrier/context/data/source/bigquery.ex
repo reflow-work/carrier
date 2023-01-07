@@ -21,10 +21,15 @@ defmodule Carrier.Data.Source.BigQuery do
         _opts \\ []
       ) do
     with {:ok, _pid} <- start_credential_process(project_id, credentials_json),
-         {:ok, %{body: %ReqBigQuery.Result{} = result}} <-
+         {:ok, %Req.Response{status: 200, body: %ReqBigQuery.Result{} = result}} <-
            request_query(project_id, sql, sql_params) do
       {:ok, result}
     else
+      {:ok, %Req.Response{body: %{"error" => %{"message" => message}}}} ->
+        Logger.error(inspect(message))
+
+        {:error, {:query_error, message}}
+
       {:error, reason} ->
         Logger.error(inspect(reason))
 
