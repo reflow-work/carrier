@@ -259,9 +259,11 @@
                           </div>
                         </div>
                       </div>
-                      <div>
-                        <%= @file_name %>
-                      </div>
+                      <%= if @file_name do %>
+                        <div class="mt-2">
+                          ✅ <%= @file_name %>
+                        </div>
+                      <% end %>
                     </div>
 
                     <%= submit("연결하기",
