@@ -1,0 +1,75 @@
+.header {
+  @apply bg-white;
+
+  .mobile-menu-list {
+    @apply max-h-0 transition-all duration-200;
+  }
+  
+  .hamburger-button:checked ~ .mobile-menu-list {
+    @apply max-h-60;
+  }
+}
+
+.button {
+  @apply text-sm font-bold bg-white text-primary py-2 md:py-3 px-4 md:px-5 rounded-lg border border-primary;
+
+  &.button-primary {
+    @apply bg-primary text-white;
+  }
+
+  &.button-lg {
+    @apply text-base text-primary py-3 md:py-4 px-5 md:px-6;
+  }
+}
+
+.landing-container {
+  @apply max-w-7xl px-4 md:px-8 mx-auto;
+
+  .h1 {
+    @apply font-extrabold text-4xl lg:text-5xl leading-tight lg:leading-snug;
+  }
+  
+  &.section {
+    @apply justify-between py-20 md:py-52;
+
+    .section-description {
+      @apply text-sm md:text-base mt-6 mb-12;
+    }
+
+    .section-quote-container {
+      @apply flex justify-center md:justify-start text-left;
+
+      img {
+        @apply w-14 h-14;
+      }
+
+      .section-quote-text-container {
+        @apply ml-4;
+
+        .section-quote-text-comment {
+          @apply mb-2;
+        }
+
+        .section-quote-text-description {
+          @apply font-bold;
+        }
+
+        .section-quote-text-description-plus {
+          @apply font-normal text-landingDescription text-sm;
+        }
+      }
+    }
+  }
+
+  .avatar-card-container {
+    @apply flex flex-col items-center flex-1;
+  
+    .avatar-card-text-description {
+      @apply text-sm md:text-base !text-landingDescription;
+    }
+
+    .avatar-card-text .avatar-card-text-title {
+      @apply font-bold text-xl mb-3 mt-7;
+    }
+  }
+}
