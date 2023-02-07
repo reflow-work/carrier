@@ -12,23 +12,25 @@
           데이터 소스 정보
         </h2>
 
-        <div class="flex mt-4 items-center">
-          <div class="text-sm text-gray-500 w-40">
-            이름
+        <%= for data_source <- @data_sources do %>
+          <div class="flex mt-4 items-center">
+            <div class="text-sm text-gray-500 w-40">
+              이름
+            </div>
+            <div>
+              <%= data_source.name %>
+            </div>
           </div>
-          <div>
-            <%= @data_source.name %>
-          </div>
-        </div>
 
-        <div class="flex mt-4 items-center">
-          <div class="text-sm text-gray-500 w-40">
-            타입
+          <div class="flex mt-4 items-center">
+            <div class="text-sm text-gray-500 w-40">
+              타입
+            </div>
+            <div>
+              <%= data_source.source %>
+            </div>
           </div>
-          <div>
-            <%= @data_source.source %>
-          </div>
-        </div>
+        <% end %>
       </div>
     </div>
   </div>

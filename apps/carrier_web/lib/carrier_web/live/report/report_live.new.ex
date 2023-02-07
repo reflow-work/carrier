@@ -48,6 +48,7 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> assign(:data_source, socket.assigns.data_sources |> List.first())
       |> assign(
         tables: [],
         date_columns: [],
