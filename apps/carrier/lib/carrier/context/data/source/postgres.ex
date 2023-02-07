@@ -26,6 +26,9 @@ defmodule Carrier.Data.Source.Postgres do
       %Postgrex.Error{postgres: %{message: message}} = error
 
       {:error, {:query_error, message}}
+
+    DBConnection.ConnectionError ->
+      {:error, :db_connection_error}
   end
 
   @impl Carrier.Data.Source.RDB
