@@ -8,6 +8,7 @@ defmodule Carrier.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Carrier.Core.Cache.Local,
       Carrier.Repo,
       Carrier.TenantRepo,
       {Phoenix.PubSub, name: Carrier.PubSub},
