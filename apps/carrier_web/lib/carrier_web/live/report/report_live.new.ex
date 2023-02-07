@@ -50,6 +50,10 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:data_source, socket.assigns.data_sources |> List.first())
       |> assign(
+        :data_source_options,
+        socket.assigns.data_sources |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+      )
+      |> assign(
         tables: [],
         date_columns: [],
         value_columns: [],
