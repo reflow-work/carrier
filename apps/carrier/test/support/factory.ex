@@ -1,6 +1,7 @@
 defmodule Carrier.Factory do
   use ExMachina.Ecto, repo: Carrier.Repo
   alias Carrier.Accounts.{Org, User}
+  alias Carrier.Setting.Property
 
   def org_factory() do
     %Org{
@@ -16,6 +17,12 @@ defmodule Carrier.Factory do
       email: seq(:user_email, &"user-#{&1}@email.com")
     }
     |> merge_attributes(attrs)
+  end
+
+  def property_factory() do
+    %Property{
+      key: sequence(:property_key, &"key-#{&1}")
+    }
   end
 
   defp seq(name) when is_atom(name) do
