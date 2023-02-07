@@ -132,6 +132,12 @@ config :ueberauth, Ueberauth.Strategy.SlackV2.OAuth,
 
 config :reverse_proxy_plug, :http_client, ReverseProxyPlug.HTTPClient.Adapters.Tesla
 
+config :carrier, Carrier.Core.Cache.Local,
+  gc_interval: :timer.hours(12),
+  # 1GiB
+  allocated_memory: 1_000_000_000,
+  backend: :shards
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
