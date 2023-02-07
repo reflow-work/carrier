@@ -6,8 +6,6 @@ defmodule CarrierWeb.DataSourceLive.New do
   alias Carrier.Secrets
   alias Carrier.Secrets.DataSource
 
-  on_mount(CarrierWeb.NoDataSourceHook)
-
   @impl true
   def mount(_params, _session, socket) do
     socket =
