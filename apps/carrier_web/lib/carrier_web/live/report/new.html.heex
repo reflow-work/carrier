@@ -15,7 +15,7 @@
           </div>
         </div>
 
-        <.form :let={f} for={:data_sources}>
+        <.form :let={f} for={:data_source} phx-change="select_data_source">
           <div class="flex items-center gap-x-2 mt-4">
             <%= label(f, :id, "데이터 소스 이름", class: "label w-28 text-gray-500 text-sm") %>
             <%= select(

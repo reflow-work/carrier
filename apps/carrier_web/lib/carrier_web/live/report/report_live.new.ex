@@ -189,6 +189,23 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   @impl true
+  def handle_event(
+        "select_data_source",
+        %{"data_source" => %{"id" => data_source_id_str}},
+        socket
+      ) do
+    data_source_id = data_source_id_str |> String.to_integer()
+
+    data_source =
+      socket.assigns.data_sources
+      |> Enum.find(&(&1.id == data_source_id))
+
+    socket = socket |> assign(:data_source, data_source)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("open_query_maker", _params, socket) do
     socket =
       socket
