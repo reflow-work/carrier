@@ -10,6 +10,13 @@
       </.link>
 
       <div class="max-w-7xl px-6 flex flex-row">
+        <.link navigate={Routes.data_source_index_path(@socket, :index)}>
+          <div class="menu-item">
+            <CarrierWeb.Components.Icon.list_small />
+            <span class="ml-2 text-sm">데이터 소스</span>
+          </div>
+        </.link>
+
         <.link navigate={Routes.report_index_path(@socket, :index)}>
           <div class="menu-item">
             <CarrierWeb.Components.Icon.list_small />
