@@ -8,14 +8,14 @@ defmodule Carrier.Setting do
 
   @decorate cacheable(
               cache: Cache.Local,
-              key: {Property, :get, [key, type, default_value]},
+              key: {Property, :get, [key, default_value]},
               opts: [ttl: @ttl]
             )
-  def get_property_value(key, type, default_value) do
-    with %Property{type: ^type} = property <- get_property(key),
-         value when not is_nil(value) <- Property.get_typed_value(property) do
-      value
-    else
+  def get_property_value(key, default_value) do
+    case get_property(key) do
+      %Property{value: value} when not is_nil(value) ->
+        value
+
       _ ->
         Logger.warn("property not found for key: #{key}")
         default_value
