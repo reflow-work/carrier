@@ -28,7 +28,13 @@ defmodule Carrier.Data.Source.BigQuery do
       {:ok, %Req.Response{body: %{"error" => %{"message" => message}}}} ->
         Logger.error(inspect(message))
 
-        {:error, {:query_error, message}}
+        case message do
+          "Access Denied" <> _ ->
+            {:error, {:db_invalid_credential, message}}
+
+          _ ->
+            {:error, {:query_error, message}}
+        end
 
       {:error, reason} ->
         Logger.error(inspect(reason))

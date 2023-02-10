@@ -266,6 +266,10 @@
                       <% end %>
                     </div>
 
+                    <%= if @error do %>
+                      <%= error_tag(@error) %>
+                    <% end %>
+
                     <%= submit("연결하기",
                       class: "btn btn-primary mt-4",
                       disabled: !@changeset.valid?,

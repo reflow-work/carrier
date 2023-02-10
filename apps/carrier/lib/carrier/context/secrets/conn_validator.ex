@@ -16,6 +16,7 @@ defmodule Carrier.Secrets.ConnValidator do
 
     case Source.run_query(source, credentials, query, [], opts) do
       {:ok, _} -> :ok
+      {:error, {:db_invalid_credential, message}} -> {:error, {:invalid_conn_info, message}}
       {:error, _} -> {:error, :invalid_conn_info}
     end
   end

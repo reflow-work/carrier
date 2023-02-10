@@ -134,6 +134,13 @@ defmodule CarrierWeb.DataSourceLive.New do
         socket
         |> push_navigate(to: Routes.report_new_path(socket, :new))
 
+      {:error, {:invalid_conn_info, reason}} ->
+        Logger.error(inspect(reason))
+
+        socket
+        |> assign(:error, reason)
+        |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+
       {:error, reason} ->
         Logger.error(inspect(reason))
 

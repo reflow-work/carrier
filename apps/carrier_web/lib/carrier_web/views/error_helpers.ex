@@ -23,6 +23,10 @@ defmodule CarrierWeb.ErrorHelpers do
     )
   end
 
+  def error_tag(error) when is_binary(error) do
+    content_tag(:span, error, class: "invalid-feedback") |> IO.inspect()
+  end
+
   @doc """
   Translates an error message using gettext.
   """
