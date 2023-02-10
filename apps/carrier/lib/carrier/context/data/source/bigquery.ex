@@ -20,9 +20,10 @@ defmodule Carrier.Data.Source.BigQuery do
         sql_params \\ [],
         _opts \\ []
       ) do
-    with {:ok, _pid} <- start_credential_process(project_id, credentials_json),
+    with {:ok, pid} <- start_credential_process(project_id, credentials_json),
          {:ok, %Req.Response{status: 200, body: %ReqBigQuery.Result{} = result}} <-
            request_query(project_id, sql, sql_params) do
+      stop_credential_process(pid)
       {:ok, result}
     else
       {:ok, %Req.Response{body: %{"error" => %{"message" => message}}}} ->
@@ -53,6 +54,10 @@ defmodule Carrier.Data.Source.BigQuery do
       {:ok, pid} -> {:ok, pid}
       {:error, {:already_started, pid}} -> {:ok, pid}
     end
+  end
+
+  defp stop_credential_process(pid) do
+    DynamicSupervisor.terminate_child(Carrier.GothSupervisor, pid)
   end
 
   defp credential_process_name(project_id) do
