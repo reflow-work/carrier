@@ -106,7 +106,7 @@
         <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-1.png"), width: "60px") %>
         <div class="section-quote-text-container">
           <div class="section-quote-text-comment">
-            매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
+            매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br class="hidden md:block" /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
           </div>
           <div class="section-quote-text-description">
             Data Analyst ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
@@ -139,7 +139,7 @@
       <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-2.png"), width: "60px") %>
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
-          개발자에게 부탁해도 우선순위에 밀려서 잘 안 만들어지던<br /> 데이터 레포트를 직접 만들 수 있어서 너무 좋습니다.
+          개발자에게 부탁해도 우선순위에 밀려서 잘 안 만들어지던<br class="hidden md:block" /> 데이터 레포트를 직접 만들 수 있어서 너무 좋습니다.
         </div>
         <div class="section-quote-text-description">
           CEO ∙ <span class="section-quote-text-description-plus">5~9명 규모 스타트업</span>
@@ -164,7 +164,7 @@
         <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-3.png"), width: "60px") %>
         <div class="section-quote-text-container">
           <div class="section-quote-text-comment">
-            쿼리를 배우는 게 부담스러웠는데<br /> reflow는 쿼리 생성기를 제공해주기 때문에<br /> 설정 하자마자 레포트를 만들 수 있었습니다.
+            쿼리를 배우는 게 부담스러웠는데<br class="hidden md:block" /> reflow는 쿼리 생성기를 제공해주기 때문에<br class="hidden md:block" /> 설정 하자마자 레포트를 만들 수 있었습니다.
           </div>
           <div class="section-quote-text-description">
             Marketer ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
@@ -183,9 +183,8 @@
   <div class="bg-landingBgGray py-20 my-20 px-10 flex flex-col items-center rounded-lg text-center">
     <%= img_tag(Routes.static_path(@socket, "/images/security.png"), width: "66px") %>
     <div class="h1 mt-8 mb-12">고객의 데이터는 안전합니다</div>
-    <div class="text-landingDescription leading-8">
-      🔐 고객과 reflow 사이의 정보는 모두 TLS 암호화 되어 전송됩니다.<br /> 
-      🔐 데이터 소스 접속 정보는 또한 모두 암호화되어 저장됩니다.<br />
+    <div class="text-landingDescription leading-8 text-left md:text-center">
+      🔐 고객과 reflow 사이의 정보는 모두 TLS 암호화 되어 전송됩니다.<br /> 🔐 데이터 소스 접속 정보는 또한 모두 암호화되어 저장됩니다.<br />
       🔐 고객의 데이터 소스에 있는 데이터는 reflow 에 일체 저장하지 않습니다.<br />
       🔐 Multi-tenancy 가 적용되어 다른 고객에게 데이터가 노출될 걱정이 없습니다.
     </div>
@@ -197,29 +196,29 @@
     원하는 데이터 소스에 연결하세요.
   </div>
 
-    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-8">
-      <div class="border py-4 px-8 rounded-md w-48">
-        <%= img_tag(Routes.static_path(@socket, "/images/bigquery.png"), class: "w-full") %>
-      </div>
-      <div class="border py-4 px-8 rounded-md w-48">
-        <%= img_tag(Routes.static_path(@socket, "/images/mysql.png"), class: "w-full") %>
-      </div>
-      <div class="border py-4 px-8 rounded-md flex items-center w-48">
-        <%= img_tag(Routes.static_path(@socket, "/images/postgresql.png"), class: "w-full") %>
-      </div>
+  <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-8">
+    <div class="border py-4 px-8 rounded-md w-48">
+      <%= img_tag(Routes.static_path(@socket, "/images/bigquery.png"), class: "w-full") %>
     </div>
+    <div class="border py-4 px-8 rounded-md w-48">
+      <%= img_tag(Routes.static_path(@socket, "/images/mysql.png"), class: "w-full") %>
+    </div>
+    <div class="border py-4 px-8 rounded-md flex items-center w-48">
+      <%= img_tag(Routes.static_path(@socket, "/images/postgresql.png"), class: "w-full") %>
+    </div>
+  </div>
 </section>
 
 <section class="landing-container">
   <div class="flex flex-col items-center bg-primary py-16 my-40 rounded-xl text-white text-center">
     <div class="h1">5분 만에 데이터 보는 팀을 만드세요.</div>
-  <button
-    class="button button-lg mt-8"
-    phx-click="click_link"
-    phx-value-name="start_on_last_section"
-    phx-value-to="/login"
-  >
-    무료로 시작하기
-  </button>
+    <button
+      class="button button-lg mt-8"
+      phx-click="click_link"
+      phx-value-name="start_on_last_section"
+      phx-value-to="/login"
+    >
+      무료로 시작하기
+    </button>
   </div>
 </section>

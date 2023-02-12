@@ -26,7 +26,23 @@ defmodule LandingFooterComponent do
             <div>리플로우</div>
             <div>대표자: 손진규</div>
             <div>사업자등록번호: 645-27-01342</div>
-            <div>이용약관 | 개인정보처리방침</div>
+            <div>
+              <a
+                href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
+                target="_blank"
+                class="underline"
+              >
+                이용약관
+              </a>
+              |
+              <a
+                href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
+                target="_blank"
+                class="underline"
+              >
+                개인정보 처리방침
+              </a>
+            </div>
           </div>
         </div>
       </div>
