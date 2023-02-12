@@ -5,5 +5,11 @@
     "daisyui": "^2.20.0",
     "date-fns": "^2.29.2",
     "smartlook-client": "^8.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.21",
+    "postcss-import": "^15.1.0",
+    "postcss-nesting": "^11.1.0"
   }
 }
