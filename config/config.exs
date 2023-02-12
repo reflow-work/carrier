@@ -106,7 +106,6 @@ config :tailwind,
       --input=css/app.css
       --output=../priv/static/assets/app.css
       --postcss
-      --watch
     ),
     cd: Path.expand("../apps/carrier_web/assets", __DIR__)
   ]
