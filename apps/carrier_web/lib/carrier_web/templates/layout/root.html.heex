@@ -19,14 +19,27 @@
       src={Routes.static_path(@conn, "/assets/app.js")}
     >
     </script>
-    <script type="text/javascript">
-      window.smartlook||(function(d) {
-        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-        c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
-        })(document);
-        smartlook('init', '7bb4e75f499e190d445765353df97ac89b83e495', { region: 'eu' });
-    </script>
+    <%= if Application.get_env(:carrier, :env) not in [:dev, :test] do %>
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-6HCBF3730D">
+      </script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-6HCBF3730D');
+      </script>
+      <!-- Smartlook Plugin Scripts -->
+      <script type="text/javascript">
+        window.smartlook||(function(d) {
+          var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+          var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+          c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+          })(document);
+          smartlook('init', '7bb4e75f499e190d445765353df97ac89b83e495', { region: 'eu' });
+      </script>
+    <% end %>
     <!-- Channel Plugin Scripts -->
     <script>
       (function() {

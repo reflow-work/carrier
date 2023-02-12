@@ -23,8 +23,14 @@ defmodule CarrierWeb.Router do
   scope "/", CarrierWeb do
     pipe_through :browser
 
-    live "/", IndexLive, :index
-    live "/pricing", PricingLive, :index
+    live_session :router,
+      on_mount: [
+        CarrierWeb.AnalyticsHook,
+        CarrierWeb.ChanneltalkHook
+      ] do
+      live "/", IndexLive, :index
+      live "/pricing", PricingLive, :index
+    end
 
     get "/health", HealthController, :index
     get "/login", AuthController, :login

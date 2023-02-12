@@ -11,7 +11,7 @@ defmodule CarrierWeb.PricingLive do
     socket =
       socket
       |> log_event(name, %{
-        pane_name: "pricing"
+        page_name: "pricing"
       })
 
     {:noreply, push_navigate(socket, to: to)}

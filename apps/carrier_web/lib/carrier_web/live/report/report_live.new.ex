@@ -177,7 +177,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> log_event("open_query_maker", %{
-        pane_name: "report_new"
+        page_name: "report_new"
       })
 
     socket =
@@ -232,7 +232,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> log_event("make_query_on_query_maker", %{
-        pane_name: "report_new"
+        page_name: "report_new"
       })
       |> assign(:sql_template, value)
       |> push_event("js-exec", %{to: "#query-maker", attr: "data-hide-modal"})
@@ -260,7 +260,7 @@ defmodule CarrierWeb.ReportLive.New do
     socket =
       socket
       |> log_event("run_query", %{
-        pane_name: "report_new"
+        page_name: "report_new"
       })
       |> assign(:sql_template, sql_template)
 
@@ -331,7 +331,7 @@ defmodule CarrierWeb.ReportLive.New do
 
           socket
           |> log_event("error_query", %{
-            pane_name: "report_new",
+            page_name: "report_new",
             error_message: message
           })
           |> assign(:query_error_message, "쿼리 실행 중 오류: #{message}")

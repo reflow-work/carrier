@@ -97,7 +97,7 @@ defmodule LandingHeaderComponent do
     socket =
       socket
       |> log_event(name, %{
-        pane_name: "landing"
+        page_name: "landing"
       })
 
     {:noreply, push_navigate(socket, to: to)}
