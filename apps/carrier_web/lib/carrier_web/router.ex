@@ -23,6 +23,9 @@ defmodule CarrierWeb.Router do
   scope "/", CarrierWeb do
     pipe_through :browser
 
+    live "/", IndexLive, :index
+    live "/pricing", PricingLive, :index
+
     get "/health", HealthController, :index
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
@@ -90,11 +93,4 @@ defmodule CarrierWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
-
-  forward "/", ReverseProxyPlug,
-    upstream: "https://reflow-service.webflow.io",
-    response_mode: :buffer,
-    client_options: [
-      tesla_client: Tesla.client([])
-    ]
 end

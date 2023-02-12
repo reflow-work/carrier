@@ -12,6 +12,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        "primary-red": "#AA2217",
         base: "#F7F7F7",
         "base-dark": "#111111",
         "base-dark-hover": "#1F1F1F",
@@ -19,7 +20,9 @@ module.exports = {
         "slackImgLightGrey": "#F3F3F3",
         "slackImgGrey": "#929292",
         "slackImgBlue": "#004ADB",
-        "slackImgRed": "#C91000"
+        "slackImgRed": "#C91000",
+        "landingDescription": '#939393',
+        "landingBgGray": '#F4F4F4',
       },
       fontSize: {
         h1: ["42px", { "lineHeight": "48px", "fontWeight": "700" }],
@@ -31,6 +34,7 @@ module.exports = {
         body2: ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
         body3: ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
         slackBody: ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+        "4xl": ["2.05em"]
       },
       animation: {
         "spin-slow": "spin 18s linear infinite",
