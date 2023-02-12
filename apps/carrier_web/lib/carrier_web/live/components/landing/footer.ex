@@ -3,6 +3,7 @@ defmodule LandingFooterComponent do
 
   import CarrierWeb.AnalyticsHelper
 
+  @impl true
   def render(assigns) do
     ~H"""
     <footer class="bg-primary text-white py-6 md:py-20">
