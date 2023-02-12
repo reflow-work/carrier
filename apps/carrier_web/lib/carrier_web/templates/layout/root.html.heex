@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <%= csrf_meta_tag() %>
     <%= live_title_tag(assigns[:page_title] || "reflow", suffix: " - 데이터 보는 습관을 만드는 가장 쉬운 툴") %>
+    <meta property="description" content="reflow는 매출, 유저 등 사업 성장관리에 가장 중요한 지표를 5분만에 시각화하여 매일 모니터링 할 수 있는 환경을 구축하는 툴입니다. 성장이 빠른 스타트업에서 많이 사용하고 있습니다.">
+    <meta property="og:description" content="reflow는 매출, 유저 등 사업 성장관리에 가장 중요한 지표를 5분만에 시각화하여 매일 모니터링 할 수 있는 환경을 구축하는 툴입니다. 성장이 빠른 스타트업에서 많이 사용하고 있습니다.">
+    <meta property="twitter:description" content="reflow는 매출, 유저 등 사업 성장관리에 가장 중요한 지표를 5분만에 시각화하여 매일 모니터링 할 수 있는 환경을 구축하는 툴입니다. 성장이 빠른 스타트업에서 많이 사용하고 있습니다.">
+    <meta property="og:image" content={Routes.static_path(@conn, "/images/thumbnail.png")}>
+    <meta property="twitter:image" content={Routes.static_path(@conn, "/images/thumbnail.png")}>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
     <script
       defer
