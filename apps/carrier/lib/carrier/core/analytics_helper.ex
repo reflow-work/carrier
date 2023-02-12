@@ -3,6 +3,12 @@ defmodule Carrier.Core.AnalyticsHelper do
     %URI{path: path} = URI.parse(uri)
 
     case path do
+      "/" ->
+        "landing"
+
+      "/pricing" ->
+        "pricing"
+
       "/onboarding" ->
         "onboarding"
 
