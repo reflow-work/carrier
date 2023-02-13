@@ -22,11 +22,10 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    end_date = utc_datetime |> DateTime.to_date()
-    start_date = end_date |> Date.add(-period)
+    query_date_length = period + window_size + comparing_period + 1
 
-    query_start_date = start_date |> Date.add(-(window_size + comparing_period + 1))
-    query_end_date = end_date |> Date.add(1)
+    query_end_date = utc_datetime |> DateTime.to_date()
+    query_start_date = query_end_date |> Date.add(-query_date_length)
 
     query_params = %{"start" => query_start_date, "end" => query_end_date}
 
@@ -37,7 +36,8 @@ defmodule Carrier.Data.QueryData do
            run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(columns, data),
          normalized_data = normalize_data(data),
-         filled_data = fill_missing_dates(normalized_data, columns, query_start_date, end_date),
+         filled_data =
+           fill_missing_dates(normalized_data, columns, query_start_date, query_end_date),
          {:ok, analyzed_date} <-
            filled_data
            |> analyze(%{
