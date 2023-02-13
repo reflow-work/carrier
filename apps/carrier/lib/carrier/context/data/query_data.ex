@@ -37,16 +37,8 @@ defmodule Carrier.Data.QueryData do
          :ok <- validate_query_result(columns, data),
          normalized_data = normalize_data(data),
          filled_data =
-           fill_missing_dates(normalized_data, columns, query_start_date, query_end_date),
-         {:ok, analyzed_date} <-
-           filled_data
-           |> analyze(%{
-             columns: columns,
-             period: period,
-             window_size: window_size,
-             comparing_period: comparing_period
-           }) do
-      {:ok, %{columns: columns, data: analyzed_date}}
+           fill_missing_dates(normalized_data, columns, query_start_date, query_end_date) do
+      {:ok, %{columns: columns, data: filled_data}}
     else
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
@@ -74,18 +66,15 @@ defmodule Carrier.Data.QueryData do
     |> Enum.into(%{})
   end
 
-  def format_data_for_preview(raw_data) do
-    data =
-      raw_data.data
-      |> Enum.map(fn d ->
-        Enum.reduce(raw_data.columns, [], fn c, acc ->
-          [d[c] | acc]
-        end)
-        |> Enum.reverse()
+  def format_data_for_preview(%{columns: columns, data: data}) do
+    data
+    |> Enum.map(fn d ->
+      Enum.reduce(columns, [], fn c, acc ->
+        [d[c] | acc]
       end)
       |> Enum.reverse()
-
-    Map.put(raw_data, :data, data)
+    end)
+    |> Enum.reverse()
   end
 
   def fetch_table_names(
@@ -267,12 +256,12 @@ defmodule Carrier.Data.QueryData do
     )
   end
 
-  defp analyze(data, %{
-         columns: columns,
-         period: period,
-         window_size: window_size,
-         comparing_period: comparing_period
-       }) do
+  def analyze(data, %{
+        columns: columns,
+        period: period,
+        window_size: window_size,
+        comparing_period: comparing_period
+      }) do
     [_date_column | value_columns] = columns
 
     df = data |> Explorer.DataFrame.new()

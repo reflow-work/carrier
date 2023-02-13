@@ -265,59 +265,65 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:sql_template, sql_template)
 
     socket =
-      QueryData.query(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        sql_template: sql_template,
-        datetime: DateTime.utc_now(),
-        period: socket.assigns.period,
-        window_size: socket.assigns.window_size,
-        comparing_period: socket.assigns.comparing_period
-      })
-      |> case do
-        {:ok, raw_data} ->
-          preview = QueryData.format_data_for_preview(raw_data)
+      with {:ok, %{columns: columns, data: data}} <-
+             QueryData.query(%{
+               org_id: socket.assigns.org_id,
+               data_source_id: socket.assigns.data_source.id,
+               sql_template: sql_template,
+               datetime: DateTime.utc_now(),
+               period: socket.assigns.period,
+               window_size: socket.assigns.window_size,
+               comparing_period: socket.assigns.comparing_period
+             }),
+           {:ok, analyzed_data} <-
+             QueryData.analyze(data, %{
+               columns: columns,
+               period: socket.assigns.period,
+               window_size: socket.assigns.window_size,
+               comparing_period: socket.assigns.comparing_period
+             }) do
+        preview_data = QueryData.format_data_for_preview(%{columns: columns, data: analyzed_data})
 
-          parsed_data =
-            QueryData.refine_data_based_on_columns(
-              raw_data,
-              raw_data.columns,
-              socket.assigns.window_size
-            )
+        [_date_column | value_columns] = columns
 
-          columns = parsed_data |> Map.keys()
-
-          socket
-          |> assign(:query_maker_button_font_size, 14)
-          |> assign(:data_loaded, true)
-          |> assign(:query_error_message, nil)
-          |> assign(:preview, preview)
-          |> assign(:query_result_by_columns, parsed_data)
-          |> assign(:columns, columns)
-          |> add_draw_chart_events(parsed_data, columns)
-          |> update(
-            :report_changeset,
-            &ReportParams.changeset(
-              &1 |> Params.to_params(),
-              ReportParams.init_attrs(%{
-                org_id: socket.assigns.org_id,
-                user_id: socket.assigns.user.id,
-                integration_info: %{
-                  integration_id: socket.assigns.integration.id
-                },
-                data_source_info: %{
-                  data_source_id: socket.assigns.data_source.id,
-                  sql_template: sql_template,
-                  timezone: socket.assigns.timezone,
-                  period: socket.assigns.period,
-                  window_size: socket.assigns.window_size,
-                  comparing_period: socket.assigns.comparing_period,
-                  columns: columns
-                }
-              })
-            )
+        parsed_data =
+          QueryData.refine_data_based_on_columns(
+            %{columns: columns, data: analyzed_data},
+            value_columns,
+            socket.assigns.window_size
           )
 
+        socket
+        |> assign(:query_maker_button_font_size, 14)
+        |> assign(:data_loaded, true)
+        |> assign(:query_error_message, nil)
+        |> assign(:preview, %{columns: columns, data: preview_data})
+        |> assign(:query_result_by_columns, parsed_data)
+        |> assign(:columns, value_columns)
+        |> add_draw_chart_events(parsed_data, value_columns)
+        |> update(
+          :report_changeset,
+          &ReportParams.changeset(
+            &1 |> Params.to_params(),
+            ReportParams.init_attrs(%{
+              org_id: socket.assigns.org_id,
+              user_id: socket.assigns.user.id,
+              integration_info: %{
+                integration_id: socket.assigns.integration.id
+              },
+              data_source_info: %{
+                data_source_id: socket.assigns.data_source.id,
+                sql_template: sql_template,
+                timezone: socket.assigns.timezone,
+                period: socket.assigns.period,
+                window_size: socket.assigns.window_size,
+                comparing_period: socket.assigns.comparing_period,
+                columns: value_columns
+              }
+            })
+          )
+        )
+      else
         {:error, error} ->
           message =
             case error do
