@@ -106,64 +106,74 @@ defmodule CarrierWeb.ReportLive.New do
             |> Map.get(:hour)
             |> to_string()
 
-          QueryData.query(%{
-            org_id: report.org_id,
-            data_source_id: report.data_source_info.data_source_id,
-            sql_template: report.data_source_info.sql_template,
-            datetime: DateTime.utc_now(),
-            period: report.data_source_info.period,
-            window_size: report.data_source_info.window_size,
-            comparing_period: report.data_source_info.comparing_period
-          })
-          |> case do
-            {:ok, raw_data} ->
-              preview = QueryData.format_data_for_preview(raw_data)
+          with {:ok, %{columns: columns, data: data}} <-
+                 QueryData.query(%{
+                   org_id: report.org_id,
+                   data_source_id: report.data_source_info.data_source_id,
+                   sql_template: report.data_source_info.sql_template,
+                   datetime: DateTime.utc_now(),
+                   period: report.data_source_info.period,
+                   window_size: report.data_source_info.window_size,
+                   comparing_period: report.data_source_info.comparing_period
+                 }),
+               {:ok, analyzed_data} <-
+                 QueryData.analyze(data, %{
+                   columns: columns,
+                   period: report.data_source_info.period,
+                   window_size: report.data_source_info.window_size,
+                   comparing_period: report.data_source_info.comparing_period
+                 }) do
+            preview_data =
+              QueryData.format_data_for_preview(%{columns: columns, data: analyzed_data})
 
-              parsed_data =
-                QueryData.refine_data_based_on_columns(
-                  raw_data,
-                  raw_data.columns,
-                  report.data_source_info.window_size
-                )
+            [_date_column | value_columns] = columns
 
-              socket
-              |> assign(:query_maker_button_font_size, 14)
-              |> assign(:data_loaded, true)
-              |> assign(:query_error_message, nil)
-              |> assign(:preview, preview)
-              |> assign(:query_result_by_columns, parsed_data)
-              |> assign(:columns, report.data_source_info.columns)
-              |> assign(:report_name, report.name)
-              |> assign(:channel_id, report.integration_info.channel_id)
-              |> assign(:channel_search_term, report.integration_info.channel_name)
-              |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
-              |> assign(
-                :report_changeset,
-                ReportParams.changeset(
-                  ReportParams.init_attrs(%{
-                    org_id: socket.assigns.org_id,
-                    user_id: socket.assigns.user_id,
-                    name: report.name,
-                    hour: hour,
-                    trigger_time: report.trigger_time,
-                    integration_info: %{
-                      integration_id: report.integration_info.integration_id,
-                      channel_id: report.integration_info.channel_id,
-                      channel_name: report.integration_info.channel_name
-                    },
-                    data_source_info: %{
-                      data_source_id: report.data_source_info.data_source_id,
-                      sql_template: report.data_source_info.sql_template,
-                      timezone: report.data_source_info.timezone,
-                      period: report.data_source_info.period,
-                      window_size: report.data_source_info.window_size,
-                      comparing_period: report.data_source_info.comparing_period,
-                      columns: report.data_source_info.columns
-                    }
-                  })
-                )
+            parsed_data =
+              QueryData.refine_data_based_on_columns(
+                %{columns: columns, data: analyzed_data},
+                value_columns,
+                report.data_source_info.window_size
               )
 
+            socket
+            |> assign(:query_result, %{columns: columns, data: data})
+            |> assign(:query_maker_button_font_size, 14)
+            |> assign(:data_loaded, true)
+            |> assign(:query_error_message, nil)
+            |> assign(:preview, %{columns: columns, data: preview_data})
+            |> assign(:query_result_by_columns, parsed_data)
+            |> assign(:columns, report.data_source_info.columns)
+            |> assign(:report_name, report.name)
+            |> assign(:channel_id, report.integration_info.channel_id)
+            |> assign(:channel_search_term, report.integration_info.channel_name)
+            |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
+            |> assign(
+              :report_changeset,
+              ReportParams.changeset(
+                ReportParams.init_attrs(%{
+                  org_id: socket.assigns.org_id,
+                  user_id: socket.assigns.user_id,
+                  name: report.name,
+                  hour: hour,
+                  trigger_time: report.trigger_time,
+                  integration_info: %{
+                    integration_id: report.integration_info.integration_id,
+                    channel_id: report.integration_info.channel_id,
+                    channel_name: report.integration_info.channel_name
+                  },
+                  data_source_info: %{
+                    data_source_id: report.data_source_info.data_source_id,
+                    sql_template: report.data_source_info.sql_template,
+                    timezone: report.data_source_info.timezone,
+                    period: report.data_source_info.period,
+                    window_size: report.data_source_info.window_size,
+                    comparing_period: report.data_source_info.comparing_period,
+                    columns: report.data_source_info.columns
+                  }
+                })
+              )
+            )
+          else
             _ ->
               socket
           end
@@ -294,6 +304,7 @@ defmodule CarrierWeb.ReportLive.New do
           )
 
         socket
+        |> assign(:query_result, %{columns: columns, data: data})
         |> assign(:query_maker_button_font_size, 14)
         |> assign(:data_loaded, true)
         |> assign(:query_error_message, nil)
@@ -350,55 +361,50 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("select_window_size", %{"value" => window_size_str}, socket) do
     window_size = window_size_str |> String.to_integer()
 
+    socket = socket |> assign(:window_size, window_size)
+
     socket =
-      QueryData.query(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        sql_template: socket.assigns.sql_template,
-        datetime: DateTime.utc_now(),
-        period: socket.assigns.period,
-        window_size: window_size,
-        comparing_period: socket.assigns.comparing_period
-      })
-      |> case do
-        {:ok, raw_data} ->
-          preview = QueryData.format_data_for_preview(raw_data)
+      with %{columns: columns, data: data} <- socket.assigns.query_result,
+           {:ok, analyzed_data} <-
+             QueryData.analyze(data, %{
+               columns: columns,
+               period: socket.assigns.period,
+               window_size: socket.assigns.window_size,
+               comparing_period: socket.assigns.comparing_period
+             }) do
+        [_date_column | value_columns] = columns
 
-          parsed_data =
-            QueryData.refine_data_based_on_columns(raw_data, raw_data.columns, window_size)
-
-          columns = parsed_data |> Map.keys()
-
-          socket
-          |> assign(:data_loaded, true)
-          |> assign(:query_error_message, nil)
-          |> assign(:preview, preview)
-          |> assign(:query_result_by_columns, parsed_data)
-          |> assign(:columns, columns)
-          |> assign(:selected_columns, columns)
-          |> assign(:window_size, window_size)
-          |> add_draw_chart_events(parsed_data, columns)
-          |> assign(
-            :report_changeset,
-            ReportParams.changeset(
-              ReportParams.init_attrs(%{
-                org_id: socket.assigns.org_id,
-                integration_info: %{
-                  integration_id: socket.assigns.integration.id
-                },
-                data_source_info: %{
-                  data_source_id: socket.assigns.data_source.id,
-                  sql_template: socket.assigns.sql_template,
-                  timezone: socket.assigns.timezone,
-                  period: socket.assigns.period,
-                  window_size: window_size,
-                  comparing_period: socket.assigns.comparing_period,
-                  columns: columns
-                }
-              })
-            )
+        parsed_data =
+          QueryData.refine_data_based_on_columns(
+            %{columns: columns, data: analyzed_data},
+            value_columns,
+            socket.assigns.window_size
           )
 
+        socket
+        |> assign(:query_result_by_columns, parsed_data)
+        |> add_draw_chart_events(parsed_data, value_columns)
+        |> assign(
+          :report_changeset,
+          ReportParams.changeset(
+            ReportParams.init_attrs(%{
+              org_id: socket.assigns.org_id,
+              integration_info: %{
+                integration_id: socket.assigns.integration.id
+              },
+              data_source_info: %{
+                data_source_id: socket.assigns.data_source.id,
+                sql_template: socket.assigns.sql_template,
+                timezone: socket.assigns.timezone,
+                period: socket.assigns.period,
+                window_size: window_size,
+                comparing_period: socket.assigns.comparing_period,
+                columns: value_columns
+              }
+            })
+          )
+        )
+      else
         {:error, error} ->
           socket |> assign(:query_error_message, inspect(error))
       end
