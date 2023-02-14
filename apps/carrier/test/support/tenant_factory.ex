@@ -123,7 +123,8 @@ defmodule Carrier.TenantFactory do
   end
 
   def report_log_factory(attrs) do
-    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> insert(:report) end)
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> insert(:report, org_id: org_id) end)
     {status, attrs} = attrs |> Map.pop(:status, :scheduled)
 
     %ReportLog{

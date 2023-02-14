@@ -24,7 +24,7 @@ defmodule CarrierWeb.HomeLive do
   end
 
   defp load_report_log_count(socket) do
-    {:ok, count} = Reports.get_report_log_count()
+    {:ok, count} = Reports.Super.get_report_log_count()
 
     socket |> assign(:report_log_count, count)
   end
