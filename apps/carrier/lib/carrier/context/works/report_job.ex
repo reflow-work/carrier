@@ -11,6 +11,8 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.External.Slack
   alias Carrier.Core.Traversable
 
+  @query_date_length 28 + 7 + 28 + 1
+
   @impl Oban.Worker
   def perform(%Oban.Job{
         args: %{"org_id" => org_id, "report_id" => report_id, "datetime" => datetime_str}
@@ -60,7 +62,7 @@ defmodule Carrier.Works.ReportJob do
            data_source_info: %{
              data_source_id: data_source_id,
              sql_template: sql_template,
-             timezone: timezone,
+             timezone: _timezone,
              period: period,
              window_size: window_size,
              comparing_period: comparing_period,
@@ -69,19 +71,27 @@ defmodule Carrier.Works.ReportJob do
          },
          datetime: datetime
        }) do
-    with {:ok, raw_data} <-
+    with {:ok, %{columns: columns, data: data}} <-
            QueryData.query(%{
              org_id: org_id,
              data_source_id: data_source_id,
              sql_template: sql_template,
              datetime: datetime,
-             timezone: timezone,
+             query_date_length: @query_date_length
+           }),
+         {:ok, analyzed_data} <-
+           QueryData.analyze(data, %{
+             columns: columns,
              period: period,
              window_size: window_size,
              comparing_period: comparing_period
            }),
          parsed_data =
-           QueryData.refine_data_based_on_columns(raw_data, value_columns, window_size),
+           QueryData.refine_data_based_on_columns(
+             %{columns: columns, data: analyzed_data},
+             value_columns,
+             window_size
+           ),
          {:ok, %{"body" => %{"imgUrls" => img_urls}}, _} <-
            Aws.save_chart_img(%{
              data: parsed_data,
