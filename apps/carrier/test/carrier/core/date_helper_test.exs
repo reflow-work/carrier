@@ -5,13 +5,19 @@ defmodule Carrier.Core.DateHelperTest do
   describe "safe_format_date/2" do
     setup do
       Carrier.Cldr.put_locale(:ko)
-      date = Date.from_iso8601!("2023-02-14")
+      date = ~D[2023-02-14]
 
       %{date: date}
     end
 
     test "with valid date", %{date: date} do
       assert DateHelper.safe_format_date(date) == "2023년 2월 14일"
+    end
+
+    test "with valid datetime" do
+      datetime = ~U[2023-02-14 14:49:31.721776Z]
+
+      assert DateHelper.safe_format_date(datetime) == "2023년 2월 14일"
     end
 
     test "with valid date and format", %{date: date} do
