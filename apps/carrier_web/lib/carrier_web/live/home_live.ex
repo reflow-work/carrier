@@ -3,7 +3,9 @@ defmodule CarrierWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket = socket |> assign(:report_count, 1428)
+    socket =
+      socket
+      |> load_report_count()
 
     {:ok, socket, layout: {CarrierWeb.LayoutView, "landing.html"}}
   end
@@ -17,5 +19,9 @@ defmodule CarrierWeb.HomeLive do
       })
 
     {:noreply, push_navigate(socket, to: to)}
+  end
+
+  defp load_report_count(socket) do
+    socket |> assign(:report_count, 1428)
   end
 end
