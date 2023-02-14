@@ -293,7 +293,6 @@
                     ) %>
                     <div class="relative" phx-click-away="clear_channel_suggestions">
                       <%= text_input(fii, :channel_search_term,
-                        placeholder: "데일리 유저 지표",
                         class: "input input-bordered w-64",
                         value: @channel_search_term,
                         phx_change: "search_slack_channels",
