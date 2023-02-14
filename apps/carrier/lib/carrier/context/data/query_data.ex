@@ -15,18 +15,13 @@ defmodule Carrier.Data.QueryData do
           data_source_id: data_source_id,
           sql_template: sql_template,
           datetime: utc_datetime,
-          period: period,
-          window_size: window_size,
-          comparing_period: comparing_period
+          query_date_length: query_date_length
         } = params
       ) do
     TenantRepo.put_org_id(org_id)
 
-    end_date = utc_datetime |> DateTime.to_date()
-    start_date = end_date |> Date.add(-period)
-
-    query_start_date = start_date |> Date.add(-(window_size + comparing_period + 1))
-    query_end_date = end_date |> Date.add(1)
+    query_end_date = utc_datetime |> DateTime.to_date()
+    query_start_date = query_end_date |> Date.add(-query_date_length)
 
     query_params = %{"start" => query_start_date, "end" => query_end_date}
 
@@ -37,16 +32,9 @@ defmodule Carrier.Data.QueryData do
            run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(columns, data),
          normalized_data = normalize_data(data),
-         filled_data = fill_missing_dates(normalized_data, columns, query_start_date, end_date),
-         {:ok, analyzed_date} <-
-           filled_data
-           |> analyze(%{
-             columns: columns,
-             period: period,
-             window_size: window_size,
-             comparing_period: comparing_period
-           }) do
-      {:ok, %{columns: columns, data: analyzed_date}}
+         filled_data =
+           fill_missing_dates(normalized_data, columns, query_start_date, query_end_date) do
+      {:ok, %{columns: columns, data: filled_data}}
     else
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
@@ -74,18 +62,15 @@ defmodule Carrier.Data.QueryData do
     |> Enum.into(%{})
   end
 
-  def format_data_for_preview(raw_data) do
-    data =
-      raw_data.data
-      |> Enum.map(fn d ->
-        Enum.reduce(raw_data.columns, [], fn c, acc ->
-          [d[c] | acc]
-        end)
-        |> Enum.reverse()
+  def format_data_for_preview(%{columns: columns, data: data}) do
+    data
+    |> Enum.map(fn d ->
+      Enum.reduce(columns, [], fn c, acc ->
+        [d[c] | acc]
       end)
       |> Enum.reverse()
-
-    Map.put(raw_data, :data, data)
+    end)
+    |> Enum.reverse()
   end
 
   def fetch_table_names(
@@ -161,15 +146,11 @@ defmodule Carrier.Data.QueryData do
   end
 
   defp build_meta_data(date_column_name, key, data, window_size) do
-    current_period_sum_key = window_sum_column(key)
-    previous_period_sum_key = window_sum_offset_column(key)
+    window_sum_key = window_sum_column(key)
     current_to_previous_periods_sum_ratio_key = window_sum_over_column(key)
 
-    last_datum =
-      data
-      |> List.last(data)
-
-    previous_period_last_datum = Enum.at(data, -8)
+    last_datum = data |> List.last(data)
+    previous_period_last_datum = data |> Enum.at(-8)
 
     diff_between_period_raws = last_datum[key] - previous_period_last_datum[key]
 
@@ -198,8 +179,8 @@ defmodule Carrier.Data.QueryData do
         current_period_sum = Enum.sum(current_period_data)
         {previous_period_sum, current_period_sum}
       else
-        {normalize_zero(last_datum[previous_period_sum_key]),
-         normalize_zero(last_datum[current_period_sum_key])}
+        {normalize_zero(previous_period_last_datum[window_sum_key]),
+         normalize_zero(last_datum[window_sum_key])}
       end
 
     diff_between_period_sums = current_period_sum - previous_period_sum
@@ -208,27 +189,11 @@ defmodule Carrier.Data.QueryData do
       if previous_period_sum == 0 do
         :nan
       else
-        if window_size == 1 do
-          (diff_between_period_sums / previous_period_sum)
-          |> Decimal.from_float()
-          |> Decimal.round(4)
-          |> Decimal.mult(100)
-          |> Decimal.to_float()
-        else
-          last_datum[current_to_previous_periods_sum_ratio_key]
-          |> case do
-            value when is_number(value) ->
-              value
-              |> Decimal.from_float()
-              |> Decimal.sub(1)
-              |> Decimal.round(4)
-              |> Decimal.mult(100)
-              |> Decimal.to_float()
-
-            value when is_atom(value) ->
-              value
-          end
-        end
+        (diff_between_period_sums / previous_period_sum)
+        |> Decimal.from_float()
+        |> Decimal.round(4)
+        |> Decimal.mult(100)
+        |> Decimal.to_float()
       end
 
     %{
@@ -267,12 +232,12 @@ defmodule Carrier.Data.QueryData do
     )
   end
 
-  defp analyze(data, %{
-         columns: columns,
-         period: period,
-         window_size: window_size,
-         comparing_period: comparing_period
-       }) do
+  def analyze(data, %{
+        columns: columns,
+        period: period,
+        window_size: window_size,
+        comparing_period: comparing_period
+      }) do
     [_date_column | value_columns] = columns
 
     df = data |> Explorer.DataFrame.new()
