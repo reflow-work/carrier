@@ -39,7 +39,7 @@
     </div>
   </div>
   <div class="text-landingDescription mt-18 mb-20 md:mb-0 md:mt-28 text-sm">
-    * 2023년 2월 14일 기준
+    * <%= current_datetime!(@timezone) |> DateHelper.safe_format_date() %> 기준
   </div>
 </section>
 

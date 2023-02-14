@@ -1,6 +1,7 @@
 defmodule CarrierWeb.HomeLive do
   use CarrierWeb, :live_view
-  alias Carrier.Reports
+  use Carrier.Reports
+  alias Carrier.Core.DateHelper
 
   @impl true
   def mount(_params, _session, socket) do
