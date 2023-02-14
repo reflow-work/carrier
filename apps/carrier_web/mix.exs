@@ -58,10 +58,7 @@ defmodule CarrierWeb.MixProject do
       {:reverse_proxy_plug, "~> 2.1"},
       {:decimal, "~> 2.0.0"},
       {:doumi_phoenix_svg, "~> 0.3.0"},
-      {:sentry, "~> 8.0"},
-      {:ex_cldr, "~> 2.33"},
-      {:ex_cldr_numbers, "~> 2.0"},
-      {:ex_cldr_dates_times, "~> 2.0"}
+      {:sentry, "~> 8.0"}
     ]
   end
 
