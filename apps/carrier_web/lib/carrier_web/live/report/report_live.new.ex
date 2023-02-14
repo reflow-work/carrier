@@ -37,6 +37,8 @@ defmodule CarrierWeb.ReportLive.New do
   GROUP BY 1
   """
 
+  @query_date_length 28 + 7 + 28 + 1
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok, channels} =
@@ -112,9 +114,7 @@ defmodule CarrierWeb.ReportLive.New do
                    data_source_id: report.data_source_info.data_source_id,
                    sql_template: report.data_source_info.sql_template,
                    datetime: DateTime.utc_now(),
-                   period: report.data_source_info.period,
-                   window_size: report.data_source_info.window_size,
-                   comparing_period: report.data_source_info.comparing_period
+                   query_date_length: @query_date_length
                  }),
                {:ok, analyzed_data} <-
                  QueryData.analyze(data, %{
@@ -281,9 +281,7 @@ defmodule CarrierWeb.ReportLive.New do
                data_source_id: socket.assigns.data_source.id,
                sql_template: sql_template,
                datetime: DateTime.utc_now(),
-               period: socket.assigns.period,
-               window_size: socket.assigns.window_size,
-               comparing_period: socket.assigns.comparing_period
+               query_date_length: @query_date_length
              }),
            {:ok, analyzed_data} <-
              QueryData.analyze(data, %{
