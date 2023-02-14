@@ -4,7 +4,7 @@ defmodule CarrierWeb.TimezoneHook do
   def on_mount(:default, _params, _session, socket) do
     socket =
       socket
-      |> assign(:timezone, get_connect_params(socket)["timezone"])
+      |> assign(:timezone, get_connect_params(socket)["timezone"] || "UTC")
 
     {:cont, socket}
   end

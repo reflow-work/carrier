@@ -25,6 +25,7 @@ defmodule CarrierWeb.Router do
 
     live_session :router,
       on_mount: [
+        CarrierWeb.TimezoneHook,
         CarrierWeb.AnalyticsHook,
         CarrierWeb.ChanneltalkHook
       ] do
