@@ -143,6 +143,7 @@ defmodule CarrierWeb.ReportLive.New do
             |> assign(:preview, %{columns: columns, data: preview_data})
             |> assign(:query_result_by_columns, parsed_data)
             |> assign(:columns, report.data_source_info.columns)
+            |> assign(:selected_columns, report.data_source_info.columns)
             |> assign(:report_name, report.name)
             |> assign(:channel_id, report.integration_info.channel_id)
             |> assign(:channel_search_term, report.integration_info.channel_name)
@@ -309,6 +310,7 @@ defmodule CarrierWeb.ReportLive.New do
         |> assign(:preview, %{columns: columns, data: preview_data})
         |> assign(:query_result_by_columns, parsed_data)
         |> assign(:columns, value_columns)
+        |> assign(:selected_columns, value_columns)
         |> add_draw_chart_events(parsed_data, value_columns)
         |> update(
           :report_changeset,
@@ -379,29 +381,23 @@ defmodule CarrierWeb.ReportLive.New do
             socket.assigns.window_size
           )
 
+        report_params = socket.assigns.report_changeset |> Params.to_params() |> IO.inspect()
+        socket.assigns.selected_columns |> IO.inspect()
+
+        report_changeset =
+          ReportParams.changeset(
+            report_params,
+            %{
+              data_source_info: %{
+                window_size: socket.assigns.window_size
+              }
+            }
+          )
+
         socket
         |> assign(:query_result_by_columns, parsed_data)
         |> add_draw_chart_events(parsed_data, value_columns)
-        |> assign(
-          :report_changeset,
-          ReportParams.changeset(
-            ReportParams.init_attrs(%{
-              org_id: socket.assigns.org_id,
-              integration_info: %{
-                integration_id: socket.assigns.integration.id
-              },
-              data_source_info: %{
-                data_source_id: socket.assigns.data_source.id,
-                sql_template: socket.assigns.sql_template,
-                timezone: socket.assigns.timezone,
-                period: socket.assigns.period,
-                window_size: window_size,
-                comparing_period: socket.assigns.comparing_period,
-                columns: value_columns
-              }
-            })
-          )
-        )
+        |> assign(:report_changeset, report_changeset)
       else
         {:error, error} ->
           socket |> assign(:query_error_message, inspect(error))
@@ -414,11 +410,18 @@ defmodule CarrierWeb.ReportLive.New do
   def handle_event("validate_report", %{"report" => report_inputs}, socket) do
     report_changeset = validate_report_changeset(socket, report_inputs)
 
+    report_params = report_changeset |> Params.to_params()
+
     socket =
       socket
       |> assign(:report_changeset, report_changeset)
       |> assign(:report_name, report_inputs["name"])
       |> assign(:hour, report_inputs["hour"])
+      |> assign(:selected_columns, report_params.data_source_info.columns)
+      |> add_draw_chart_events(
+        socket.assigns.query_result_by_columns,
+        report_params.data_source_info.columns
+      )
 
     {:noreply, socket}
   end
