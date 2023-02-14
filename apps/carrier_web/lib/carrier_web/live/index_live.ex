@@ -3,6 +3,8 @@ defmodule CarrierWeb.IndexLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket = socket |> assign(:report_count, 1428)
+
     {:ok, socket, layout: {CarrierWeb.LayoutView, "landing.html"}}
   end
 
@@ -15,5 +17,14 @@ defmodule CarrierWeb.IndexLive do
       })
 
     {:noreply, push_navigate(socket, to: to)}
+  end
+
+  defp format_report_count(report_count) do
+    report_count
+    |> Integer.to_charlist()
+    |> Enum.reverse()
+    |> Enum.chunk_every(3)
+    |> Enum.join(",")
+    |> String.reverse()
   end
 end

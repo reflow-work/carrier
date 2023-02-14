@@ -18,6 +18,31 @@
   </div>
 </section>
 
+<section class="landing-container section text-center !pt-12">
+  <h1 class="h1 mb-28">reflow 고객들은</h1>
+  <div class="flex flex-col md:flex-row space-y-16 md:space-y-0 justify-center md:divide-x">
+    <div class="md:px-28 pt-6 pb-10">
+      <div class="text-md mb-4">
+        리텐션율
+      </div>
+      <u class="text-5xl font-bold">
+        100%
+      </u>
+    </div>
+    <div class="md:px-28 pt-6 pb-10">
+      <div class="text-md mb-4">
+        생성된 레포트
+      </div>
+      <u class="text-5xl font-bold">
+        <%= @report_count |> format_report_count %>개
+      </u>
+    </div>
+  </div>
+  <div class="text-landingDescription mt-18 mb-20 md:mb-0 md:mt-28 text-sm">
+    * 2023년 2월 14일 기준
+  </div>
+</section>
+
 <div class="landing-container">
   <div class="bg-primary rounded-lg flex justify-between items-center py-4 px-4 md:px-8">
     <div class="text-white font-bold text-sm lg:text-base">
