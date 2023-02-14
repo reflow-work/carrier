@@ -482,76 +482,24 @@ defmodule CarrierWeb.ReportLive.New do
         _ -> nil
       end)
 
-    trigger_time =
-      TimeHelper.from!(hour: socket.assigns.hour |> String.to_integer())
-      |> TimeHelper.to_utc_time(socket.assigns.timezone)
+    report_params = socket.assigns.report_changeset |> Params.to_params()
+
+    report_changeset =
+      ReportParams.changeset(
+        report_params,
+        %{
+          integration_info: %{
+            channel_id: channel_id,
+            channel_name: channel_name
+          }
+        }
+      )
 
     socket =
-      QueryData.query(%{
-        org_id: socket.assigns.org_id,
-        data_source_id: socket.assigns.data_source.id,
-        sql_template: socket.assigns.sql_template,
-        datetime: DateTime.utc_now(),
-        period: socket.assigns.period,
-        window_size: socket.assigns.window_size,
-        comparing_period: socket.assigns.comparing_period
-      })
-      |> case do
-        {:ok, raw_data} ->
-          preview = QueryData.format_data_for_preview(raw_data)
-
-          parsed_data =
-            QueryData.refine_data_based_on_columns(
-              raw_data,
-              raw_data.columns,
-              socket.assigns.window_size
-            )
-
-          columns = parsed_data |> Map.keys()
-
-          socket
-          |> assign(:data_loaded, true)
-          |> assign(:query_error_message, nil)
-          |> assign(:preview, preview)
-          |> assign(:query_result_by_columns, parsed_data)
-          |> assign(:columns, columns)
-          |> assign(:selected_columns, columns)
-          |> assign(:window_size, socket.assigns.window_size)
-          |> assign(:channel_suggestions, [])
-          |> assign(:channel_id, channel_id)
-          |> assign(:channel_search_term, channel_name)
-          |> add_draw_chart_events(parsed_data, columns)
-          |> assign(:hour, socket.assigns.hour)
-          |> assign(
-            :report_changeset,
-            ReportParams.changeset(
-              ReportParams.init_attrs(%{
-                "org_id" => socket.assigns.org_id,
-                "user_id" => socket.assigns.user_id,
-                "trigger_time" => trigger_time,
-                "name" => socket.assigns.report_name,
-                "hour" => socket.assigns.hour,
-                "integration_info" => %{
-                  "integration_id" => socket.assigns.integration.id,
-                  "channel_id" => channel_id,
-                  "channel_name" => channel_name
-                },
-                "data_source_info" => %{
-                  "data_source_id" => socket.assigns.data_source.id,
-                  "sql_template" => socket.assigns.sql_template,
-                  "timezone" => socket.assigns.timezone,
-                  "period" => socket.assigns.period,
-                  "window_size" => socket.assigns.window_size,
-                  "comparing_period" => socket.assigns.comparing_period,
-                  "columns" => columns
-                }
-              })
-            )
-          )
-
-        {:error, error} ->
-          socket |> assign(:query_error_message, inspect(error))
-      end
+      socket
+      |> assign(:report_changeset, report_changeset)
+      |> assign(:channel_id, channel_id)
+      |> assign(:channel_search_term, channel_name)
 
     {:noreply, socket}
   end
