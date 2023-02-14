@@ -146,15 +146,11 @@ defmodule Carrier.Data.QueryData do
   end
 
   defp build_meta_data(date_column_name, key, data, window_size) do
-    current_period_sum_key = window_sum_column(key)
-    previous_period_sum_key = window_sum_offset_column(key)
+    window_sum_key = window_sum_column(key)
     current_to_previous_periods_sum_ratio_key = window_sum_over_column(key)
 
-    last_datum =
-      data
-      |> List.last(data)
-
-    previous_period_last_datum = Enum.at(data, -8)
+    last_datum = data |> List.last(data)
+    previous_period_last_datum = data |> Enum.at(-8)
 
     diff_between_period_raws = last_datum[key] - previous_period_last_datum[key]
 
@@ -183,8 +179,8 @@ defmodule Carrier.Data.QueryData do
         current_period_sum = Enum.sum(current_period_data)
         {previous_period_sum, current_period_sum}
       else
-        {normalize_zero(last_datum[previous_period_sum_key]),
-         normalize_zero(last_datum[current_period_sum_key])}
+        {normalize_zero(previous_period_last_datum[window_sum_key]),
+         normalize_zero(last_datum[window_sum_key])}
       end
 
     diff_between_period_sums = current_period_sum - previous_period_sum
@@ -193,27 +189,11 @@ defmodule Carrier.Data.QueryData do
       if previous_period_sum == 0 do
         :nan
       else
-        if window_size == 1 do
-          (diff_between_period_sums / previous_period_sum)
-          |> Decimal.from_float()
-          |> Decimal.round(4)
-          |> Decimal.mult(100)
-          |> Decimal.to_float()
-        else
-          last_datum[current_to_previous_periods_sum_ratio_key]
-          |> case do
-            value when is_number(value) ->
-              value
-              |> Decimal.from_float()
-              |> Decimal.sub(1)
-              |> Decimal.round(4)
-              |> Decimal.mult(100)
-              |> Decimal.to_float()
-
-            value when is_atom(value) ->
-              value
-          end
-        end
+        (diff_between_period_sums / previous_period_sum)
+        |> Decimal.from_float()
+        |> Decimal.round(4)
+        |> Decimal.mult(100)
+        |> Decimal.to_float()
       end
 
     %{
