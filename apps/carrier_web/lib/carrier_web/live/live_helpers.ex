@@ -61,6 +61,10 @@ defmodule CarrierWeb.LiveHelpers do
     end
   end
 
+  def current_datetime!(timezone) do
+    DateTime.now!(timezone)
+  end
+
   def js_exec(js \\ %JS{}, to, call, args) do
     JS.dispatch(js, "js:exec", to: to, detail: %{call: call, args: args})
   end
