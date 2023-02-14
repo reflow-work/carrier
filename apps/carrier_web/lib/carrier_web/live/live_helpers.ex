@@ -61,13 +61,6 @@ defmodule CarrierWeb.LiveHelpers do
     end
   end
 
-  def format_date(d) do
-    case Carrier.Cldr.Date.to_string(d) do
-      {:ok, s} -> s
-      {:error, _msg} -> "INVALID DATE"
-    end
-  end
-
   def js_exec(js \\ %JS{}, to, call, args) do
     JS.dispatch(js, "js:exec", to: to, detail: %{call: call, args: args})
   end
