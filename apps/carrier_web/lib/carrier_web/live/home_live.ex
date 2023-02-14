@@ -1,10 +1,12 @@
 defmodule CarrierWeb.HomeLive do
   use CarrierWeb, :live_view
+  alias Carrier.Reports
 
   @impl true
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:report_count, nil)
       |> load_report_count()
 
     {:ok, socket, layout: {CarrierWeb.LayoutView, "landing.html"}}
@@ -22,6 +24,8 @@ defmodule CarrierWeb.HomeLive do
   end
 
   defp load_report_count(socket) do
-    socket |> assign(:report_count, 1428)
+    {:ok, count} = Reports.get_report_count()
+
+    socket |> assign(:report_count, count)
   end
 end

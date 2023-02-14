@@ -143,6 +143,10 @@ defmodule Carrier.Reports do
     |> reader.repo.insert()
   end
 
+  def get_report_count() do
+    {:ok, 1428}
+  end
+
   def record_tried_report_log(%{
         report_id: report_id
       }) do
