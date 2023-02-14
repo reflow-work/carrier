@@ -28,7 +28,7 @@ defmodule CarrierWeb.Router do
         CarrierWeb.AnalyticsHook,
         CarrierWeb.ChanneltalkHook
       ] do
-      live "/", IndexLive, :index
+      live "/", HomeLive, :index
       live "/pricing", PricingLive, :index
     end
 

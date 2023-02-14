@@ -1,4 +1,4 @@
-defmodule CarrierWeb.IndexLive do
+defmodule CarrierWeb.HomeLive do
   use CarrierWeb, :live_view
 
   @impl true
