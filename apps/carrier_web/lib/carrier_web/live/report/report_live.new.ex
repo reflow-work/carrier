@@ -131,7 +131,7 @@ defmodule CarrierWeb.ReportLive.New do
             parsed_data =
               QueryData.refine_data_based_on_columns(
                 %{columns: columns, data: analyzed_data},
-                report.data_source_info.columns,
+                value_columns,
                 report.data_source_info.window_size
               )
 
@@ -142,7 +142,7 @@ defmodule CarrierWeb.ReportLive.New do
             |> assign(:query_error_message, nil)
             |> assign(:preview, %{columns: columns, data: preview_data})
             |> assign(:query_result_by_columns, parsed_data)
-            |> assign(:columns, report.data_source_info.columns)
+            |> assign(:columns, value_columns)
             |> assign(:selected_columns, report.data_source_info.columns)
             |> assign(:report_name, report.name)
             |> assign(:channel_id, report.integration_info.channel_id)
@@ -381,8 +381,7 @@ defmodule CarrierWeb.ReportLive.New do
             socket.assigns.window_size
           )
 
-        report_params = socket.assigns.report_changeset |> Params.to_params() |> IO.inspect()
-        socket.assigns.selected_columns |> IO.inspect()
+        report_params = socket.assigns.report_changeset |> Params.to_params()
 
         report_changeset =
           ReportParams.changeset(
@@ -534,9 +533,13 @@ defmodule CarrierWeb.ReportLive.New do
     %{"send_preview_form" => %{"channel" => channel_id}} = params
 
     Task.start(fn ->
+      data =
+        socket.assigns.query_result_by_columns
+        |> Map.filter(fn {k, _v} -> k in socket.assigns.selected_columns end)
+
       save_chart_img_params =
         [
-          {:data, socket.assigns.query_result_by_columns},
+          {:data, data},
           {:orgId, socket.assigns.org_id},
           {:reportId, "preview"}
         ]
@@ -546,7 +549,7 @@ defmodule CarrierWeb.ReportLive.New do
         save_chart_image(save_chart_img_params)
 
       with {:ok, _} <-
-             Slack.build_post_message_args(socket.assigns.query_result_by_columns, img_urls)
+             Slack.build_post_message_args(data, img_urls)
              |> Enum.map(fn slack_arg ->
                Noti.send_report_to_slack(
                  channel_id,
