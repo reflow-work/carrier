@@ -131,7 +131,7 @@ defmodule CarrierWeb.ReportLive.New do
             parsed_data =
               QueryData.refine_data_based_on_columns(
                 %{columns: columns, data: analyzed_data},
-                value_columns,
+                report.data_source_info.columns,
                 report.data_source_info.window_size
               )
 
