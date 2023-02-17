@@ -48,7 +48,7 @@ defmodule Carrier.Data.Source.BigQuery do
     name = credential_process_name(project_id)
     source = {:service_account, credentials_json |> Jason.decode!(), []}
 
-    opts = [name: name, source: source, http_client: &Req.request/1]
+    opts = [name: name, source: source, http_client: &Req.request/1, prefetch: :sync]
 
     case DynamicSupervisor.start_child(Carrier.GothSupervisor, {Goth, opts}) do
       {:ok, pid} -> {:ok, pid}
