@@ -1,4 +1,4 @@
-defmodule Carrier.Setting do
+defmodule Carrier.Setting.Super do
   use Carrier.Core.Cache
   require Logger
   alias Carrier.Setting.Property
