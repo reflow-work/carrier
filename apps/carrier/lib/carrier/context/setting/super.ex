@@ -1,7 +1,7 @@
 defmodule Carrier.Setting.Super do
+  use Carrier.Setting
   use Carrier.Core.Cache
   require Logger
-  alias Carrier.Setting.Property
   alias Carrier.Repo
 
   @ttl :timer.seconds(10)

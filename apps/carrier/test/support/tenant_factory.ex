@@ -1,8 +1,7 @@
 defmodule Carrier.TenantFactory do
+  alias Carrier.Setting.FeatureFlag
   use ExMachina.Ecto, repo: Carrier.TenantRepo
-  alias Carrier.Accounts.{Org, User}
-  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
-  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
+  use Carrier.{Accounts, Secrets, Reports, Setting}
 
   def org_factory() do
     %Org{
@@ -135,6 +134,27 @@ defmodule Carrier.TenantFactory do
       created_at: DateTime.utc_now()
     }
     |> apply_status(status)
+    |> merge_attributes(attrs)
+  end
+
+  def feature_flag_factory(attrs) do
+    %FeatureFlag{
+      key: seq(:feature_flag_key),
+      description: seq(:feature_flag_description)
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def feature_flag_value_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+    {feature_flag, attrs} = attrs |> Map.pop_lazy(:feature_flag, fn -> insert(:feature_flag) end)
+
+    %FeatureFlagValue{
+      org_id: org_id,
+      feature_flag: feature_flag,
+      feature_flag_key: feature_flag.key,
+      value: true
+    }
     |> merge_attributes(attrs)
   end
 

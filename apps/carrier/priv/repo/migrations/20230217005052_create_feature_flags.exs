@@ -10,5 +10,6 @@ defmodule Carrier.Repo.Migrations.CreateFeatureFlags do
     end
 
     create unique_index(:feature_flags, [:key])
+    create unique_index(:feature_flags, [:id, :key])
   end
 end
