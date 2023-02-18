@@ -6,6 +6,7 @@
   </header>
 
   <section class="mt-6 space-y-6">
+    <%= if Carrier.Setting.get_feature_flag_value("multi_data_source") do %>
     <section class="card">
       <div class="card-body">
         <div>
@@ -29,6 +30,7 @@
         </.form>
       </div>
     </section>
+    <% end %>
     <section class="card">
       <div class="card-body">
         <div class="flex justify-between">
