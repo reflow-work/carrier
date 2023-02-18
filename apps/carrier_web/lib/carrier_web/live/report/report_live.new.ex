@@ -7,7 +7,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.Noti
   alias Carrier.External.Slack
   alias Carrier.External.Aws
-  alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper}
+  alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
   alias CarrierWeb.Components.QueryChecker
@@ -133,6 +133,11 @@ defmodule CarrierWeb.ReportLive.New do
               )
 
             socket
+            |> assign(
+              :data_source,
+              socket.assigns.data_sources
+              |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
+            )
             |> assign(:query_result, %{columns: columns, data: data})
             |> assign(:query_maker_button_font_size, 14)
             |> assign(:data_loaded, true)

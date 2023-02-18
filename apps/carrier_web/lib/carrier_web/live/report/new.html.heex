@@ -24,7 +24,7 @@
               :id,
               @data_source_options,
               class: "select select-bordered w-64",
-              selected: @data_source_options |> List.first() |> elem(0)
+              selected: @data_source |> Nillable.map(& &1.id)
             ) %>
           </div>
         </.form>
