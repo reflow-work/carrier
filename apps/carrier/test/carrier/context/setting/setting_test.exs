@@ -2,61 +2,45 @@ defmodule Carrier.SettingTest do
   use Carrier.DataCase, async: true
   alias Carrier.Setting
 
-  @moduletag repo: Repo
+  @moduletag repo: TenantRepo
 
-  describe "get_property_value/2" do
-    test "returns the value of the property with valid params" do
-      property = Factory.insert(:property, type: :integer, value: 1)
+  describe "get_feature_flag_value/1" do
+    setup do
+      org0 = TenantFactory.insert(:org)
+      org1 = TenantFactory.insert(:org)
 
-      assert Setting.get_property_value(property.key, 0) == 1
+      feature_flag = TenantFactory.insert(:feature_flag, key: "test")
+
+      feature_flag_value =
+        TenantFactory.insert(:feature_flag_value,
+          org_id: org0.org_id,
+          feature_flag: feature_flag,
+          value: true
+        )
+
+      TenantFactory.insert(:feature_flag_value,
+        org_id: org1.org_id,
+        feature_flag: feature_flag,
+        value: false
+      )
+
+      TenantRepo.put_org_id(feature_flag_value.org_id)
+
+      %{feature_flag_value: feature_flag_value}
     end
 
-    test "returns default value with invalid key" do
-      _property = Factory.insert(:property, type: :integer, value: 1)
-
-      assert Setting.get_property_value("invalid_key", 0) == 0
+    test "with valid feature_flag_key", %{feature_flag_value: feature_flag_value} do
+      assert Setting.get_feature_flag_value(feature_flag_value.feature_flag_key) == true
     end
 
-    test "returns default value with nil value" do
-      property = Factory.insert(:property, type: :integer, value: nil)
-
-      assert Setting.get_property_value(property.key, 0) == 0
+    test "with invalid feature_flag_key" do
+      assert Setting.get_feature_flag_value("invalid_feature_flag_key") == false
     end
 
-    test "with integer value" do
-      property = Factory.insert(:property, type: :integer, value: 1)
+    test "with not set org", %{feature_flag_value: feature_flag_value} do
+      TenantRepo.put_org_id(0)
 
-      assert Setting.get_property_value(property.key, 0) == 1
-    end
-
-    test "with float value" do
-      property = Factory.insert(:property, type: :float, value: 1.1)
-
-      assert Setting.get_property_value(property.key, 0.0) == 1.1
-    end
-
-    test "with string value" do
-      property = Factory.insert(:property, type: :string, value: "string")
-
-      assert Setting.get_property_value(property.key, "default") == "string"
-    end
-
-    test "with boolean value" do
-      property = Factory.insert(:property, type: :boolean, value: true)
-
-      assert Setting.get_property_value(property.key, false) == true
-    end
-
-    test "with list value" do
-      property = Factory.insert(:property, type: :list, value: [1, 2, 3])
-
-      assert Setting.get_property_value(property.key, []) == [1, 2, 3]
-    end
-
-    test "with map value" do
-      property = Factory.insert(:property, type: :map, value: %{"a" => 1, "b" => 2})
-
-      assert Setting.get_property_value(property.key, %{}) == %{"a" => 1, "b" => 2}
+      assert Setting.get_feature_flag_value(feature_flag_value.feature_flag_key) == false
     end
   end
 end

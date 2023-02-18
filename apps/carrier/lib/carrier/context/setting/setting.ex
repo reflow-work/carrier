@@ -1,29 +1,31 @@
 defmodule Carrier.Setting do
   use Carrier.Core.Cache
   require Logger
-  alias Carrier.Setting.Property
-  alias Carrier.Repo
+  alias Carrier.Setting.FeatureFlagValue
+  alias Carrier.TenantRepo
 
-  @ttl :timer.seconds(10)
-
-  @decorate cacheable(
-              cache: Cache.Local,
-              key: {Property, :get, [key, default_value]},
-              opts: [ttl: @ttl]
-            )
-  def get_property_value(key, default_value) do
-    case get_property(key) do
-      %Property{value: value} when not is_nil(value) ->
-        value
-
-      _ ->
-        Logger.warn("property not found for key: #{key}")
-        default_value
+  defmacro __using__([]) do
+    quote do
+      alias Carrier.Setting.{Property, FeatureFlag, FeatureFlagValue}
     end
   end
 
-  defp get_property(key) do
-    Property.get(key)
-    |> Repo.one()
+  @decorate cacheable(
+              cache: Cache.Local,
+              key:
+                {__MODULE__, :get_feature_flag_value, [feature_flag_key, TenantRepo.get_org_id()]}
+            )
+  def get_feature_flag_value(feature_flag_key) do
+    FeatureFlagValue.get_by_feature_flag_key(feature_flag_key)
+    |> TenantRepo.one()
+    |> case do
+      %FeatureFlagValue{value: value} ->
+        value
+
+      nil ->
+        # TODO: Generate feature_flag_value with rules
+
+        false
+    end
   end
 end
