@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-use Carrier.{Accounts, Secrets, Reports}
+use Carrier.{Accounts, Secrets, Reports, Setting}
 alias Carrier.Repo
 
 Repo.transaction(fn ->
@@ -194,4 +194,6 @@ Repo.transaction(fn ->
 
   {:ok, _} = Reports.create_job_from_report(report0, DateTime.utc_now(), %{repo: Repo})
   {:ok, _} = Reports.create_job_from_report(report1, DateTime.utc_now(), %{repo: Repo})
+
+  {1, _} = Repo.insert_all(FeatureFlag, [%{key: "test", description: "for testing"}])
 end)
