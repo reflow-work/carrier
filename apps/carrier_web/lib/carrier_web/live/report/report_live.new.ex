@@ -48,6 +48,11 @@ defmodule CarrierWeb.ReportLive.New do
 
     socket =
       socket
+      |> assign(:data_source, socket.assigns.data_sources |> List.first())
+      |> assign(
+        :data_source_options,
+        socket.assigns.data_sources |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+      )
       |> assign(
         tables: [],
         date_columns: [],
@@ -56,13 +61,6 @@ defmodule CarrierWeb.ReportLive.New do
       )
       |> assign(:query_maker_button_font_size, 14)
       |> assign(:sample_sql_template, @sample_sql_template)
-      |> assign(:query_error_message, nil)
-      |> assign(:data_loaded, false)
-      |> assign(%{
-        preview: nil,
-        show_full_preview_data: false
-      })
-      |> assign(:query_result_by_columns, nil)
       |> assign(:channels, channel_options)
       |> assign(:channel_suggestions, [])
       |> assign(:channel_id, "")
@@ -70,12 +68,11 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
       |> assign(:hour, "0")
       |> assign(:is_loading_slack_channels, false)
-      |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
-      |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:report_name, "")
       |> assign(:period, 28)
       |> assign(:window_size, 7)
       |> assign(:comparing_period, 28)
+      |> reset_assigns()
 
     {:ok, socket}
   end
@@ -179,6 +176,23 @@ defmodule CarrierWeb.ReportLive.New do
               socket
           end
       end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "select_data_source",
+        %{"data_source" => %{"id" => data_source_id_str}},
+        socket
+      ) do
+    data_source_id = data_source_id_str |> String.to_integer()
+
+    data_source =
+      socket.assigns.data_sources
+      |> Enum.find(&(&1.id == data_source_id))
+
+    socket = socket |> assign(:data_source, data_source) |> reset_assigns()
 
     {:noreply, socket}
   end
@@ -646,6 +660,19 @@ defmodule CarrierWeb.ReportLive.New do
       </button>
     <% end %>
     """
+  end
+
+  defp reset_assigns(socket) do
+    socket
+    |> assign(:query_error_message, nil)
+    |> assign(:data_loaded, false)
+    |> assign(%{
+      preview: nil,
+      show_full_preview_data: false
+    })
+    |> assign(:query_result_by_columns, nil)
+    |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
+    |> assign(:query_validations, %{contains_start: true, contains_end: true})
   end
 
   defp load_columns(socket, table_name) do

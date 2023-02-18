@@ -1,35 +1,46 @@
 <section class="page-container">
   <header class="page-header">
     <h1 class="page-title">
-      <span class="page-title-icon">💾</span> 데이터 소스
+      <span class="page-title-icon">💾</span> 데이터 소스 목록
     </h1>
+
+    <div class="text-right">
+      <.link
+        navigate={Routes.data_source_new_path(@socket, :new)}
+        class={[
+          "btn",
+          "btn-primary",
+          if(@is_disabled_to_create_new_data_source, do: "btn-disabled")
+        ]}
+      >
+        새 데이터 소스 생성
+      </.link>
+      <%= if @is_disabled_to_create_new_data_source do %>
+        <div>
+          데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
+        </div>
+      <% end %>
+    </div>
   </header>
 
-  <div class="space-y-8 mt-6">
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">
-          데이터 소스 정보
-        </h2>
-
-        <div class="flex mt-4 items-center">
-          <div class="text-sm text-gray-500 w-40">
-            이름
-          </div>
-          <div>
-            <%= @data_source.name %>
-          </div>
-        </div>
-
-        <div class="flex mt-4 items-center">
-          <div class="text-sm text-gray-500 w-40">
-            타입
-          </div>
-          <div>
-            <%= @data_source.source %>
-          </div>
-        </div>
-      </div>
+  <section class="mt-6">
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>이름</th>
+            <th>소스</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for data_source <- @data_sources do %>
+            <tr class="hover">
+              <td><%= data_source.name %></td>
+              <td><%= transl_data_source_source(data_source) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
-  </div>
+  </section>
 </section>
