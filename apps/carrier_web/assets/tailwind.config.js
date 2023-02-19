@@ -21,6 +21,8 @@ module.exports = {
         "slackImgGrey": "#929292",
         "slackImgBlue": "#004ADB",
         "slackImgRed": "#C91000",
+        "slack-code-bg": "#F8F7F8",
+        "slack-code-border": "#DDDEDD",
         "landingDescription": '#939393',
         "landingBgGray": '#F4F4F4',
       },
