@@ -9,4 +9,9 @@ defmodule Carrier.Setting.FeatureFlag do
     timestamps()
     field :deleted_at, :utc_datetime_usec
   end
+
+  def get_by_key(key) do
+    __MODULE__
+    |> where([ff], ff.key == ^key)
+  end
 end

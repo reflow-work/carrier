@@ -59,4 +59,20 @@ defmodule Carrier.Setting.SuperTest do
       assert Setting.Super.get_property_value(property.key, %{}) == %{"a" => 1, "b" => 2}
     end
   end
+
+  describe "get_feature_flag/1" do
+    setup do
+      feature_flag = Factory.insert(:feature_flag)
+
+      %{feature_flag: feature_flag}
+    end
+
+    test "with valid key", %{feature_flag: feature_flag} do
+      assert Setting.Super.get_feature_flag(feature_flag.key) == feature_flag
+    end
+
+    test "with invalid key" do
+      assert Setting.Super.get_feature_flag("invalid key") == nil
+    end
+  end
 end

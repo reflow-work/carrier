@@ -1,5 +1,4 @@
 defmodule Carrier.TenantFactory do
-  alias Carrier.Setting.FeatureFlag
   use ExMachina.Ecto, repo: Carrier.TenantRepo
   use Carrier.{Accounts, Secrets, Reports, Setting}
 

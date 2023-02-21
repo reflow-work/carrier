@@ -5,10 +5,9 @@ defmodule Carrier.Setting.Super do
   alias Carrier.Repo
 
   @ttl :timer.seconds(10)
-
   @decorate cacheable(
               cache: Cache.Local,
-              key: {Property, :get, [key, default_value]},
+              key: {__MODULE__, :get_property_value, [key, default_value]},
               opts: [ttl: @ttl]
             )
   def get_property_value(key, default_value) do
@@ -20,6 +19,12 @@ defmodule Carrier.Setting.Super do
         Logger.warn("property not found for key: #{key}")
         default_value
     end
+  end
+
+  @decorate cacheable(cache: Cache.Local, key: {__MODULE__, :get_feature_flag, [key]})
+  def get_feature_flag(key) do
+    FeatureFlag.get_by_key(key)
+    |> Repo.one()
   end
 
   defp get_property(key) do
