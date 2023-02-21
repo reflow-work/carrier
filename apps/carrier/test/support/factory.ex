@@ -1,9 +1,6 @@
 defmodule Carrier.Factory do
   use ExMachina.Ecto, repo: Carrier.Repo
-  alias Carrier.Accounts.{Org, User}
-  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
-  alias Carrier.Reports.{ReportInfo, Report, ReportLog}
-  alias Carrier.Setting.Property
+  use Carrier.{Accounts, Secrets, Reports, Setting}
 
   def org_factory() do
     %Org{
@@ -164,6 +161,14 @@ defmodule Carrier.Factory do
     %Property{
       key: sequence(:property_key, &"key-#{&1}")
     }
+  end
+
+  def feature_flag_factory(attrs) do
+    %FeatureFlag{
+      key: seq(:feature_flag_key),
+      description: seq(:feature_flag_description)
+    }
+    |> merge_attributes(attrs)
   end
 
   defp seq(name) when is_atom(name) do
