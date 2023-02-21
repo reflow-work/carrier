@@ -1,11 +1,13 @@
 defmodule Carrier.Setting do
   use Carrier.Core.Cache
   require Logger
-  alias Carrier.Setting.FeatureFlagValue
+  alias Carrier.Setting.Super
+  alias Carrier.Setting.{FeatureFlag, FeatureFlagValue}
   alias Carrier.TenantRepo
 
   defmacro __using__([]) do
     quote do
+      alias Carrier.Setting
       alias Carrier.Setting.{Property, FeatureFlag, FeatureFlagValue}
     end
   end
@@ -16,16 +18,22 @@ defmodule Carrier.Setting do
                 {__MODULE__, :get_feature_flag_value, [feature_flag_key, TenantRepo.get_org_id()]}
             )
   def get_feature_flag_value(feature_flag_key) do
+    with {:feature_flag, %FeatureFlag{value: false}} <-
+           {:feature_flag, Super.get_feature_flag(feature_flag_key)},
+         {:feature_flag_value, nil} <-
+           {:feature_flag_value, do_get_feature_flag_value(feature_flag_key)} do
+      # TODO: Generate feature_flag_value with rules
+
+      false
+    else
+      {:feature_flag, nil} -> false
+      {:feature_flag, %FeatureFlag{value: true}} -> true
+      {:feature_flag_value, %FeatureFlagValue{value: value}} -> value
+    end
+  end
+
+  defp do_get_feature_flag_value(feature_flag_key) do
     FeatureFlagValue.get_by_feature_flag_key(feature_flag_key)
     |> TenantRepo.one()
-    |> case do
-      %FeatureFlagValue{value: value} ->
-        value
-
-      nil ->
-        # TODO: Generate feature_flag_value with rules
-
-        false
-    end
   end
 end
