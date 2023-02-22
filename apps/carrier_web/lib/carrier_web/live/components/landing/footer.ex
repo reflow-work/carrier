@@ -26,6 +26,8 @@ defmodule LandingFooterComponent do
             <div>리플로우</div>
             <div>대표자: 손진규</div>
             <div>사업자등록번호: 645-27-01342</div>
+            <div>서울시 서초구 반포대로26길 38, 602호</div>
+            <div>010-2141-0727</div>
             <div>
               <a
                 href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
