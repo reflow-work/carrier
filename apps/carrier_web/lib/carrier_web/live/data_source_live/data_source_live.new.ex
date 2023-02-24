@@ -2,6 +2,7 @@ defmodule CarrierWeb.DataSourceLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
   use Carrier.Secrets
+  use Carrier.Setting
   alias CarrierWeb.Components.Icon
   alias CarrierWeb.DataSourceLive.ConnInfoParams
 
@@ -173,5 +174,20 @@ defmodule CarrierWeb.DataSourceLive.New do
     _changeset =
       data_source_module.changeset(params)
       |> Params.set_action(:validate)
+  end
+
+  defp data_sources() do
+    [
+      {:mysql, "MySQL", "logo-mysql.png"},
+      {:postgres, "PostgreSQL", "logo-postgresql.png"},
+      {:bigquery, "BigQuery", "logo-bigquery.png"},
+      {:athena, "Athena", ""}
+    ]
+    |> then(fn data_sources ->
+      case Setting.get_feature_flag_value("data_source_athena") do
+        true -> data_sources
+        false -> Enum.reject(data_sources, fn {source, _, _} -> source == :athena end)
+      end
+    end)
   end
 end

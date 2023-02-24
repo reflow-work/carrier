@@ -71,7 +71,7 @@
 
           <%= if @step == "step-1" do %>
             <div class="mt-10 space-y-4">
-              <%= for {source, source_name, image_filename} <- [{:mysql, "MySQL", "logo-mysql.png"}, {:postgres, "PostgreSQL", "logo-postgresql.png"}, {:bigquery, "BigQuery", "logo-bigquery.png"}, {:athena, "Athena", ""}] do %>
+              <%= for {source, source_name, image_filename} <- data_sources() do %>
                 <div
                   phx-click="select_source"
                   phx-value-source={source}
