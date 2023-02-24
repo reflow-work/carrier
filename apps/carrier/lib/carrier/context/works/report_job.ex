@@ -7,7 +7,6 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.Secrets.Integration
   alias Carrier.Noti
   alias Carrier.TenantRepo
-  alias Carrier.External.Aws
   alias Carrier.External.Slack
   alias Carrier.Core.Traversable
 
@@ -92,13 +91,13 @@ defmodule Carrier.Works.ReportJob do
              value_columns,
              window_size
            ),
-         {:ok, %{"body" => %{"imgUrls" => img_urls}}, _} <-
-           Aws.save_chart_img(%{
-             data: parsed_data,
-             orgId: org_id,
-             reportId: report_id
+         {:ok, %{image_urls: image_urls}} <-
+           ImageGenerator.gen_chart_images(%{
+             org_id: org_id,
+             report_id: report_id,
+             data: parsed_data
            }),
-         slack_args = Slack.build_post_message_args(parsed_data, img_urls) do
+         slack_args = Slack.build_post_message_args(parsed_data, image_urls) do
       {:ok, slack_args}
     end
   end

@@ -1,12 +1,10 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
+  use Carrier.Reports
   alias Carrier.Data.QueryData
-  alias Carrier.Reports
-  alias Carrier.Reports.Report
   alias Carrier.Noti
   alias Carrier.External.Slack
-  alias Carrier.External.Aws
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
@@ -556,16 +554,12 @@ defmodule CarrierWeb.ReportLive.New do
         socket.assigns.query_result_by_columns
         |> Map.filter(fn {k, _v} -> k in socket.assigns.selected_columns end)
 
-      save_chart_img_params =
-        [
-          {:data, data},
-          {:orgId, socket.assigns.org_id},
-          {:reportId, "preview"}
-        ]
-        |> Enum.into(%{})
-
-      {:ok, %{"body" => %{"imgUrls" => img_urls}}, _full_resp} =
-        save_chart_image(save_chart_img_params)
+      {:ok, %{image_urls: img_urls}} =
+        ImageGenerator.gen_chart_images(%{
+          org_id: socket.assigns.org_id,
+          report_id: "preview",
+          data: data
+        })
 
       with {:ok, _} <-
              Slack.build_post_message_args(data, img_urls)
@@ -757,11 +751,6 @@ defmodule CarrierWeb.ReportLive.New do
     |> Enum.reduce(socket, fn {k, v}, acc ->
       push_event(acc, "input_data_#{k}", v)
     end)
-  end
-
-  defp save_chart_image(%{orgId: orgId, reportId: reportId, data: data}) do
-    %{orgId: orgId, reportId: reportId, data: data}
-    |> Aws.save_chart_img()
   end
 
   defp load_slack_channels(socket) do
