@@ -51,7 +51,8 @@ defmodule Carrier.Secrets do
     }
 
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params),
+      with {:ok, %ConnInfo{id: conn_info_id}} <-
+             create_conn_info(conn_info_params) |> IO.inspect(label: "conn"),
            {:ok, %DataSource{} = data_source} <-
              DataSource.create(%{
                org_id: org_id,

@@ -33,6 +33,7 @@ defmodule Carrier.Secrets.ConnInfo.Info do
       :postgres -> ConnInfo.Postgres
       :mysql -> ConnInfo.MySQL
       :bigquery -> ConnInfo.BigQuery
+      :athena -> ConnInfo.Athena
       :slack -> ConnInfo.Slack
     end
   end

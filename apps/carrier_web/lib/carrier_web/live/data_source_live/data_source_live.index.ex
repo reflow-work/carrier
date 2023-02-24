@@ -24,6 +24,7 @@ defmodule CarrierWeb.DataSourceLive.Index do
       :postgres -> "PostgreSQL"
       :mysql -> "MySQL"
       :bigquery -> "Google BigQuery"
+      :athena -> "AWS Athena"
     end
   end
 end

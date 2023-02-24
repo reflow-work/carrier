@@ -71,7 +71,7 @@
 
           <%= if @step == "step-1" do %>
             <div class="mt-10 space-y-4">
-              <%= for {source, source_name, image_filename} <- [{:mysql, "MySQL", "logo-mysql.png"}, {:postgres, "PostgreSQL", "logo-postgresql.png"}, {:bigquery, "BigQuery", "logo-bigquery.png"}] do %>
+              <%= for {source, source_name, image_filename} <- [{:mysql, "MySQL", "logo-mysql.png"}, {:postgres, "PostgreSQL", "logo-postgresql.png"}, {:bigquery, "BigQuery", "logo-bigquery.png"}, {:athena, "Athena", ""}] do %>
                 <div
                   phx-click="select_source"
                   phx-value-source={source}
@@ -85,7 +85,7 @@
                 >
                   <div class="flex items-center">
                     <%= img_tag(Routes.static_path(@socket, "/images/#{image_filename}"), class: "w-6 mr-4") %> <%= source_name %>
-                  </div> 
+                  </div>
                   <Icon.arrow_right class="w-4" />
                 </div>
               <% end %>
@@ -288,6 +288,90 @@
                       disabled: !@changeset.valid?,
                       phx_disable_with: "연결중"
                     ) %>
+                  </.form>
+                <% :athena -> %>
+                  <.form
+                    :let={f}
+                    for={@changeset}
+                    as={:data_source}
+                    phx-change="validate_data_source"
+                    phx-submit="create_data_source"
+                    class="space-y-2"
+                    autocomplete="off"
+                  >
+                    <div>
+                      <label class="label">
+                        <span class="label-text text-gray-500">데이터 소스 이름</span>
+                      </label>
+                      <%= text_input(f, :name,
+                        class: "data-source-input",
+                        placeholder: "데이터 마트"
+                      ) %>
+                      <%= error_tag(f, :name) %>
+                    </div>
+
+                    <%= inputs_for f, :conn_info, fn fci -> %>
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Access Key ID</span>
+                        </label>
+                        <%= text_input(fci, :access_key_id, class: "data-source-input") %>
+                        <%= error_tag(fci, :access_key_id) %>
+                      </div>
+
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Secret Access Key</span>
+                        </label>
+                        <%= password_input(fci, :secret_access_key,
+                          class: "data-source-input",
+                          value: input_value(fci, :secret_access_key)
+                        ) %>
+                        <%= error_tag(fci, :secret_access_key) %>
+                      </div>
+
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Region</span>
+                        </label>
+                        <%= text_input(fci, :region,
+                          class: "data-source-input",
+                          placeholder: "ap-northeast-2"
+                        ) %>
+                        <%= error_tag(fci, :region) %>
+                      </div>
+
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Workgroup</span>
+                        </label>
+                        <%= text_input(fci, :workgroup,
+                          class: "data-source-input",
+                          placeholder: "primary"
+                        ) %>
+                        <%= error_tag(fci, :workgroup) %>
+                      </div>
+
+                      <div>
+                        <label class="label mt-2">
+                          <span class="label-text text-gray-500">Database</span>
+                        </label>
+                        <%= text_input(fci, :database, class: "data-source-input") %>
+                        <%= error_tag(fci, :database) %>
+                      </div>
+                    <% end %>
+
+                    <%= if @error do %>
+                      <%= error_tag(@error) %>
+                    <% end %>
+
+                    <div class="flex pt-4">
+                      <%= submit("연결하기",
+                        class: "btn btn-primary",
+                        disabled: !@changeset.valid?,
+                        phx_disable_with: "연결중"
+                      ) %>
+                    </div>
                   </.form>
               <% end %>
             </div>

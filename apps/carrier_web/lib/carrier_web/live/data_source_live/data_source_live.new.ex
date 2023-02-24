@@ -1,10 +1,9 @@
 defmodule CarrierWeb.DataSourceLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
+  use Carrier.Secrets
   alias CarrierWeb.Components.Icon
   alias CarrierWeb.DataSourceLive.ConnInfoParams
-  alias Carrier.Secrets
-  alias Carrier.Secrets.DataSource
 
   @impl true
   def mount(_params, _session, socket) do
@@ -58,6 +57,9 @@ defmodule CarrierWeb.DataSourceLive.New do
 
         :bigquery ->
           ConnInfoParams.BigQuery
+
+        :athena ->
+          ConnInfoParams.Athena
       end
 
     socket =
@@ -127,7 +129,9 @@ defmodule CarrierWeb.DataSourceLive.New do
   end
 
   defp create_data_source(socket, params) do
-    case do_create_data_source(params) do
+    IO.inspect("wow")
+
+    case do_create_data_source(params) |> IO.inspect(label: "what") do
       {:ok, %DataSource{}} ->
         socket
         |> push_navigate(to: Routes.report_new_path(socket, :new))

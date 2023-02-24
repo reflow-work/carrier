@@ -7,6 +7,7 @@ defmodule Carrier.Data.Source do
       :postgres -> Source.Postgres
       :mysql -> Source.MySQL
       :bigquery -> Source.BigQuery
+      :athena -> Source.Athena
     end
   end
 
