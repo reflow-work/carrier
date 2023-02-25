@@ -71,19 +71,22 @@
 
           <%= if @step == "step-1" do %>
             <div class="mt-10 space-y-4">
-              <%= for {source, source_name} <- [{:mysql, "MySQL"}, {:postgres, "PostgreSQL"}, {:bigquery, "BigQuery"}] do %>
+              <%= for {source, source_name, image_filename} <- [{:mysql, "MySQL", "logo-mysql.png"}, {:postgres, "PostgreSQL", "logo-postgresql.png"}, {:bigquery, "BigQuery", "logo-bigquery.png"}] do %>
                 <div
                   phx-click="select_source"
                   phx-value-source={source}
                   class={
-                    "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex justify-between #{if @source == source do
+                    "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex items-center justify-between #{if @source == source do
                       "bg-black text-white"
                     else
                       "bg-white text-black"
                     end}"
                   }
                 >
-                  <%= source_name %> <Icon.arrow_right class="w-4" />
+                  <div class="flex items-center">
+                    <%= img_tag(Routes.static_path(@socket, "/images/#{image_filename}"), class: "w-6 mr-4") %> <%= source_name %>
+                  </div> 
+                  <Icon.arrow_right class="w-4" />
                 </div>
               <% end %>
             </div>
