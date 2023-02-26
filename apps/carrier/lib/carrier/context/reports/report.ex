@@ -1,6 +1,6 @@
 defmodule Carrier.Reports.Report do
   use Carrier.Schema
-  alias Carrier.Reports.{ReportInfo, IntegrationInfo, DataSourceInfo}
+  alias Carrier.Reports.{ReportInfo, ReportOption, IntegrationInfo, DataSourceInfo}
 
   schema "reports" do
     belongs_to :report_info, ReportInfo
@@ -10,6 +10,7 @@ defmodule Carrier.Reports.Report do
     field :name, :string
     field :trigger_time, :time
 
+    embeds_one :report_option, ReportOption, on_replace: :delete
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
 
@@ -23,6 +24,10 @@ defmodule Carrier.Reports.Report do
     struct
     |> cast(attrs, @required_for_create)
     |> validate_required(@required_for_create)
+    |> cast_embed(:report_option,
+      required: true,
+      with: &ReportOption.changeset_for_create/2
+    )
     |> cast_embed(:integration_info,
       required: true,
       with: &IntegrationInfo.changeset_for_create/2
@@ -56,6 +61,9 @@ defmodule Carrier.Reports.Report do
       user_id: user_id,
       name: name,
       trigger_time: trigger_time,
+      report_option: %{
+        elements: [:chart]
+      },
       integration_info: integration_info,
       data_source_info: data_source_info
     })
