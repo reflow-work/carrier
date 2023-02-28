@@ -1,6 +1,7 @@
 defmodule Carrier.Secrets.ConnInfo.Slack do
   use Carrier.Secrets.ConnInfo.Info
 
+  @primary_key false
   embedded_schema do
     field :team_name, :string
     field :team_id, :string

@@ -1,6 +1,7 @@
 defmodule Carrier.Secrets.ConnInfo.MySQL do
   use Carrier.Secrets.ConnInfo.Info
 
+  @primary_key false
   embedded_schema do
     field :hostname, :string
     field :port, :integer, default: 3306

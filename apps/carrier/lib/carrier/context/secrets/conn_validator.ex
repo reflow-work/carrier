@@ -11,7 +11,8 @@ defmodule Carrier.Secrets.ConnValidator do
 
   def do_validate(source, credentials, opts \\ [])
 
-  def do_validate(source, credentials, opts) when source in [:mysql, :postgres, :bigquery] do
+  def do_validate(source, credentials, opts)
+      when source in [:mysql, :postgres, :bigquery, :athena] do
     query = Source.get_module(source).validation_query()
 
     case Source.run_query(source, credentials, query, [], opts) do

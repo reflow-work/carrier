@@ -1,10 +1,10 @@
 defmodule CarrierWeb.DataSourceLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
+  use Carrier.Secrets
+  use Carrier.Setting
   alias CarrierWeb.Components.Icon
   alias CarrierWeb.DataSourceLive.ConnInfoParams
-  alias Carrier.Secrets
-  alias Carrier.Secrets.DataSource
 
   @impl true
   def mount(_params, _session, socket) do
@@ -58,6 +58,9 @@ defmodule CarrierWeb.DataSourceLive.New do
 
         :bigquery ->
           ConnInfoParams.BigQuery
+
+        :athena ->
+          ConnInfoParams.Athena
       end
 
     socket =
@@ -127,7 +130,9 @@ defmodule CarrierWeb.DataSourceLive.New do
   end
 
   defp create_data_source(socket, params) do
-    case do_create_data_source(params) do
+    IO.inspect("wow")
+
+    case do_create_data_source(params) |> IO.inspect(label: "what") do
       {:ok, %DataSource{}} ->
         socket
         |> push_navigate(to: Routes.report_new_path(socket, :new))
@@ -169,5 +174,20 @@ defmodule CarrierWeb.DataSourceLive.New do
     _changeset =
       data_source_module.changeset(params)
       |> Params.set_action(:validate)
+  end
+
+  defp data_sources() do
+    [
+      {:mysql, "MySQL", "logo-mysql.png"},
+      {:postgres, "PostgreSQL", "logo-postgresql.png"},
+      {:bigquery, "BigQuery", "logo-bigquery.png"},
+      {:athena, "Athena", "logo-athena.png"}
+    ]
+    |> then(fn data_sources ->
+      case Setting.get_feature_flag_value("data_source_athena") do
+        true -> data_sources
+        false -> Enum.reject(data_sources, fn {source, _, _} -> source == :athena end)
+      end
+    end)
   end
 end
