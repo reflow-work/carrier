@@ -61,7 +61,8 @@ defmodule Carrier.MixProject do
       {:ex_cldr_dates_times, "~> 2.0"},
       {:hashids, "~> 2.0"},
       {:goth, "~> 1.3.0"},
-      {:req, "~> 0.3"},
+      # TODO: https://github.com/livebook-dev/req_athena/issues/30
+      {:req, "<= 0.3.1"},
       {:req_bigquery, "~> 0.1.0"},
       {:req_athena, "~> 0.1.2"},
       {:nebulex, "~> 2.4"},
