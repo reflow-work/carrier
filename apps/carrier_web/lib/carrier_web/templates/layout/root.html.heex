@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <%= csrf_meta_tag() %>
-    <%= live_title_tag(assigns[:page_title] || "reflow", suffix: " - 데이터 보는 습관을 만드는 가장 쉬운 툴") %>
+    <.live_title suffix=" - 데이터 보는 습관을 만드는 가장 쉬운 툴">
+      <%= assigns[:page_title] || "reflow" %>
+    </.live_title>
     <meta
       property="og:title"
       content="reflow - 데이터 보는 습관을 만드는 가장 쉬운 툴"
