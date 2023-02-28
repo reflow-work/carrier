@@ -100,4 +100,6 @@ defmodule CarrierWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
+
+  forward "/", CarrierWeb.FallbackPlug
 end
