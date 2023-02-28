@@ -181,7 +181,7 @@ defmodule CarrierWeb.DataSourceLive.New do
       {:mysql, "MySQL", "logo-mysql.png"},
       {:postgres, "PostgreSQL", "logo-postgresql.png"},
       {:bigquery, "BigQuery", "logo-bigquery.png"},
-      {:athena, "Athena", ""}
+      {:athena, "Athena", "logo-athena.png"}
     ]
     |> then(fn data_sources ->
       case Setting.get_feature_flag_value("data_source_athena") do
