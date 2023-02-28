@@ -10,7 +10,7 @@ defmodule CarrierWeb.HomeLive do
       |> assign(:report_log_count, nil)
       |> load_report_log_count()
 
-    {:ok, socket, layout: {CarrierWeb.LayoutView, "landing.html"}}
+    {:ok, socket, layout: {CarrierWeb.LayoutView, :landing}}
   end
 
   @impl true
