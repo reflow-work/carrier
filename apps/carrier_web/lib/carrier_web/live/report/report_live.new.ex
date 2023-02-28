@@ -68,7 +68,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:is_loading_slack_channels, false)
       |> assign(:report_name, "")
       |> assign(:period, 28)
-      |> assign(:window_size, 7)
+      |> assign(:window_size, 1)
       |> assign(:comparing_period, 28)
       |> reset_assigns()
 
