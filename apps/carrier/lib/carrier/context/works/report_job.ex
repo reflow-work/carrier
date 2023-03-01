@@ -5,7 +5,6 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.Data.QueryData
   alias Carrier.Secrets
   alias Carrier.Secrets.Integration
-  alias Carrier.Noti
   alias Carrier.TenantRepo
   alias Carrier.External.Slack
   alias Carrier.Core.Traversable
