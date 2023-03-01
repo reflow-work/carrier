@@ -3,8 +3,8 @@ defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb.Params
   use Carrier.Reports
   alias Carrier.Data.QueryData
-  alias Carrier.Noti
   alias Carrier.External.Slack
+  alias Carrier.External.SlackBlock
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
@@ -566,9 +566,13 @@ defmodule CarrierWeb.ReportLive.New do
       with {:ok, _} <-
              Slack.build_post_message_args(data, img_urls)
              |> Enum.map(fn slack_arg ->
-               Noti.send_report_to_slack(
+               blocks = [
+                 SlackBlock.build_image(slack_arg.img_url, slack_arg.title, slack_arg.title)
+               ]
+
+               Slack.post_message(
                  channel_id,
-                 slack_arg,
+                 blocks,
                  socket.assigns.integration.conn_info.info["bot_token"]
                )
              end)
