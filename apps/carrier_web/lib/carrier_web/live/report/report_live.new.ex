@@ -70,6 +70,8 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:period, 28)
       |> assign(:window_size, 7)
       |> assign(:comparing_period, 28)
+      |> assign(:table_header, [])
+      |> assign(:table_rows, [])
       |> reset_assigns()
 
     {:ok, socket}
@@ -319,7 +321,19 @@ defmodule CarrierWeb.ReportLive.New do
             socket.assigns.window_size
           )
 
+        sorted_data = data |> Enum.reverse() |> Enum.take(socket.assigns.period)
+
+        rows =
+          sorted_data
+          |> Enum.map(fn datum ->
+            for column <- columns do
+              datum[column]
+            end
+          end)
+
         socket
+        |> assign(:table_header, columns)
+        |> assign(:table_rows, rows)
         |> assign(:query_result, %{columns: columns, data: data})
         |> assign(:query_maker_button_font_size, 14)
         |> assign(:data_loaded, true)
@@ -328,6 +342,7 @@ defmodule CarrierWeb.ReportLive.New do
         |> assign(:query_result_by_columns, parsed_data)
         |> assign(:columns, value_columns)
         |> assign(:selected_columns, value_columns)
+        |> assign(:selected_elements, [:table, :chart])
         |> add_draw_chart_events(parsed_data, value_columns)
         |> update(
           :report_changeset,
@@ -434,6 +449,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_name, report_inputs["name"])
       |> assign(:hour, report_inputs["hour"])
       |> assign(:selected_columns, report_params.data_source_info.columns)
+      |> assign(:selected_elements, report_params.report_option.elements)
       |> add_draw_chart_events(
         socket.assigns.query_result_by_columns,
         report_params.data_source_info.columns
@@ -777,10 +793,14 @@ defmodule CarrierWeb.ReportLive.New do
 
   defp validate_report_changeset(socket, report_inputs) do
     report_inputs =
-      %{"data_source_info" => %{"columns" => []}}
+      %{"report_option" => %{"elements" => []}, "data_source_info" => %{"columns" => []}}
       |> MapHelper.deep_merge(report_inputs)
 
-    %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} = report_inputs
+    %{
+      "hour" => hour_str,
+      "report_option" => %{"elements" => elements},
+      "integration_info" => %{"channel_id" => channel_id}
+    } = report_inputs
 
     trigger_time =
       TimeHelper.from!(hour: hour_str |> String.to_integer())
@@ -793,10 +813,15 @@ defmodule CarrierWeb.ReportLive.New do
         _ -> nil
       end)
 
+    enumed_elements = elements |> Enum.map(&String.to_existing_atom/1)
+
     attrs =
       report_inputs
       |> MapHelper.deep_merge(%{
         "trigger_time" => trigger_time,
+        "report_option" => %{
+          "elements" => enumed_elements
+        },
         "integration_info" => %{
           "channel_name" => channel_name,
           "channel_id" => channel_id
@@ -810,5 +835,9 @@ defmodule CarrierWeb.ReportLive.New do
 
   defp is_valid_sql_template(query_validations) do
     query_validations |> Map.values() |> Enum.all?()
+  end
+
+  defp render_text_table(rows, header) do
+    TableRex.quick_render!(rows, header)
   end
 end

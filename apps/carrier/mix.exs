@@ -65,7 +65,8 @@ defmodule Carrier.MixProject do
       {:req_bigquery, "~> 0.1.0"},
       {:nebulex, "~> 2.4"},
       {:shards, "~> 1.1"},
-      {:decorator, "~> 1.4"}
+      {:decorator, "~> 1.4"},
+      {:table_rex, "~> 3.1.1"}
     ]
   end
 

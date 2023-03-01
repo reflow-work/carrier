@@ -133,22 +133,23 @@
               <div class="card-body">
                 <section>
                   <h2 class="card-title">레포트 설정</h2>
-                  <%!-- <section>
-                    <h3 class="font-bold mt-6">레포트 옵션</h3>
+                  <section>
+                    <h3 class="font-bold mt-6">레포트에 들어갈 항목</h3>
                     <%= if @data_loaded do %>
                       <div class="flex flex-col gap-y-3 mt-2">
-                        <div class="flex gap-x-2 items-center">
-                          <input type="checkbox" value="chart" />
-                          <label>텍스트</label>
-                        </div>
-                        <div class="flex gap-x-2 items-center">
-                          <input type="checkbox" value="chart" />
-                          <label>테이블</label>
-                        </div>
-                        <div class="flex gap-x-2 items-center">
-                          <input type="checkbox" value="chart" />
-                          <label>차트</label>
-                        </div>
+                        <%= inputs_for f, :report_option, fn fro -> %>
+                          <%= for elements_option <- ReportOption.list_elements_options() do %>
+                            <div class="flex gap-x-2 items-center">
+                              <input
+                                type="checkbox"
+                                name="report[report_option][elements][]"
+                                value={elements_option}
+                                checked={elements_option in @selected_elements}
+                              />
+                              <%= label(fro, :elements, elements_option) %>
+                            </div>
+                          <% end %>
+                        <% end %>
                       </div>
                     <% else %>
                       <div class="pt-6">
@@ -158,7 +159,7 @@
                         />
                       </div>
                     <% end %>
-                  </section> --%>
+                  </section>
                   <section>
                     <h3 class="font-bold mt-6">레포트를 발송할 지표</h3>
                     <%= if @data_loaded do %>
@@ -240,71 +241,69 @@
                 <h2 class="card-title">슬랙 미리보기</h2>
                 <%= if @data_loaded do %>
                   <div class="flex flex-col gap-y-6 mt-4">
-                    <%!-- <div>
-                      <pre class="font-mono border text-sm border-slack-code-border bg-slack-code-bg p-4 rounded-md max-w-xl">
-날짜            신규 유저수       매출            결제수
-------------   ------------   ------------   ------------
-2023.03.19     320            7800000        2012
-2023.03.20     331            9110000        2221
-2023.03.21     340            3320000        1231
-2023.03.22     504            4500000        1605
-2023.03.23     640            99400000       3402</pre>
-                    </div> --%>
-                    <%= for column <- @selected_columns do %>
-                      <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @selected_columns, do: "hidden"}"}>
-                        <h3 class="font-bold text-base-dark">
-                          📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
-                        </h3>
-                        <div class="grid grid-cols-2 py-6 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
-                          <section>
-                            <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
-                            <p class="text-2xl font-bold mt-2">
-                              <%= format_number(
-                                @query_result_by_columns[column].meta.current_period_last_tick_raw
-                              ) %>
-                            </p>
-                            <div class="flex space-x-2 mt-1">
-                              <SlackImgMetaData.card
-                                diff_value_raw={
-                                  @query_result_by_columns[column].meta.diff_between_period_raws
-                                }
-                                diff_value_percentage={
-                                  @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
-                                }
-                              />
-                            </div>
-                          </section>
-                          <section class="pl-5">
-                            <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
-                            <p class="text-2xl font-bold mt-2">
-                              <%= format_number(
-                                @query_result_by_columns[column].meta.current_period_sum
-                              ) %>
-                            </p>
-                            <div class="flex space-x-2 mt-1">
-                              <SlackImgMetaData.card
-                                diff_value_raw={
-                                  @query_result_by_columns[column].meta.diff_between_period_sums
-                                }
-                                diff_value_percentage={
-                                  @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
-                                }
-                              />
-                            </div>
-                          </section>
-                        </div>
-                        <section
-                          id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
-                          phx-update="ignore"
-                        >
-                          <canvas
-                            id={"chart-#{@query_result_by_columns[column].meta.label}"}
-                            class="rounded-lg shadow-slackImgSection"
-                            phx-hook="Chart"
+                    <%= if :table in @selected_elements do %>
+                      <div>
+                        <pre class="font-mono border text-sm border-slack-code-border bg-slack-code-bg p-4 rounded-md max-w-xl">
+<%= render_text_table(@table_rows, @table_header) %></pre>
+                      </div>
+                    <% end %>
+                    <%= if :chart in @selected_elements do %>
+                      <%= for column <- @selected_columns do %>
+                        <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @selected_columns, do: "hidden"}"}>
+                          <h3 class="font-bold text-base-dark">
+                            📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
+                          </h3>
+                          <div class="grid grid-cols-2 py-6 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                            <section>
+                              <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
+                              <p class="text-2xl font-bold mt-2">
+                                <%= format_number(
+                                  @query_result_by_columns[column].meta.current_period_last_tick_raw
+                                ) %>
+                              </p>
+                              <div class="flex space-x-2 mt-1">
+                                <SlackImgMetaData.card
+                                  diff_value_raw={
+                                    @query_result_by_columns[column].meta.diff_between_period_raws
+                                  }
+                                  diff_value_percentage={
+                                    @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                                  }
+                                />
+                              </div>
+                            </section>
+                            <section class="pl-5">
+                              <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
+                              <p class="text-2xl font-bold mt-2">
+                                <%= format_number(
+                                  @query_result_by_columns[column].meta.current_period_sum
+                                ) %>
+                              </p>
+                              <div class="flex space-x-2 mt-1">
+                                <SlackImgMetaData.card
+                                  diff_value_raw={
+                                    @query_result_by_columns[column].meta.diff_between_period_sums
+                                  }
+                                  diff_value_percentage={
+                                    @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                                  }
+                                />
+                              </div>
+                            </section>
+                          </div>
+                          <section
+                            id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
+                            phx-update="ignore"
                           >
-                          </canvas>
+                            <canvas
+                              id={"chart-#{@query_result_by_columns[column].meta.label}"}
+                              class="rounded-lg shadow-slackImgSection"
+                              phx-hook="Chart"
+                            >
+                            </canvas>
+                          </section>
                         </section>
-                      </section>
+                      <% end %>
                     <% end %>
                   </div>
                 <% else %>

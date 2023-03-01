@@ -9,6 +9,10 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     field :hour, :string
     field :trigger_time, :time
 
+    embeds_one :report_option, ReportOption, on_replace: :delete do
+      field :elements, {:array, Ecto.Enum}, values: [:table, :chart], default: [:table, :chart]
+    end
+
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete do
       field :integration_id, :integer
       field :channel_id, :string
@@ -31,12 +35,20 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     struct
     |> cast(attrs, @required)
     |> validate_required(@required)
+    |> cast_embed(:report_option, required: true, with: &changeset_report_option/2)
     |> cast_embed(:integration_info, required: true, with: &changeset_interation_info/2)
     |> cast_embed(:data_source_info, required: true, with: &changeset_data_source_info/2)
   end
 
   def init_attrs(attrs \\ %{}) do
     attrs
+  end
+
+  @required_report_option [:elements]
+  defp changeset_report_option(%__MODULE__.ReportOption{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_report_option)
+    |> validate_required(@required_report_option)
   end
 
   @required_integration_info [:integration_id, :channel_id, :channel_name]
