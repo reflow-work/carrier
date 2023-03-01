@@ -117,8 +117,20 @@ defmodule Carrier.Works.ReportJob do
       with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
            {:ok, send_result} <-
              slack_args
-             |> Enum.map(
-               &Noti.send_report_to_slack(channel_id, &1, integration.conn_info.info["bot_token"])
+             |> Enum.map(fn x ->
+               image_url = x.img_url
+               image_title = x.title
+
+               blocks = [
+                 SlackBlock.build_image(image_url, image_title, image_title)
+               ]
+
+               Slack.post_message(
+                 channel_id,
+                 blocks,
+                 integration.conn_info.info["bot_token"]
+               )
+             end
              )
              |> Traversable.traverse(),
            {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}) do
