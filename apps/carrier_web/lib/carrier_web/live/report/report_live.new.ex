@@ -564,7 +564,14 @@ defmodule CarrierWeb.ReportLive.New do
         })
 
       with {:ok, _} <-
-             Slack.build_post_message_args(data, img_urls)
+             data
+             |> Map.to_list()
+             |> Enum.map(fn {k, v} ->
+               %{
+                 title: v.meta.label,
+                 img_url: Map.get(img_urls, k)
+               }
+             end)
              |> Enum.map(fn slack_arg ->
                blocks = [
                  SlackBlock.build_image(slack_arg.img_url, slack_arg.title, slack_arg.title)
