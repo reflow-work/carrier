@@ -1,5 +1,6 @@
 defmodule Carrier.Noti do
   alias Carrier.External.Slack
+  alias Carrier.External.SlackBlock
 
   def send_report_to_slack(channel, args, token) do
     blocks = args |> report_to_slack_block()
@@ -11,10 +12,8 @@ defmodule Carrier.Noti do
          title: title,
          img_url: img_url
        }) do
-    img_url = img_url |> URI.encode()
-
     [
-      %{"alt_text" => "chart-#{title}", "image_url" => img_url, "type" => "image"}
+      SlackBlock.build_image(img_url, title, title)
     ]
   end
 end

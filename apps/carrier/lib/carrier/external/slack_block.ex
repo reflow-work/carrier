@@ -1,0 +1,16 @@
+defmodule Carrier.External.SlackBlock do
+  def build_image(url, title, alt_text) do
+    image_url = url |> URI.encode()
+
+    %{
+      "type" => "image",
+      "title" => %{
+        "type" => "plain_text",
+        "text" => title,
+        "emoji" => false
+      },
+      "image_url" => image_url,
+      "alt_text" => alt_text
+    }
+  end
+end
