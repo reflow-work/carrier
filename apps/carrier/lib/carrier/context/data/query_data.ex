@@ -15,12 +15,17 @@ defmodule Carrier.Data.QueryData do
           data_source_id: data_source_id,
           sql_template: sql_template,
           datetime: utc_datetime,
+          timezone: timezone,
           query_date_length: query_date_length
         } = params
       ) do
     TenantRepo.put_org_id(org_id)
 
-    query_end_date = utc_datetime |> DateTime.to_date()
+    query_end_date =
+      utc_datetime
+      |> DateTime.shift_zone!(timezone)
+      |> DateTime.to_date()
+
     query_start_date = query_end_date |> Date.add(-query_date_length)
 
     query_params = %{"start" => query_start_date, "end" => query_end_date}

@@ -109,6 +109,7 @@ defmodule CarrierWeb.ReportLive.New do
                    data_source_id: report.data_source_info.data_source_id,
                    sql_template: report.data_source_info.sql_template,
                    datetime: DateTime.utc_now(),
+                   timezone: socket.assigns.timezone,
                    query_date_length: @query_date_length
                  }),
                {:ok, analyzed_data} <-
@@ -299,6 +300,7 @@ defmodule CarrierWeb.ReportLive.New do
                data_source_id: socket.assigns.data_source.id,
                sql_template: sql_template,
                datetime: DateTime.utc_now(),
+               timezone: socket.assigns.timezone,
                query_date_length: @query_date_length
              }),
            {:ok, analyzed_data} <-
