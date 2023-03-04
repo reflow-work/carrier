@@ -30,6 +30,16 @@ defmodule Carrier.Data.Source.Athena do
            request_query(credential, sql, sql_params) do
       {:ok, result}
     else
+      {:ok,
+       %Req.Response{
+         body: %{
+           "QueryExecution" => %{"Status" => %{"AthenaError" => %{"ErrorMessage" => message}}}
+         }
+       }} ->
+        Logger.error(inspect(message))
+
+        {:error, {:query_error, message}}
+
       {:ok, %Req.Response{body: %{"error" => %{"message" => message}}}} ->
         Logger.error(inspect(message))
 
