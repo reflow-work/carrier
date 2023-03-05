@@ -6,31 +6,29 @@
   </header>
 
   <section class="mt-6 space-y-6">
-    <%= if Carrier.Setting.get_feature_flag_value("multi_data_source") do %>
-      <section class="card">
-        <div class="card-body">
+    <section class="card">
+      <div class="card-body">
+        <div>
+          <h2 class="card-title mb-3">데이터 소스 선택하기</h2>
           <div>
-            <h2 class="card-title mb-3">데이터 소스 선택하기</h2>
-            <div>
-              데이터를 불러올 데이터 소스를 선택해주세요.
-            </div>
+            데이터를 불러올 데이터 소스를 선택해주세요.
           </div>
-
-          <.form :let={f} for={:data_source} phx-change="select_data_source">
-            <div class="flex items-center gap-x-2 mt-4">
-              <%= label(f, :id, "데이터 소스 이름", class: "label w-28 text-gray-500 text-sm") %>
-              <%= select(
-                f,
-                :id,
-                @data_source_options,
-                class: "select select-bordered w-64",
-                selected: @data_source |> Nillable.map(& &1.id)
-              ) %>
-            </div>
-          </.form>
         </div>
-      </section>
-    <% end %>
+
+        <.form :let={f} for={:data_source} phx-change="select_data_source">
+          <div class="flex items-center gap-x-2 mt-4">
+            <%= label(f, :id, "데이터 소스 이름", class: "label w-28 text-gray-500 text-sm") %>
+            <%= select(
+              f,
+              :id,
+              @data_source_options,
+              class: "select select-bordered w-64",
+              selected: @data_source |> Nillable.map(& &1.id)
+            ) %>
+          </div>
+        </.form>
+      </div>
+    </section>
     <section class="card">
       <div class="card-body">
         <div class="flex justify-between">
