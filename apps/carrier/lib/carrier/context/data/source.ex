@@ -1,4 +1,5 @@
 defmodule Carrier.Data.Source do
+  require Logger
   alias Carrier.Data.Source
   alias Carrier.Core.DataHelper
 
@@ -22,6 +23,8 @@ defmodule Carrier.Data.Source do
       {:ok, %{columns: columns, data: data}}
     else
       {:error, reason} ->
+        Logger.error("Failed to run query: #{inspect(reason)}")
+
         {:error, reason}
     end
   end
