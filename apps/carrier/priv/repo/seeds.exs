@@ -196,4 +196,7 @@ Repo.transaction(fn ->
   {:ok, _} = Reports.create_job_from_report(report1, DateTime.utc_now(), %{repo: Repo})
 
   {1, _} = Repo.insert_all(FeatureFlag, [%{key: "test", description: "for testing"}])
+
+  {1, _} =
+    Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
 end)
