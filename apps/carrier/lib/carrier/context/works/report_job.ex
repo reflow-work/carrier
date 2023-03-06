@@ -61,7 +61,7 @@ defmodule Carrier.Works.ReportJob do
            data_source_info: %{
              data_source_id: data_source_id,
              sql_template: sql_template,
-             timezone: _timezone,
+             timezone: timezone,
              period: period,
              window_size: window_size,
              comparing_period: comparing_period,
@@ -76,6 +76,7 @@ defmodule Carrier.Works.ReportJob do
              data_source_id: data_source_id,
              sql_template: sql_template,
              datetime: datetime,
+             timezone: timezone,
              query_date_length: @query_date_length
            }),
          {:ok, analyzed_data} <-
