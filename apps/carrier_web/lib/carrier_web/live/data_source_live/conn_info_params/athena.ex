@@ -7,7 +7,7 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.Athena do
     field :name, :string
     field :source, Ecto.Enum, values: [:athena], default: :athena
 
-    embeds_one :conn_info, ConnInfo do
+    embeds_one :conn_info, ConnInfo, primary_key: false do
       field :access_key_id, :string
       field :secret_access_key, :string
       field :region, :string

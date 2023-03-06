@@ -35,6 +35,7 @@ defmodule Carrier.Secrets.ConnInfo.Info do
       :bigquery -> ConnInfo.BigQuery
       :athena -> ConnInfo.Athena
       :slack -> ConnInfo.Slack
+      :tableau -> ConnInfo.Tableau
     end
   end
 end

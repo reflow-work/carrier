@@ -7,7 +7,7 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.MySQL do
     field :name, :string
     field :source, Ecto.Enum, values: [:mysql], default: :mysql
 
-    embeds_one :conn_info, ConnInfo do
+    embeds_one :conn_info, ConnInfo, primary_key: false do
       field :hostname, :string
       field :port, :integer
       field :database, :string
