@@ -191,5 +191,11 @@ defmodule CarrierWeb.DataSourceLive.New do
         false -> Enum.reject(data_sources, fn {source, _, _} -> source == :athena end)
       end
     end)
+    |> then(fn data_sources ->
+      case Setting.get_feature_flag_value("data_source_tableau") do
+        true -> data_sources
+        false -> Enum.reject(data_sources, fn {source, _, _} -> source == :tableau end)
+      end
+    end)
   end
 end
