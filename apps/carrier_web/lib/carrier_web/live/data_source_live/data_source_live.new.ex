@@ -130,9 +130,7 @@ defmodule CarrierWeb.DataSourceLive.New do
   end
 
   defp create_data_source(socket, params) do
-    IO.inspect("wow")
-
-    case do_create_data_source(params) |> IO.inspect(label: "what") do
+    case do_create_data_source(params) do
       {:ok, %DataSource{}} ->
         socket
         |> push_navigate(to: Routes.report_new_path(socket, :new))
