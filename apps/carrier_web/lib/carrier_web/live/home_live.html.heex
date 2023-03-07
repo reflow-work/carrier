@@ -19,7 +19,10 @@
 </section>
 
 <section class="landing-container section !px-24">
-  <div class="relative max-w-4xl mx-auto" style="padding-bottom: calc(66.66666666666666% + 41px); height: 0;">
+  <div
+    class="relative max-w-4xl mx-auto"
+    style="padding-bottom: calc(66.66666666666666% + 41px); height: 0;"
+  >
     <iframe
       src="https://demo.arcade.software/rcNgnDoQ5ukCtpb1DtYA?embed"
       frameborder="0"
@@ -127,41 +130,31 @@
   </div>
 </section>
 
-<section class="bg-landingBgGray">
-  <div class="landing-container grid grid-cols-12 gap-6 items-center section">
-    <div class="col-span-12 md:col-span-6 text-center md:text-left ">
-      <h1 class="h1">분석에 최적화된 레포트를<br />손쉽게 매일 받아보세요.</h1>
+<.feature image_url="/images/section-2.png" bg_color="bg-landingBgGray">
+  <div class="text-center md:text-left">
+    <h1 class="h1">분석에 최적화된 레포트를<br />손쉽게 매일 받아보세요.</h1>
 
-      <div class="!text-landingDescription section-description">
-        데이터 분석에 필수인 성장율, 7일 이동 합계 등의 값들을<br /> 쿼리로 직접 구현하는 건 매우 복잡합니다.<br />
-        reflow는 모든 값을 자동으로 계산하여 차트로 만들어줍니다.
-      </div>
+    <div class="!text-landingDescription section-description">
+      데이터 분석에 필수인 성장율, 7일 이동 합계 등의 값들을<br /> 쿼리로 직접 구현하는 건 매우 복잡합니다.<br />
+      reflow는 모든 값을 자동으로 계산하여 차트로 만들어줍니다.
+    </div>
 
-      <div class="section-quote-container">
-        <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-1.png"), width: "60px") %>
-        <div class="section-quote-text-container">
-          <div class="section-quote-text-comment">
-            매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br class="hidden md:block" /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
-          </div>
-          <div class="section-quote-text-description">
-            Data Analyst ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
-          </div>
+    <div class="section-quote-container">
+      <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-1.png"), width: "60px") %>
+      <div class="section-quote-text-container">
+        <div class="section-quote-text-comment">
+          매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br class="hidden md:block" /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
+        </div>
+        <div class="section-quote-text-description">
+          Data Analyst ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
         </div>
       </div>
     </div>
-
-    <div class="col-span-12 md:col-span-6">
-      <%= img_tag(Routes.static_path(@socket, "/images/section-2.png"), class: "w-full") %>
-    </div>
   </div>
-</section>
+</.feature>
 
-<section class="landing-container grid grid-cols-12 gap-6 section items-center">
-  <div class="col-span-12 md:col-span-6">
-    <%= img_tag(Routes.static_path(@socket, "/images/section-3.png"), class: "w-full") %>
-  </div>
-
-  <div class="col-span-12 md:col-span-6 text-center md:text-left">
+<.feature image_url="/images/section-3.png" image_position="left">
+  <div class="text-center md:text-left">
     <h1 class="h1">배치 작업, 쿼리, 시각화..<br /> 개발자 없이도<br /> 이 모든 걸 웹에서 손쉽게!</h1>
 
     <div class="!text-landingDescription section-description">
@@ -182,36 +175,30 @@
       </div>
     </div>
   </div>
-</section>
+</.feature>
 
-<section class="bg-landingBgGray">
-  <div class="landing-container grid grid-cols-12 gap-6 section items-center">
-    <div class="col-span-12 md:col-span-6 text-center md:text-left">
-      <h1 class="h1">쿼리 문법을 몰라도<br /> 쿼리 생성기를 통해<br /> 쉽게 레포트 생성</h1>
+<.feature image_url="/images/section-4.png" bg_color="bg-landingBgGray">
+  <div class="text-center md:text-left">
+    <h1 class="h1">쿼리 문법을 몰라도<br /> 쿼리 생성기를 통해<br /> 쉽게 레포트 생성</h1>
 
-      <div class="!text-landingDescription section-description">
-        쿼리 문법을 잘 몰라도 괜찮습니다.<br /> 간단한 쿼리 자동 생성 기능을 제공합니다.<br /> 클릭 몇 번으로 쿼리를 완성할 수 있습니다.
-      </div>
+    <div class="!text-landingDescription section-description">
+      쿼리 문법을 잘 몰라도 괜찮습니다.<br /> 간단한 쿼리 자동 생성 기능을 제공합니다.<br /> 클릭 몇 번으로 쿼리를 완성할 수 있습니다.
+    </div>
 
-      <div class="section-quote-container">
-        <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-3.png"), width: "60px") %>
-        <div class="section-quote-text-container">
-          <div class="section-quote-text-comment">
-            쿼리를 배우는 게 부담스러웠는데<br class="hidden md:block" />
-            reflow는 쿼리 생성기를 제공해주기 때문에<br class="hidden md:block" /> 설정 하자마자 레포트를 만들 수 있었습니다.
-          </div>
-          <div class="section-quote-text-description">
-            Marketer ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
-          </div>
+    <div class="section-quote-container">
+      <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-3.png"), width: "60px") %>
+      <div class="section-quote-text-container">
+        <div class="section-quote-text-comment">
+          쿼리를 배우는 게 부담스러웠는데<br class="hidden md:block" />
+          reflow는 쿼리 생성기를 제공해주기 때문에<br class="hidden md:block" /> 설정 하자마자 레포트를 만들 수 있었습니다.
+        </div>
+        <div class="section-quote-text-description">
+          Marketer ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
         </div>
       </div>
     </div>
-
-    <div class="col-span-12 md:col-span-6">
-      <%= img_tag(Routes.static_path(@socket, "/images/section-4.png"), class: "w-full") %>
-    </div>
   </div>
-</section>
+</.feature>
 
 <section class="landing-container ">
   <div class="bg-landingBgGray py-20 my-20 px-10 flex flex-col items-center rounded-lg text-center">

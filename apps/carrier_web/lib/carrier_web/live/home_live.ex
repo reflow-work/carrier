@@ -3,6 +3,8 @@ defmodule CarrierWeb.HomeLive do
   use Carrier.Reports
   alias Carrier.Core.DateHelper
 
+  import CarrierWeb.Components.Landing.Section, only: [feature: 1]
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
