@@ -4,7 +4,7 @@ defmodule CarrierWeb.ReportLive.New do
   use Carrier.Reports
   alias Carrier.Data.QueryData
   alias Carrier.External.Slack
-  alias Carrier.External.SlackBlock
+  alias Carrier.External.Slack.Block
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
@@ -571,8 +571,8 @@ defmodule CarrierWeb.ReportLive.New do
                image_url = Map.get(img_urls, k)
 
                blocks = [
-                 SlackBlock.build_text_block("*📊 #{current_datetime!(socket.assigns.timezone) |> DateHelper.safe_format_date()} - #{title}*"),
-                 SlackBlock.build_image_block(image_url, title, title)
+                 Block.build_text_block("*#{report_title(socket.assigns.timezone, title)}*"),
+                 Block.build_image_block(image_url, title, title)
                ]
 
                Slack.post_message(
@@ -821,5 +821,9 @@ defmodule CarrierWeb.ReportLive.New do
 
   defp is_valid_sql_template(query_validations) do
     query_validations |> Map.values() |> Enum.all?()
+  end
+
+  defp report_title(timezone, title) do
+    "📊 #{current_datetime!(timezone) |> DateHelper.safe_format_date()} - #{title}"
   end
 end

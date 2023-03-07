@@ -249,7 +249,7 @@
 2023.03.23     640            99400000       3402</pre>
                     </div> --%>
                     <%= for column <- @selected_columns do %>
-                      <div class="font-bold">📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %></div>
+                      <div class="font-bold"><%= report_title(@timezone, @query_result_by_columns[column].meta.label) %></div>
                       <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @selected_columns, do: "hidden"}"}>
                         <h3 class="font-bold text-base-dark">
                           📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
