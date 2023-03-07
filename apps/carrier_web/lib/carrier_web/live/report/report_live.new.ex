@@ -1,15 +1,16 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
-  use Carrier.Reports
+  use Carrier.{Reports, Secrets}
   alias Carrier.Data.QueryData
+  alias Carrier.Data.Source.Tableau
   alias Carrier.Noti
   alias Carrier.External.Slack
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
   alias CarrierWeb.Components.QueryChecker
-  alias CarrierWeb.ReportLive.New.ReportParams
+  alias CarrierWeb.ReportLive.New.{ReportParams, ReportTableau}
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -181,6 +182,21 @@ defmodule CarrierWeb.ReportLive.New do
           end
       end
 
+    socket =
+      case socket.assigns.data_source.source do
+        :tableau ->
+          credentials = ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+          {:ok, views} = Tableau.list_views(credentials)
+
+          socket
+          |> assign(:tableau_views, views)
+          |> assign(:tableau_view_search_term, "")
+          |> assign(:tableau_view_suggestions, [])
+
+        _ ->
+          socket
+      end
+
     {:noreply, socket}
   end
 
@@ -197,6 +213,75 @@ defmodule CarrierWeb.ReportLive.New do
       |> Enum.find(&(&1.id == data_source_id))
 
     socket = socket |> assign(:data_source, data_source) |> reset_assigns()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "search_tableau_view",
+        %{"tableau_view" => %{"tableau_view_search_term" => tableau_view_search_term}},
+        socket
+      ) do
+    tableau_view_suggestions =
+      case tableau_view_search_term |> String.trim() do
+        "" ->
+          []
+
+        tableau_view_search_term ->
+          socket.assigns.tableau_views
+          |> Enum.filter(&(&1.full_name =~ tableau_view_search_term))
+      end
+
+    socket =
+      socket
+      |> assign(:tableau_view_suggestions, tableau_view_suggestions)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "search_tableau_view",
+        %{"value" => tableau_view_search_term},
+        socket
+      ) do
+    tableau_view_suggestions =
+      case tableau_view_search_term |> String.trim() do
+        "" ->
+          []
+
+        tableau_view_search_term ->
+          socket.assigns.tableau_views
+          |> Enum.filter(&(&1.full_name =~ tableau_view_search_term))
+      end
+
+    socket =
+      socket
+      |> assign(:tableau_view_suggestions, tableau_view_suggestions)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("clear_tableau_view_suggestions", _, socket) do
+    socket =
+      socket
+      |> assign(:tableau_view_suggestions, [])
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select_tableau_view", %{"id" => id}, socket) do
+    selected_tableau_view =
+      socket.assigns.tableau_views
+      |> Enum.find(&(&1.id == id))
+
+    socket =
+      socket
+      |> assign(:tableau_view_search_term, selected_tableau_view.full_name)
+      |> assign(:tableau_view_suggestions, [])
 
     {:noreply, socket}
   end
@@ -519,6 +604,7 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_changeset, report_changeset)
       |> assign(:channel_id, channel_id)
       |> assign(:channel_search_term, channel_name)
+      |> assign(:channel_suggestions, [])
 
     {:noreply, socket}
   end
@@ -672,8 +758,15 @@ defmodule CarrierWeb.ReportLive.New do
       show_full_preview_data: false
     })
     |> assign(:query_result_by_columns, nil)
-    |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
+    |> assign(:report_changeset, report_changeset_by_data_source(socket.assigns.data_source))
     |> assign(:query_validations, %{contains_start: true, contains_end: true})
+  end
+
+  defp report_changeset_by_data_source(%DataSource{source: source}) do
+    case source do
+      :tableau -> ReportTableau.changeset(%{})
+      _ -> ReportParams.changeset(ReportParams.init_attrs())
+    end
   end
 
   defp load_columns(socket, table_name) do

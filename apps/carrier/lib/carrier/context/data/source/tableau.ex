@@ -26,5 +26,6 @@ defmodule Carrier.Data.Source.Tableau do
     end)
     |> Enum.to_list()
     |> List.flatten()
+    |> then(&{:ok, &1})
   end
 end

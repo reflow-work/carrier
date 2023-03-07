@@ -29,89 +29,136 @@
         </.form>
       </div>
     </section>
-    <section class="card">
-      <div class="card-body">
-        <div class="flex justify-between">
-          <div>
-            <h2 class="card-title mb-3">쿼리 입력하기</h2>
+    <%= if @data_source.source in [:postgres, :mysql, :bigquery, :athena] do %>
+      <section class="card">
+        <div class="card-body">
+          <div class="flex justify-between">
             <div>
-              ☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.
-            </div>
-          </div>
-
-          <%= if @data_source.source in [:postgres, :mysql] do %>
-            <label
-              for="query-maker"
-              class="btn btn-primary ml-2"
-              phx-click="open_query_maker"
-              style={"font-size:#{@query_maker_button_font_size}px;"}
-            >
-              <CarrierWeb.Components.Icon.package class="w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
-            </label>
-          <% end %>
-        </div>
-
-        <.form
-          :let={f}
-          for={:query}
-          phx-change="validate_query"
-          phx-submit="run_query"
-          autocomplete="off"
-        >
-          <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
-            <div class="sm:col-span-4">
-              <%= textarea(f, :sql_template,
-                class: "border rounded query w-full",
-                placeholder: @sample_sql_template,
-                value: @sql_template,
-                rows: 16
-              ) %>
-              <%= if @query_error_message do %>
-                <div class="text-red-500 text-sm mt-1">
-                  <%= @query_error_message %>
-                </div>
-              <% end %>
-            </div>
-            <section class="w-full px-2 sm:col-span-3 text-sm">
-              <QueryChecker.checker checked={@query_validations.contains_start}>
-                <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
-              </QueryChecker.checker>
-
-              <QueryChecker.checker class="mt-2" checked={@query_validations.contains_end}>
-                <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
-              </QueryChecker.checker>
-
-              <div class="bg-yellow-50 rounded p-3 mt-3">
-                <b>📌 Check point</b>
-
-                <p class="mt-2">
-                  - SELECT문의 첫 번째 컬럼에 <b>DATE 타입</b>의 기준이 되는 날짜 컬럼을 넣어주세요.
-                </p>
-
-                <p class="mt-2">
-                  - SELECT문의 두 번째 컬럼부터는 <b>지표 컬럼</b>을 넣어주세요.
-                </p>
-
-                <p class="mt-2">
-                  - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
-                </p>
-
-                <p class="mt-2">
-                  - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
-                </p>
+              <h2 class="card-title mb-3">쿼리 입력하기</h2>
+              <div>
+                ☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.
               </div>
-            </section>
+            </div>
+
+            <%= if @data_source.source in [:postgres, :mysql] do %>
+              <label
+                for="query-maker"
+                class="btn btn-primary ml-2"
+                phx-click="open_query_maker"
+                style={"font-size:#{@query_maker_button_font_size}px;"}
+              >
+                <CarrierWeb.Components.Icon.package class="w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
+              </label>
+            <% end %>
           </div>
-          <div class="text-right mt-2">
-            <%= submit("쿼리 실행",
-              class: "btn btn-primary",
-              disabled: !is_valid_sql_template(@query_validations)
-            ) %>
+
+          <.form
+            :let={f}
+            for={:query}
+            phx-change="validate_query"
+            phx-submit="run_query"
+            autocomplete="off"
+          >
+            <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
+              <div class="sm:col-span-4">
+                <%= textarea(f, :sql_template,
+                  class: "border rounded query w-full",
+                  placeholder: @sample_sql_template,
+                  value: @sql_template,
+                  rows: 16
+                ) %>
+                <%= if @query_error_message do %>
+                  <div class="text-red-500 text-sm mt-1">
+                    <%= @query_error_message %>
+                  </div>
+                <% end %>
+              </div>
+              <section class="w-full px-2 sm:col-span-3 text-sm">
+                <QueryChecker.checker checked={@query_validations.contains_start}>
+                  <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
+                </QueryChecker.checker>
+
+                <QueryChecker.checker class="mt-2" checked={@query_validations.contains_end}>
+                  <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
+                </QueryChecker.checker>
+
+                <div class="bg-yellow-50 rounded p-3 mt-3">
+                  <b>📌 Check point</b>
+
+                  <p class="mt-2">
+                    - SELECT문의 첫 번째 컬럼에 <b>DATE 타입</b>의 기준이 되는 날짜 컬럼을 넣어주세요.
+                  </p>
+
+                  <p class="mt-2">
+                    - SELECT문의 두 번째 컬럼부터는 <b>지표 컬럼</b>을 넣어주세요.
+                  </p>
+
+                  <p class="mt-2">
+                    - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
+                  </p>
+
+                  <p class="mt-2">
+                    - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
+                  </p>
+                </div>
+              </section>
+            </div>
+            <div class="text-right mt-2">
+              <%= submit("쿼리 실행",
+                class: "btn btn-primary",
+                disabled: !is_valid_sql_template(@query_validations)
+              ) %>
+            </div>
+          </.form>
+          <%= render_query_preview(assigns) %>
+        </div>
+      </section>
+    <% end %>
+    <%= if @data_source.source == :tableau do %>
+      <section class="card">
+        <div class="card-body">
+          <div>
+            <h2 class="card-title mb-3">Tableau View 선택하기</h2>
+            <div>
+              Tableau 에서 불러올 View 를 선택해주세요.
+            </div>
           </div>
-        </.form>
-        <%= render_query_preview(assigns) %>
-      </div>
-    </section>
+          <div>
+            <.form :let={f} for={:tableau_view} autocomplete="off">
+              <div class="flex items-center gap-x-2 mt-4">
+                <%= label(f, :tableau_view_search_term, "View 이름",
+                  class: "label w-28 text-gray-500 text-sm"
+                ) %>
+                <div class="relative" phx-click-away="clear_tableau_view_suggestions">
+                  <%= text_input(f, :tableau_view_search_term,
+                    placeholder: "Tableau View 이름을 입력해주세요.",
+                    class: "input input-bordered w-64",
+                    value: @tableau_view_search_term,
+                    phx_change: "search_tableau_view",
+                    phx_focus: "search_tableau_view"
+                  ) %>
+                  <%= if (!Enum.empty?(@tableau_view_suggestions)) do %>
+                    <ul class="absolute max-h-64 bottom-[50px] border border-gray-400 divide-y divide-y-gray400 w-64 bg-white overflow-y-auto overflow-x-clip rounded-lg">
+                      <%= for %{id: id, full_name: full_name} <- @tableau_view_suggestions do %>
+                        <li>
+                          <button
+                            class="w-64 p-2 hover:bg-gray-200 text-left text-sm"
+                            phx-click={JS.push("select_tableau_view", value: %{id: id})}
+                            type="button"
+                          >
+                            <%= "#{full_name}" %>
+                          </button>
+                        </li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+                </div>
+              </div>
+            </.form>
+          </div>
+        </div>
+      </section>
+    <% end %>
 
     <div>
       <.form
