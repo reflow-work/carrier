@@ -237,7 +237,7 @@
               <div class="card-body">
                 <h2 class="card-title">슬랙 미리보기</h2>
                 <%= if @data_loaded do %>
-                  <div class="flex flex-col gap-y-6 mt-4">
+                  <div class="w-[500px] flex flex-col gap-y-6 mt-4">
                     <%!-- <div>
                       <pre class="font-mono border text-sm border-slack-code-border bg-slack-code-bg p-4 rounded-md max-w-xl">
 날짜            신규 유저수       매출            결제수
@@ -249,14 +249,14 @@
 2023.03.23     640            99400000       3402</pre>
                     </div> --%>
                     <%= for column <- @selected_columns do %>
-                      <section class={"space-y-3 bg-slackImgLightGrey p-5 #{if column not in @selected_columns, do: "hidden"}"}>
-                        <h3 class="font-bold text-base-dark">
+                      <section class={"space-y-3 bg-slackImgLightGrey p-4 #{if column not in @selected_columns, do: "hidden"}"}>
+                        <h3 class="font-bold text-base-dark text-sm">
                           📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
                         </h3>
-                        <div class="grid grid-cols-2 py-6 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                        <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
                           <section>
                             <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
-                            <p class="text-2xl font-bold mt-2">
+                            <p class="text-xl font-bold mt-2">
                               <%= format_number(
                                 @query_result_by_columns[column].meta.current_period_last_tick_raw
                               ) %>
@@ -274,7 +274,7 @@
                           </section>
                           <section class="pl-5">
                             <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
-                            <p class="text-2xl font-bold mt-2">
+                            <p class="text-xl font-bold mt-2">
                               <%= format_number(
                                 @query_result_by_columns[column].meta.current_period_sum
                               ) %>
@@ -294,6 +294,7 @@
                         <section
                           id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
                           phx-update="ignore"
+                          class="h-[250px]"
                         >
                           <canvas
                             id={"chart-#{@query_result_by_columns[column].meta.label}"}

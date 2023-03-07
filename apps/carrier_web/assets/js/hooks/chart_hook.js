@@ -112,9 +112,11 @@ const ChartHook = {
       },
       plugins: [bgColorPlugIn],
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         layout: {
           padding: {
-            right: 14
+            right: 12
           }
         },
         elements: {
@@ -126,8 +128,9 @@ const ChartHook = {
           legend: {
             display: true,
             labels: {
+              boxWidth: 20,
               font: {
-                size: 14,
+                size: 12,
                 weight: 500,
                 color: '#929292',
               },
@@ -140,7 +143,7 @@ const ChartHook = {
             color: '#929292',
             font: {
               weight: 'bold',
-              size: 15,
+              size: 13,
             },
             text: 'TITLE',
             padding: {
@@ -154,21 +157,21 @@ const ChartHook = {
             title: {
               display: true,
               font: {
-                size: 14,
+                size: 12,
                 weight: 700,
                 color: '#929292'
               }
             },
             grid: {
-              borderDash: [6, 6],
+              borderDash: [6, 6]
             },
             ticks: {
-              count: 5,
+              count: 50,
               font: {
-                size: 14,
+                size: 12,
                 weight: 700,
                 color: '#929292'
-              },
+              }
             },
             padding: {
               left: -60,
@@ -178,7 +181,7 @@ const ChartHook = {
             title: {
               display: true,
               font: {
-                size: 14,
+                size: 12,
                 weight: 700,
                 color: '#929292'
               }
@@ -195,7 +198,7 @@ const ChartHook = {
                 }
               },
               font: {
-                size: 14,
+                size: 12,
                 weight: 700,
                 color: '#929292'
               }
