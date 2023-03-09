@@ -6,6 +6,8 @@ defmodule Carrier.Accounts.Org do
     field :name, :string
     field :industry, :string
     field :employee_count, :string
+
+    field :deleted_at, :utc_datetime_usec
   end
 
   @required_for_create [:name]
