@@ -19,6 +19,12 @@ defmodule Carrier.AccountsTest do
 
       assert same_records?(fetched_user, user)
     end
+
+    test "with deleted user_id", %{user: user} do
+      user |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
+
+      assert {:error, {:resource_not_found, _}} = Accounts.fetch_user(user.id)
+    end
   end
 
   describe "update_user/2" do

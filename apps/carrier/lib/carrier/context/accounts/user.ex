@@ -7,6 +7,7 @@ defmodule Carrier.Accounts.User do
     field :position, :string
 
     field :signed_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
 
     field :agreed_privacy_policy_at, :utc_datetime_usec
     field :agreed_terms_of_service_at, :utc_datetime_usec
@@ -49,13 +50,15 @@ defmodule Carrier.Accounts.User do
   end
 
   def get(user_id) do
-    from u in __MODULE__,
-      where: u.id == ^user_id
+    __MODULE__
+    |> where([u], u.id == ^user_id)
+    |> where([u], is_nil(u.deleted_at))
   end
 
   def get_by_email(email) do
     __MODULE__
     |> where([u], u.email == ^email)
+    |> where([u], is_nil(u.deleted_at))
   end
 
   def update(%__MODULE__{} = struct, attrs \\ %{}) do

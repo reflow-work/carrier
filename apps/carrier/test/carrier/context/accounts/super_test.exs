@@ -50,6 +50,13 @@ defmodule Carrier.Accounts.SuperTest do
       assert {:error, {:resource_not_found, %{target: User}}} =
                Accounts.Super.fetch_user_by_email("invalid_email")
     end
+
+    test "with deleted user email", %{user: user} do
+      user |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> Repo.update!()
+
+      assert {:error, {:resource_not_found, %{target: User}}} =
+               Accounts.Super.fetch_user_by_email("invalid_email")
+    end
   end
 
   describe "sign_up/1" do
