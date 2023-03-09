@@ -1,5 +1,6 @@
 defmodule Carrier.Ops do
   use Carrier.{Accounts, Secrets, Reports}
+  import Ecto.Query, only: [from: 2]
   alias Carrier.{Repo, TenantRepo}
 
   def restart_failed_report(report_log_id) do
@@ -13,6 +14,36 @@ defmodule Carrier.Ops do
   end
 
   def delete_org(org_id, org_name) do
+    TenantRepo.put_org_id(org_id)
+
+    now = DateTime.utc_now()
+
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %Org{name: ^org_name} = org} <- Accounts.fetch_org() do
+        [
+          Report,
+          ReportInfo,
+          DataSource,
+          Integration,
+          ConnInfo,
+          User,
+          Org
+        ]
+        |> Enum.each(&delete_not_deleted(&1, now))
+
+        {:ok, org}
+      else
+        _ -> {:error, :invalid_org}
+      end
+    end)
+  end
+
+  defp delete_not_deleted(module, now) do
+    from(x in module, where: is_nil(x.deleted_at), update: [set: [deleted_at: ^now]])
+    |> TenantRepo.update_all([])
+  end
+
+  def hard_delete_org(org_id, org_name) do
     TenantRepo.put_org_id(org_id)
 
     with {:ok, org} <-
