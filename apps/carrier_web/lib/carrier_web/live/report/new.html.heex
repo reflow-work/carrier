@@ -486,6 +486,14 @@
             <%= hidden_input(f, :org_id, value: @org_id) %>
             <%= hidden_input(f, :user_id, value: @user_id) %>
 
+            <%= inputs_for f, :data_source_info, fn fdsi -> %>
+              <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>
+              <%= if @tableau_selected_view do %>
+                <%= hidden_input(fdsi, :view_id, value: @tableau_selected_view.id) %>
+                <%= hidden_input(fdsi, :view_name, value: @tableau_selected_view.full_name) %>
+              <% end %>
+            <% end %>
+
             <div class="space-y-4">
               <div class="flex items-center gap-x-2 mt-4">
                 <%= label(f, :name, "레포트 이름", class: "label w-28 text-gray-500 text-sm") %>

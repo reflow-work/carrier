@@ -44,17 +44,12 @@ defmodule CarrierWeb.ReportLive.New.ReportTableau do
 
   @required_data_source_info [
     :data_source_id,
-    :sql_template,
-    :timezone,
-    :period,
-    :window_size,
-    :comparing_period,
-    :columns
+    :view_id,
+    :view_name
   ]
   defp changeset_data_source_info(%__MODULE__.DataSourceInfo{} = struct, attrs) do
     struct
     |> cast(attrs, @required_data_source_info)
     |> validate_required(@required_data_source_info)
-    |> validate_length(:columns, min: 1)
   end
 end

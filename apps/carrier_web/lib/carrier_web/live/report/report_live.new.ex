@@ -192,6 +192,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:tableau_views, views)
           |> assign(:tableau_view_search_term, "")
           |> assign(:tableau_view_suggestions, [])
+          |> assign(:tableau_selected_view, nil)
           |> assign(:tableau_image_binary, nil)
 
         _ ->
@@ -293,6 +294,7 @@ defmodule CarrierWeb.ReportLive.New do
       socket
       |> assign(:tableau_view_search_term, selected_tableau_view.full_name)
       |> assign(:tableau_view_suggestions, [])
+      |> assign(:tableau_selected_view, selected_tableau_view)
       |> assign(:tableau_image_binary, tableau_image_binary)
 
     {:noreply, socket}
@@ -532,11 +534,20 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_changeset, report_changeset)
       |> assign(:report_name, report_inputs["name"])
       |> assign(:hour, report_inputs["hour"])
-      |> assign(:selected_columns, report_params.data_source_info.columns)
-      |> add_draw_chart_events(
-        socket.assigns.query_result_by_columns,
-        report_params.data_source_info.columns
-      )
+
+    socket =
+      case socket.assigns.data_source do
+        %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+          socket
+          |> assign(:selected_columns, report_params.data_source_info.columns)
+          |> add_draw_chart_events(
+            socket.assigns.query_result_by_columns,
+            report_params.data_source_info.columns
+          )
+
+        %DataSource{source: :tableau} ->
+          socket
+      end
 
     {:noreply, socket}
   end
@@ -601,15 +612,29 @@ defmodule CarrierWeb.ReportLive.New do
     report_params = socket.assigns.report_changeset |> Params.to_params()
 
     report_changeset =
-      ReportParams.changeset(
-        report_params,
-        %{
-          integration_info: %{
-            channel_id: channel_id,
-            channel_name: channel_name
-          }
-        }
-      )
+      case socket.assigns.data_source do
+        %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+          ReportParams.changeset(
+            report_params,
+            %{
+              integration_info: %{
+                channel_id: channel_id,
+                channel_name: channel_name
+              }
+            }
+          )
+
+        %DataSource{source: :tableau} ->
+          ReportTableau.changeset(
+            report_params,
+            %{
+              integration_info: %{
+                channel_id: channel_id,
+                channel_name: channel_name
+              }
+            }
+          )
+      end
 
     socket =
       socket
@@ -883,10 +908,6 @@ defmodule CarrierWeb.ReportLive.New do
   end
 
   defp validate_report_changeset(socket, report_inputs) do
-    report_inputs =
-      %{"data_source_info" => %{"columns" => []}}
-      |> MapHelper.deep_merge(report_inputs)
-
     %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} = report_inputs
 
     trigger_time =
@@ -900,19 +921,38 @@ defmodule CarrierWeb.ReportLive.New do
         _ -> nil
       end)
 
-    attrs =
-      report_inputs
-      |> MapHelper.deep_merge(%{
-        "trigger_time" => trigger_time,
-        "integration_info" => %{
-          "channel_name" => channel_name,
-          "channel_id" => channel_id
-        }
-      })
+    case socket.assigns.data_source do
+      %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+        attrs =
+          report_inputs
+          |> MapHelper.deep_merge(%{
+            "trigger_time" => trigger_time,
+            "integration_info" => %{
+              "channel_name" => channel_name,
+              "channel_id" => channel_id
+            }
+          })
 
-    _changeset =
-      ReportParams.changeset(attrs)
-      |> Params.set_action(:validate)
+        _changeset =
+          ReportParams.changeset(attrs)
+          |> Params.set_action(:validate)
+
+      %DataSource{source: :tableau} ->
+        attrs =
+          report_inputs
+          |> MapHelper.deep_merge(%{
+            "trigger_time" => trigger_time,
+            "integration_info" => %{
+              "channel_name" => channel_name,
+              "channel_id" => channel_id
+            }
+          })
+
+        _changeset =
+          ReportTableau.changeset(attrs)
+          |> Params.set_action(:validate)
+          |> IO.inspect()
+    end
   end
 
   defp is_valid_sql_template(query_validations) do
