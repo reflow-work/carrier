@@ -288,14 +288,13 @@ defmodule CarrierWeb.ReportLive.New do
         ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
       )
 
-    tableau_image_binary = tableau_image_binary |> Base.encode64()
-
     socket =
       socket
       |> assign(:tableau_view_search_term, selected_tableau_view.full_name)
       |> assign(:tableau_view_suggestions, [])
       |> assign(:tableau_selected_view, selected_tableau_view)
       |> assign(:tableau_image_binary, tableau_image_binary)
+      |> assign(:data_loaded, true)
 
     {:noreply, socket}
   end
@@ -675,34 +674,22 @@ defmodule CarrierWeb.ReportLive.New do
     %{"send_preview_form" => %{"channel" => channel_id}} = params
 
     Task.start(fn ->
-      data =
-        socket.assigns.query_result_by_columns
-        |> Map.filter(fn {k, _v} -> k in socket.assigns.selected_columns end)
+      case socket.assigns.data_source do
+        %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+          send_preview_for_rdb(socket, channel_id)
 
-      {:ok, %{image_urls: img_urls}} =
-        ImageGenerator.gen_chart_images(%{
-          org_id: socket.assigns.org_id,
-          report_id: "preview",
-          data: data
-        })
+        %DataSource{source: :tableau} ->
+          send_preview_for_tableau(socket, channel_id)
+      end
+      |> then(fn
+        :ok ->
+          :ok
 
-      with {:ok, _} <-
-             Slack.build_post_message_args(data, img_urls)
-             |> Enum.map(fn slack_arg ->
-               Noti.send_report_to_slack(
-                 channel_id,
-                 slack_arg,
-                 socket.assigns.integration.conn_info.info["bot_token"]
-               )
-             end)
-             |> Traversable.traverse() do
-        :ok
-      else
         {:error, error} ->
           Logger.error(inspect(error))
 
           {:error, error}
-      end
+      end)
     end)
 
     socket =
@@ -904,6 +891,49 @@ defmodule CarrierWeb.ReportLive.New do
     case show_all do
       true -> preview
       false -> preview |> Enum.take(5)
+    end
+  end
+
+  defp send_preview_for_rdb(socket, channel_id) do
+    data =
+      socket.assigns.query_result_by_columns
+      |> Map.filter(fn {k, _v} -> k in socket.assigns.selected_columns end)
+
+    with {:ok, %{image_urls: img_urls}} <-
+           ImageGenerator.gen_chart_images(%{
+             org_id: socket.assigns.org_id,
+             report_id: "preview",
+             data: data
+           }),
+         {:ok, _} <-
+           Slack.build_post_message_args(data, img_urls)
+           |> Enum.map(fn slack_arg ->
+             Noti.send_report_to_slack(
+               channel_id,
+               slack_arg,
+               socket.assigns.integration.conn_info.info["bot_token"]
+             )
+           end)
+           |> Traversable.traverse() do
+      :ok
+    end
+  end
+
+  defp send_preview_for_tableau(socket, channel_id) do
+    with {:ok, url} <-
+           ImageGenerator.upload_chart_image(%{
+             org_id: socket.assigns.org_id,
+             report_id: "preview",
+             binary: socket.assigns.tableau_image_binary
+           }),
+         slack_arg = %{title: socket.assigns.tableau_selected_view.full_name, img_url: url},
+         :ok <-
+           Noti.send_report_to_slack(
+             channel_id,
+             slack_arg,
+             socket.assigns.integration.conn_info.info["bot_token"]
+           ) do
+      :ok
     end
   end
 

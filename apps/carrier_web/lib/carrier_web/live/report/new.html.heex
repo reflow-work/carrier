@@ -459,7 +459,7 @@
             <h2 class="card-title mb-3">Tableau View 미리보기</h2>
             <div>
               <%= if @tableau_image_binary do %>
-                <img src={"data:image/png;base64,#{@tableau_image_binary}"} />
+                <img src={"data:image/png;base64,#{@tableau_image_binary |> Base.encode64()}"} />
               <% else %>
                 <div class="pt-6">
                   <Empty.empty
