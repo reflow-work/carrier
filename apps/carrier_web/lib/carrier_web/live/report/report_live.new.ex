@@ -192,6 +192,7 @@ defmodule CarrierWeb.ReportLive.New do
           |> assign(:tableau_views, views)
           |> assign(:tableau_view_search_term, "")
           |> assign(:tableau_view_suggestions, [])
+          |> assign(:tableau_image_binary, nil)
 
         _ ->
           socket
@@ -229,8 +230,10 @@ defmodule CarrierWeb.ReportLive.New do
           []
 
         tableau_view_search_term ->
+          regex = ~r/#{tableau_view_search_term}/i
+
           socket.assigns.tableau_views
-          |> Enum.filter(&(&1.full_name =~ tableau_view_search_term))
+          |> Enum.filter(&(&1.full_name =~ regex))
       end
 
     socket =
@@ -278,10 +281,19 @@ defmodule CarrierWeb.ReportLive.New do
       socket.assigns.tableau_views
       |> Enum.find(&(&1.id == id))
 
+    {:ok, tableau_image_binary} =
+      Tableau.get_view_image_binary(
+        selected_tableau_view.id,
+        ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+      )
+
+    tableau_image_binary = tableau_image_binary |> Base.encode64()
+
     socket =
       socket
       |> assign(:tableau_view_search_term, selected_tableau_view.full_name)
       |> assign(:tableau_view_suggestions, [])
+      |> assign(:tableau_image_binary, tableau_image_binary)
 
     {:noreply, socket}
   end

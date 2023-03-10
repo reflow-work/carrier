@@ -160,25 +160,26 @@
       </section>
     <% end %>
 
-    <div>
-      <.form
-        :let={f}
-        for={@report_changeset}
-        as={:report}
-        phx-change="validate_report"
-        phx-submit="save_report"
-        autocomplete="off"
-      >
-        <%= hidden_input(f, :org_id, value: @org_id) %>
-        <%= hidden_input(f, :user_id, value: @user_id) %>
+    <%= if @data_source.source in [:postgres, :mysql, :bigquery, :athena] do %>
+      <div>
+        <.form
+          :let={f}
+          for={@report_changeset}
+          as={:report}
+          phx-change="validate_report"
+          phx-submit="save_report"
+          autocomplete="off"
+        >
+          <%= hidden_input(f, :org_id, value: @org_id) %>
+          <%= hidden_input(f, :user_id, value: @user_id) %>
 
-        <div class="space-y-6">
-          <section class="flex gap-4 flex-col lg:flex-row">
-            <section class="card flex-[3_3_0%]">
-              <div class="card-body">
-                <section>
-                  <h2 class="card-title">레포트 설정</h2>
-                  <%!-- <section>
+          <div class="space-y-6">
+            <section class="flex gap-4 flex-col lg:flex-row">
+              <section class="card flex-[3_3_0%]">
+                <div class="card-body">
+                  <section>
+                    <h2 class="card-title">레포트 설정</h2>
+                    <%!-- <section>
                     <h3 class="font-bold mt-6">레포트 옵션</h3>
                     <%= if @data_loaded do %>
                       <div class="flex flex-col gap-y-3 mt-2">
@@ -204,29 +205,70 @@
                       </div>
                     <% end %>
                   </section> --%>
-                  <section>
-                    <h3 class="font-bold mt-6">레포트를 발송할 지표</h3>
-                    <%= if @data_loaded do %>
-                      <div class="flex flex-col gap-y-3 mt-2">
-                        <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                          <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>
-                          <%= hidden_input(fdsi, :source, value: @data_source.source) %>
-                          <%= hidden_input(fdsi, :sql_template, value: @sql_template) %>
-                          <%= hidden_input(fdsi, :timezone, value: @timezone) %>
-                          <%= hidden_input(fdsi, :period, value: @period) %>
-                          <%= hidden_input(fdsi, :comparing_period, value: @comparing_period) %>
 
-                          <%= for column <- @columns do %>
-                            <div class="flex gap-x-2 items-center">
-                              <input
-                                type="checkbox"
-                                name="report[data_source_info][columns][]"
-                                value={column}
-                                checked={column in @selected_columns}
-                              />
-                              <%= label(fdsi, :columns, column) %>
-                            </div>
+                    <section>
+                      <h3 class="font-bold mt-6">레포트를 발송할 지표</h3>
+                      <%= if @data_loaded do %>
+                        <div class="flex flex-col gap-y-3 mt-2">
+                          <%= inputs_for f, :data_source_info, fn fdsi -> %>
+                            <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>
+                            <%= hidden_input(fdsi, :source, value: @data_source.source) %>
+                            <%= hidden_input(fdsi, :sql_template, value: @sql_template) %>
+                            <%= hidden_input(fdsi, :timezone, value: @timezone) %>
+                            <%= hidden_input(fdsi, :period, value: @period) %>
+                            <%= hidden_input(fdsi, :comparing_period, value: @comparing_period) %>
+
+                            <%= for column <- @columns do %>
+                              <div class="flex gap-x-2 items-center">
+                                <input
+                                  type="checkbox"
+                                  name="report[data_source_info][columns][]"
+                                  value={column}
+                                  checked={column in @selected_columns}
+                                />
+                                <%= label(fdsi, :columns, column) %>
+                              </div>
+                            <% end %>
                           <% end %>
+                        </div>
+                      <% else %>
+                        <div class="pt-6">
+                          <Empty.empty
+                            title="쿼리 결과가 없습니다."
+                            description="확인할 데이터를 쿼리해주세요."
+                          />
+                        </div>
+                      <% end %>
+                    </section>
+                  </section>
+                  <section>
+                    <h3 class="font-bold mt-10">그래프 값 옵션</h3>
+                    <%= if @data_loaded do %>
+                      <div class="flex flex-col mt-2">
+                        <%= inputs_for f, :data_source_info, fn fdsi -> %>
+                          <div class="flex gap-x-2 items-center">
+                            <%= radio_button(fdsi, :window_size, 1,
+                              class: "radio",
+                              phx_click: "select_window_size",
+                              selected: @window_size === 1
+                            ) %>
+                            <%= label(f, :window_size, "당일 지표") %>
+                          </div>
+                          <div class="text-sm text-gray-500 ml-6 mt-1">
+                            당일의 지표를 추가적인 집계 없이 그래프에 표시합니다.
+                          </div>
+
+                          <div class="flex gap-x-2 items-center mt-4">
+                            <%= radio_button(fdsi, :window_size, 7,
+                              class: "radio",
+                              phx_click: "select_window_size",
+                              selected: @window_size === 7
+                            ) %>
+                            <%= label(f, :window_size, "이동합계") %>
+                          </div>
+                          <div class="text-sm text-gray-500 ml-6 mt-1">
+                            요일별 추이를 제거하고 보기위해 최근 7일간의 합계로 그래프에 표시합니다.
+                          </div>
                         <% end %>
                       </div>
                     <% else %>
@@ -238,35 +280,80 @@
                       </div>
                     <% end %>
                   </section>
-                </section>
-                <section>
-                  <h3 class="font-bold mt-10">그래프 값 옵션</h3>
-                  <%= if @data_loaded do %>
-                    <div class="flex flex-col mt-2">
-                      <%= inputs_for f, :data_source_info, fn fdsi -> %>
-                        <div class="flex gap-x-2 items-center">
-                          <%= radio_button(fdsi, :window_size, 1,
-                            class: "radio",
-                            phx_click: "select_window_size",
-                            selected: @window_size === 1
-                          ) %>
-                          <%= label(f, :window_size, "당일 지표") %>
-                        </div>
-                        <div class="text-sm text-gray-500 ml-6 mt-1">
-                          당일의 지표를 추가적인 집계 없이 그래프에 표시합니다.
-                        </div>
+                </div>
+              </section>
 
-                        <div class="flex gap-x-2 items-center mt-4">
-                          <%= radio_button(fdsi, :window_size, 7,
-                            class: "radio",
-                            phx_click: "select_window_size",
-                            selected: @window_size === 7
-                          ) %>
-                          <%= label(f, :window_size, "이동합계") %>
-                        </div>
-                        <div class="text-sm text-gray-500 ml-6 mt-1">
-                          요일별 추이를 제거하고 보기위해 최근 7일간의 합계로 그래프에 표시합니다.
-                        </div>
+              <section class="card flex-[7_7_0%]">
+                <div class="card-body">
+                  <h2 class="card-title">슬랙 미리보기</h2>
+                  <%= if @data_loaded do %>
+                    <div class="w-[500px] flex flex-col gap-y-6 mt-4">
+                      <%!-- <div>
+                      <pre class="font-mono border text-sm border-slack-code-border bg-slack-code-bg p-4 rounded-md max-w-xl">
+날짜            신규 유저수       매출            결제수
+------------   ------------   ------------   ------------
+2023.03.19     320            7800000        2012
+2023.03.20     331            9110000        2221
+2023.03.21     340            3320000        1231
+2023.03.22     504            4500000        1605
+2023.03.23     640            99400000       3402</pre>
+                    </div> --%>
+                      <%= for column <- @selected_columns do %>
+                        <section class={"space-y-3 bg-slackImgLightGrey p-4 #{if column not in @selected_columns, do: "hidden"}"}>
+                          <h3 class="font-bold text-base-dark text-sm">
+                            📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
+                          </h3>
+                          <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                            <section>
+                              <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
+                              <p class="text-xl font-bold mt-2">
+                                <%= format_number(
+                                  @query_result_by_columns[column].meta.current_period_last_tick_raw
+                                ) %>
+                              </p>
+                              <div class="flex space-x-2 mt-1">
+                                <SlackImgMetaData.card
+                                  diff_value_raw={
+                                    @query_result_by_columns[column].meta.diff_between_period_raws
+                                  }
+                                  diff_value_percentage={
+                                    @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                                  }
+                                />
+                              </div>
+                            </section>
+                            <section class="pl-5">
+                              <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
+                              <p class="text-xl font-bold mt-2">
+                                <%= format_number(
+                                  @query_result_by_columns[column].meta.current_period_sum
+                                ) %>
+                              </p>
+                              <div class="flex space-x-2 mt-1">
+                                <SlackImgMetaData.card
+                                  diff_value_raw={
+                                    @query_result_by_columns[column].meta.diff_between_period_sums
+                                  }
+                                  diff_value_percentage={
+                                    @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                                  }
+                                />
+                              </div>
+                            </section>
+                          </div>
+                          <section
+                            id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
+                            phx-update="ignore"
+                            class="h-[250px]"
+                          >
+                            <canvas
+                              id={"chart-#{@query_result_by_columns[column].meta.label}"}
+                              class="rounded-lg shadow-slackImgSection"
+                              phx-hook="Chart"
+                            >
+                            </canvas>
+                          </section>
+                        </section>
                       <% end %>
                     </div>
                   <% else %>
@@ -277,178 +364,207 @@
                       />
                     </div>
                   <% end %>
-                </section>
-              </div>
+                </div>
+              </section>
             </section>
 
-            <section class="card flex-[7_7_0%]">
+            <section class="card overflow-auto">
               <div class="card-body">
-                <h2 class="card-title">슬랙 미리보기</h2>
-                <%= if @data_loaded do %>
-                  <div class="w-[500px] flex flex-col gap-y-6 mt-4">
-                    <%!-- <div>
-                      <pre class="font-mono border text-sm border-slack-code-border bg-slack-code-bg p-4 rounded-md max-w-xl">
-날짜            신규 유저수       매출            결제수
-------------   ------------   ------------   ------------
-2023.03.19     320            7800000        2012
-2023.03.20     331            9110000        2221
-2023.03.21     340            3320000        1231
-2023.03.22     504            4500000        1605
-2023.03.23     640            99400000       3402</pre>
-                    </div> --%>
-                    <%= for column <- @selected_columns do %>
-                      <section class={"space-y-3 bg-slackImgLightGrey p-4 #{if column not in @selected_columns, do: "hidden"}"}>
-                        <h3 class="font-bold text-base-dark text-sm">
-                          📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
-                        </h3>
-                        <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
-                          <section>
-                            <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
-                            <p class="text-xl font-bold mt-2">
-                              <%= format_number(
-                                @query_result_by_columns[column].meta.current_period_last_tick_raw
-                              ) %>
-                            </p>
-                            <div class="flex space-x-2 mt-1">
-                              <SlackImgMetaData.card
-                                diff_value_raw={
-                                  @query_result_by_columns[column].meta.diff_between_period_raws
-                                }
-                                diff_value_percentage={
-                                  @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
-                                }
-                              />
-                            </div>
-                          </section>
-                          <section class="pl-5">
-                            <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
-                            <p class="text-xl font-bold mt-2">
-                              <%= format_number(
-                                @query_result_by_columns[column].meta.current_period_sum
-                              ) %>
-                            </p>
-                            <div class="flex space-x-2 mt-1">
-                              <SlackImgMetaData.card
-                                diff_value_raw={
-                                  @query_result_by_columns[column].meta.diff_between_period_sums
-                                }
-                                diff_value_percentage={
-                                  @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
-                                }
-                              />
-                            </div>
-                          </section>
-                        </div>
-                        <section
-                          id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
-                          phx-update="ignore"
-                          class="h-[250px]"
-                        >
-                          <canvas
-                            id={"chart-#{@query_result_by_columns[column].meta.label}"}
-                            class="rounded-lg shadow-slackImgSection"
-                            phx-hook="Chart"
-                          >
-                          </canvas>
-                        </section>
-                      </section>
+                <h2 class="card-title">레포트 정보</h2>
+                <div class="space-y-4">
+                  <div class="flex items-center gap-x-2 mt-4">
+                    <%= label(f, :name, "레포트 이름", class: "label w-28 text-gray-500 text-sm") %>
+                    <%= text_input(f, :name,
+                      placeholder: "데일리 유저 지표",
+                      class: "input input-bordered w-64",
+                      value: @report_name
+                    ) %>
+                    <%= error_tag(f, :name) %>
+                  </div>
+
+                  <div class="flex items-center gap-x-2">
+                    <%= label(f, :hour, "레포트 발송 시간", class: "label w-28 text-gray-500 text-sm") %>
+                    <%= select(f, :hour, @hours,
+                      selected: @hour,
+                      class: "select select-bordered w-64"
+                    ) %>
+                    <%= error_tag(f, :hour) %>
+                  </div>
+
+                  <%= inputs_for f, :integration_info, fn fii -> %>
+                    <%= hidden_input(fii, :integration_id, value: @integration.id) %>
+                    <%= hidden_input(fii, :channel_id, value: @channel_id) %>
+
+                    <div id="integration_info" class="flex items-center gap-x-2">
+                      <%= label(fii, :channel_search_term, "레포트 발송 채널",
+                        class: "label w-28 text-gray-500 text-sm"
+                      ) %>
+                      <div class="relative" phx-click-away="clear_channel_suggestions">
+                        <%= text_input(fii, :channel_search_term,
+                          class: "input input-bordered w-64",
+                          value: @channel_search_term,
+                          phx_change: "search_slack_channels",
+                          phx_focus: "search_slack_channels"
+                        ) %>
+                        <%= if (!Enum.empty?(@channel_suggestions)) do %>
+                          <ul class="absolute max-h-64 bottom-[50px] border border-gray-400 divide-y divide-y-gray400 w-64 bg-white overflow-y-auto overflow-x-clip rounded-lg">
+                            <%= for {label, id} <- @channel_suggestions do %>
+                              <li>
+                                <button
+                                  class="w-64 p-2 hover:bg-gray-200 text-left text-sm"
+                                  phx-click={
+                                    JS.push("select_slack_channel", value: %{channel_id: id})
+                                  }
+                                  type="button"
+                                >
+                                  <%= "##{label}" %>
+                                </button>
+                              </li>
+                            <% end %>
+                          </ul>
+                        <% end %>
+                      </div>
+                      <a class="ml-1" phx-click="refresh_slack_channel_list">
+                        <CarrierWeb.Components.Icon.refresh class={"w-5 h-5 #{if @is_loading_slack_channels, do: "text-gray-100 cursor-not-allowed", else: "cursor-pointer text-neutral-content"}"} />
+                      </a>
+                      <%= error_tag(f, :channel_id) %>
+                    </div>
+                  <% end %>
+
+                  <div class="flex gap-x-4 justify-end">
+                    <button
+                      class="btn btn-outline"
+                      type="button"
+                      phx-click={show_modal("send-preview")}
+                      disabled={!@data_loaded}
+                    >
+                      테스트 발송
+                    </button>
+                    <%= submit("레포트 저장",
+                      class: "btn btn-primary",
+                      disabled: !@report_changeset.valid?
+                    ) %>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </.form>
+      </div>
+    <% end %>
+    <%= if @data_source.source == :tableau do %>
+      <section class="card">
+        <div class="card-body">
+          <div>
+            <h2 class="card-title mb-3">Tableau View 미리보기</h2>
+            <div>
+              <%= if @tableau_image_binary do %>
+                <img src={"data:image/png;base64,#{@tableau_image_binary}"} />
+              <% else %>
+                <div class="pt-6">
+                  <Empty.empty
+                    title="View 가 선택되지 않았습니다."
+                    description="확인할 View 를 선택해주세요."
+                  />
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="card overflow-auto">
+        <div class="card-body">
+          <h2 class="card-title">레포트 정보</h2>
+          <.form
+            :let={f}
+            for={@report_changeset}
+            as={:report}
+            phx-change="validate_report"
+            phx-submit="save_report"
+            autocomplete="off"
+          >
+            <%= hidden_input(f, :org_id, value: @org_id) %>
+            <%= hidden_input(f, :user_id, value: @user_id) %>
+
+            <div class="space-y-4">
+              <div class="flex items-center gap-x-2 mt-4">
+                <%= label(f, :name, "레포트 이름", class: "label w-28 text-gray-500 text-sm") %>
+                <%= text_input(f, :name,
+                  placeholder: "데일리 유저 지표",
+                  class: "input input-bordered w-64",
+                  value: @report_name
+                ) %>
+                <%= error_tag(f, :name) %>
+              </div>
+
+              <div class="flex items-center gap-x-2">
+                <%= label(f, :hour, "레포트 발송 시간", class: "label w-28 text-gray-500 text-sm") %>
+                <%= select(f, :hour, @hours,
+                  selected: @hour,
+                  class: "select select-bordered w-64"
+                ) %>
+                <%= error_tag(f, :hour) %>
+              </div>
+
+              <%= inputs_for f, :integration_info, fn fii -> %>
+                <%= hidden_input(fii, :integration_id, value: @integration.id) %>
+                <%= hidden_input(fii, :channel_id, value: @channel_id) %>
+
+                <div id="integration_info" class="flex items-center gap-x-2">
+                  <%= label(fii, :channel_search_term, "레포트 발송 채널",
+                    class: "label w-28 text-gray-500 text-sm"
+                  ) %>
+                  <div class="relative" phx-click-away="clear_channel_suggestions">
+                    <%= text_input(fii, :channel_search_term,
+                      class: "input input-bordered w-64",
+                      value: @channel_search_term,
+                      phx_change: "search_slack_channels",
+                      phx_focus: "search_slack_channels"
+                    ) %>
+                    <%= if (!Enum.empty?(@channel_suggestions)) do %>
+                      <ul class="absolute max-h-64 bottom-[50px] border border-gray-400 divide-y divide-y-gray400 w-64 bg-white overflow-y-auto overflow-x-clip rounded-lg">
+                        <%= for {label, id} <- @channel_suggestions do %>
+                          <li>
+                            <button
+                              class="w-64 p-2 hover:bg-gray-200 text-left text-sm"
+                              phx-click={
+                                JS.push("select_slack_channel", value: %{channel_id: id})
+                              }
+                              type="button"
+                            >
+                              <%= "##{label}" %>
+                            </button>
+                          </li>
+                        <% end %>
+                      </ul>
                     <% end %>
                   </div>
-                <% else %>
-                  <div class="pt-6">
-                    <Empty.empty
-                      title="쿼리 결과가 없습니다."
-                      description="확인할 데이터를 쿼리해주세요."
-                    />
-                  </div>
-                <% end %>
-              </div>
-            </section>
-          </section>
-
-          <section class="card overflow-auto">
-            <div class="card-body">
-              <h2 class="card-title">레포트 정보</h2>
-              <div class="space-y-4">
-                <div class="flex items-center gap-x-2 mt-4">
-                  <%= label(f, :name, "레포트 이름", class: "label w-28 text-gray-500 text-sm") %>
-                  <%= text_input(f, :name,
-                    placeholder: "데일리 유저 지표",
-                    class: "input input-bordered w-64",
-                    value: @report_name
-                  ) %>
-                  <%= error_tag(f, :name) %>
+                  <a class="ml-1" phx-click="refresh_slack_channel_list">
+                    <CarrierWeb.Components.Icon.refresh class={"w-5 h-5 #{if @is_loading_slack_channels, do: "text-gray-100 cursor-not-allowed", else: "cursor-pointer text-neutral-content"}"} />
+                  </a>
+                  <%= error_tag(f, :channel_id) %>
                 </div>
+              <% end %>
 
-                <div class="flex items-center gap-x-2">
-                  <%= label(f, :hour, "레포트 발송 시간", class: "label w-28 text-gray-500 text-sm") %>
-                  <%= select(f, :hour, @hours,
-                    selected: @hour,
-                    class: "select select-bordered w-64"
-                  ) %>
-                  <%= error_tag(f, :hour) %>
-                </div>
-
-                <%= inputs_for f, :integration_info, fn fii -> %>
-                  <%= hidden_input(fii, :integration_id, value: @integration.id) %>
-                  <%= hidden_input(fii, :channel_id, value: @channel_id) %>
-
-                  <div id="integration_info" class="flex items-center gap-x-2">
-                    <%= label(fii, :channel_search_term, "레포트 발송 채널",
-                      class: "label w-28 text-gray-500 text-sm"
-                    ) %>
-                    <div class="relative" phx-click-away="clear_channel_suggestions">
-                      <%= text_input(fii, :channel_search_term,
-                        class: "input input-bordered w-64",
-                        value: @channel_search_term,
-                        phx_change: "search_slack_channels",
-                        phx_focus: "search_slack_channels"
-                      ) %>
-                      <%= if (!Enum.empty?(@channel_suggestions)) do %>
-                        <ul class="absolute max-h-64 bottom-[50px] border border-gray-400 divide-y divide-y-gray400 w-64 bg-white overflow-y-auto overflow-x-clip rounded-lg">
-                          <%= for {label, id} <- @channel_suggestions do %>
-                            <li>
-                              <button
-                                class="w-64 p-2 hover:bg-gray-200 text-left text-sm"
-                                phx-click={
-                                  JS.push("select_slack_channel", value: %{channel_id: id})
-                                }
-                                type="button"
-                              >
-                                <%= "##{label}" %>
-                              </button>
-                            </li>
-                          <% end %>
-                        </ul>
-                      <% end %>
-                    </div>
-                    <a class="ml-1" phx-click="refresh_slack_channel_list">
-                      <CarrierWeb.Components.Icon.refresh class={"w-5 h-5 #{if @is_loading_slack_channels, do: "text-gray-100 cursor-not-allowed", else: "cursor-pointer text-neutral-content"}"} />
-                    </a>
-                    <%= error_tag(f, :channel_id) %>
-                  </div>
-                <% end %>
-
-                <div class="flex gap-x-4 justify-end">
-                  <button
-                    class="btn btn-outline"
-                    type="button"
-                    phx-click={show_modal("send-preview")}
-                    disabled={!@data_loaded}
-                  >
-                    테스트 발송
-                  </button>
-                  <%= submit("레포트 저장",
-                    class: "btn btn-primary",
-                    disabled: !@report_changeset.valid?
-                  ) %>
-                </div>
+              <div class="flex gap-x-4 justify-end">
+                <button
+                  class="btn btn-outline"
+                  type="button"
+                  phx-click={show_modal("send-preview")}
+                  disabled={!@data_loaded}
+                >
+                  테스트 발송
+                </button>
+                <%= submit("레포트 저장",
+                  class: "btn btn-primary",
+                  disabled: !@report_changeset.valid?
+                ) %>
               </div>
             </div>
-          </section>
+          </.form>
         </div>
-      </.form>
-    </div>
+      </section>
+    <% end %>
   </section>
 </section>
 
