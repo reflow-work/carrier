@@ -100,7 +100,7 @@ defmodule CarrierWeb.ReportLive.New do
 
           hour =
             report.trigger_time
-            |> TimeHelper.from_utc_time(report.data_source_info.timezone)
+            |> TimeHelper.from_utc_time(socket.assigns.timezone)
             |> Map.get(:hour)
             |> to_string()
 
@@ -159,6 +159,7 @@ defmodule CarrierWeb.ReportLive.New do
                   name: report.name,
                   hour: hour,
                   trigger_time: report.trigger_time,
+                  timezone: socket.assigns.timezone,
                   integration_info: %{
                     integration_id: report.integration_info.integration_id,
                     channel_id: report.integration_info.channel_id,
@@ -167,7 +168,6 @@ defmodule CarrierWeb.ReportLive.New do
                   data_source_info: %{
                     data_source_id: report.data_source_info.data_source_id,
                     sql_template: report.data_source_info.sql_template,
-                    timezone: report.data_source_info.timezone,
                     period: report.data_source_info.period,
                     window_size: report.data_source_info.window_size,
                     comparing_period: report.data_source_info.comparing_period,
@@ -442,7 +442,6 @@ defmodule CarrierWeb.ReportLive.New do
               data_source_info: %{
                 data_source_id: socket.assigns.data_source.id,
                 sql_template: sql_template,
-                timezone: socket.assigns.timezone,
                 period: socket.assigns.period,
                 window_size: socket.assigns.window_size,
                 comparing_period: socket.assigns.comparing_period,

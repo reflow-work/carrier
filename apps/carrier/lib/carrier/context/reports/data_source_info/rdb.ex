@@ -7,7 +7,6 @@ defmodule Carrier.Reports.DataSourceInfo.RDB do
     field :data_source_id, :integer
     field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
     field :sql_template, :string
-    field :timezone, :string
     field :period, :integer
     field :window_size, :integer
     field :comparing_period, :integer
@@ -18,7 +17,6 @@ defmodule Carrier.Reports.DataSourceInfo.RDB do
     :data_source_id,
     :source,
     :sql_template,
-    :timezone,
     :period,
     :window_size,
     :comparing_period,

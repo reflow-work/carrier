@@ -57,11 +57,11 @@ defmodule Carrier.Works.ReportJob do
          report: %Report{
            id: report_id,
            org_id: org_id,
+           timezone: timezone,
            data_source_info: %{
              data_source_id: data_source_id,
              source: source,
              sql_template: sql_template,
-             timezone: timezone,
              period: period,
              window_size: window_size,
              comparing_period: comparing_period,
