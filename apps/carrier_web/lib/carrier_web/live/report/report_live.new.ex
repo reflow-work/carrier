@@ -73,6 +73,36 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:comparing_period, 28)
       |> reset_assigns()
 
+    socket =
+      case socket.assigns.data_source.source do
+        :tableau ->
+          credentials = ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+          {:ok, views} = Tableau.list_views(credentials)
+
+          # views = [
+          #   %Carrier.External.Tableau.View{
+          #     id: "606af554-e500-4bac-b0aa-185274434dad",
+          #     name: "Obesity",
+          #     full_name: "Samples / Regional / Obesity"
+          #   },
+          #   %Carrier.External.Tableau.View{
+          #     id: "ba12d2d7-6fbc-4e5e-b588-c652749d30d8",
+          #     name: "College",
+          #     full_name: "Samples / Regional / College"
+          #   }
+          # ]
+
+          socket
+          |> assign(:tableau_views, views)
+          |> assign(:tableau_view_search_term, "")
+          |> assign(:tableau_view_suggestions, [])
+          |> assign(:tableau_selected_view, nil)
+          |> assign(:tableau_image_binary, nil)
+
+        _ ->
+          socket
+      end
+
     {:ok, socket}
   end
 
@@ -92,11 +122,19 @@ defmodule CarrierWeb.ReportLive.New do
             socket
             |> assign(:report_id, report_id)
             |> load_report()
-            |> assign_new(:sql_template, fn %{report: report} ->
-              report.data_source_info.sql_template
-            end)
 
           report = socket.assigns.report
+
+          socket =
+            socket
+            |> assign(:report_name, report.name)
+            |> assign(
+              :data_source,
+              socket.assigns.data_sources
+              |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
+            )
+            |> assign(:channel_id, report.integration_info.channel_id)
+            |> assign(:channel_search_term, report.integration_info.channel_name)
 
           hour =
             report.trigger_time
@@ -104,99 +142,120 @@ defmodule CarrierWeb.ReportLive.New do
             |> Map.get(:hour)
             |> to_string()
 
-          with {:ok, %{columns: columns, data: data}} <-
-                 QueryData.query(%{
-                   org_id: report.org_id,
-                   data_source_id: report.data_source_info.data_source_id,
-                   sql_template: report.data_source_info.sql_template,
-                   datetime: DateTime.utc_now(),
-                   timezone: socket.assigns.timezone,
-                   query_date_length: @query_date_length
-                 }),
-               {:ok, analyzed_data} <-
-                 QueryData.analyze(data, %{
-                   columns: columns,
-                   period: report.data_source_info.period,
-                   window_size: report.data_source_info.window_size,
-                   comparing_period: report.data_source_info.comparing_period
-                 }) do
-            preview_data =
-              QueryData.format_data_for_preview(%{columns: columns, data: analyzed_data})
+          case socket.assigns.data_source.source do
+            source when source in [:postgres, :mysql, :bigquery, :athena] ->
+              with {:ok, %{columns: columns, data: data}} <-
+                     QueryData.query(%{
+                       org_id: report.org_id,
+                       data_source_id: report.data_source_info.data_source_id,
+                       sql_template: report.data_source_info.sql_template,
+                       datetime: DateTime.utc_now(),
+                       timezone: socket.assigns.timezone,
+                       query_date_length: @query_date_length
+                     }),
+                   {:ok, analyzed_data} <-
+                     QueryData.analyze(data, %{
+                       columns: columns,
+                       period: report.data_source_info.period,
+                       window_size: report.data_source_info.window_size,
+                       comparing_period: report.data_source_info.comparing_period
+                     }) do
+                preview_data =
+                  QueryData.format_data_for_preview(%{columns: columns, data: analyzed_data})
 
-            [_date_column | value_columns] = columns
+                [_date_column | value_columns] = columns
 
-            parsed_data =
-              QueryData.refine_data_based_on_columns(
-                %{columns: columns, data: analyzed_data},
-                value_columns,
-                report.data_source_info.window_size
-              )
+                parsed_data =
+                  QueryData.refine_data_based_on_columns(
+                    %{columns: columns, data: analyzed_data},
+                    value_columns,
+                    report.data_source_info.window_size
+                  )
 
-            socket
-            |> assign(
-              :data_source,
-              socket.assigns.data_sources
-              |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
-            )
-            |> assign(:query_result, %{columns: columns, data: data})
-            |> assign(:query_maker_button_font_size, 14)
-            |> assign(:data_loaded, true)
-            |> assign(:query_error_message, nil)
-            |> assign(:preview, %{columns: columns, data: preview_data})
-            |> assign(:query_result_by_columns, parsed_data)
-            |> assign(:columns, value_columns)
-            |> assign(:selected_columns, report.data_source_info.columns)
-            |> assign(:report_name, report.name)
-            |> assign(:channel_id, report.integration_info.channel_id)
-            |> assign(:channel_search_term, report.integration_info.channel_name)
-            |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
-            |> assign(
-              :report_changeset,
-              ReportParams.changeset(
-                ReportParams.init_attrs(%{
-                  org_id: socket.assigns.org_id,
-                  user_id: socket.assigns.user_id,
-                  name: report.name,
-                  hour: hour,
-                  trigger_time: report.trigger_time,
-                  timezone: socket.assigns.timezone,
-                  integration_info: %{
-                    integration_id: report.integration_info.integration_id,
-                    channel_id: report.integration_info.channel_id,
-                    channel_name: report.integration_info.channel_name
-                  },
-                  data_source_info: %{
-                    data_source_id: report.data_source_info.data_source_id,
-                    sql_template: report.data_source_info.sql_template,
-                    period: report.data_source_info.period,
-                    window_size: report.data_source_info.window_size,
-                    comparing_period: report.data_source_info.comparing_period,
-                    columns: report.data_source_info.columns
-                  }
-                })
-              )
-            )
-          else
-            _ ->
+                socket
+                |> assign(:sql_template, report.data_source_info.sql_template)
+                |> assign(:query_result, %{columns: columns, data: data})
+                |> assign(:query_maker_button_font_size, 14)
+                |> assign(:data_loaded, true)
+                |> assign(:query_error_message, nil)
+                |> assign(:preview, %{columns: columns, data: preview_data})
+                |> assign(:query_result_by_columns, parsed_data)
+                |> assign(:columns, value_columns)
+                |> assign(:selected_columns, report.data_source_info.columns)
+                |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
+                |> assign(
+                  :report_changeset,
+                  ReportParams.changeset(
+                    ReportParams.init_attrs(%{
+                      org_id: socket.assigns.org_id,
+                      user_id: socket.assigns.user_id,
+                      name: report.name,
+                      hour: hour,
+                      trigger_time: report.trigger_time,
+                      timezone: socket.assigns.timezone,
+                      integration_info: %{
+                        integration_id: report.integration_info.integration_id,
+                        channel_id: report.integration_info.channel_id,
+                        channel_name: report.integration_info.channel_name
+                      },
+                      data_source_info: %{
+                        data_source_id: report.data_source_info.data_source_id,
+                        source: report.data_source_info.source,
+                        sql_template: report.data_source_info.sql_template,
+                        period: report.data_source_info.period,
+                        window_size: report.data_source_info.window_size,
+                        comparing_period: report.data_source_info.comparing_period,
+                        columns: report.data_source_info.columns
+                      }
+                    })
+                  )
+                )
+              else
+                _ ->
+                  socket
+              end
+
+            :tableau ->
+              view =
+                socket.assigns.tableau_views
+                |> Enum.find(&(&1.id == report.data_source_info.view_id))
+
+              {:ok, tableau_image_binary} =
+                Tableau.get_view_image_binary(
+                  view.id,
+                  ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+                )
+
               socket
+              |> assign(
+                :report_changeset,
+                ReportTableau.changeset(
+                  ReportTableau.init_attrs(%{
+                    org_id: socket.assigns.org_id,
+                    user_id: socket.assigns.user_id,
+                    name: report.name,
+                    hour: hour,
+                    trigger_time: report.trigger_time,
+                    timezone: socket.assigns.timezone,
+                    integration_info: %{
+                      integration_id: report.integration_info.integration_id,
+                      channel_id: report.integration_info.channel_id,
+                      channel_name: report.integration_info.channel_name
+                    },
+                    data_source_info: %{
+                      data_source_id: report.data_source_info.data_source_id,
+                      source: report.data_source_info.source,
+                      view_id: report.data_source_info.view_id,
+                      view_full_name: report.data_source_info.view_full_name
+                    }
+                  })
+                )
+              )
+              |> assign(:tableau_selected_view, view)
+              |> assign(:tableau_view_search_term, view.full_name)
+              |> assign(:tableau_image_binary, tableau_image_binary)
+              |> assign(:data_loaded, true)
           end
-      end
-
-    socket =
-      case socket.assigns.data_source.source do
-        :tableau ->
-          credentials = ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
-          {:ok, views} = Tableau.list_views(credentials)
-
-          socket
-          |> assign(:tableau_views, views)
-          |> assign(:tableau_view_search_term, "")
-          |> assign(:tableau_view_suggestions, [])
-          |> assign(:tableau_selected_view, nil)
-          |> assign(:tableau_image_binary, nil)
-
-        _ ->
-          socket
       end
 
     {:noreply, socket}
