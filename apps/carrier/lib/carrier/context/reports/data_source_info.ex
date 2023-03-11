@@ -1,32 +1,13 @@
 defmodule Carrier.Reports.DataSourceInfo do
-  use Carrier.Schema
-
-  @derive Jason.Encoder
-  @primary_key false
-  embedded_schema do
-    field :data_source_id, :integer
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
-    field :sql_template, :string
-    field :timezone, :string
-    field :period, :integer
-    field :window_size, :integer
-    field :comparing_period, :integer
-    field :columns, {:array, :string}
+  def get_changeset(%{source: source} = data_source_info) do
+    module = get_module(source)
+    module.changeset(data_source_info)
   end
 
-  @required_for_create [
-    :data_source_id,
-    :source,
-    :sql_template,
-    :timezone,
-    :period,
-    :window_size,
-    :comparing_period,
-    :columns
-  ]
-  def changeset_for_create(struct, attrs) do
-    struct
-    |> cast(attrs, @required_for_create)
-    |> validate_required(@required_for_create)
+  defp get_module(source) do
+    case source do
+      source when source in [:postgres, :mysql, :bigquery, :athena] -> __MODULE__.RDB
+      :tableau -> __MODULE__.Tableau
+    end
   end
 end

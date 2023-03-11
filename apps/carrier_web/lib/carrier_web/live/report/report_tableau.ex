@@ -17,8 +17,9 @@ defmodule CarrierWeb.ReportLive.New.ReportTableau do
 
     embeds_one :data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete do
       field :data_source_id, :integer
+      field :source, Ecto.Enum, values: [:tableau]
       field :view_id, :string
-      field :view_name, :string
+      field :view_full_name, :string
     end
   end
 
@@ -44,8 +45,9 @@ defmodule CarrierWeb.ReportLive.New.ReportTableau do
 
   @required_data_source_info [
     :data_source_id,
+    :source,
     :view_id,
-    :view_name
+    :view_full_name
   ]
   defp changeset_data_source_info(%__MODULE__.DataSourceInfo{} = struct, attrs) do
     struct

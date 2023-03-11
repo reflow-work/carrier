@@ -11,14 +11,21 @@ defmodule Carrier.Reports.Report do
     field :trigger_time, :time
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
-    embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
+    field :data_source_info, :map
 
     field :deleted_at, :utc_datetime_usec
 
     timestamps()
   end
 
-  @required_for_create [:org_id, :report_info_id, :user_id, :name, :trigger_time]
+  @required_for_create [
+    :org_id,
+    :report_info_id,
+    :user_id,
+    :name,
+    :trigger_time,
+    :data_source_info
+  ]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create)
@@ -27,10 +34,19 @@ defmodule Carrier.Reports.Report do
       required: true,
       with: &IntegrationInfo.changeset_for_create/2
     )
-    |> cast_embed(:data_source_info,
-      required: true,
-      with: &DataSourceInfo.changeset_for_create/2
-    )
+    |> validate_data_source_info()
+  end
+
+  defp validate_data_source_info(%Ecto.Changeset{} = changeset) do
+    validate_change(changeset, :data_source_info, fn :data_source_info, data_source_info ->
+      data_source_info |> IO.inspect()
+      data_source_info_changeset = DataSourceInfo.get_changeset(data_source_info)
+
+      case data_source_info_changeset.valid? do
+        true -> []
+        false -> data_source_info_changeset.errors
+      end
+    end)
   end
 
   @required_for_delete [:deleted_at]
