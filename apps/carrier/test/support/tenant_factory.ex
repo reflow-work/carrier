@@ -104,17 +104,18 @@ defmodule Carrier.TenantFactory do
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
       integration_info: %{
-        "integration_id" => integration_id,
-        "channel_id" => "channel_id"
+        integration_id: integration_id,
+        channel_id: "channel_id"
       },
       data_source_info: %{
-        "data_source_info" => data_source_id,
-        "sql_template" => @sql_template,
-        "timezone" => "Asia/Seoul",
-        "period" => 28,
-        "window_size" => 7,
-        "comparing_period" => 7,
-        "columns" => ["total_revenue"]
+        data_source_info: data_source_id,
+        source: :postgres,
+        sql_template: @sql_template,
+        timezone: "Asia/Seoul",
+        period: 28,
+        window_size: 7,
+        comparing_period: 7,
+        columns: ["total_revenue"]
       }
     }
     |> merge_attributes(attrs)

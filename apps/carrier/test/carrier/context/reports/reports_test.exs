@@ -53,18 +53,19 @@ defmodule Carrier.ReportsTest do
         name: "Daily Report",
         trigger_time: ~T[10:00:00],
         integration_info: %{
-          "integration_id" => integration.id,
-          "channel_id" => "channel_id",
-          "channel_name" => "channel_name"
+          integration_id: integration.id,
+          channel_id: "channel_id",
+          channel_name: "channel_name"
         },
         data_source_info: %{
-          "data_source_id" => data_source.id,
-          "sql_template" => "sql",
-          "timezone" => "Asia/Seoul",
-          "period" => 28,
-          "window_size" => 7,
-          "comparing_period" => 7,
-          "columns" => ["total_revenue"]
+          data_source_id: data_source.id,
+          source: :postgres,
+          sql_template: "sql",
+          timezone: "Asia/Seoul",
+          period: 28,
+          window_size: 7,
+          comparing_period: 7,
+          columns: ["total_revenue"]
         }
       }
 
@@ -351,6 +352,7 @@ defmodule Carrier.ReportsTest do
 
       data_source_info = %{
         data_source_id: data_source.id,
+        source: :postgres,
         sql_template: "sql",
         timezone: "Asia/Seoul",
         period: 28,

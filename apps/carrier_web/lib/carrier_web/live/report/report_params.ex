@@ -17,6 +17,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
 
     embeds_one :data_source_info, DataSourceInfo, on_replace: :delete do
       field :data_source_id, :integer
+      field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
       field :sql_template, :string
       field :timezone, :string
       field :period, :integer
@@ -48,6 +49,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
 
   @required_data_source_info [
     :data_source_id,
+    :source,
     :sql_template,
     :timezone,
     :period,

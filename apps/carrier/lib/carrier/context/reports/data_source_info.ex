@@ -5,6 +5,7 @@ defmodule Carrier.Reports.DataSourceInfo do
   @primary_key false
   embedded_schema do
     field :data_source_id, :integer
+    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
     field :sql_template, :string
     field :timezone, :string
     field :period, :integer
@@ -15,6 +16,7 @@ defmodule Carrier.Reports.DataSourceInfo do
 
   @required_for_create [
     :data_source_id,
+    :source,
     :sql_template,
     :timezone,
     :period,

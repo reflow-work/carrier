@@ -163,6 +163,7 @@
                       <div class="flex flex-col gap-y-3 mt-2">
                         <%= inputs_for f, :data_source_info, fn fdsi -> %>
                           <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>
+                          <%= hidden_input(fdsi, :source, value: @data_source.source) %>
                           <%= hidden_input(fdsi, :sql_template, value: @sql_template) %>
                           <%= hidden_input(fdsi, :timezone, value: @timezone) %>
                           <%= hidden_input(fdsi, :period, value: @period) %>
