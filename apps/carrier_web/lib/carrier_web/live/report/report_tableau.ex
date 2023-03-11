@@ -9,13 +9,13 @@ defmodule CarrierWeb.ReportLive.New.ReportTableau do
     field :hour, :string
     field :trigger_time, :time
 
-    embeds_one :integration_info, IntegrationInfo, on_replace: :delete do
+    embeds_one :integration_info, IntegrationInfo, primary_key: false, on_replace: :delete do
       field :integration_id, :integer
       field :channel_id, :string
       field :channel_name, :string
     end
 
-    embeds_one :data_source_info, DataSourceInfo, on_replace: :delete do
+    embeds_one :data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete do
       field :data_source_id, :integer
       field :view_id, :string
       field :view_name, :string
