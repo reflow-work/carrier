@@ -58,7 +58,7 @@ defmodule Carrier.Reports do
              })
              |> TenantRepo.insert(),
            {:ok, _job} <- create_job_from_report(report, report.created_at) do
-        {:ok, report}
+        {:ok, report |> Report.load_data_source_info()}
       end
     end)
   end
@@ -67,7 +67,7 @@ defmodule Carrier.Reports do
     Report.list()
     |> TenantRepo.all()
     |> Enum.sort_by(& &1.created_at, {:desc, DateTime})
-    |> then(&{:ok, &1})
+    |> then(&{:ok, &1 |> Enum.map(fn report -> report |> Report.load_data_source_info() end)})
   end
 
   def fetch_report(report_id) do
@@ -75,7 +75,7 @@ defmodule Carrier.Reports do
     |> TenantRepo.one()
     |> case do
       %Report{} = report ->
-        {:ok, report}
+        {:ok, report |> Report.load_data_source_info()}
 
       nil ->
         {:error, {:resource_not_found, %{target: Report, conditions: %{report_id: report_id}}}}
@@ -106,7 +106,7 @@ defmodule Carrier.Reports do
            {:ok, _deleted_report} <-
              report |> Report.delete(DateTime.utc_now()) |> TenantRepo.update(),
            {:ok, _job} <- create_job_from_report(created_report, created_report.created_at) do
-        {:ok, created_report}
+        {:ok, created_report |> Report.load_data_source_info()}
       end
     end)
   end

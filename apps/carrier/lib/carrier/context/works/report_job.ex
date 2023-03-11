@@ -1,10 +1,9 @@
 defmodule Carrier.Works.ReportJob do
   use Oban.Worker, queue: :default, max_attempts: 2
-  use Carrier.Reports
+  use Carrier.{Reports, Secrets}
   require Logger
   alias Carrier.Data.QueryData
-  alias Carrier.Secrets
-  alias Carrier.Secrets.Integration
+  alias Carrier.Data.Source.Tableau
   alias Carrier.Noti
   alias Carrier.TenantRepo
   alias Carrier.External.Slack
@@ -60,6 +59,7 @@ defmodule Carrier.Works.ReportJob do
            org_id: org_id,
            data_source_info: %{
              data_source_id: data_source_id,
+             source: source,
              sql_template: sql_template,
              timezone: timezone,
              period: period,
@@ -69,7 +69,8 @@ defmodule Carrier.Works.ReportJob do
            }
          },
          datetime: datetime
-       }) do
+       })
+       when source in [:postgres, :mysql, :bigquery, :athena] do
     with {:ok, %{columns: columns, data: data}} <-
            QueryData.query(%{
              org_id: org_id,
@@ -99,6 +100,36 @@ defmodule Carrier.Works.ReportJob do
              data: parsed_data
            }),
          slack_args = Slack.build_post_message_args(parsed_data, image_urls) do
+      {:ok, slack_args}
+    end
+  end
+
+  defp generate_slack_args(%{
+         report: %Report{
+           id: report_id,
+           org_id: org_id,
+           data_source_info: %{
+             data_source_id: data_source_id,
+             source: :tableau,
+             view_id: view_id,
+             view_full_name: view_full_name
+           }
+         }
+       }) do
+    with {:ok, %DataSource{} = data_source} <-
+           Secrets.fetch_data_source(data_source_id),
+         {:ok, tableau_image_binary} =
+           Tableau.get_view_image_binary(
+             view_id,
+             ConnInfo.to_credentials(data_source.conn_info)
+           ),
+         {:ok, url} <-
+           ImageGenerator.upload_chart_image(%{
+             org_id: org_id,
+             report_id: report_id,
+             binary: tableau_image_binary
+           }),
+         slack_args = [%{title: view_full_name, img_url: url}] do
       {:ok, slack_args}
     end
   end

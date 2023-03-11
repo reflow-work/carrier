@@ -97,4 +97,12 @@ defmodule Carrier.Reports.Report do
     struct
     |> changeset_for_delete(%{deleted_at: deleted_at})
   end
+
+  def load_data_source_info(%__MODULE__{data_source_info: data_source_info} = struct) do
+    data_source_info =
+      data_source_info
+      |> DataSourceInfo.get_struct()
+
+    %__MODULE__{struct | data_source_info: data_source_info}
+  end
 end
