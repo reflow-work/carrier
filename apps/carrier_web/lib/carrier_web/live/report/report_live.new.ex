@@ -6,7 +6,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias Carrier.Data.Source.Tableau
   alias Carrier.Noti
   alias Carrier.External.Slack
-  alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
+  alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable, MapHelper}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
   alias CarrierWeb.Components.QueryChecker
@@ -608,32 +608,15 @@ defmodule CarrierWeb.ReportLive.New do
         _ -> nil
       end)
 
-    report_params = socket.assigns.report_changeset |> Params.to_params()
+    report_inputs =
+      socket.assigns.report_changeset
+      |> Params.to_map()
+      |> MapHelper.deep_map(fn {k, v} -> {k |> to_string(), v} end)
+      |> MapHelper.deep_merge(%{
+        "integration_info" => %{"channel_id" => channel_id}
+      })
 
-    report_changeset =
-      case socket.assigns.data_source do
-        %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
-          ReportParams.changeset(
-            report_params,
-            %{
-              integration_info: %{
-                channel_id: channel_id,
-                channel_name: channel_name
-              }
-            }
-          )
-
-        %DataSource{source: :tableau} ->
-          ReportTableau.changeset(
-            report_params,
-            %{
-              integration_info: %{
-                channel_id: channel_id,
-                channel_name: channel_name
-              }
-            }
-          )
-      end
+    report_changeset = validate_report_changeset(socket, report_inputs)
 
     socket =
       socket
@@ -981,7 +964,6 @@ defmodule CarrierWeb.ReportLive.New do
         _changeset =
           ReportTableau.changeset(attrs)
           |> Params.set_action(:validate)
-          |> IO.inspect()
     end
   end
 
