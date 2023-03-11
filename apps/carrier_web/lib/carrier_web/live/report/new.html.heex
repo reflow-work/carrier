@@ -172,6 +172,7 @@
         >
           <%= hidden_input(f, :org_id, value: @org_id) %>
           <%= hidden_input(f, :user_id, value: @user_id) %>
+          <%= hidden_input(f, :timezone, value: @timezone) %>
 
           <div class="space-y-6">
             <section class="flex gap-4 flex-col lg:flex-row">
@@ -485,6 +486,7 @@
           >
             <%= hidden_input(f, :org_id, value: @org_id) %>
             <%= hidden_input(f, :user_id, value: @user_id) %>
+            <%= hidden_input(f, :timezone, value: @timezone) %>
 
             <%= inputs_for f, :data_source_info, fn fdsi -> %>
               <%= hidden_input(fdsi, :data_source_id, value: @data_source.id) %>

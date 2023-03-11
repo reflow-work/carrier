@@ -52,6 +52,7 @@ defmodule Carrier.ReportsTest do
         user_id: user.id,
         name: "Daily Report",
         trigger_time: ~T[10:00:00],
+        timezone: "Asia/Seoul",
         integration_info: %{
           integration_id: integration.id,
           channel_id: "channel_id",
@@ -70,7 +71,14 @@ defmodule Carrier.ReportsTest do
       }
 
       assert {:ok, created_report} = Reports.create_report(params)
-      assert same_fields?(created_report, params, [:org_id, :user_id, :name, :trigger_time])
+
+      assert same_fields?(created_report, params, [
+               :org_id,
+               :user_id,
+               :name,
+               :trigger_time,
+               :timezone
+             ])
 
       TenantRepo.set_skip_org_id()
 

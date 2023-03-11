@@ -8,6 +8,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     field :name, :string
     field :hour, :string
     field :trigger_time, :time
+    field :timezone, :string
 
     embeds_one :integration_info, IntegrationInfo, primary_key: false, on_replace: :delete do
       field :integration_id, :integer
@@ -27,7 +28,7 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
     end
   end
 
-  @required [:org_id, :user_id, :name, :hour, :trigger_time]
+  @required [:org_id, :user_id, :name, :hour, :trigger_time, :timezone]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)

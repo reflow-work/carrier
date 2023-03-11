@@ -40,6 +40,7 @@ defmodule Carrier.Reports do
         user_id: user_id,
         name: name,
         trigger_time: trigger_time,
+        timezone: timezone,
         integration_info: integration_info,
         data_source_info: data_source_info
       }) do
@@ -53,6 +54,7 @@ defmodule Carrier.Reports do
                user_id: user_id,
                name: name,
                trigger_time: trigger_time,
+               timezone: timezone,
                integration_info: integration_info,
                data_source_info: data_source_info
              })

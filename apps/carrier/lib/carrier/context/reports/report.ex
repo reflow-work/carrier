@@ -9,6 +9,7 @@ defmodule Carrier.Reports.Report do
     field :user_id, :integer
     field :name, :string
     field :trigger_time, :time
+    field :timezone, :string
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
     field :data_source_info, :map
@@ -24,6 +25,7 @@ defmodule Carrier.Reports.Report do
     :user_id,
     :name,
     :trigger_time,
+    :timezone,
     :data_source_info
   ]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
@@ -39,7 +41,6 @@ defmodule Carrier.Reports.Report do
 
   defp validate_data_source_info(%Ecto.Changeset{} = changeset) do
     validate_change(changeset, :data_source_info, fn :data_source_info, data_source_info ->
-      data_source_info |> IO.inspect()
       data_source_info_changeset = DataSourceInfo.get_changeset(data_source_info)
 
       case data_source_info_changeset.valid? do
@@ -62,6 +63,7 @@ defmodule Carrier.Reports.Report do
         user_id: user_id,
         name: name,
         trigger_time: trigger_time,
+        timezone: timezone,
         integration_info: integration_info,
         data_source_info: data_source_info
       }) do
@@ -72,6 +74,7 @@ defmodule Carrier.Reports.Report do
       user_id: user_id,
       name: name,
       trigger_time: trigger_time,
+      timezone: timezone,
       integration_info: integration_info,
       data_source_info: data_source_info
     })
