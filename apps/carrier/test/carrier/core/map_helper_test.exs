@@ -37,4 +37,29 @@ defmodule Carrier.Core.MapHelperTest do
              } == MapHelper.deep_merge(map1, map2)
     end
   end
+
+  describe "deep_map/2" do
+    test "with nested map" do
+      map = %{
+        key0: %{
+          key00: 0,
+          key01: "1"
+        },
+        key1: ~D[2023-07-27]
+      }
+
+      assert %{
+               "key0" => %{
+                 "key00" => 1,
+                 "key01" => "11"
+               },
+               "key1" => ~D[2023-07-27]
+             } ==
+               MapHelper.deep_map(map, fn
+                 {k, v} when is_integer(v) -> {k |> to_string(), v + 1}
+                 {k, v} when is_binary(v) -> {k |> to_string(), v <> "1"}
+                 {k, v} -> {k |> to_string(), v}
+               end)
+    end
+  end
 end
