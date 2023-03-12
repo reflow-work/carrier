@@ -601,81 +601,83 @@
   </div>
 </.modal>
 
-<.modal id="query-maker">
-  <div class="mt-6">
-    <.form
-      :let={f}
-      for={:query_maker_form}
-      autocomplete="off"
-      class="space-y-4"
-      phx-submit="create_query"
-    >
-      <div class="flex items-center gap-x-2">
-        <%= label(f, :table, "테이블", class: "label w-20 text-gray-500 text-sm") %>
-        <%= select(f, :table, @tables,
-          class: "select select-bordered w-60",
-          prompt: [key: "테이블을 선택해주세요", disabled: true, selected: true],
-          phx_change: "change_table"
-        ) %>
-        <%= error_tag(f, :table) %>
-      </div>
+<%= if @data_source.source in [:postgres, :mysql, :bigquery, :athena] do %>
+  <.modal id="query-maker">
+    <div class="mt-6">
+      <.form
+        :let={f}
+        for={:query_maker_form}
+        autocomplete="off"
+        class="space-y-4"
+        phx-submit="create_query"
+      >
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :table, "테이블", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :table, @tables,
+            class: "select select-bordered w-60",
+            prompt: [key: "테이블을 선택해주세요", disabled: true, selected: true],
+            phx_change: "change_table"
+          ) %>
+          <%= error_tag(f, :table) %>
+        </div>
 
-      <div class="flex items-center gap-x-2">
-        <%= label(f, :date_column, "날짜 컬럼", class: "label w-20 text-gray-500 text-sm") %>
-        <%= select(f, :date_column, @date_columns,
-          class: "select select-bordered w-60",
-          selected: @date_columns |> List.first()
-        ) %>
-        <%= error_tag(f, :date_column) %>
-        <%= if length(@date_columns) == 0 do %>
-          <div class="text-red-500 text-sm">선택하신 테이블에 날짜 컬럼이 없습니다.</div>
-        <% end %>
-      </div>
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :date_column, "날짜 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :date_column, @date_columns,
+            class: "select select-bordered w-60",
+            selected: @date_columns |> List.first()
+          ) %>
+          <%= error_tag(f, :date_column) %>
+          <%= if length(@date_columns) == 0 do %>
+            <div class="text-red-500 text-sm">선택하신 테이블에 날짜 컬럼이 없습니다.</div>
+          <% end %>
+        </div>
 
-      <div class="flex items-center gap-x-2">
-        <%= label(f, :value_column_name, "지표 컬럼", class: "label w-20 text-gray-500 text-sm") %>
-        <%= select(f, :value_column, @value_columns,
-          class: "select select-bordered w-60",
-          selected: @value_columns |> List.first()
-        ) %>
-        <%= select(f, :aggregation, @aggregations,
-          class: "select select-bordered w-60",
-          selected: @aggregations |> List.first()
-        ) %>
-        <%= text_input(f, :value_column_name,
-          placeholder: "보여줄 컬럼 이름",
-          class: "input input-bordered w-60",
-          value: input_value(f, :value_column_name)
-        ) %>
-        <%= error_tag(f, :value_column) %>
-      </div>
+        <div class="flex items-center gap-x-2">
+          <%= label(f, :value_column_name, "지표 컬럼", class: "label w-20 text-gray-500 text-sm") %>
+          <%= select(f, :value_column, @value_columns,
+            class: "select select-bordered w-60",
+            selected: @value_columns |> List.first()
+          ) %>
+          <%= select(f, :aggregation, @aggregations,
+            class: "select select-bordered w-60",
+            selected: @aggregations |> List.first()
+          ) %>
+          <%= text_input(f, :value_column_name,
+            placeholder: "보여줄 컬럼 이름",
+            class: "input input-bordered w-60",
+            value: input_value(f, :value_column_name)
+          ) %>
+          <%= error_tag(f, :value_column) %>
+        </div>
 
-      <%!-- <div class="divider" />
+        <%!-- <div class="divider" />
 
-<div>
-  <table class="table mt-4 w-full">
-   <thead>
-      <tr class="w-full">
+  <div>
+    <table class="table mt-4 w-full">
+    <thead>
+        <tr class="w-full">
+          <th class="text-center py-3">header</th>
         <th class="text-center py-3">header</th>
       <th class="text-center py-3">header</th>
-    <th class="text-center py-3">header</th>
-  </tr>
-</thead>
-<tbody>
-      <tr class="w-full">
-        <td class="text-center py-2 text-sm bg-base-300">value</td>
-        <td class="text-center py-2 text-sm bg-base-300">value</td>
-      <td class="text-center py-2 text-sm bg-base-300">value</td>
     </tr>
-  </tbody>
-</table>
-</div> --%>
+  </thead>
+  <tbody>
+        <tr class="w-full">
+          <td class="text-center py-2 text-sm bg-base-300">value</td>
+          <td class="text-center py-2 text-sm bg-base-300">value</td>
+        <td class="text-center py-2 text-sm bg-base-300">value</td>
+      </tr>
+    </tbody>
+  </table>
+  </div> --%>
 
-      <div class="mt-12">
-        <button type="submit" class="w-full btn btn-primary">
-          쿼리 생성
-        </button>
-      </div>
-    </.form>
-  </div>
-</.modal>
+        <div class="mt-12">
+          <button type="submit" class="w-full btn btn-primary">
+            쿼리 생성
+          </button>
+        </div>
+      </.form>
+    </div>
+  </.modal>
+<% end %>
