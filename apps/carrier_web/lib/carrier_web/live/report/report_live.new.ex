@@ -1,15 +1,16 @@
 defmodule CarrierWeb.ReportLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
-  use Carrier.Reports
+  use Carrier.{Reports, Secrets}
   alias Carrier.Data.QueryData
+  alias Carrier.Data.Source.Tableau
   alias Carrier.Noti
   alias Carrier.External.Slack
-  alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable}
+  alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable, MapHelper}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
   alias CarrierWeb.Components.QueryChecker
-  alias CarrierWeb.ReportLive.New.ReportParams
+  alias CarrierWeb.ReportLive.New.{ReportParams, ReportTableau}
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -39,70 +40,62 @@ defmodule CarrierWeb.ReportLive.New do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, channels} =
-      Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
-
-    channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
-
-    socket =
-      socket
-      |> assign(:data_source, socket.assigns.data_sources |> List.first())
-      |> assign(
-        :data_source_options,
-        socket.assigns.data_sources |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
-      )
-      |> assign(
-        tables: [],
-        date_columns: [],
-        value_columns: [],
-        aggregations: ["SUM", "AVG", "COUNT", "MAX", "MIN"]
-      )
-      |> assign(:query_maker_button_font_size, 14)
-      |> assign(:sample_sql_template, @sample_sql_template)
-      |> assign(:channels, channel_options)
-      |> assign(:channel_suggestions, [])
-      |> assign(:channel_id, "")
-      |> assign(:channel_search_term, "")
-      |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
-      |> assign(:hour, "0")
-      |> assign(:is_loading_slack_channels, false)
-      |> assign(:report_name, "")
-      |> assign(:period, 28)
-      |> assign(:window_size, 1)
-      |> assign(:comparing_period, 28)
-      |> reset_assigns()
-
     {:ok, socket}
   end
 
   @impl true
-  def handle_params(params, _uri, socket) do
+  def handle_params(_params, _uri, %{assigns: %{live_action: :new}} = socket) do
     socket =
-      case socket.assigns.live_action do
-        :new ->
-          socket
-          |> assign(:sql_template, @sample_sql_template)
+      socket
+      |> assign(:data_source, socket.assigns.data_sources |> List.first())
+      |> init_common_assigns()
+      |> init_assigns_by_data_source()
+      |> init_assigns_by_integration()
+      |> init_changeset()
 
-        :edit ->
-          %{"id" => report_id_str} = params
-          report_id = report_id_str |> String.to_integer()
+    {:noreply, socket}
+  end
 
-          socket =
-            socket
-            |> assign(:report_id, report_id)
-            |> load_report()
-            |> assign_new(:sql_template, fn %{report: report} ->
-              report.data_source_info.sql_template
-            end)
+  @impl true
+  def handle_params(params, _uri, %{assigns: %{live_action: :edit}} = socket) do
+    %{"id" => report_id_str} = params
+    report_id = report_id_str |> String.to_integer()
 
-          report = socket.assigns.report
+    socket =
+      socket
+      |> assign(:report_id, report_id)
+      |> load_report()
 
-          hour =
-            report.trigger_time
-            |> TimeHelper.from_utc_time(report.data_source_info.timezone)
-            |> Map.get(:hour)
-            |> to_string()
+    report = socket.assigns.report
 
+    socket =
+      socket
+      |> assign(
+        :data_source,
+        socket.assigns.data_sources
+        |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
+      )
+      |> assign(
+        :integeration,
+        [socket.assigns.integration]
+        |> Enum.find(&(&1.id == report.integration_info.integration_id))
+      )
+      |> init_common_assigns()
+      |> init_assigns_by_data_source()
+      |> init_assigns_by_integration()
+      |> assign(:report_name, report.name)
+      |> assign(:channel_id, report.integration_info.channel_id)
+      |> assign(:channel_search_term, report.integration_info.channel_name)
+
+    hour =
+      report.trigger_time
+      |> TimeHelper.from_utc_time(socket.assigns.timezone)
+      |> Map.get(:hour)
+      |> to_string()
+
+    socket =
+      case socket.assigns.data_source.source do
+        source when source in [:postgres, :mysql, :bigquery, :athena] ->
           with {:ok, %{columns: columns, data: data}} <-
                  QueryData.query(%{
                    org_id: report.org_id,
@@ -132,22 +125,12 @@ defmodule CarrierWeb.ReportLive.New do
               )
 
             socket
-            |> assign(
-              :data_source,
-              socket.assigns.data_sources
-              |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
-            )
+            |> assign(:sql_template, report.data_source_info.sql_template)
             |> assign(:query_result, %{columns: columns, data: data})
-            |> assign(:query_maker_button_font_size, 14)
-            |> assign(:data_loaded, true)
-            |> assign(:query_error_message, nil)
             |> assign(:preview, %{columns: columns, data: preview_data})
             |> assign(:query_result_by_columns, parsed_data)
             |> assign(:columns, value_columns)
             |> assign(:selected_columns, report.data_source_info.columns)
-            |> assign(:report_name, report.name)
-            |> assign(:channel_id, report.integration_info.channel_id)
-            |> assign(:channel_search_term, report.integration_info.channel_name)
             |> add_draw_chart_events(parsed_data, report.data_source_info.columns)
             |> assign(
               :report_changeset,
@@ -158,6 +141,7 @@ defmodule CarrierWeb.ReportLive.New do
                   name: report.name,
                   hour: hour,
                   trigger_time: report.trigger_time,
+                  timezone: socket.assigns.timezone,
                   integration_info: %{
                     integration_id: report.integration_info.integration_id,
                     channel_id: report.integration_info.channel_id,
@@ -165,8 +149,8 @@ defmodule CarrierWeb.ReportLive.New do
                   },
                   data_source_info: %{
                     data_source_id: report.data_source_info.data_source_id,
+                    source: report.data_source_info.source,
                     sql_template: report.data_source_info.sql_template,
-                    timezone: report.data_source_info.timezone,
                     period: report.data_source_info.period,
                     window_size: report.data_source_info.window_size,
                     comparing_period: report.data_source_info.comparing_period,
@@ -179,7 +163,48 @@ defmodule CarrierWeb.ReportLive.New do
             _ ->
               socket
           end
+
+        :tableau ->
+          view =
+            socket.assigns.tableau_views
+            |> Enum.find(&(&1.id == report.data_source_info.view_id))
+
+          {:ok, tableau_image_binary} =
+            Tableau.get_view_image_binary(
+              view.id,
+              ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+            )
+
+          socket
+          |> assign(:tableau_selected_view, view)
+          |> assign(:tableau_view_search_term, view.full_name)
+          |> assign(:tableau_image_binary, tableau_image_binary)
+          |> assign(
+            :report_changeset,
+            ReportTableau.changeset(
+              ReportTableau.init_attrs(%{
+                org_id: socket.assigns.org_id,
+                user_id: socket.assigns.user_id,
+                name: report.name,
+                hour: hour,
+                trigger_time: report.trigger_time,
+                timezone: socket.assigns.timezone,
+                integration_info: %{
+                  integration_id: report.integration_info.integration_id,
+                  channel_id: report.integration_info.channel_id,
+                  channel_name: report.integration_info.channel_name
+                },
+                data_source_info: %{
+                  data_source_id: report.data_source_info.data_source_id,
+                  source: report.data_source_info.source,
+                  view_id: report.data_source_info.view_id,
+                  view_full_name: report.data_source_info.view_full_name
+                }
+              })
+            )
+          )
       end
+      |> assign(:data_loaded, true)
 
     {:noreply, socket}
   end
@@ -196,7 +221,91 @@ defmodule CarrierWeb.ReportLive.New do
       socket.assigns.data_sources
       |> Enum.find(&(&1.id == data_source_id))
 
-    socket = socket |> assign(:data_source, data_source) |> reset_assigns()
+    socket =
+      socket
+      |> assign(:data_source, data_source)
+      |> init_assigns_by_data_source()
+      |> init_changeset()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "search_tableau_view",
+        %{"tableau_view" => %{"tableau_view_search_term" => tableau_view_search_term}},
+        socket
+      ) do
+    tableau_view_suggestions =
+      case tableau_view_search_term |> String.trim() do
+        "" ->
+          []
+
+        tableau_view_search_term ->
+          regex = ~r/#{tableau_view_search_term}/i
+
+          socket.assigns.tableau_views
+          |> Enum.filter(&(&1.full_name =~ regex))
+      end
+
+    socket =
+      socket
+      |> assign(:tableau_view_suggestions, tableau_view_suggestions)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "search_tableau_view",
+        %{"value" => tableau_view_search_term},
+        socket
+      ) do
+    tableau_view_suggestions =
+      case tableau_view_search_term |> String.trim() do
+        "" ->
+          []
+
+        tableau_view_search_term ->
+          socket.assigns.tableau_views
+          |> Enum.filter(&(&1.full_name =~ tableau_view_search_term))
+      end
+
+    socket =
+      socket
+      |> assign(:tableau_view_suggestions, tableau_view_suggestions)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("clear_tableau_view_suggestions", _, socket) do
+    socket =
+      socket
+      |> assign(:tableau_view_suggestions, [])
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select_tableau_view", %{"id" => id}, socket) do
+    selected_tableau_view =
+      socket.assigns.tableau_views
+      |> Enum.find(&(&1.id == id))
+
+    {:ok, tableau_image_binary} =
+      Tableau.get_view_image_binary(
+        selected_tableau_view.id,
+        ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+      )
+
+    socket =
+      socket
+      |> assign(:tableau_view_search_term, selected_tableau_view.full_name)
+      |> assign(:tableau_view_suggestions, [])
+      |> assign(:tableau_selected_view, selected_tableau_view)
+      |> assign(:tableau_image_binary, tableau_image_binary)
+      |> assign(:data_loaded, true)
 
     {:noreply, socket}
   end
@@ -344,7 +453,6 @@ defmodule CarrierWeb.ReportLive.New do
               data_source_info: %{
                 data_source_id: socket.assigns.data_source.id,
                 sql_template: sql_template,
-                timezone: socket.assigns.timezone,
                 period: socket.assigns.period,
                 window_size: socket.assigns.window_size,
                 comparing_period: socket.assigns.comparing_period,
@@ -435,11 +543,20 @@ defmodule CarrierWeb.ReportLive.New do
       |> assign(:report_changeset, report_changeset)
       |> assign(:report_name, report_inputs["name"])
       |> assign(:hour, report_inputs["hour"])
-      |> assign(:selected_columns, report_params.data_source_info.columns)
-      |> add_draw_chart_events(
-        socket.assigns.query_result_by_columns,
-        report_params.data_source_info.columns
-      )
+
+    socket =
+      case socket.assigns.data_source do
+        %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+          socket
+          |> assign(:selected_columns, report_params.data_source_info.columns)
+          |> add_draw_chart_events(
+            socket.assigns.query_result_by_columns,
+            report_params.data_source_info.columns
+          )
+
+        %DataSource{source: :tableau} ->
+          socket
+      end
 
     {:noreply, socket}
   end
@@ -501,24 +618,22 @@ defmodule CarrierWeb.ReportLive.New do
         _ -> nil
       end)
 
-    report_params = socket.assigns.report_changeset |> Params.to_params()
+    report_inputs =
+      socket.assigns.report_changeset
+      |> Params.to_map()
+      |> MapHelper.deep_map(fn {k, v} -> {k |> to_string(), v} end)
+      |> MapHelper.deep_merge(%{
+        "integration_info" => %{"channel_id" => channel_id}
+      })
 
-    report_changeset =
-      ReportParams.changeset(
-        report_params,
-        %{
-          integration_info: %{
-            channel_id: channel_id,
-            channel_name: channel_name
-          }
-        }
-      )
+    report_changeset = validate_report_changeset(socket, report_inputs)
 
     socket =
       socket
       |> assign(:report_changeset, report_changeset)
       |> assign(:channel_id, channel_id)
       |> assign(:channel_search_term, channel_name)
+      |> assign(:channel_suggestions, [])
 
     {:noreply, socket}
   end
@@ -552,34 +667,22 @@ defmodule CarrierWeb.ReportLive.New do
     %{"send_preview_form" => %{"channel" => channel_id}} = params
 
     Task.start(fn ->
-      data =
-        socket.assigns.query_result_by_columns
-        |> Map.filter(fn {k, _v} -> k in socket.assigns.selected_columns end)
+      case socket.assigns.data_source do
+        %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+          send_preview_for_rdb(socket, channel_id)
 
-      {:ok, %{image_urls: img_urls}} =
-        ImageGenerator.gen_chart_images(%{
-          org_id: socket.assigns.org_id,
-          report_id: "preview",
-          data: data
-        })
+        %DataSource{source: :tableau} ->
+          send_preview_for_tableau(socket, channel_id)
+      end
+      |> then(fn
+        :ok ->
+          :ok
 
-      with {:ok, _} <-
-             Slack.build_post_message_args(data, img_urls)
-             |> Enum.map(fn slack_arg ->
-               Noti.send_report_to_slack(
-                 channel_id,
-                 slack_arg,
-                 socket.assigns.integration.conn_info.info["bot_token"]
-               )
-             end)
-             |> Traversable.traverse() do
-        :ok
-      else
         {:error, error} ->
           Logger.error(inspect(error))
 
           {:error, error}
-      end
+      end)
     end)
 
     socket =
@@ -663,17 +766,92 @@ defmodule CarrierWeb.ReportLive.New do
     """
   end
 
-  defp reset_assigns(socket) do
+  defp init_common_assigns(socket) do
+    # data_source and integration should be assigned before this function is called
     socket
-    |> assign(:query_error_message, nil)
+    |> assign(:report_name, "")
+    |> assign(
+      :data_source_options,
+      socket.assigns.data_sources |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
+    )
+    |> assign(:is_loading_slack_channels, false)
+  end
+
+  defp init_assigns_by_data_source(socket) do
+    case socket.assigns.data_source do
+      %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+        socket
+        |> assign(
+          tables: [],
+          date_columns: [],
+          value_columns: [],
+          aggregations: ["SUM", "AVG", "COUNT", "MAX", "MIN"]
+        )
+        |> assign(:query_maker_button_font_size, 14)
+        |> assign(:sample_sql_template, @sample_sql_template)
+        |> assign(:sql_template, "")
+        |> assign(:query_error_message, nil)
+        |> assign(:preview, nil)
+        |> assign(:show_full_preview_data, false)
+        |> assign(:query_result_by_columns, nil)
+        |> assign(:query_validations, %{contains_start: true, contains_end: true})
+        |> assign(:period, 28)
+        |> assign(:window_size, 1)
+        |> assign(:comparing_period, 28)
+
+      %DataSource{source: :tableau} ->
+        credentials = ConnInfo.to_credentials(socket.assigns.data_source.conn_info)
+        {:ok, views} = Tableau.list_views(credentials)
+
+        # views = [
+        #   %Carrier.External.Tableau.View{
+        #     id: "606af554-e500-4bac-b0aa-185274434dad",
+        #     name: "Obesity",
+        #     full_name: "Samples / Regional / Obesity"
+        #   },
+        #   %Carrier.External.Tableau.View{
+        #     id: "ba12d2d7-6fbc-4e5e-b588-c652749d30d8",
+        #     name: "College",
+        #     full_name: "Samples / Regional / College"
+        #   }
+        # ]
+
+        socket
+        |> assign(:tableau_views, views)
+        |> assign(:tableau_view_search_term, "")
+        |> assign(:tableau_view_suggestions, [])
+        |> assign(:tableau_selected_view, nil)
+        |> assign(:tableau_image_binary, nil)
+    end
     |> assign(:data_loaded, false)
-    |> assign(%{
-      preview: nil,
-      show_full_preview_data: false
-    })
-    |> assign(:query_result_by_columns, nil)
-    |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
-    |> assign(:query_validations, %{contains_start: true, contains_end: true})
+  end
+
+  defp init_assigns_by_integration(socket) do
+    case socket.assigns.integration do
+      %Integration{service_name: :slack} ->
+        {:ok, channels} =
+          Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
+
+        socket
+        |> assign(:channels, channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end))
+        |> assign(:channel_suggestions, [])
+        |> assign(:channel_id, "")
+        |> assign(:channel_search_term, "")
+        |> assign(:hours, 0..23 |> Enum.map(&{"매일 #{&1}시", &1}))
+        |> assign(:hour, "0")
+    end
+  end
+
+  defp init_changeset(socket) do
+    case socket.assigns.data_source do
+      %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+        socket
+        |> assign(:report_changeset, ReportParams.changeset(ReportParams.init_attrs()))
+
+      %DataSource{source: :tableau} ->
+        socket
+        |> assign(:report_changeset, ReportTableau.changeset(ReportTableau.init_attrs()))
+    end
   end
 
   defp load_columns(socket, table_name) do
@@ -777,11 +955,50 @@ defmodule CarrierWeb.ReportLive.New do
     end
   end
 
-  defp validate_report_changeset(socket, report_inputs) do
-    report_inputs =
-      %{"data_source_info" => %{"columns" => []}}
-      |> MapHelper.deep_merge(report_inputs)
+  defp send_preview_for_rdb(socket, channel_id) do
+    data =
+      socket.assigns.query_result_by_columns
+      |> Map.filter(fn {k, _v} -> k in socket.assigns.selected_columns end)
 
+    with {:ok, %{image_urls: img_urls}} <-
+           ImageGenerator.gen_chart_images(%{
+             org_id: socket.assigns.org_id,
+             report_id: "preview",
+             data: data
+           }),
+         {:ok, _} <-
+           Slack.build_post_message_args(data, img_urls)
+           |> Enum.map(fn slack_arg ->
+             Noti.send_report_to_slack(
+               channel_id,
+               slack_arg,
+               socket.assigns.integration.conn_info.info["bot_token"]
+             )
+           end)
+           |> Traversable.traverse() do
+      :ok
+    end
+  end
+
+  defp send_preview_for_tableau(socket, channel_id) do
+    with {:ok, url} <-
+           ImageGenerator.upload_chart_image(%{
+             org_id: socket.assigns.org_id,
+             report_id: "preview",
+             binary: socket.assigns.tableau_image_binary
+           }),
+         slack_arg = %{title: socket.assigns.tableau_selected_view.full_name, img_url: url},
+         :ok <-
+           Noti.send_report_to_slack(
+             channel_id,
+             slack_arg,
+             socket.assigns.integration.conn_info.info["bot_token"]
+           ) do
+      :ok
+    end
+  end
+
+  defp validate_report_changeset(socket, report_inputs) do
     %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} = report_inputs
 
     trigger_time =
@@ -795,19 +1012,37 @@ defmodule CarrierWeb.ReportLive.New do
         _ -> nil
       end)
 
-    attrs =
-      report_inputs
-      |> MapHelper.deep_merge(%{
-        "trigger_time" => trigger_time,
-        "integration_info" => %{
-          "channel_name" => channel_name,
-          "channel_id" => channel_id
-        }
-      })
+    case socket.assigns.data_source do
+      %DataSource{source: source} when source in [:postgres, :mysql, :bigquery, :athena] ->
+        attrs =
+          report_inputs
+          |> MapHelper.deep_merge(%{
+            "trigger_time" => trigger_time,
+            "integration_info" => %{
+              "channel_name" => channel_name,
+              "channel_id" => channel_id
+            }
+          })
 
-    _changeset =
-      ReportParams.changeset(attrs)
-      |> Params.set_action(:validate)
+        _changeset =
+          ReportParams.changeset(attrs)
+          |> Params.set_action(:validate)
+
+      %DataSource{source: :tableau} ->
+        attrs =
+          report_inputs
+          |> MapHelper.deep_merge(%{
+            "trigger_time" => trigger_time,
+            "integration_info" => %{
+              "channel_name" => channel_name,
+              "channel_id" => channel_id
+            }
+          })
+
+        _changeset =
+          ReportTableau.changeset(attrs)
+          |> Params.set_action(:validate)
+    end
   end
 
   defp is_valid_sql_template(query_validations) do

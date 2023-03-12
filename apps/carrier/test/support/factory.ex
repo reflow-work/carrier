@@ -103,6 +103,7 @@ defmodule Carrier.Factory do
       report_info: report_info,
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
+      timezone: "Asia/Seoul",
       integration_info: %{
         "integration_id" => integration_id,
         "channel_id" => "channel_id"

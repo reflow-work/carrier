@@ -9,16 +9,25 @@ defmodule Carrier.Reports.Report do
     field :user_id, :integer
     field :name, :string
     field :trigger_time, :time
+    field :timezone, :string
 
     embeds_one :integration_info, IntegrationInfo, on_replace: :delete
-    embeds_one :data_source_info, DataSourceInfo, on_replace: :delete
+    field :data_source_info, :map
 
     field :deleted_at, :utc_datetime_usec
 
     timestamps()
   end
 
-  @required_for_create [:org_id, :report_info_id, :user_id, :name, :trigger_time]
+  @required_for_create [
+    :org_id,
+    :report_info_id,
+    :user_id,
+    :name,
+    :trigger_time,
+    :timezone,
+    :data_source_info
+  ]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create)
@@ -27,10 +36,18 @@ defmodule Carrier.Reports.Report do
       required: true,
       with: &IntegrationInfo.changeset_for_create/2
     )
-    |> cast_embed(:data_source_info,
-      required: true,
-      with: &DataSourceInfo.changeset_for_create/2
-    )
+    |> validate_data_source_info()
+  end
+
+  defp validate_data_source_info(%Ecto.Changeset{} = changeset) do
+    validate_change(changeset, :data_source_info, fn :data_source_info, data_source_info ->
+      data_source_info_changeset = DataSourceInfo.get_changeset(data_source_info)
+
+      case data_source_info_changeset.valid? do
+        true -> []
+        false -> data_source_info_changeset.errors
+      end
+    end)
   end
 
   @required_for_delete [:deleted_at]
@@ -46,6 +63,7 @@ defmodule Carrier.Reports.Report do
         user_id: user_id,
         name: name,
         trigger_time: trigger_time,
+        timezone: timezone,
         integration_info: integration_info,
         data_source_info: data_source_info
       }) do
@@ -56,6 +74,7 @@ defmodule Carrier.Reports.Report do
       user_id: user_id,
       name: name,
       trigger_time: trigger_time,
+      timezone: timezone,
       integration_info: integration_info,
       data_source_info: data_source_info
     })
@@ -80,5 +99,13 @@ defmodule Carrier.Reports.Report do
   def delete(%__MODULE__{} = struct, %DateTime{} = deleted_at) do
     struct
     |> changeset_for_delete(%{deleted_at: deleted_at})
+  end
+
+  def load_data_source_info(%__MODULE__{data_source_info: data_source_info} = struct) do
+    data_source_info =
+      data_source_info
+      |> DataSourceInfo.get_struct()
+
+    %__MODULE__{struct | data_source_info: data_source_info}
   end
 end

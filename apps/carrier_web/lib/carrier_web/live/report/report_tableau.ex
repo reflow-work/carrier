@@ -1,4 +1,4 @@
-defmodule CarrierWeb.ReportLive.New.ReportParams do
+defmodule CarrierWeb.ReportLive.New.ReportTableau do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -18,12 +18,9 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
 
     embeds_one :data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete do
       field :data_source_id, :integer
-      field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
-      field :sql_template, :string
-      field :period, :integer
-      field :window_size, :integer
-      field :comparing_period, :integer
-      field :columns, {:array, :string}
+      field :source, Ecto.Enum, values: [:tableau]
+      field :view_id, :string
+      field :view_full_name, :string
     end
   end
 
@@ -50,16 +47,12 @@ defmodule CarrierWeb.ReportLive.New.ReportParams do
   @required_data_source_info [
     :data_source_id,
     :source,
-    :sql_template,
-    :period,
-    :window_size,
-    :comparing_period,
-    :columns
+    :view_id,
+    :view_full_name
   ]
   defp changeset_data_source_info(%__MODULE__.DataSourceInfo{} = struct, attrs) do
     struct
     |> cast(attrs, @required_data_source_info)
     |> validate_required(@required_data_source_info)
-    |> validate_length(:columns, min: 1)
   end
 end

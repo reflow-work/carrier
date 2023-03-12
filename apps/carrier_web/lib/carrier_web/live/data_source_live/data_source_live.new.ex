@@ -61,6 +61,9 @@ defmodule CarrierWeb.DataSourceLive.New do
 
         :athena ->
           ConnInfoParams.Athena
+
+        :tableau ->
+          ConnInfoParams.Tableau
       end
 
     socket =
@@ -179,12 +182,19 @@ defmodule CarrierWeb.DataSourceLive.New do
       {:mysql, "MySQL", "logo-mysql.png"},
       {:postgres, "PostgreSQL", "logo-postgresql.png"},
       {:bigquery, "BigQuery", "logo-bigquery.png"},
-      {:athena, "Athena", "logo-athena.png"}
+      {:athena, "Athena", "logo-athena.png"},
+      {:tableau, "Tableau Cloud", "logo-tableau.png"}
     ]
     |> then(fn data_sources ->
       case Setting.get_feature_flag_value("data_source_athena") do
         true -> data_sources
         false -> Enum.reject(data_sources, fn {source, _, _} -> source == :athena end)
+      end
+    end)
+    |> then(fn data_sources ->
+      case Setting.get_feature_flag_value("data_source_tableau") do
+        true -> data_sources
+        false -> Enum.reject(data_sources, fn {source, _, _} -> source == :tableau end)
       end
     end)
   end
