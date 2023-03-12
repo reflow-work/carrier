@@ -141,13 +141,15 @@ Repo.transaction(fn ->
           report_info_id: report_info0.id,
           name: "json is babo",
           trigger_time: ~T[01:00:00],
+          timezone: "Asia/Seoul",
           integration_info: %IntegrationInfo{
             integration_id: integration0.id,
             channel_id: "C03U2QWU7F1",
             channel_name: "message_tests"
           },
-          data_source_info: %DataSourceInfo{
+          data_source_info: %{
             data_source_id: data_source0.id,
+            source: "postgres",
             sql_template: """
             SELECT order_date as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
               FROM sample_data
@@ -167,13 +169,15 @@ Repo.transaction(fn ->
           report_info_id: report_info1.id,
           name: "wonny is babo",
           trigger_time: ~T[01:00:00],
+          timezone: "Asia/Seoul",
           integration_info: %IntegrationInfo{
             integration_id: integration1.id,
             channel_id: "C03U2QWU7F1",
             channel_name: "message_tests"
           },
-          data_source_info: %DataSourceInfo{
+          data_source_info: %{
             data_source_id: data_source1.id,
+            source: "postgres",
             sql_template: """
             SELECT order_date as date, SUM(amount) AS total_amount, SUM(revenue) AS total_revenue
               FROM sample_data
@@ -195,7 +199,12 @@ Repo.transaction(fn ->
   {:ok, _} = Reports.create_job_from_report(report0, DateTime.utc_now(), %{repo: Repo})
   {:ok, _} = Reports.create_job_from_report(report1, DateTime.utc_now(), %{repo: Repo})
 
-  {1, _} = Repo.insert_all(FeatureFlag, [%{key: "test", description: "for testing"}])
+  {3, _} =
+    Repo.insert_all(FeatureFlag, [
+      %{key: "test", description: "for testing", value: false},
+      %{key: "data_source_athena", description: "athena", value: true},
+      %{key: "data_source_tableau", description: "tableau", value: true}
+    ])
 
   {1, _} =
     Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
