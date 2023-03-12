@@ -169,7 +169,7 @@ input[type="checkbox"] {
 }
 
 .card {
-  @apply w-full drop-shadow-sm bg-white rounded-2xl;
+  @apply w-full drop-shadow-sm bg-background-light rounded-2xl;
 }
 
 .menu-item {

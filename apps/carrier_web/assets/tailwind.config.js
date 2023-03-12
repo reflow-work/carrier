@@ -13,8 +13,8 @@ module.exports = {
     extend: {
       colors: {
         "primary-red": "#AA2217",
-        base: "#F7F7F7",
-        "base-dark": "#111111",
+        base: "#f2f2f2",
+        "base-dark": "#222222",
         "base-dark-hover": "#1F1F1F",
         "description": "#888888",
         "slackImgLightGrey": "#F3F3F3",
@@ -25,6 +25,8 @@ module.exports = {
         "slack-code-border": "#DDDEDD",
         "landingDescription": '#939393',
         "landingBgGray": '#F4F4F4',
+        "background-dark": "#222222",
+        "background-light": "#ffffff"
       },
       fontSize: {
         h1: ["42px", { "lineHeight": "48px", "fontWeight": "700" }],
@@ -61,7 +63,7 @@ module.exports = {
     themes: [
       {
         mytheme: {
-          primary: "#000000",
+          primary: "#222222",
           "primary-content": "#FFFFFF",
           accent: "#B22317",
           neutral: "#f0f0f0",
