@@ -7,7 +7,7 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.TenantRepo
   alias Carrier.External.Slack
   alias Carrier.External.Slack.Block
-  alias Carrier.Core.Traversable
+  alias Carrier.Core.{DateHelper, Traversable}
 
   @query_date_length 28 + 7 + 28 + 1
 
@@ -137,6 +137,9 @@ defmodule Carrier.Works.ReportJob do
   defp send_report(%{
          report: %Report{
            id: report_id,
+           data_source_info: %{
+             timezone: timezone
+           },
            integration_info: %{
              integration_id: integration_id,
              channel_id: channel_id
@@ -150,6 +153,7 @@ defmodule Carrier.Works.ReportJob do
              slack_args
              |> Enum.map(fn %{img_url: image_url, title: image_title} ->
                blocks = [
+                 Block.build_text_block(report_title(timezone, image_title)),
                  Block.build_image_block(image_url, image_title, image_title)
                ]
 
@@ -164,5 +168,9 @@ defmodule Carrier.Works.ReportJob do
         {:ok, send_result}
       end
     end)
+  end
+
+  defp report_title(timezone, title) do
+    "*📊 #{DateTime.now!(timezone) |> DateHelper.safe_format_date()} - #{title}*"
   end
 end
