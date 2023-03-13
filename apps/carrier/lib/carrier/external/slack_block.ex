@@ -1,5 +1,5 @@
 defmodule Carrier.External.SlackBlock do
-  def build_image(url, title, alt_text) do
+  def build_image_block(url, title, alt_text) do
     image_url = url |> URI.encode()
 
     %{

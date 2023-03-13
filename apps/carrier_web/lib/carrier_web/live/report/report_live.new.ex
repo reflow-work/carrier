@@ -974,7 +974,7 @@ defmodule CarrierWeb.ReportLive.New do
              image_title = v.meta.label
 
              blocks = [
-               SlackBlock.build_image(image_url, image_title, image_title)
+               SlackBlock.build_image_block(image_url, image_title, image_title)
              ]
 
              Slack.post_message(
