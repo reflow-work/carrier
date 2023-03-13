@@ -970,11 +970,14 @@ defmodule CarrierWeb.ReportLive.New do
            data
            |> Map.to_list()
            |> Enum.map(fn {k, v} ->
+             title = v.meta.label
              image_url = Map.get(img_urls, k)
-             image_title = v.meta.label
 
              blocks = [
-               SlackBlock.build_image_block(image_url, image_title, image_title)
+               SlackBlock.build_text_block(
+                 "*📊 #{current_datetime!(socket.assigns.timezone) |> DateHelper.safe_format_date()} - #{title}*"
+               ),
+               SlackBlock.build_image_block(image_url, title, title)
              ]
 
              Slack.post_message(
