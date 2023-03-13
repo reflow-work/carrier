@@ -6,7 +6,7 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.Data.Source.Tableau
   alias Carrier.TenantRepo
   alias Carrier.External.Slack
-  alias Carrier.External.SlackBlock
+  alias Carrier.External.Slack.Block
   alias Carrier.Core.Traversable
 
   @query_date_length 28 + 7 + 28 + 1
@@ -148,12 +148,9 @@ defmodule Carrier.Works.ReportJob do
       with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
            {:ok, send_result} <-
              slack_args
-             |> Enum.map(fn x ->
-               image_url = x.img_url
-               image_title = x.title
-
+             |> Enum.map(fn %{img_url: image_url, title: image_title} ->
                blocks = [
-                 SlackBlock.build_image_block(image_url, image_title, image_title)
+                 Block.build_image_block(image_url, image_title, image_title)
                ]
 
                Slack.post_message(

@@ -1,4 +1,4 @@
-defmodule Carrier.External.SlackBlock do
+defmodule Carrier.External.Slack.Block do
   def build_text_block(text, type \\ "mrkdwn") do
     %{
       "type" => "section",

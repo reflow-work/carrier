@@ -300,7 +300,7 @@
                     </div> --%>
                       <%= for column <- @selected_columns do %>
                         <div class="font-bold">
-                          📊 <%= "#{current_datetime!(@timezone) |> DateHelper.safe_format_date()} - #{@query_result_by_columns[column].meta.label}" %>
+                          <%= report_title(@timezone, @query_result_by_columns[column].meta.label) %>
                         </div>
                         <section class={"space-y-3 bg-slackImgLightGrey p-4 #{if column not in @selected_columns, do: "hidden"}"}>
                           <h3 class="font-bold text-base-dark text-sm">
