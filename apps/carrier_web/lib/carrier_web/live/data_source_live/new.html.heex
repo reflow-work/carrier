@@ -401,7 +401,10 @@
                         <label class="label mt-2">
                           <span class="label-text text-gray-500">Tableau URL</span>
                         </label>
-                        <%= text_input(fci, :host, class: "data-source-input", placeholder: "https://xxx.online.tableau.com") %>
+                        <%= text_input(fci, :host,
+                          class: "data-source-input",
+                          placeholder: "https://xxx.online.tableau.com"
+                        ) %>
                         <%= error_tag(fci, :host) %>
                       </div>
 

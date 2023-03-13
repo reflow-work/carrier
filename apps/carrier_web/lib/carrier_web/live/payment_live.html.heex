@@ -5,16 +5,54 @@
     </h1>
   </header>
 
-  <div class="space-y-8 mt-6">
-    <div class="card">
+  <div class="mt-6 grid grid-cols-12 gap-4">
+    <div class="col-span-8 card">
       <div class="card-body">
         <h2 class="card-title">
-          제목
+          플랜
         </h2>
 
         <div>
-          한 달 동안 무료로 사용하고 언제든지 해지하세요.
+          <div class="mb-10">한 달 동안 무료로 사용하고 언제든지 해지하세요.</div>
+
+          <div class="py-4 px-6 cursor-pointer rounded w-full border hover:bg-black hover:text-white flex items-center justify-between bg-white text-black">
+            <div class="flex items-center">
+              <div>
+                <input type="radio" class="radio mr-4" />
+              </div>
+              <div>
+                <div class="font-bold text-lg">Yearly</div>
+                <div class="font-bold">39,000 원 / 월</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="py-4 px-6 mt-4 cursor-pointer rounded w-full border hover:bg-black hover:text-white flex items-center justify-between bg-white text-black">
+            <div class="flex items-center">
+              <div>
+                <input type="radio" class="radio mr-4" />
+              </div>
+              <div>
+                <div class="font-bold text-lg">Monthly</div>
+                <div class="font-bold">49,000 원 / 월</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <div class="col-span-4 card">
+      <div class="card-body">
+        <h2 class="card-title">
+          결제 정보
+        </h2>
+        <div>
+          매월 49,000원
+        </div>
+        <button class="btn btn-primary mt-6 w-full" type="button">
+          결제하기
+        </button>
       </div>
     </div>
   </div>
