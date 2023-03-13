@@ -4,7 +4,6 @@ defmodule CarrierWeb.ReportLive.New do
   use Carrier.{Reports, Secrets}
   alias Carrier.Data.QueryData
   alias Carrier.Data.Source.Tableau
-  alias Carrier.Noti
   alias Carrier.External.Slack
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable, MapHelper}
   alias CarrierWeb.Components.Empty
@@ -967,11 +966,20 @@ defmodule CarrierWeb.ReportLive.New do
              data: data
            }),
          {:ok, _} <-
-           Slack.build_post_message_args(data, img_urls)
-           |> Enum.map(fn slack_arg ->
-             Noti.send_report_to_slack(
+           data
+           |> Map.to_list()
+           |> Enum.map(fn {k, v} ->
+             title = v.meta.label
+             image_url = Map.get(img_urls, k)
+
+             blocks = [
+               Slack.Block.build_text_block(report_title(socket.assigns.timezone, title)),
+               Slack.Block.build_image_block(image_url, title, title)
+             ]
+
+             Slack.post_message(
                channel_id,
-               slack_arg,
+               blocks,
                socket.assigns.integration.conn_info.info["bot_token"]
              )
            end)
@@ -987,11 +995,16 @@ defmodule CarrierWeb.ReportLive.New do
              report_id: "preview",
              binary: socket.assigns.tableau_image_binary
            }),
-         slack_arg = %{title: socket.assigns.tableau_selected_view.full_name, img_url: url},
+         title = socket.assigns.tableau_selected_view.full_name,
+         image_url = url,
+         blocks = [
+           Slack.Block.build_text_block(report_title(socket.assigns.timezone, title)),
+           Slack.Block.build_image_block(image_url, title, title)
+         ],
          :ok <-
-           Noti.send_report_to_slack(
+           Slack.post_message(
              channel_id,
-             slack_arg,
+             blocks,
              socket.assigns.integration.conn_info.info["bot_token"]
            ) do
       :ok
@@ -1047,5 +1060,9 @@ defmodule CarrierWeb.ReportLive.New do
 
   defp is_valid_sql_template(query_validations) do
     query_validations |> Map.values() |> Enum.all?()
+  end
+
+  defp report_title(timezone, title) do
+    "*📊 #{current_datetime!(timezone) |> DateHelper.safe_format_date()} - #{title}*"
   end
 end

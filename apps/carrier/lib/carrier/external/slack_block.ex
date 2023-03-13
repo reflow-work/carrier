@@ -1,5 +1,15 @@
-defmodule Carrier.External.SlackBlock do
-  def build_image(url, title, alt_text) do
+defmodule Carrier.External.Slack.Block do
+  def build_text_block(text, type \\ "mrkdwn") do
+    %{
+      "type" => "section",
+      "text" => %{
+        "type" => type,
+        "text" => text
+      }
+    }
+  end
+
+  def build_image_block(url, title, alt_text) do
     image_url = url |> URI.encode()
 
     %{

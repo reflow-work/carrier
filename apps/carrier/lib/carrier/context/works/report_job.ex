@@ -4,10 +4,9 @@ defmodule Carrier.Works.ReportJob do
   require Logger
   alias Carrier.Data.QueryData
   alias Carrier.Data.Source.Tableau
-  alias Carrier.Noti
   alias Carrier.TenantRepo
   alias Carrier.External.Slack
-  alias Carrier.Core.Traversable
+  alias Carrier.Core.{DateHelper, Traversable}
 
   @query_date_length 28 + 7 + 28 + 1
 
@@ -137,6 +136,7 @@ defmodule Carrier.Works.ReportJob do
   defp send_report(%{
          report: %Report{
            id: report_id,
+           timezone: timezone,
            integration_info: %{
              integration_id: integration_id,
              channel_id: channel_id
@@ -148,13 +148,26 @@ defmodule Carrier.Works.ReportJob do
       with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
            {:ok, send_result} <-
              slack_args
-             |> Enum.map(
-               &Noti.send_report_to_slack(channel_id, &1, integration.conn_info.info["bot_token"])
-             )
+             |> Enum.map(fn %{img_url: image_url, title: image_title} ->
+               blocks = [
+                 Slack.Block.build_text_block(report_title(timezone, image_title)),
+                 Slack.Block.build_image_block(image_url, image_title, image_title)
+               ]
+
+               Slack.post_message(
+                 channel_id,
+                 blocks,
+                 integration.conn_info.info["bot_token"]
+               )
+             end)
              |> Traversable.traverse(),
            {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}) do
         {:ok, send_result}
       end
     end)
+  end
+
+  defp report_title(timezone, title) do
+    "*📊 #{DateTime.now!(timezone) |> DateHelper.safe_format_date()} - #{title}*"
   end
 end
