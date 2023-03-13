@@ -137,9 +137,7 @@ defmodule Carrier.Works.ReportJob do
   defp send_report(%{
          report: %Report{
            id: report_id,
-           data_source_info: %{
-             timezone: timezone
-           },
+           timezone: timezone,
            integration_info: %{
              integration_id: integration_id,
              channel_id: channel_id
