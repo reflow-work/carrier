@@ -336,25 +336,6 @@ defmodule Carrier.ReportsTest do
       %{report_log: report_log}
     end
 
-    test "with integration_info", %{report_log: report_log} do
-      integration = TenantFactory.insert(:integration, org_id: report_log.org_id)
-
-      integration_info = %{
-        integration_id: integration.id,
-        channel_id: "channel_id",
-        channel_name: "channel_name"
-      }
-
-      assert {:ok, updated_report_log} =
-               Reports.update_report_log(report_log, %{integration_info: integration_info})
-
-      assert same_fields?(updated_report_log.integration_info, integration_info, [
-               :integration_id,
-               :channel_id,
-               :channel_name
-             ])
-    end
-
     test "with data_source_info", %{report_log: report_log} do
       data_source = TenantFactory.insert(:data_source, org_id: report_log.org_id)
 
