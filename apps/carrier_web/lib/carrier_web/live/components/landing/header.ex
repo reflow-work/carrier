@@ -22,7 +22,7 @@ defmodule LandingHeaderComponent do
           <ul class="flex-row hidden md:flex md:mr-4">
             <li>
               <a
-                class="font-bold cursor-pointer text-base text-black px-4"
+                class="font-bold cursor-pointer text-base !text-black px-4"
                 phx-target={@myself}
                 phx-click="click_link"
                 phx-value-name="pricing_on_header"
@@ -33,7 +33,7 @@ defmodule LandingHeaderComponent do
             </li>
             <li>
               <a
-                class="font-bold cursor-pointer text-base text-black px-4"
+                class="font-bold cursor-pointer text-base !text-black px-4"
                 phx-target={@myself}
                 phx-click="click_link"
                 phx-value-name="login_on_header"
