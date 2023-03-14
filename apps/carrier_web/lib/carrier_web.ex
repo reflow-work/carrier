@@ -43,6 +43,8 @@ defmodule CarrierWeb do
       import Plug.Conn
       import CarrierWeb.Gettext
       alias CarrierWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -50,6 +52,8 @@ defmodule CarrierWeb do
     quote do
       import Plug.Conn
       alias CarrierWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -128,6 +132,15 @@ defmodule CarrierWeb do
     end
   end
 
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: CarrierWeb.Endpoint,
+        router: CarrierWeb.Router,
+        statics: CarrierWeb.static_paths()
+    end
+  end
+
   defp html_helper do
     quote do
       # HTML escaping functionality
@@ -147,6 +160,9 @@ defmodule CarrierWeb do
       import CarrierWeb.ErrorHelpers
       alias CarrierWeb.Router.Helpers, as: Routes
       import Phoenix.Component
+
+      # Routes generation with the ~p sigil
+      unquote(verified_routes())
     end
   end
 
