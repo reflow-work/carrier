@@ -86,6 +86,8 @@ config :carrier, Carrier.Vault,
        tag: "AES.GCM.V1", key: Base.decode64!("mO9HUeIWNsMuVoLRcHB9UdPtdZ9PVDZSwUzT8jIIAxI=")}
   ]
 
-config :carrier, :toss_payments, client_key: "test_ck_O6BYq7GWPVvWzA11PznrNE5vbo1d"
+config :carrier, :toss_payments,
+  client_key: "test_ck_O6BYq7GWPVvWzA11PznrNE5vbo1d",
+  secret_key: "test_sk_dP9BRQmyarYkvqM5RYa3J07KzLNk"
 
 import_config "#{config_env()}.secret.exs"

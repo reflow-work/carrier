@@ -56,6 +56,7 @@ defmodule CarrierWeb.Router do
       ] do
       live "/onboarding", OnboardingLive, :index
       live "/payment", PaymentLive, :index
+      live "/payment/done", PaymentLive.Done, :index
       live "/integrations/new", IntegrationLive.New, :new
       live "/data-sources", DataSourceLive.Index, :index
       live "/data-sources/new", DataSourceLive.New, :new
