@@ -1,12 +1,15 @@
 defmodule Carrier.Reports.ImageGenerator do
   require Logger
+  alias Carrier.Core.Crypto
   alias Carrier.External.Aws
 
   def gen_chart_images(%{org_id: org_id, report_id: report_id, data: data}) do
+    encoded_org_id = Crypto.obfuscate(org_id)
+    encoded_report_id = Crypto.obfuscate(report_id)
     Aws.create_internal_client()
     |> Aws.Lambda.invoke("createChartImage", %{
-      "orgId" => org_id,
-      "reportId" => report_id,
+      "orgId" => encoded_org_id,
+      "reportId" => encoded_report_id,
       "data" => data
     })
     |> case do
@@ -24,7 +27,9 @@ defmodule Carrier.Reports.ImageGenerator do
     timestamp = DateTime.utc_now() |> DateTime.to_unix()
     bucket = "carrier-chart-img"
     region = "ap-northeast-2"
-    key = "#{org_id}/#{report_id}/#{timestamp}.png"
+    encoded_org_id = Crypto.obfuscate(org_id)
+    encoded_report_id = Crypto.obfuscate(report_id)
+    key = "#{encoded_org_id}/#{encoded_report_id}/#{timestamp}.png"
     url = "https://#{bucket}.s3.#{region}.amazonaws.com/#{key}"
 
     Aws.create_internal_client()
