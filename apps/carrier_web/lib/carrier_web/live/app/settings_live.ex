@@ -1,4 +1,4 @@
-defmodule CarrierWeb.SettingsLive do
+defmodule CarrierWeb.App.SettingsLive do
   use CarrierWeb, :live_view
 
   @impl true

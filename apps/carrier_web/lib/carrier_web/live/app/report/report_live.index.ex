@@ -1,4 +1,4 @@
-defmodule CarrierWeb.ReportLive.Index do
+defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Reports
   alias Carrier.Core.TimeHelper

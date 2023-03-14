@@ -1,10 +1,10 @@
-defmodule CarrierWeb.DataSourceLive.New do
+defmodule CarrierWeb.App.DataSourceLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
   use Carrier.Secrets
   use Carrier.Setting
   alias CarrierWeb.Components.Icon
-  alias CarrierWeb.DataSourceLive.ConnInfoParams
+  alias __MODULE__.ConnInfoParams
 
   @impl true
   def mount(_params, _session, socket) do

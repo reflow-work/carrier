@@ -1,11 +1,11 @@
-defmodule CarrierWeb.DataSourceLive.ConnInfoParams.Postgres do
+defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.MySQL do
   use Ecto.Schema
   import Ecto.Changeset
 
   embedded_schema do
     field :org_id, :integer
     field :name, :string
-    field :source, Ecto.Enum, values: [:postgres], default: :postgres
+    field :source, Ecto.Enum, values: [:mysql], default: :mysql
 
     embeds_one :conn_info, ConnInfo, primary_key: false do
       field :hostname, :string
@@ -33,6 +33,6 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.Postgres do
   end
 
   def init_attrs() do
-    %{conn_info: %{port: 5432, ssl: false}}
+    %{conn_info: %{port: 3306, ssl: false}}
   end
 end

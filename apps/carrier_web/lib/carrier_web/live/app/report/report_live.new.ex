@@ -1,4 +1,4 @@
-defmodule CarrierWeb.ReportLive.New do
+defmodule CarrierWeb.App.ReportLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
   use Carrier.{Reports, Secrets}
@@ -9,7 +9,7 @@ defmodule CarrierWeb.ReportLive.New do
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
   alias CarrierWeb.Components.QueryChecker
-  alias CarrierWeb.ReportLive.New.{ReportParams, ReportTableau}
+  alias __MODULE__.{ReportParams, ReportTableau}
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)

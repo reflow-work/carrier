@@ -1,4 +1,4 @@
-defmodule CarrierWeb.ReportLogLive.Index do
+defmodule CarrierWeb.App.ReportLogLive.Index do
   use CarrierWeb, :live_view
 
   alias Carrier.Core.Crypto

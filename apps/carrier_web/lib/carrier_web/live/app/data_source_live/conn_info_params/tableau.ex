@@ -1,15 +1,17 @@
-defmodule CarrierWeb.DataSourceLive.ConnInfoParams.BigQuery do
+defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.Tableau do
   use Ecto.Schema
   import Ecto.Changeset
 
   embedded_schema do
     field :org_id, :integer
     field :name, :string
-    field :source, Ecto.Enum, values: [:bigquery], default: :bigquery
+    field :source, Ecto.Enum, values: [:tableau], default: :tableau
 
     embeds_one :conn_info, ConnInfo, primary_key: false do
-      field :project_id, :string
-      field :credentials_json, :string
+      field :host, :string
+      field :id, :string
+      field :password, :string
+      field :site, :string
     end
   end
 
@@ -21,7 +23,12 @@ defmodule CarrierWeb.DataSourceLive.ConnInfoParams.BigQuery do
     |> cast_embed(:conn_info, with: &changeset_for_conn_info/2)
   end
 
-  @required_for_conn_info [:project_id, :credentials_json]
+  @required_for_conn_info [
+    :host,
+    :id,
+    :password,
+    :site
+  ]
   defp changeset_for_conn_info(%__MODULE__.ConnInfo{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_conn_info)

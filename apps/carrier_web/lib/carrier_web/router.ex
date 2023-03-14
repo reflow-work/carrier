@@ -44,7 +44,7 @@ defmodule CarrierWeb.Router do
   end
 
   # With Auth
-  scope "/app", CarrierWeb do
+  scope "/app", CarrierWeb.App do
     pipe_through :browser
 
     live_session :user,

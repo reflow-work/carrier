@@ -1,4 +1,4 @@
-defmodule CarrierWeb.OnboardingLive do
+defmodule CarrierWeb.App.OnboardingLive do
   use CarrierWeb, :live_view
 
   alias Carrier.Accounts

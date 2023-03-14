@@ -1,4 +1,4 @@
-defmodule CarrierWeb.DataSourceLive.Index do
+defmodule CarrierWeb.App.DataSourceLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Secrets.DataSource
   alias Carrier.Setting
