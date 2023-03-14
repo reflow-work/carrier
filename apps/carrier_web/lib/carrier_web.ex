@@ -17,6 +17,25 @@ defmodule CarrierWeb do
   and import those modules here.
   """
 
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt sitemap.xml)
+
+  def router do
+    quote do
+      use Phoenix.Router
+
+      import Plug.Conn
+      import Phoenix.Controller
+      import Phoenix.LiveView.Router
+    end
+  end
+
+  def channel do
+    quote do
+      use Phoenix.Channel
+      import CarrierWeb.Gettext
+    end
+  end
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: CarrierWeb
@@ -34,6 +53,7 @@ defmodule CarrierWeb do
     end
   end
 
+  # TODO: remove
   def view do
     quote do
       use Phoenix.View,
@@ -44,7 +64,7 @@ defmodule CarrierWeb do
       import Phoenix.Controller, only: [view_module: 1, view_template: 1]
 
       # Include shared imports and aliases for views
-      unquote(view_helpers())
+      unquote(html_helper())
     end
   end
 
@@ -53,9 +73,9 @@ defmodule CarrierWeb do
       use Phoenix.LiveView, layout: {CarrierWeb.LayoutView, :live}
 
       require Logger
+      # TODO: remove
       import CarrierWeb.LiveHelpers
       import CarrierWeb.AnalyticsHelper
-      import CarrierWeb.ChanneltalkHelper
       alias Phoenix.LiveView.JS
 
       def put_flash_for(socket, kind, message, opts \\ []) do
@@ -78,18 +98,17 @@ defmodule CarrierWeb do
         {:noreply, clear_flash(socket)}
       end
 
-      unquote(view_helpers())
+      unquote(html_helper())
     end
   end
 
   def live_hook do
     quote do
       import Phoenix.LiveView
-      import Phoenix.Component
       import CarrierWeb.AnalyticsHelper
       import CarrierWeb.ChanneltalkHelper
 
-      unquote(view_helpers())
+      unquote(html_helper())
     end
   end
 
@@ -97,7 +116,7 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.LiveComponent
 
-      unquote(view_helpers())
+      unquote(html_helper())
     end
   end
 
@@ -105,41 +124,29 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.Component
 
-      unquote(view_helpers())
+      unquote(html_helper())
     end
   end
 
-  def router do
+  defp html_helper do
     quote do
-      use Phoenix.Router
-
-      import Plug.Conn
-      import Phoenix.Controller
-      import Phoenix.LiveView.Router
-    end
-  end
-
-  def channel do
-    quote do
-      use Phoenix.Channel
-      import CarrierWeb.Gettext
-    end
-  end
-
-  defp view_helpers do
-    quote do
-      # Use all HTML functionality (forms, tags, etc)
+      # HTML escaping functionality
       use Phoenix.HTML
+      # Core UI components and translation
+      # TODO: uncomment
+      # import CarrierWeb.CoreComponents
+      import CarrierWeb.Gettext
 
-      # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
-      import Phoenix.Component
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
+      # TODO: remove
       import CarrierWeb.ErrorHelpers
-      import CarrierWeb.Gettext
       alias CarrierWeb.Router.Helpers, as: Routes
+      import Phoenix.Component
     end
   end
 
