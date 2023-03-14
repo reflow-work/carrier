@@ -23,7 +23,6 @@ defmodule Carrier.Works.ReportJob do
          {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
          {:ok, %ReportLog{} = updated_report_log} <-
            Reports.update_report_log(report_log, %{
-             integration_info: report.integration_info |> Map.from_struct(),
              data_source_info: report.data_source_info |> Map.from_struct()
            }),
          {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
