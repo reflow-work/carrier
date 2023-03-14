@@ -21,13 +21,9 @@ defmodule Carrier.Works.ReportJob do
     with {:ok, %ReportLog{} = report_log} <-
            Reports.record_tried_report_log(%{report_id: report_id}),
          {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
-         {:ok, %ReportLog{} = updated_report_log} <-
-           Reports.update_report_log(report_log, %{
-             data_source_info: report.data_source_info |> Map.from_struct()
-           }),
          {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
          {:ok, %ReportLog{} = _updated_report_log} <-
-           Reports.update_report_log(updated_report_log, %{payload: slack_args}),
+           Reports.update_report_log(report_log, %{payload: slack_args}),
          {:ok, _result} <- send_report(%{report: report, slack_args: slack_args}),
          {:ok, _next_job} <- Reports.create_job_from_report(report, datetime) do
       :ok

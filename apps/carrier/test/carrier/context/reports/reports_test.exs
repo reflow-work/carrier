@@ -336,34 +336,6 @@ defmodule Carrier.ReportsTest do
       %{report_log: report_log}
     end
 
-    test "with data_source_info", %{report_log: report_log} do
-      data_source = TenantFactory.insert(:data_source, org_id: report_log.org_id)
-
-      data_source_info = %{
-        data_source_id: data_source.id,
-        source: :postgres,
-        sql_template: "sql",
-        timezone: "Asia/Seoul",
-        period: 28,
-        window_size: 7,
-        comparing_period: 7,
-        columns: ["total_revenue"]
-      }
-
-      assert {:ok, updated_report_log} =
-               Reports.update_report_log(report_log, %{data_source_info: data_source_info})
-
-      assert same_fields?(updated_report_log.data_source_info, data_source_info, [
-               :data_source_id,
-               :sql_template,
-               :timezone,
-               :period,
-               :window_size,
-               :comparing_period,
-               :columns
-             ])
-    end
-
     test "with payload", %{report_log: report_log} do
       payload = [%{"key" => "value"}]
 
