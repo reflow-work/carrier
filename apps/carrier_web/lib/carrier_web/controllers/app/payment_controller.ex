@@ -20,8 +20,8 @@ defmodule CarrierWeb.App.PaymentController do
     end
   end
 
-  def toss_payments_callback(conn, %{"code" => code, "message" => message, "orderId" => order_id}) do
-    Logger.error("Failed to pay with toss payments: #{code}, #{message}, #{order_id}")
+  def toss_payments_callback(conn, %{"code" => code, "message" => message}) do
+    Logger.error("Failed to pay with toss payments: #{code}, #{message}")
 
     conn
     |> redirect(to: Routes.app_payment_path(conn, :index))
