@@ -28,6 +28,7 @@ import topbar from "../vendor/topbar"
 import Hooks from "./hooks"
 import "./analytics"
 import "./channeltalk"
+import "./payments"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {

@@ -1,5 +1,8 @@
 defmodule CarrierWeb.App.PaymentLive do
   use CarrierWeb, :live_view
+  alias Carrier.Core.Crypto
+
+  on_mount(CarrierWeb.TossHook)
 
   @impl true
   def mount(_params, _session, socket) do
@@ -22,6 +25,21 @@ defmodule CarrierWeb.App.PaymentLive do
     socket =
       socket
       |> assign(:selected_plan, selected_plan)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("request_payment", _, socket) do
+    customer_key = Crypto.obfuscate(socket.assigns.org_id)
+
+    socket =
+      socket
+      |> push_event("toss-payments-request", %{
+        customer_key: customer_key,
+        success_url: Routes.app_payment_url(socket, :toss_payments_callback),
+        fail_url: Routes.app_payment_url(socket, :toss_payments_callback)
+      })
 
     {:noreply, socket}
   end
