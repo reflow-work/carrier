@@ -15,29 +15,22 @@
         <div>
           <div class="mb-10">한 달 동안 무료로 사용하고 언제든지 해지하세요.</div>
 
-          <div class="py-4 px-6 cursor-pointer rounded w-full border hover:bg-black hover:text-white flex items-center justify-between bg-white text-black">
-            <div class="flex items-center">
-              <div>
-                <input type="radio" class="radio mr-4" />
-              </div>
-              <div>
-                <div class="font-bold text-lg">Yearly</div>
-                <div class="font-bold">39,000 원 / 월</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="py-4 px-6 mt-4 cursor-pointer rounded w-full border hover:bg-black hover:text-white flex items-center justify-between bg-white text-black">
-            <div class="flex items-center">
-              <div>
-                <input type="radio" class="radio mr-4" />
-              </div>
-              <div>
-                <div class="font-bold text-lg">Monthly</div>
-                <div class="font-bold">49,000 원 / 월</div>
+          <%= for plan <- @plans do %>
+            <div
+              class="py-4 px-6 mt-2 cursor-pointer rounded w-full border hover:bg-black hover:text-white flex items-center justify-between bg-white text-black"
+              phx-click={JS.push("select_plan", value: %{plan_id: plan.id})}
+            >
+              <div class="flex items-center">
+                <div>
+                  <input type="radio" class="radio mr-4" checked={@selected_plan.id == plan.id} />
+                </div>
+                <div>
+                  <div class="font-bold text-lg"><%= plan.name %></div>
+                  <div class="font-bold"><%= plan.price %> 원 / 월</div>
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
         </div>
       </div>
     </div>
@@ -48,9 +41,12 @@
           결제 정보
         </h2>
         <div>
-          매월 49,000원
+          <%= @selected_plan.name %>
         </div>
-        <button class="btn btn-primary mt-6 w-full" type="button">
+        <div>
+          매월 <%= @selected_plan.price %>원
+        </div>
+        <button class="btn btn-primary mt-6 w-full" type="button" phx-click="request_payment">
           결제하기
         </button>
       </div>

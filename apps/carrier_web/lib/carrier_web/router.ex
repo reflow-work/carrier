@@ -45,7 +45,7 @@ defmodule CarrierWeb.Router do
 
   # With Auth
   scope "/app", CarrierWeb.App, as: :app do
-    pipe_through :browser
+    pipe_through [:browser, :auth_user]
 
     live_session :user,
       on_mount: [
@@ -56,6 +56,7 @@ defmodule CarrierWeb.Router do
       ] do
       live "/onboarding", OnboardingLive, :index
       live "/payment", PaymentLive, :index
+      live "/payment/done", PaymentLive.Done, :index
       live "/integrations/new", IntegrationLive.New, :new
       live "/data-sources", DataSourceLive.Index, :index
       live "/data-sources/new", DataSourceLive.New, :new
@@ -66,6 +67,8 @@ defmodule CarrierWeb.Router do
       live "/report_logs", ReportLogLive.Index, :index
       live "/settings", SettingsLive, :index
     end
+
+    get "/payment/callback/toss-payments", PaymentController, :toss_payments_callback
   end
 
   # Other scopes may use custom stacks.
