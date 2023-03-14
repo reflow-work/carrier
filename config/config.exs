@@ -139,6 +139,8 @@ config :carrier, Carrier.Core.Cache.Local,
   allocated_memory: 1_000_000_000,
   backend: :shards
 
+config :carrier, hashids_salt: "carrier"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
