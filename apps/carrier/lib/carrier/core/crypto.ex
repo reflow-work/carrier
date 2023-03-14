@@ -1,4 +1,10 @@
 defmodule Carrier.Core.Crypto do
+  @letters [?a..?z, ?A..?Z, ?0..?9] |> Enum.flat_map(& &1)
+
+  def random_string(length) do
+    @letters |> Enum.take_random(length) |> to_string()
+  end
+
   def obfuscate(coder \\ default_coder(), values)
 
   def obfuscate(coder, values) when is_list(values) do
