@@ -5,10 +5,10 @@
     </h1>
 
     <div class="text-right">
-      <.link navigate={Routes.report_log_index_path(@socket, :index)} class="btn btn-outline">
+      <.link navigate={Routes.app_report_log_index_path(@socket, :index)} class="btn btn-outline">
         레포트 발송 기록
       </.link>
-      <.link navigate={Routes.report_new_path(@socket, :new)} class="btn btn-primary">
+      <.link navigate={Routes.app_report_new_path(@socket, :new)} class="btn btn-primary">
         새 레포트 생성
       </.link>
     </div>
@@ -33,13 +33,13 @@
               <td>#<%= report.integration_info.channel_name %></td>
               <td class="flex justify-end gap-x-2">
                 <.link
-                  navigate={Routes.report_new_path(@socket, :edit, report.id)}
+                  navigate={Routes.app_report_new_path(@socket, :edit, report.id)}
                   class="btn btn-sm"
                 >
                   수정
                 </.link>
                 <.link
-                  patch={Routes.report_index_path(@socket, :delete, report.id)}
+                  patch={Routes.app_report_index_path(@socket, :delete, report.id)}
                   class="btn btn-sm"
                 >
                   삭제
@@ -59,7 +59,7 @@
       레포트를 정말로 삭제하시겠어요?
     </:title>
     <:actions>
-      <%= live_patch("취소", to: Routes.report_index_path(@socket, :index), class: "btn btn-sm") %>
+      <%= live_patch("취소", to: Routes.app_report_index_path(@socket, :index), class: "btn btn-sm") %>
       <a class="btn btn-primary btn-sm" phx-click="delete_report">Yes</a>
     </:actions>
   </CarrierWeb.Components.Modal.confirm>

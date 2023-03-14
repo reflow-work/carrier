@@ -3,28 +3,28 @@
 
   <nav class="fixed top-0 left-0 right-0 bg-background-dark z-50">
     <div class="max-w-7xl px-6 flex mx-auto py-1 justify-between">
-      <.link navigate={Routes.report_index_path(@socket, :index)}>
+      <.link navigate={Routes.app_report_index_path(@socket, :index)}>
         <div class="cursor-pointer py-4 px-1">
           <CarrierWeb.Components.Icon.logo_white class="w-24 h-auto" />
         </div>
       </.link>
 
       <div class="max-w-7xl px-6 flex flex-row">
-        <.link navigate={Routes.data_source_index_path(@socket, :index)}>
+        <.link navigate={Routes.app_data_source_index_path(@socket, :index)}>
           <div class="menu-item">
             <CarrierWeb.Components.Icon.list_small />
             <span class="ml-2 text-sm">데이터 소스</span>
           </div>
         </.link>
 
-        <.link navigate={Routes.report_index_path(@socket, :index)}>
+        <.link navigate={Routes.app_report_index_path(@socket, :index)}>
           <div class="menu-item">
             <CarrierWeb.Components.Icon.list_small />
             <span class="ml-2 text-sm">레포트</span>
           </div>
         </.link>
 
-        <.link navigate={Routes.settings_path(@socket, :index)}>
+        <.link navigate={Routes.app_settings_path(@socket, :index)}>
           <div class="menu-item">
             <CarrierWeb.Components.Icon.setting_small />
             <span class="ml-2 text-sm">설정</span>

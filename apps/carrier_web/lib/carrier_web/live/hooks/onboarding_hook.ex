@@ -7,7 +7,7 @@ defmodule CarrierWeb.OnboardingHook do
     if socket.assigns.org.name == "organization" do
       socket =
         socket
-        |> redirect(to: Routes.onboarding_path(socket, :index))
+        |> redirect(to: Routes.app_onboarding_path(socket, :index))
 
       {:halt, socket}
     else

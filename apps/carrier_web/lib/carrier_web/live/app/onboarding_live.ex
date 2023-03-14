@@ -36,7 +36,7 @@ defmodule CarrierWeb.App.OnboardingLive do
            }) do
       socket =
         socket
-        |> push_navigate(to: Routes.integration_new_path(socket, :new))
+        |> push_navigate(to: Routes.app_integration_new_path(socket, :new))
 
       {:noreply, socket}
     else

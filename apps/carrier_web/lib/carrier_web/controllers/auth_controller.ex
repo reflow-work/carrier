@@ -14,7 +14,7 @@ defmodule CarrierWeb.AuthController do
 
       _ ->
         conn
-        |> redirect(to: Routes.report_index_path(conn, :index))
+        |> redirect(to: Routes.app_report_index_path(conn, :index))
     end
   end
 
@@ -54,7 +54,7 @@ defmodule CarrierWeb.AuthController do
         conn
         |> put_session(:user_id, user_id)
         |> put_session(:org_id, org_id)
-        |> redirect(to: Routes.report_index_path(conn, :index, redirected: "true"))
+        |> redirect(to: Routes.app_report_index_path(conn, :index, redirected: "true"))
 
       _ ->
         conn
@@ -83,7 +83,7 @@ defmodule CarrierWeb.AuthController do
          }) do
       {:ok, %Integration{}} ->
         conn
-        |> redirect(to: Routes.report_index_path(conn, :index))
+        |> redirect(to: Routes.app_report_index_path(conn, :index))
 
       error ->
         conn
