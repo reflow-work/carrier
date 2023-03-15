@@ -2,11 +2,9 @@ defmodule CarrierWeb.AnalyticsHook do
   use CarrierWeb, :live_hook
   alias Carrier.Core.AnalyticsHelper
 
-  @env Application.compile_env!(:carrier, :env)
-
   def on_mount(:default, _params, _session, socket) do
     socket =
-      case {connected?(socket), @env} do
+      case {connected?(socket), env()} do
         {true, :prod} ->
           socket
           |> init_analytics()
@@ -23,5 +21,9 @@ defmodule CarrierWeb.AnalyticsHook do
       end
 
     {:cont, socket}
+  end
+
+  defp env() do
+    Application.get_env(:carrier, :env)
   end
 end
