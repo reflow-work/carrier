@@ -33,7 +33,7 @@
     <div class="card">
       <div class="card-body">
         <.link
-          href={Routes.auth_path(@socket, :logout)}
+          href={~p"/logout"}
           phx-click="smartlook_anonymize"
           class="btn"
         >

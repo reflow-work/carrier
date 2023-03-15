@@ -110,7 +110,6 @@ defmodule CarrierWeb do
     quote do
       import Phoenix.LiveView
       import CarrierWeb.AnalyticsHelper
-      import CarrierWeb.ChanneltalkHelper
 
       unquote(html_helper())
     end

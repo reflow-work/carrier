@@ -18,7 +18,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
           socket = socket |> load_reports()
 
           case length(socket.assigns.reports) < 1 do
-            true -> socket |> push_navigate(to: Routes.app_report_new_path(socket, :new))
+            true -> socket |> push_navigate(to: ~p"/app/reports/new")
             _ -> socket
           end
 
@@ -79,7 +79,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
       {:ok, _deleted_report} ->
         socket
         |> update(:reports, fn reports -> reports |> Enum.reject(&(&1.id == report_id)) end)
-        |> push_patch(to: Routes.app_report_index_path(socket, :index))
+        |> push_patch(to: ~p"/app/reports")
 
       {:error, reason} ->
         socket

@@ -6,6 +6,6 @@ defmodule CarrierWeb.FallbackPlug do
 
   def call(conn, _opts) do
     conn
-    |> redirect(to: Routes.home_path(conn, :index))
+    |> redirect(to: ~p"/")
   end
 end

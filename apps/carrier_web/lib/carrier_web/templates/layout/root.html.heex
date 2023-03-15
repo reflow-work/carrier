@@ -28,17 +28,12 @@
       property="twitter:description"
       content="reflow는 매출, 유저 등 사업 성장관리에 가장 중요한 지표를 5분만에 시각화하여 매일 모니터링 할 수 있는 환경을 구축하는 툴입니다. 성장이 빠른 스타트업에서 많이 사용하고 있습니다."
     />
-    <meta property="og:image" content={Routes.static_path(@conn, "/images/thumbnail.png")} />
-    <meta property="twitter:image" content={Routes.static_path(@conn, "/images/thumbnail.png")} />
+    <meta property="og:image" content={~p"/images/thumbnail.png"} />
+    <meta property="twitter:image" content={~p"/images/thumbnail.png"} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
-    <script
-      defer
-      phx-track-static
-      type="text/javascript"
-      src={Routes.static_path(@conn, "/assets/app.js")}
-    >
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
     <%= if Application.get_env(:carrier, :env) not in [:dev, :test] do %>
       <!-- Google tag (gtag.js) -->

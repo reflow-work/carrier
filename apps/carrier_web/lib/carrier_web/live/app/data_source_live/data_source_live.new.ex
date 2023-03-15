@@ -136,7 +136,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
     case do_create_data_source(params) do
       {:ok, %DataSource{}} ->
         socket
-        |> push_navigate(to: Routes.app_report_new_path(socket, :new))
+        |> push_navigate(to: ~p"/app/reports/new")
 
       {:error, {:invalid_conn_info, reason}} ->
         Logger.error(inspect(reason))

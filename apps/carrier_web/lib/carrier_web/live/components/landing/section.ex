@@ -1,8 +1,6 @@
 defmodule CarrierWeb.Components.Landing.Section do
   use Phoenix.Component
 
-  alias CarrierWeb.{Endpoint, Router.Helpers}
-
   slot :inner_block, required: true
   attr :image_url, :string, required: true
   attr :image_position, :string, default: "right"
@@ -16,7 +14,7 @@ defmodule CarrierWeb.Components.Landing.Section do
           <%= render_slot(@inner_block) %>
         </div>
         <div class={"col-span-12 md:col-span-6 col-start-1 col-end-6 #{if @image_position == "left" do "order-first" end}"}>
-          <img src={"#{Helpers.static_path(Endpoint, @image_url)}"} class="w-full" />
+          <img src={@image_url} class="w-full" />
         </div>
       </div>
     </section>

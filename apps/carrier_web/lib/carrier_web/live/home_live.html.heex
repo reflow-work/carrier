@@ -12,9 +12,7 @@
   </div>
 
   <div class="col-span-12 md:col-span-6">
-    <%= img_tag(Routes.static_path(@socket, "/images/section-1.png"),
-      class: "w-full"
-    ) %>
+    <%= img_tag(~p"/images/section-1.png", class: "w-full") %>
   </div>
 </section>
 
@@ -85,7 +83,7 @@
   <div class="flex flex-col md:flex-row space-y-12 md:space-y-0">
     <div class="avatar-card-container">
       <div>
-        <%= img_tag(Routes.static_path(@socket, "/images/avatar-1.png"), width: "127px") %>
+        <%= img_tag(~p"/images/avatar-1.png", width: "127px") %>
       </div>
 
       <div class="avatar-card-text">
@@ -100,7 +98,7 @@
 
     <div class="avatar-card-container">
       <div>
-        <%= img_tag(Routes.static_path(@socket, "/images/avatar-2.png"), width: "127px") %>
+        <%= img_tag(~p"/images/avatar-2.png", width: "127px") %>
       </div>
 
       <div class="avatar-card-text">
@@ -115,7 +113,7 @@
 
     <div class="avatar-card-container">
       <div>
-        <%= img_tag(Routes.static_path(@socket, "/images/avatar-3.png"), width: "127px") %>
+        <%= img_tag(~p"/images/avatar-3.png", width: "127px") %>
       </div>
 
       <div class="avatar-card-text">
@@ -130,7 +128,7 @@
   </div>
 </section>
 
-<.feature image_url="/images/section-2.png" bg_color="bg-landingBgGray">
+<.feature image_url={~p"/images/section-2.png"} bg_color="bg-landingBgGray">
   <div class="text-center md:text-left">
     <h1 class="h1">분석에 최적화된 레포트를<br />손쉽게 매일 받아보세요.</h1>
 
@@ -140,7 +138,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-1.png"), width: "60px") %>
+      <%= img_tag(~p"/images/small-avatar-1.png", width: "60px") %>
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br class="hidden md:block" /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
@@ -153,7 +151,7 @@
   </div>
 </.feature>
 
-<.feature image_url="/images/section-3.png" image_position="left">
+<.feature image_url={~p"/images/section-3.png"} image_position="left">
   <div class="text-center md:text-left">
     <h1 class="h1">배치 작업, 쿼리, 시각화..<br /> 개발자 없이도<br /> 이 모든 걸 웹에서 손쉽게!</h1>
 
@@ -163,7 +161,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-2.png"), width: "60px") %>
+      <%= img_tag(~p"/images/small-avatar-2.png", width: "60px") %>
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           개발자에게 부탁해도 우선순위에 밀려서 잘 안 만들어지던<br class="hidden md:block" />
@@ -177,7 +175,7 @@
   </div>
 </.feature>
 
-<.feature image_url="/images/section-4.png" bg_color="bg-landingBgGray">
+<.feature image_url={~p"/images/section-4.png"} bg_color="bg-landingBgGray">
   <div class="text-center md:text-left">
     <h1 class="h1">쿼리 문법을 몰라도<br /> 쿼리 생성기를 통해<br /> 쉽게 레포트 생성</h1>
 
@@ -186,7 +184,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(Routes.static_path(@socket, "/images/small-avatar-3.png"), width: "60px") %>
+      <%= img_tag(~p"/images/small-avatar-3.png", width: "60px") %>
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           쿼리를 배우는 게 부담스러웠는데<br class="hidden md:block" />
@@ -202,7 +200,7 @@
 
 <section class="landing-container ">
   <div class="bg-landingBgGray py-20 my-20 px-10 flex flex-col items-center rounded-lg text-center">
-    <%= img_tag(Routes.static_path(@socket, "/images/security.png"), width: "66px") %>
+    <%= img_tag(~p"/images/security.png", width: "66px") %>
     <h1 class="h1 mt-8 mb-12">고객의 데이터는 안전합니다</h1>
     <div class="text-landingDescription leading-8 text-left md:text-center">
       🔐 고객과 reflow 사이의 정보는 모두 TLS 암호화 되어 전송됩니다.<br /> 🔐 데이터 소스 접속 정보는 또한 모두 암호화되어 저장됩니다.<br />
@@ -217,31 +215,31 @@
 
   <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-8">
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(Routes.static_path(@socket, "/images/logo-tableau.png"), class: "w-8 mr-5") %>
+      <%= img_tag(~p"/images/logo-tableau.png", class: "w-8 mr-5") %>
       <div class="font-bold">
         Tableau Cloud
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(Routes.static_path(@socket, "/images/logo-bigquery.png"), class: "w-8 mr-5") %>
+      <%= img_tag(~p"/images/logo-bigquery.png", class: "w-8 mr-5") %>
       <div class="font-bold">
         Google BigQuery
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(Routes.static_path(@socket, "/images/logo-athena.png"), class: "w-8 mr-5") %>
+      <%= img_tag(~p"/images/logo-athena.png", class: "w-8 mr-5") %>
       <div class="font-bold">
         AWS Athena
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(Routes.static_path(@socket, "/images/logo-mysql.png"), class: "w-8 mr-5") %>
+      <%= img_tag(~p"/images/logo-mysql.png", class: "w-8 mr-5") %>
       <div class="font-bold">
         MySQL
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(Routes.static_path(@socket, "/images/logo-postgresql.png"), class: "w-8 mr-5") %>
+      <%= img_tag(~p"/images/logo-postgresql.png", class: "w-8 mr-5") %>
       <div class="font-bold">
         PostgreSQL
       </div>

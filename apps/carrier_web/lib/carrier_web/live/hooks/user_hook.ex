@@ -17,7 +17,7 @@ defmodule CarrierWeb.UserHook do
       nil ->
         socket =
           socket
-          |> redirect(to: Routes.auth_path(socket, :logout))
+          |> redirect(to: ~p"/logout")
 
         {:halt, socket}
 
@@ -29,7 +29,7 @@ defmodule CarrierWeb.UserHook do
   def on_mount(:default, _params, _session, socket) do
     socket =
       socket
-      |> redirect(to: Routes.auth_path(socket, :logout))
+      |> redirect(to: ~p"/logout")
 
     {:halt, socket}
   end

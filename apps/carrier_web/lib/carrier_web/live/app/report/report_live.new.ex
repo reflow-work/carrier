@@ -881,7 +881,7 @@ defmodule CarrierWeb.App.ReportLive.New do
 
         socket
         |> put_flash_for(:error, "레포트 불러오기에 실패하였습니다.", timeout: :timer.seconds(3))
-        |> push_navigate(to: Routes.app_report_index_path(socket, :index))
+        |> push_navigate(to: ~p"/app/reports")
     end
   end
 
@@ -890,7 +890,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       {:ok, %Report{name: report_name}} ->
         socket
         |> put_flash_for(:info, "\"#{report_name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
-        |> push_navigate(to: Routes.app_report_index_path(socket, :index))
+        |> push_navigate(to: ~p"/app/reports")
 
       {:error, error} ->
         Logger.error(inspect(error))
@@ -909,7 +909,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       {:ok, %Report{name: report_name}} ->
         socket
         |> put_flash_for(:info, "\"#{report_name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
-        |> push_navigate(to: Routes.app_report_index_path(socket, :index))
+        |> push_navigate(to: ~p"/app/reports")
 
       {:error, error} ->
         Logger.error(inspect(error))

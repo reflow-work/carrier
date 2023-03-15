@@ -11,10 +11,10 @@
 
     <div class="flex flex-col flex-1 items-center justify-center relative">
       <div class="">
-        <.link href={Routes.auth_path(@conn, :request, "google")}>
+        <.link href={~p"/auth/google"}>
           <div class="flex items-center bg-white border px-6 py-3 shadow-sm rounded text-sm font-bold hover:bg-gray-100">
             <div class="w-4">
-              <%= img_tag(Routes.static_path(@conn, "/images/google-logo.png")) %>
+              <%= img_tag(~p"/images/google-logo.png") %>
             </div>
             <div class="mx-4">
               Google 계정으로 로그인

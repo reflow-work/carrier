@@ -10,13 +10,13 @@ defmodule CarrierWeb.App.PaymentController do
          {:ok, %{billing_key: _billing_key, customer_key: ^customer_key}} <-
            TossPayments.issue_billing_auth(auth_key, customer_key) do
       conn
-      |> redirect(to: Routes.app_payment_done_path(conn, :index))
+      |> redirect(to: ~p"/app/payment/done")
     else
       {:error, reason} ->
         Logger.error("Failed to pay with toss payments: #{reason}")
 
         conn
-        |> redirect(to: Routes.app_payment_path(conn, :index))
+        |> redirect(to: ~p"/app/payment")
     end
   end
 
@@ -24,6 +24,6 @@ defmodule CarrierWeb.App.PaymentController do
     Logger.error("Failed to pay with toss payments: #{code}, #{message}")
 
     conn
-    |> redirect(to: Routes.app_payment_path(conn, :index))
+    |> redirect(to: ~p"/app/payment")
   end
 end

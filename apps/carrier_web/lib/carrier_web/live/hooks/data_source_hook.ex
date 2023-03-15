@@ -8,7 +8,7 @@ defmodule CarrierWeb.DataSourceHook do
         {:cont, socket |> assign(:data_sources, data_sources)}
 
       _ ->
-        socket = socket |> push_navigate(to: Routes.app_data_source_new_path(socket, :new))
+        socket = socket |> push_navigate(to: ~p"/app/data-sources/new")
 
         {:halt, socket}
     end
