@@ -21,7 +21,7 @@ defmodule CarrierWeb do
 
   def router do
     quote do
-      use Phoenix.Router
+      use Phoenix.Router, helpers: false
 
       import Plug.Conn
       import Phoenix.Controller
@@ -42,7 +42,6 @@ defmodule CarrierWeb do
 
       import Plug.Conn
       import CarrierWeb.Gettext
-      alias CarrierWeb.Router.Helpers, as: Routes
 
       unquote(verified_routes())
     end
@@ -51,7 +50,6 @@ defmodule CarrierWeb do
   def plug do
     quote do
       import Plug.Conn
-      alias CarrierWeb.Router.Helpers, as: Routes
 
       unquote(verified_routes())
     end
@@ -157,7 +155,6 @@ defmodule CarrierWeb do
 
       # TODO: remove
       import CarrierWeb.ErrorHelpers
-      alias CarrierWeb.Router.Helpers, as: Routes
       import Phoenix.Component
 
       # Routes generation with the ~p sigil

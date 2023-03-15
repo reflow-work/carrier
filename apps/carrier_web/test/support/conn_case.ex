@@ -24,8 +24,6 @@ defmodule CarrierWeb.ConnCase do
       import Phoenix.ConnTest
       import CarrierWeb.ConnCase
 
-      alias CarrierWeb.Router.Helpers, as: Routes
-
       # The default endpoint for testing
       @endpoint CarrierWeb.Endpoint
     end
