@@ -26,6 +26,7 @@ defmodule CarrierWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint CarrierWeb.Endpoint
+      use CarrierWeb, :verified_routes
     end
   end
 
