@@ -5,10 +5,10 @@
     </h1>
 
     <div class="text-right">
-      <.link navigate={Routes.app_report_log_index_path(@socket, :index)} class="btn btn-outline">
+      <.link navigate={~p"/app/report_logs"} class="btn btn-outline">
         레포트 발송 기록
       </.link>
-      <.link navigate={Routes.app_report_new_path(@socket, :new)} class="btn btn-primary">
+      <.link navigate={~p"/app/reports/new"} class="btn btn-primary">
         새 레포트 생성
       </.link>
     </div>
@@ -32,16 +32,10 @@
               <td><%= report.trigger_time |> format_trigger_time(@timezone) %></td>
               <td>#<%= report.integration_info.channel_name %></td>
               <td class="flex justify-end gap-x-2">
-                <.link
-                  navigate={Routes.app_report_new_path(@socket, :edit, report.id)}
-                  class="btn btn-sm"
-                >
+                <.link navigate={~p"/app/reports/#{report.id}/edit"} class="btn btn-sm">
                   수정
                 </.link>
-                <.link
-                  patch={Routes.app_report_index_path(@socket, :delete, report.id)}
-                  class="btn btn-sm"
-                >
+                <.link patch={~p"/app/reports/#{report.id}/delete"} class="btn btn-sm">
                   삭제
                 </.link>
               </td>
@@ -59,7 +53,7 @@
       레포트를 정말로 삭제하시겠어요?
     </:title>
     <:actions>
-      <%= live_patch("취소", to: Routes.app_report_index_path(@socket, :index), class: "btn btn-sm") %>
+      <%= live_patch("취소", to: ~p"/app/reports", class: "btn btn-sm") %>
       <a class="btn btn-primary btn-sm" phx-click="delete_report">Yes</a>
     </:actions>
   </CarrierWeb.Components.Modal.confirm>

@@ -24,7 +24,7 @@ defmodule CarrierWeb.Endpoint do
     at: "/",
     from: :carrier_web,
     gzip: true,
-    only: ~w(assets fonts images favicon.ico robots.txt sitemap.xml)
+    only: CarrierWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

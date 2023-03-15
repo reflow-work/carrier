@@ -1,6 +1,6 @@
 defmodule CarrierWeb.TossPaymentsHelper do
+  use CarrierWeb, :verified_routes
   import Phoenix.LiveView, only: [push_event: 3]
-  alias CarrierWeb.Router.Helpers, as: Routes
   alias Carrier.Core.Crypto
 
   def init(socket) do
@@ -16,8 +16,8 @@ defmodule CarrierWeb.TossPaymentsHelper do
     socket
     |> push_event("toss-payments-request", %{
       customer_key: customer_key,
-      success_url: Routes.app_payment_url(socket, :toss_payments_callback),
-      fail_url: Routes.app_payment_url(socket, :toss_payments_callback)
+      success_url: ~p"/app/payment/callback/toss-payments",
+      fail_url: ~p"/app/payment/callback/toss-payments"
     })
   end
 

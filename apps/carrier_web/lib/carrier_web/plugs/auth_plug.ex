@@ -17,7 +17,7 @@ defmodule CarrierWeb.AuthPlug do
         conn
         |> clear_session()
         |> configure_session(drop: true)
-        |> redirect(to: Routes.auth_path(conn, :login))
+        |> redirect(to: ~p"/login")
         |> halt()
     end
   end

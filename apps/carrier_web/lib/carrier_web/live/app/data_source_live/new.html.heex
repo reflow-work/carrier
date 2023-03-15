@@ -84,9 +84,7 @@
                   }
                 >
                   <div class="flex items-center">
-                    <%= img_tag(Routes.static_path(@socket, "/images/#{image_filename}"),
-                      class: "w-6 mr-4"
-                    ) %> <%= source_name %>
+                    <%= img_tag(~p"/images/#{image_filename}", class: "w-6 mr-4") %> <%= source_name %>
                   </div>
                   <Icon.arrow_right class="w-4" />
                 </div>

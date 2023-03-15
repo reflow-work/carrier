@@ -3,6 +3,6 @@ defmodule CarrierWeb.PageController do
 
   def index(conn, _params) do
     conn
-    |> redirect(to: Routes.app_report_index_path(conn, :index))
+    |> redirect(to: ~p"/app/reports")
   end
 end
