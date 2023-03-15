@@ -38,7 +38,10 @@ defmodule CarrierWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: CarrierWeb
+      use Phoenix.Controller,
+        namespace: CarrierWeb,
+        formats: [:html, :json],
+        layouts: [html: {CarrierWeb.Layouts, :app}]
 
       import Plug.Conn
       import CarrierWeb.Gettext
@@ -72,7 +75,7 @@ defmodule CarrierWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView, layout: {CarrierWeb.LayoutView, :live}
+      use Phoenix.LiveView, layout: {CarrierWeb.Layouts, :live}
 
       require Logger
       # TODO: remove
@@ -136,9 +139,6 @@ defmodule CarrierWeb do
       # Import convenience functions from controllers
       import Phoenix.Controller,
         only: [get_csrf_token: 0, view_module: 1, view_template: 1]
-
-      # TODO: remove
-      import Phoenix.View
 
       # Include general helpers for rendering HTML
       unquote(html_helpers())
