@@ -42,7 +42,7 @@ defmodule Carrier.MixProject do
       {:myxql, "~> 0.6.2"},
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.3"},
-      {:oban, "~> 2.12"},
+      {:oban, "~> 2.14"},
       {:cloak_ecto, "~> 1.2.0"},
       {:ex_machina, "~> 2.7"},
       {:doumi, "~> 0.2.3"},

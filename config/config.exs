@@ -89,10 +89,10 @@ config :carrier_worker, Oban,
   repo: Carrier.Repo,
   plugins: [
     {Oban.Plugins.Lifeline, interval: :timer.minutes(1), rescue_after: :timer.minutes(5)},
-    Oban.Plugins.Reindexer,
-    Oban.Plugins.Stager
+    Oban.Plugins.Reindexer
   ],
-  queues: [default: 1, sample: 1]
+  queues: [default: 1, sample: 1],
+  stage_interval: :timer.seconds(5)
 
 config :carrier, Carrier.Vault, json_library: Jason
 
