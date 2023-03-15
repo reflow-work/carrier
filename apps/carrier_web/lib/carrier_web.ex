@@ -66,7 +66,7 @@ defmodule CarrierWeb do
       import Phoenix.Controller, only: [view_module: 1, view_template: 1]
 
       # Include shared imports and aliases for views
-      unquote(html_helper())
+      unquote(html_helpers())
     end
   end
 
@@ -100,7 +100,7 @@ defmodule CarrierWeb do
         {:noreply, clear_flash(socket)}
       end
 
-      unquote(html_helper())
+      unquote(html_helpers())
     end
   end
 
@@ -109,7 +109,7 @@ defmodule CarrierWeb do
       import Phoenix.LiveView
       import CarrierWeb.AnalyticsHelper
 
-      unquote(html_helper())
+      unquote(html_helpers())
     end
   end
 
@@ -117,7 +117,7 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.LiveComponent
 
-      unquote(html_helper())
+      unquote(html_helpers())
     end
   end
 
@@ -125,7 +125,23 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.Component
 
-      unquote(html_helper())
+      unquote(html_helpers())
+    end
+  end
+
+  def html do
+    quote do
+      use Phoenix.Component
+
+      # Import convenience functions from controllers
+      import Phoenix.Controller,
+        only: [get_csrf_token: 0, view_module: 1, view_template: 1]
+
+      # TODO: remove
+      import Phoenix.View
+
+      # Include general helpers for rendering HTML
+      unquote(html_helpers())
     end
   end
 
@@ -138,7 +154,7 @@ defmodule CarrierWeb do
     end
   end
 
-  defp html_helper do
+  defp html_helpers do
     quote do
       # HTML escaping functionality
       use Phoenix.HTML
