@@ -37,7 +37,10 @@ config :carrier_web,
 # Configures the endpoint
 config :carrier_web, CarrierWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: CarrierWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [
+    formats: [html: CarrierWeb.ErrorHTML, json: CarrierWeb.ErrorJSON],
+    layout: false
+  ],
   pubsub_server: Carrier.PubSub,
   live_view: [signing_salt: "dUjWwWYP"]
 
