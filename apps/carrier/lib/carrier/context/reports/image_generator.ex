@@ -6,6 +6,7 @@ defmodule Carrier.Reports.ImageGenerator do
   def gen_chart_images(%{org_id: org_id, report_id: report_id, data: data}) do
     encoded_org_id = Crypto.obfuscate(org_id)
     encoded_report_id = Crypto.obfuscate(report_id)
+
     Aws.create_internal_client()
     |> Aws.Lambda.invoke("createChartImage", %{
       "orgId" => encoded_org_id,

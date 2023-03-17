@@ -3,6 +3,7 @@ defmodule CarrierWeb.PricingLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket = assign(socket, :is_open_toggle, false)
     {:ok, socket, layout: {CarrierWeb.Layouts, :landing}}
   end
 
@@ -15,5 +16,10 @@ defmodule CarrierWeb.PricingLive do
       })
 
     {:noreply, push_navigate(socket, to: to)}
+  end
+
+  def handle_event("click_toggle", _, socket) do
+    socket = assign(socket, :is_open_toggle, !socket.assigns.is_open_toggle)
+    {:noreply, socket}
   end
 end
