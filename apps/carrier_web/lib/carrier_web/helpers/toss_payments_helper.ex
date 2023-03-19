@@ -16,8 +16,8 @@ defmodule CarrierWeb.TossPaymentsHelper do
     socket
     |> push_event("toss-payments-request", %{
       customer_key: customer_key,
-      success_url: ~p"/app/payment/callback/toss-payments",
-      fail_url: ~p"/app/payment/callback/toss-payments"
+      success_url: url(~p"/app/payment/callback/toss-payments"),
+      fail_url: url(~p"/app/payment/callback/toss-payments")
     })
   end
 
