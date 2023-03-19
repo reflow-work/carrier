@@ -18,7 +18,7 @@ defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.BigQuery do
     struct
     |> cast(attrs, @required)
     |> validate_required(@required)
-    |> cast_embed(:conn_info, with: &changeset_for_conn_info/2)
+    |> cast_embed(:conn_info, with: &changeset_for_conn_info/2, required: true)
   end
 
   @required_for_conn_info [:project_id, :credentials_json]

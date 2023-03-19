@@ -66,12 +66,16 @@ defmodule CarrierWeb.App.DataSourceLive.New do
           ConnInfoParams.Tableau
       end
 
+    changeset = data_source_module.changeset(data_source_module.init_attrs())
+    form = changeset |> to_form(as: "data_source")
+
     socket =
       socket
       |> assign(:step, "step-2")
       |> assign(:source, source)
       |> assign(:data_source_module, data_source_module)
-      |> assign(:changeset, data_source_module.changeset(data_source_module.init_attrs()))
+      |> assign(:changeset, changeset)
+      |> assign(:form, form)
 
     {:noreply, socket}
   end
@@ -79,8 +83,12 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   @impl true
   def handle_event("validate_data_source", %{"data_source" => data_source_inputs}, socket) do
     changeset = validate_changeset(socket, data_source_inputs)
+    form = changeset |> to_form(as: "data_source")
 
-    socket = socket |> assign(:changeset, changeset)
+    socket =
+      socket
+      |> assign(:changeset, changeset)
+      |> assign(:form, form)
 
     {:noreply, socket}
   end
@@ -122,8 +130,13 @@ defmodule CarrierWeb.App.DataSourceLive.New do
         data_source_inputs = Map.put(data_source_inputs, "name", name)
 
         changeset = validate_changeset(socket, data_source_inputs)
+        form = changeset |> to_form(as: "data_source")
 
-        socket = socket |> assign(:changeset, changeset) |> assign(:file_name, file_name)
+        socket =
+          socket
+          |> assign(:changeset, changeset)
+          |> assign(:form, form)
+          |> assign(:file_name, file_name)
 
         {:noreply, socket}
 

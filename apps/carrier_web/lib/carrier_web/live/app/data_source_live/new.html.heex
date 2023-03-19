@@ -98,137 +98,110 @@
                 <% source when source in [:postgres, :mysql] -> %>
                   <.form
                     :let={f}
-                    for={@changeset}
-                    as={:data_source}
+                    for={@form}
                     phx-change="validate_data_source"
                     phx-submit="create_data_source"
                     class="space-y-2"
                     autocomplete="off"
                   >
-                    <div>
-                      <label class="label">
-                        <span class="label-text text-gray-500">데이터 소스 이름</span>
-                      </label>
-                      <%= text_input(f, :name,
-                        class: "data-source-input",
-                        placeholder: "데이터 마트"
-                      ) %>
-                      <%= error_tag(f, :name) %>
-                    </div>
+                    <.input
+                      type="text"
+                      field={f[:name]}
+                      label="데이터 소스 이름"
+                      placeholder="데이터 마트"
+                      class="max-w-xs"
+                    />
 
-                    <%= inputs_for f, :conn_info, fn fci -> %>
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">호스트</span>
-                        </label>
-                        <%= text_input(fci, :hostname,
-                          class: "data-source-input",
-                          placeholder: "127.0.0.1"
-                        ) %>
-                        <%= error_tag(fci, :hostname) %>
-                      </div>
+                    <.inputs_for :let={fci} field={f[:conn_info]}>
+                      <.input
+                        type="text"
+                        field={fci[:hostname]}
+                        label="호스트"
+                        placeholder="127.0.0.1"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">포트</span>
-                        </label>
-                        <%= text_input(fci, :port,
-                          class: "data-source-input",
-                          placeholder: "3306"
-                        ) %>
-                        <%= error_tag(fci, :port) %>
-                      </div>
+                      <.input
+                        type="text"
+                        field={fci[:port]}
+                        label="포트"
+                        placeholder="3306"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">데이터베이스</span>
-                        </label>
-                        <%= text_input(fci, :database,
-                          class: "data-source-input",
-                          placeholder: "service_db"
-                        ) %>
-                        <%= error_tag(fci, :database) %>
-                      </div>
+                      <.input
+                        type="text"
+                        field={fci[:username]}
+                        label="유저 이름"
+                        placeholder="username"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">유저 이름</span>
-                        </label>
-                        <%= text_input(fci, :username,
-                          class: "data-source-input",
-                          placeholder: "username"
-                        ) %>
-                        <%= error_tag(fci, :username) %>
-                      </div>
+                      <.input
+                        type="password"
+                        field={fci[:password]}
+                        label="비밀번호"
+                        placeholder="password"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">비밀번호</span>
-                        </label>
-                        <%= password_input(fci, :password,
-                          class: "data-source-input",
-                          value: input_value(fci, :password),
-                          placeholder: "password"
-                        ) %>
-                        <%= error_tag(fci, :password) %>
-                      </div>
+                      <.input
+                        type="text"
+                        field={fci[:database]}
+                        label="데이터베이스"
+                        placeholder="main_db"
+                        class="max-w-xs"
+                      />
 
-                      <div class="flex mt-5 items-center">
-                        <%= checkbox(fci, :ssl, value: input_value(fci, :ssl)) %>
-                        <label class="label ml-1">
-                          <span class="label-text text-gray-500">SSL 사용 여부</span>
-                        </label>
-                        <%= error_tag(fci, :ssl) %>
-                      </div>
-                    <% end %>
+                      <.input
+                        type="checkbox"
+                        field={fci[:ssl]}
+                        label="SSL 사용 여부"
+                        class="max-w-xs"
+                      />
+                    </.inputs_for>
 
-                    <%= if @error do %>
-                      <%= error_tag(@error) %>
-                    <% end %>
+                    <.error :if={@error}><%= @error %></.error>
 
-                    <div class="flex pt-4">
-                      <%= submit("연결하기",
-                        class: "btn btn-primary",
-                        disabled: !@changeset.valid?,
-                        phx_disable_with: "연결중"
-                      ) %>
-                    </div>
+                    <.button
+                      type="submit"
+                      class="btn btn-primary"
+                      disabled={!@changeset.valid?}
+                      phx-disable-with="연결중"
+                    >
+                      연결하기
+                    </.button>
                   </.form>
                 <% :bigquery -> %>
                   <.form
                     :let={f}
-                    for={@changeset}
-                    as={:data_source}
+                    for={@form}
                     phx-change="validate_data_source"
                     phx-submit="create_data_source"
                   >
-                    <div>
-                      <label class="label">
-                        <span class="label-text text-gray-500">데이터 소스 이름</span>
-                      </label>
-                      <%= text_input(f, :name,
-                        class: "data-source-input",
-                        placeholder: "데이터 마트"
-                      ) %>
-                      <%= error_tag(f, :name) %>
-                    </div>
-
-                    <%= inputs_for f, :conn_info, fn fci -> %>
-                      <%= hidden_input(fci, :project_id) %>
-                      <%= hidden_input(fci, :credentials_json) %>
-                    <% end %>
+                    <.input
+                      type="text"
+                      field={f[:name]}
+                      label="데이터 소스 이름"
+                      placeholder="데이터 마트"
+                      class="max-w-xs"
+                    />
+                    <.inputs_for :let={fci} field={f[:conn_info]}>
+                      <.input type="hidden" field={fci[:project_id]} />
+                      <.input type="hidden" field={fci[:credentials_json]} />
+                    </.inputs_for>
 
                     <div class="mt-2">
-                      <label class="label block">
-                        <p class="label-text text-gray-500">Credentials JSON</p>
-                        <p class="label-text text-gray-500 mt-2">
+                      <CarrierWeb.CoreComponents.label>
+                        <p>Credentials JSON</p>
+                        <p class="label-text font-normal text-gray-500 mt-2">
                           Service Account 의 credential 을 업로드 해주세요.
                         </p>
-                        <p class="label-text text-gray-500">
+                        <p class="label-text font-normal text-gray-500">
                           Service Accounts 는 "BigQuery Data Viewer", "BigQuery Job User" role 을 가지고 있어야 합니다.
                         </p>
-                      </label>
-                      <div class="sm:grid sm:border-gray-200">
+                      </CarrierWeb.CoreComponents.label>
+                      <div class="sm:grid sm:border-gray-200 mt-2 mb-2">
                         <div class="mt-1 sm:mt-0" phx-drop-target={@uploads.credentials.ref}>
                           <div class="max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                             <div class="space-y-1 text-center">
@@ -279,172 +252,132 @@
                       <% end %>
                     </div>
 
-                    <%= if @error do %>
-                      <%= error_tag(@error) %>
-                    <% end %>
+                    <.error :if={@error}><%= @error %></.error>
 
-                    <%= submit("연결하기",
-                      class: "btn btn-primary mt-4",
-                      disabled: !@changeset.valid?,
-                      phx_disable_with: "연결중"
-                    ) %>
+                    <.button
+                      type="submit"
+                      class="btn btn-primary"
+                      disabled={!@changeset.valid?}
+                      phx-disable-with="연결중"
+                    >
+                      연결하기
+                    </.button>
                   </.form>
                 <% :athena -> %>
                   <.form
                     :let={f}
-                    for={@changeset}
-                    as={:data_source}
+                    for={@form}
                     phx-change="validate_data_source"
                     phx-submit="create_data_source"
                     class="space-y-2"
                     autocomplete="off"
                   >
-                    <div>
-                      <label class="label">
-                        <span class="label-text text-gray-500">데이터 소스 이름</span>
-                      </label>
-                      <%= text_input(f, :name,
-                        class: "data-source-input",
-                        placeholder: "데이터 마트"
-                      ) %>
-                      <%= error_tag(f, :name) %>
-                    </div>
+                    <.input
+                      type="text"
+                      field={f[:name]}
+                      label="데이터 소스 이름"
+                      placeholder="데이터 마트"
+                      class="max-w-xs"
+                    />
 
-                    <%= inputs_for f, :conn_info, fn fci -> %>
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Access Key ID</span>
-                        </label>
-                        <%= text_input(fci, :access_key_id, class: "data-source-input") %>
-                        <%= error_tag(fci, :access_key_id) %>
-                      </div>
+                    <.inputs_for :let={fci} field={f[:conn_info]}>
+                      <.input
+                        type="text"
+                        field={fci[:access_key_id]}
+                        label="Access Key ID"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Secret Access Key</span>
-                        </label>
-                        <%= password_input(fci, :secret_access_key,
-                          class: "data-source-input",
-                          value: input_value(fci, :secret_access_key)
-                        ) %>
-                        <%= error_tag(fci, :secret_access_key) %>
-                      </div>
+                      <.input
+                        type="password"
+                        field={fci[:secret_access_key]}
+                        label="Secret Access Key"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Region</span>
-                        </label>
-                        <%= text_input(fci, :region,
-                          class: "data-source-input",
-                          placeholder: "ap-northeast-2"
-                        ) %>
-                        <%= error_tag(fci, :region) %>
-                      </div>
+                      <.input
+                        type="text"
+                        field={fci[:region]}
+                        label="Region"
+                        placeholder="ap-northeast-2"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Workgroup</span>
-                        </label>
-                        <%= text_input(fci, :workgroup,
-                          class: "data-source-input",
-                          placeholder: "primary"
-                        ) %>
-                        <%= error_tag(fci, :workgroup) %>
-                      </div>
+                      <.input
+                        type="text"
+                        field={fci[:workgroup]}
+                        label="Workgroup"
+                        placeholder="primary"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Database</span>
-                        </label>
-                        <%= text_input(fci, :database, class: "data-source-input") %>
-                        <%= error_tag(fci, :database) %>
-                      </div>
-                    <% end %>
+                      <.input
+                        type="text"
+                        field={fci[:database]}
+                        label="Database"
+                        class="max-w-xs"
+                      />
+                    </.inputs_for>
 
-                    <%= if @error do %>
-                      <%= error_tag(@error) %>
-                    <% end %>
+                    <.error :if={@error}><%= @error %></.error>
 
-                    <div class="flex pt-4">
-                      <%= submit("연결하기",
-                        class: "btn btn-primary",
-                        disabled: !@changeset.valid?,
-                        phx_disable_with: "연결중"
-                      ) %>
-                    </div>
+                    <.button
+                      type="submit"
+                      class="btn btn-primary"
+                      disabled={!@changeset.valid?}
+                      phx-disable-with="연결중"
+                    >
+                      연결하기
+                    </.button>
                   </.form>
                 <% :tableau -> %>
                   <.form
                     :let={f}
-                    for={@changeset}
-                    as={:data_source}
+                    for={@form}
                     phx-change="validate_data_source"
                     phx-submit="create_data_source"
                     class="space-y-2"
                     autocomplete="off"
                   >
-                    <div>
-                      <label class="label">
-                        <span class="label-text text-gray-500">데이터 소스 이름</span>
-                      </label>
-                      <%= text_input(f, :name,
-                        class: "data-source-input",
-                        placeholder: "태블로 대시보드"
-                      ) %>
-                      <%= error_tag(f, :name) %>
-                    </div>
+                    <.input
+                      type="text"
+                      field={f[:name]}
+                      label="데이터 소스 이름"
+                      placeholder="태블로 대시보드"
+                      class="max-w-xs"
+                    />
 
-                    <%= inputs_for f, :conn_info, fn fci -> %>
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Tableau URL</span>
-                        </label>
-                        <%= text_input(fci, :host,
-                          class: "data-source-input",
-                          placeholder: "https://xxx.online.tableau.com"
-                        ) %>
-                        <%= error_tag(fci, :host) %>
-                      </div>
+                    <.inputs_for :let={fci} field={f[:conn_info]}>
+                      <.input
+                        type="text"
+                        field={fci[:host]}
+                        label="Tableau URL"
+                        placeholder="https://xxx.online.tableau.com"
+                        class="max-w-xs"
+                      />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Sitename</span>
-                        </label>
-                        <%= text_input(fci, :site, class: "data-source-input") %>
-                        <%= error_tag(fci, :site) %>
-                      </div>
+                      <.input type="text" field={fci[:site]} label="Sitename" class="max-w-xs" />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">ID</span>
-                        </label>
-                        <%= text_input(fci, :id, class: "data-source-input") %>
-                        <%= error_tag(fci, :id) %>
-                      </div>
+                      <.input type="text" field={fci[:id]} label="ID" class="max-w-xs" />
 
-                      <div>
-                        <label class="label mt-2">
-                          <span class="label-text text-gray-500">Password</span>
-                        </label>
-                        <%= password_input(fci, :password,
-                          class: "data-source-input",
-                          value: input_value(fci, :password)
-                        ) %>
-                        <%= error_tag(fci, :password) %>
-                      </div>
-                    <% end %>
+                      <.input
+                        type="password"
+                        field={fci[:password]}
+                        label="Password"
+                        class="max-w-xs"
+                      />
+                    </.inputs_for>
 
-                    <%= if @error do %>
-                      <%= error_tag(@error) %>
-                    <% end %>
+                    <.error :if={@error}><%= @error %></.error>
 
-                    <div class="flex pt-4">
-                      <%= submit("연결하기",
-                        class: "btn btn-primary",
-                        disabled: !@changeset.valid?,
-                        phx_disable_with: "연결중"
-                      ) %>
-                    </div>
+                    <.button
+                      type="submit"
+                      class="btn btn-primary"
+                      disabled={!@changeset.valid?}
+                      phx-disable-with="연결중"
+                    >
+                      연결하기
+                    </.button>
                   </.form>
               <% end %>
             </div>
