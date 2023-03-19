@@ -44,7 +44,7 @@
           <%= @selected_plan.name %>
         </div>
         <div>
-          매월 <%= @selected_plan.price %>원
+          <%= @selected_plan.payment_description %>
         </div>
         <button class="btn btn-primary mt-6 w-full" type="button" phx-click="request_payment">
           결제하기
