@@ -43,7 +43,7 @@ defmodule CarrierWeb.App.PaymentLive do
         id: 1,
         name: "Yearly",
         price: 39000,
-        payment_description: "매년 46,8000원 (월 39,000원)"
+        payment_description: "매년 468,000원 (월 39,000원)"
       },
       %{
         id: 2,
