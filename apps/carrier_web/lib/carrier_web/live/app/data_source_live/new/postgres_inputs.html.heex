@@ -1,0 +1,37 @@
+<.inputs_for :let={fci} field={@form[:conn_info]}>
+  <.input
+    type="text"
+    field={fci[:hostname]}
+    label="호스트"
+    placeholder="127.0.0.1"
+    class="max-w-xs"
+  />
+
+  <.input type="text" field={fci[:port]} label="포트" placeholder="3306" class="max-w-xs" />
+
+  <.input
+    type="text"
+    field={fci[:username]}
+    label="유저 이름"
+    placeholder="username"
+    class="max-w-xs"
+  />
+
+  <.input
+    type="password"
+    field={fci[:password]}
+    label="비밀번호"
+    placeholder="password"
+    class="max-w-xs"
+  />
+
+  <.input
+    type="text"
+    field={fci[:database]}
+    label="데이터베이스"
+    placeholder="main_db"
+    class="max-w-xs"
+  />
+
+  <.input type="checkbox" field={fci[:ssl]} label="SSL 사용 여부" class="max-w-xs" />
+</.inputs_for>

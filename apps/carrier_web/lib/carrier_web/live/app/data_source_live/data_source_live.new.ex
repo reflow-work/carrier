@@ -6,6 +6,8 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   alias CarrierWeb.Components.Icon
   alias __MODULE__.ConnInfoParams
 
+  embed_templates "new/*"
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
@@ -102,6 +104,23 @@ defmodule CarrierWeb.App.DataSourceLive.New do
     socket = socket |> create_data_source(data_source_params)
 
     {:noreply, socket}
+  end
+
+  # components
+
+  attr :source, :atom, required: true
+  attr :form, :any, required: true
+  attr :uploads, :any
+  attr :file_name, :string
+
+  def source_inputs(assigns) do
+    case assigns.source do
+      :postgres -> postgres_inputs(assigns)
+      :mysql -> mysql_inputs(assigns)
+      :bigquery -> bigquery_inputs(assigns)
+      :athena -> athena_inputs(assigns)
+      :tableau -> tableau_inputs(assigns)
+    end
   end
 
   defp handle_progress(:credentials, entry, socket) do

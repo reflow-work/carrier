@@ -1,0 +1,28 @@
+<.inputs_for :let={fci} field={@form[:conn_info]}>
+  <.input type="text" field={fci[:access_key_id]} label="Access Key ID" class="max-w-xs" />
+
+  <.input
+    type="password"
+    field={fci[:secret_access_key]}
+    label="Secret Access Key"
+    class="max-w-xs"
+  />
+
+  <.input
+    type="text"
+    field={fci[:region]}
+    label="Region"
+    placeholder="ap-northeast-2"
+    class="max-w-xs"
+  />
+
+  <.input
+    type="text"
+    field={fci[:workgroup]}
+    label="Workgroup"
+    placeholder="primary"
+    class="max-w-xs"
+  />
+
+  <.input type="text" field={fci[:database]} label="Database" class="max-w-xs" />
+</.inputs_for>

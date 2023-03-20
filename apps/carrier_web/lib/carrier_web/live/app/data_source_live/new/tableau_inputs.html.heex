@@ -1,0 +1,15 @@
+<.inputs_for :let={fci} field={@form[:conn_info]}>
+  <.input
+    type="text"
+    field={fci[:host]}
+    label="Tableau URL"
+    placeholder="https://xxx.online.tableau.com"
+    class="max-w-xs"
+  />
+
+  <.input type="text" field={fci[:site]} label="Sitename" class="max-w-xs" />
+
+  <.input type="text" field={fci[:id]} label="ID" class="max-w-xs" />
+
+  <.input type="password" field={fci[:password]} label="Password" class="max-w-xs" />
+</.inputs_for>
