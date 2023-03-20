@@ -107,6 +107,10 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   end
 
   # components
+  attr :data_sources, :any, required: true
+  attr :source, :atom, required: true
+
+  def data_source_selection(assigns)
 
   attr :source, :atom, required: true
   attr :form, :any, required: true
