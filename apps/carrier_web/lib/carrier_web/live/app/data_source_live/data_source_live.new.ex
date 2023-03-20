@@ -181,7 +181,23 @@ defmodule CarrierWeb.App.DataSourceLive.New do
         Logger.error(inspect(reason))
 
         socket
-        |> assign(:error, reason)
+        |> assign(:error, inspect(reason))
+        |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+
+      # TODO: better error handling
+      {:error, %Ecto.Changeset{} = changeset} ->
+        Logger.error(inspect(changeset))
+
+        [{field, [reason | _]} | _] =
+          Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+            Enum.reduce(opts, msg, fn {key, value}, acc ->
+              String.replace(acc, "%{#{key}}", to_string(value))
+            end)
+          end)
+          |> Enum.to_list()
+
+        socket
+        |> assign(:error, "#{field} #{reason}")
         |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
 
       {:error, reason} ->
