@@ -52,31 +52,22 @@ defmodule CarrierWeb.App.DataSourceLive.New do
 
     data_source_module =
       case source do
-        :postgres ->
-          ConnInfoParams.Postgres
-
-        :mysql ->
-          ConnInfoParams.MySQL
-
-        :bigquery ->
-          ConnInfoParams.BigQuery
-
-        :athena ->
-          ConnInfoParams.Athena
-
-        :tableau ->
-          ConnInfoParams.Tableau
+        :postgres -> ConnInfoParams.Postgres
+        :mysql -> ConnInfoParams.MySQL
+        :bigquery -> ConnInfoParams.BigQuery
+        :athena -> ConnInfoParams.Athena
+        :tableau -> ConnInfoParams.Tableau
       end
 
-    changeset = data_source_module.changeset(data_source_module.init_attrs())
-    form = changeset |> to_form(as: "data_source")
+    form =
+      data_source_module.changeset(data_source_module.init_attrs())
+      |> to_form(as: "data_source")
 
     socket =
       socket
       |> assign(:step, "step-2")
       |> assign(:source, source)
       |> assign(:data_source_module, data_source_module)
-      |> assign(:changeset, changeset)
       |> assign(:form, form)
 
     {:noreply, socket}
@@ -84,12 +75,13 @@ defmodule CarrierWeb.App.DataSourceLive.New do
 
   @impl true
   def handle_event("validate_data_source", %{"data_source" => data_source_inputs}, socket) do
-    changeset = validate_changeset(socket, data_source_inputs)
-    form = changeset |> to_form(as: "data_source")
+    form =
+      socket
+      |> validate_changeset(data_source_inputs)
+      |> to_form(as: "data_source")
 
     socket =
       socket
-      |> assign(:changeset, changeset)
       |> assign(:form, form)
 
     {:noreply, socket}
@@ -101,7 +93,9 @@ defmodule CarrierWeb.App.DataSourceLive.New do
       validate_changeset(socket, data_source_inputs)
       |> Params.to_map()
 
-    socket = socket |> create_data_source(data_source_params)
+    socket =
+      socket
+      |> create_data_source(data_source_params)
 
     {:noreply, socket}
   end
@@ -156,16 +150,17 @@ defmodule CarrierWeb.App.DataSourceLive.New do
               }}}
           end)
 
-        # hard coding
-        name = socket.assigns.changeset.changes[:name]
+        # TODO: hard coding
+        name = socket.assigns.form.source.changes[:name] |> IO.inspect()
         data_source_inputs = Map.put(data_source_inputs, "name", name)
 
-        changeset = validate_changeset(socket, data_source_inputs)
-        form = changeset |> to_form(as: "data_source")
+        form =
+          socket
+          |> validate_changeset(data_source_inputs)
+          |> to_form(as: "data_source")
 
         socket =
           socket
-          |> assign(:changeset, changeset)
           |> assign(:form, form)
           |> assign(:file_name, file_name)
 
@@ -193,7 +188,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
         Logger.error(inspect(reason))
 
         socket
-        |> assign(:error, reason)
+        |> assign(:error, inspect(reason))
         |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
     end
   rescue
