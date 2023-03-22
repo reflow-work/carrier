@@ -157,10 +157,10 @@ defmodule CarrierWeb do
   defp html_helpers do
     quote do
       # HTML escaping functionality
+      # TODO: change to `import Phoenix.HTML`
       use Phoenix.HTML
       # Core UI components and translation
-      # TODO: uncomment
-      # import CarrierWeb.CoreComponents
+      import CarrierWeb.CoreComponents
       import CarrierWeb.Gettext
 
       # Shortcut for generating JS commands

@@ -6,6 +6,8 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   alias CarrierWeb.Components.Icon
   alias __MODULE__.ConnInfoParams
 
+  embed_templates "new/*"
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
@@ -50,37 +52,37 @@ defmodule CarrierWeb.App.DataSourceLive.New do
 
     data_source_module =
       case source do
-        :postgres ->
-          ConnInfoParams.Postgres
-
-        :mysql ->
-          ConnInfoParams.MySQL
-
-        :bigquery ->
-          ConnInfoParams.BigQuery
-
-        :athena ->
-          ConnInfoParams.Athena
-
-        :tableau ->
-          ConnInfoParams.Tableau
+        :postgres -> ConnInfoParams.Postgres
+        :mysql -> ConnInfoParams.MySQL
+        :bigquery -> ConnInfoParams.BigQuery
+        :athena -> ConnInfoParams.Athena
+        :tableau -> ConnInfoParams.Tableau
       end
+
+    form =
+      data_source_module.changeset(data_source_module.init_attrs())
+      |> to_form(as: "data_source")
 
     socket =
       socket
       |> assign(:step, "step-2")
       |> assign(:source, source)
       |> assign(:data_source_module, data_source_module)
-      |> assign(:changeset, data_source_module.changeset(data_source_module.init_attrs()))
+      |> assign(:form, form)
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("validate_data_source", %{"data_source" => data_source_inputs}, socket) do
-    changeset = validate_changeset(socket, data_source_inputs)
+    form =
+      socket
+      |> validate_changeset(data_source_inputs)
+      |> to_form(as: "data_source")
 
-    socket = socket |> assign(:changeset, changeset)
+    socket =
+      socket
+      |> assign(:form, form)
 
     {:noreply, socket}
   end
@@ -91,9 +93,40 @@ defmodule CarrierWeb.App.DataSourceLive.New do
       validate_changeset(socket, data_source_inputs)
       |> Params.to_map()
 
-    socket = socket |> create_data_source(data_source_params)
+    socket =
+      socket
+      |> create_data_source(data_source_params)
 
     {:noreply, socket}
+  end
+
+  # components
+  attr :data_sources, :any, required: true
+  attr :source, :atom, required: true
+
+  def data_source_selection(assigns)
+
+  attr :source, :atom, required: true
+  attr :form, :any, required: true
+  attr :error, :any, required: true
+  attr :uploads, :any, required: true
+  attr :file_name, :string, required: true
+
+  def data_source_form(assigns)
+
+  attr :source, :atom, required: true
+  attr :form, :any, required: true
+  attr :uploads, :any, required: true
+  attr :file_name, :string, required: true
+
+  def source_inputs(assigns) do
+    case assigns.source do
+      :postgres -> postgres_inputs(assigns)
+      :mysql -> mysql_inputs(assigns)
+      :bigquery -> bigquery_inputs(assigns)
+      :athena -> athena_inputs(assigns)
+      :tableau -> tableau_inputs(assigns)
+    end
   end
 
   defp handle_progress(:credentials, entry, socket) do
@@ -117,13 +150,19 @@ defmodule CarrierWeb.App.DataSourceLive.New do
               }}}
           end)
 
-        # hard coding
-        name = socket.assigns.changeset.changes[:name]
+        # TODO: hard coding
+        name = socket.assigns.form.source.changes[:name] |> IO.inspect()
         data_source_inputs = Map.put(data_source_inputs, "name", name)
 
-        changeset = validate_changeset(socket, data_source_inputs)
+        form =
+          socket
+          |> validate_changeset(data_source_inputs)
+          |> to_form(as: "data_source")
 
-        socket = socket |> assign(:changeset, changeset) |> assign(:file_name, file_name)
+        socket =
+          socket
+          |> assign(:form, form)
+          |> assign(:file_name, file_name)
 
         {:noreply, socket}
 
@@ -142,14 +181,30 @@ defmodule CarrierWeb.App.DataSourceLive.New do
         Logger.error(inspect(reason))
 
         socket
-        |> assign(:error, reason)
+        |> assign(:error, inspect(reason))
+        |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+
+      # TODO: better error handling
+      {:error, %Ecto.Changeset{} = changeset} ->
+        Logger.error(inspect(changeset))
+
+        [{field, [reason | _]} | _] =
+          Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+            Enum.reduce(opts, msg, fn {key, value}, acc ->
+              String.replace(acc, "%{#{key}}", to_string(value))
+            end)
+          end)
+          |> Enum.to_list()
+
+        socket
+        |> assign(:error, "#{field} #{reason}")
         |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
 
       {:error, reason} ->
         Logger.error(inspect(reason))
 
         socket
-        |> assign(:error, reason)
+        |> assign(:error, inspect(reason))
         |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
     end
   rescue
