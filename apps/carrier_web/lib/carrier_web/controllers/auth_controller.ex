@@ -10,7 +10,7 @@ defmodule CarrierWeb.AuthController do
     case get_session(conn, "user_id") do
       nil ->
         conn
-        |> render(:login, layout: false)
+        |> render(:login)
 
       _ ->
         conn

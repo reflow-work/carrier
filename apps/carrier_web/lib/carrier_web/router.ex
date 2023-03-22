@@ -11,6 +11,10 @@ defmodule CarrierWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :landing do
+    plug :put_layout, html: {CarrierWeb.Layouts, :landing}
+  end
+
   pipeline :auth_user do
     plug CarrierWeb.AuthPlug
   end
@@ -19,11 +23,14 @@ defmodule CarrierWeb.Router do
     plug :accepts, ["json"]
   end
 
+  get "/health", CarrierWeb.HealthController, :index
+
   # Without Auth
   scope "/", CarrierWeb do
-    pipe_through :browser
+    pipe_through [:browser, :landing]
 
     live_session :router,
+      layout: {CarrierWeb.Layouts, :landing},
       on_mount: [
         CarrierWeb.TimezoneHook,
         CarrierWeb.AnalyticsHook,
@@ -32,8 +39,12 @@ defmodule CarrierWeb.Router do
       live "/", HomeLive, :index
       live "/pricing", PricingLive, :index
     end
+  end
 
-    get "/health", HealthController, :index
+  # Auth
+  scope "/", CarrierWeb do
+    pipe_through :browser
+
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
 

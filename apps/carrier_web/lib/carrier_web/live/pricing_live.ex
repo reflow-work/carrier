@@ -4,7 +4,7 @@ defmodule CarrierWeb.PricingLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket, layout: {CarrierWeb.Layouts, :landing}}
+    {:ok, socket}
   end
 
   @impl true
