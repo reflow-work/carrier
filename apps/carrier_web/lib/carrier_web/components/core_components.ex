@@ -219,6 +219,9 @@ defmodule CarrierWeb.CoreComponents do
   """
   attr :for, :any, required: true, doc: "the datastructure for the form"
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+  attr :errors, :any, default: []
+
+  attr :class, :string, default: nil
 
   attr :rest, :global,
     include: ~w(autocomplete name rel action enctype method novalidate target),
@@ -228,10 +231,15 @@ defmodule CarrierWeb.CoreComponents do
   slot :actions, doc: "the slot for form actions, such as a submit button"
 
   def simple_form(assigns) do
+    assigns =
+      assigns
+      |> update(:rest, fn rest -> Map.put_new(rest, :autocomplete, "off") end)
+
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="space-y-8 bg-white mt-10">
+      <div class={@class}>
         <%= render_slot(@inner_block, f) %>
+        <.error :for={error <- @errors}><%= inspect(error) %></.error>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
         </div>
@@ -311,6 +319,7 @@ defmodule CarrierWeb.CoreComponents do
     |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
     |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
     |> assign_new(:value, fn -> field.value end)
+    |> update(:rest, fn rest -> Map.put_new(rest, :autocomplete, "off") end)
     |> input()
   end
 
