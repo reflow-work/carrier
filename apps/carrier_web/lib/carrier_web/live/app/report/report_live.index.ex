@@ -3,7 +3,6 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Reports
   alias Carrier.Core.TimeHelper
 
-  on_mount(CarrierWeb.OnboardingHook)
   on_mount(CarrierWeb.IntegrationHook)
 
   @impl true

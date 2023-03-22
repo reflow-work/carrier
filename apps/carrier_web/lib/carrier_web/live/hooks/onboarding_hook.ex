@@ -4,10 +4,10 @@ defmodule CarrierWeb.OnboardingHook do
   require Logger
 
   def on_mount(:default, _params, _session, socket) do
-    if socket.assigns.org.name == "organization" do
+    if socket.view != CarrierWeb.App.OnboardingLive && socket.assigns.org.name == "organization" do
       socket =
         socket
-        |> redirect(to: ~p"/app/onboarding")
+        |> push_navigate(to: ~p"/app/onboarding")
 
       {:halt, socket}
     else

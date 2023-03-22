@@ -52,7 +52,8 @@ defmodule CarrierWeb.Router do
         CarrierWeb.UserHook,
         CarrierWeb.TimezoneHook,
         CarrierWeb.AnalyticsHook,
-        CarrierWeb.ChanneltalkHook
+        CarrierWeb.ChanneltalkHook,
+        CarrierWeb.OnboardingHook
       ] do
       live "/onboarding", OnboardingLive, :index
       live "/payment", PaymentLive, :index
