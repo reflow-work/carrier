@@ -8,7 +8,7 @@ defmodule CarrierWeb.NoIntegrationHook do
         {:cont, socket}
 
       _ ->
-        socket = socket |> push_navigate(to: ~p"/app/integrations/new")
+        socket = socket |> push_navigate(to: ~p"/app/reports")
 
         {:halt, socket}
     end
