@@ -64,3 +64,5 @@ config :sentry,
     env: "production"
   },
   included_environments: [:prod]
+
+config :carrier_web, canonical_host: "reflow.work"
