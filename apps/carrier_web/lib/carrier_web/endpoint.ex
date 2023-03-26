@@ -67,7 +67,7 @@ defmodule CarrierWeb.Endpoint do
     |> case do
       host when is_binary(host) ->
         opts = PlugCanonicalHost.init(canonical_host: host)
-        PlugCanonicalHost.call(conn, opts) |> IO.inspect()
+        PlugCanonicalHost.call(conn, opts)
 
       _ ->
         conn

@@ -151,7 +151,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
           end)
 
         # TODO: hard coding
-        name = socket.assigns.form.source.changes[:name] |> IO.inspect()
+        name = socket.assigns.form.source.changes[:name]
         data_source_inputs = Map.put(data_source_inputs, "name", name)
 
         form =
