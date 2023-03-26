@@ -44,6 +44,7 @@ defmodule CarrierWeb.AuthController do
 
   defp auth(conn, auth) do
     %Ueberauth.Auth{
+      provider: :google,
       info: %Ueberauth.Auth.Info{
         email: email
       }
@@ -54,7 +55,7 @@ defmodule CarrierWeb.AuthController do
         conn
         |> put_session(:user_id, user_id)
         |> put_session(:org_id, org_id)
-        |> redirect(to: ~p"/app/reports?redirected=true")
+        |> redirect(to: get_session(conn, :user_return_to) || ~p"/app/reports?redirected=true")
 
       _ ->
         conn
@@ -65,6 +66,7 @@ defmodule CarrierWeb.AuthController do
 
   defp add_conn_info_to_org(conn, auth) do
     %Ueberauth.Auth{
+      provider: :slack,
       credentials: %Ueberauth.Auth.Credentials{
         token: bot_token,
         other: %{
