@@ -13,91 +13,67 @@
         </h2>
 
         <div>
-          <.form :let={f} for={:onboarding} phx-submit="update_onboarding">
-            <div class="mt-4">
-              <label class="label">
-                <span class="label-text text-gray-500">회사 이름</span>
-              </label>
-              <%= text_input(f, :name,
-                class: "data-source-input",
-                placeholder: "리플로우",
-                autofocus: true
-              ) %>
-              <%= error_tag(f, :name) %>
-            </div>
+          <.simple_form
+            :let={f}
+            for={%{}}
+            as={:onboarding}
+            phx-submit="update_onboarding"
+            class="max-w-xs"
+          >
+            <.input label="회사 이름" type="text" field={f[:name]} placeholder="리플로우" />
 
-            <div class="mt-4">
-              <label class="label">
-                <span class="label-text text-gray-500">회사 업종</span>
-              </label>
-              <%= select(f, :industry, Org.industries(),
-                class: "data-source-input",
-                selected: Org.industries() |> List.first()
-              ) %>
-              <%= error_tag(f, :industry) %>
-            </div>
+            <.input
+              label="회사 업종"
+              type="select"
+              field={f[:industry]}
+              options={Org.industries()}
+            />
 
-            <div class="mt-4">
-              <label class="label">
-                <span class="label-text text-gray-500">회사 직원수</span>
-              </label>
-              <%= select(f, :employee_count, Org.employee_counts(),
-                class: "data-source-input",
-                selected: Org.employee_counts() |> List.first()
-              ) %>
-              <%= error_tag(f, :employee_count) %>
-            </div>
+            <.input
+              label="회사 직원수"
+              type="select"
+              field={f[:employee_count]}
+              options={Org.employee_counts()}
+            />
+
+            <.input label="직무" type="select" field={f[:position]} options={User.positions()} />
 
             <div>
-              <label class="label">
-                <span class="label-text text-gray-500">직무</span>
-              </label>
-              <%= select(f, :position, User.positions(),
-                class: "data-source-input",
-                selected: User.positions() |> List.first()
-              ) %>
-              <%= error_tag(f, :position) %>
+              <.input
+                id="agreed_terms_of_service"
+                type="checkbox"
+                field={f[:agreed_terms_of_service]}
+              >
+                <CarrierWeb.CoreComponents.label for="agreed_terms_of_service">
+                  <a
+                    href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
+                    target="_blank"
+                    class="underline"
+                  >
+                    이용약관
+                  </a>
+                  에 동의합니다.
+                </CarrierWeb.CoreComponents.label>
+              </.input>
+
+              <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
+                <CarrierWeb.CoreComponents.label for="agreed_privacy_policy">
+                  <a
+                    href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
+                    target="_blank"
+                    class="underline"
+                  >
+                    개인정보 처리방침
+                  </a>
+                  에 동의합니다.
+                </CarrierWeb.CoreComponents.label>
+              </.input>
             </div>
 
-            <div class="mt-4 text-gray-500">
-              <div class="text-sm">
-                <%= checkbox(f, :agreed_terms_of_service,
-                  value: input_value(f, :agreed_terms_of_service),
-                  class: "mr-1"
-                ) %>
-                <a
-                  href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
-                  target="_blank"
-                  class="underline"
-                >
-                  이용약관
-                </a>
-                에 동의합니다.
-              </div>
-
-              <div class="text-sm mt-2">
-                <%= checkbox(f, :agreed_privacy_policy,
-                  value: input_value(f, :agreed_privacy_policy),
-                  class: "mr-1"
-                ) %>
-                <a
-                  href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
-                  target="_blank"
-                  class="underline"
-                >
-                  개인정보 처리방침
-                </a>
-                에 동의합니다.
-              </div>
-            </div>
-
-            <div class="mt-6">
-              <%= submit("가입하기",
-                class: "btn btn-primary",
-                phx_disable_with: "가입중"
-              ) %>
-            </div>
-          </.form>
+            <:actions>
+              <.button phx-disable-with="가입중">가입하기</.button>
+            </:actions>
+          </.simple_form>
         </div>
       </div>
     </div>
