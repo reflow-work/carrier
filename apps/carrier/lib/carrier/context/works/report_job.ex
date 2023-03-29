@@ -129,15 +129,14 @@ defmodule Carrier.Works.ReportJob do
   end
 
   defp send_report(%{
-         report:
-           %Report{
-             id: report_id,
-             timezone: timezone,
-             integration_info: %{
-               integration_id: integration_id,
-               channel_id: channel_id
-             }
-           } = report,
+         report: %Report{
+           id: report_id,
+           timezone: timezone,
+           integration_info: %{
+             integration_id: integration_id,
+             channel_id: channel_id
+           }
+         },
          slack_args: slack_args
        }) do
     TenantRepo.wrap_transaction(fn ->
@@ -164,7 +163,7 @@ defmodule Carrier.Works.ReportJob do
   end
 
   defp report_title(timezone, title) do
-    # TODO: 이후에 구조를 바꿔서 레포트에 찍히는 날짜와 동일한 날짜로 바꿔야함
-    "*📊 #{DateTime.now!(timezone) |> DateTime.add(-1 * 24 * 60 * 60, :second) |> DateHelper.safe_format_date()} - #{title}*"
+    # TODO: 이후에 구조를 바꿔서 리포트에 찍히는 날짜와 동일한 날짜로 바꿔야함
+    "*📊 #{DateTime.now!(timezone) |> Timex.shift(days: -1) |> DateHelper.safe_format_date()} - #{title}*"
   end
 end
