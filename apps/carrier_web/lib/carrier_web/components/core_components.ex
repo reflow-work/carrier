@@ -191,10 +191,10 @@ defmodule CarrierWeb.CoreComponents do
 
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class={["mt-10 space-y-8 bg-white", @class]}>
+      <div class={["mt-5 space-y-5 bg-white", @class]}>
         <%= render_slot(@inner_block, f) %>
         <.error :for={error <- @errors}><%= inspect(error) %></.error>
-        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+        <div :for={action <- @actions} class="!mt-10 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
         </div>
       </div>
@@ -221,7 +221,7 @@ defmodule CarrierWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
+        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-3 px-4",
         "text-sm font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
@@ -287,7 +287,7 @@ defmodule CarrierWeb.CoreComponents do
 
     ~H"""
     <div class={@class} phx-feedback-for={@name}>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+      <label class="flex items-center gap-2 text-sm leading-6 text-zinc-600">
         <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
@@ -298,7 +298,7 @@ defmodule CarrierWeb.CoreComponents do
           class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
         />
-        <%= @label %>
+        <%= render_slot(@inner_block) %>
       </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
@@ -312,7 +312,7 @@ defmodule CarrierWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class="mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6"
         multiple={@multiple}
         {@rest}
       >
