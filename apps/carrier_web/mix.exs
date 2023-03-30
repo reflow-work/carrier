@@ -59,7 +59,8 @@ defmodule CarrierWeb.MixProject do
       {:decimal, "~> 2.0.0"},
       {:doumi_phoenix_svg, "~> 0.3.0"},
       {:sentry, "~> 8.0"},
-      {:plug_canonical_host, "~> 2.0"}
+      {:plug_canonical_host, "~> 2.0"},
+      {:doumi_phoenix_params, "~> 0.2"}
     ]
   end
 
