@@ -12,12 +12,7 @@
     <.source_inputs source={@source} form={@form} uploads={@uploads} file_name={@file_name} />
 
     <:actions>
-      <.button
-        type="submit"
-        class="btn btn-primary !mt-4"
-        disabled={!@form.source.valid?}
-        phx-disable-with="연결중"
-      >
+      <.button type="submit" disabled={!@form.source.valid?} phx-disable-with="연결중">
         연결하기
       </.button>
     </:actions>
