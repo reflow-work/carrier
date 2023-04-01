@@ -1,10 +1,5 @@
 <div class="mt-8">
-  <.simple_form
-    for={@form}
-    phx-change="validate_data_source"
-    phx-submit="create_data_source"
-    class="space-y-2"
-  >
+  <.simple_form for={@form} phx-change={@onchange} phx-submit={@onsubmit} class="space-y-2">
     <.input
       type="text"
       field={@form[:name]}

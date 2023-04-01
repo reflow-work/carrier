@@ -70,7 +70,11 @@
           </div>
 
           <%= if @step == "step-1" do %>
-            <.data_source_selection data_sources={data_sources()} source={@source} />
+            <.data_source_selection
+              data_sources={data_sources()}
+              source={@source}
+              onselect={fn source -> JS.push("select_source", value: %{source: source}) end}
+            />
           <% end %>
 
           <%= if @step == "step-2" do %>
@@ -80,6 +84,8 @@
               error={@error}
               uploads={@uploads}
               file_name={@file_name}
+              onchange="validate_data_source"
+              onsubmit="create_data_source"
             />
           <% end %>
         </div>
