@@ -298,6 +298,7 @@ defmodule CarrierWeb.CoreComponents do
           class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
         />
+        <.label for={@id}><%= @label %></.label>
         <%= render_slot(@inner_block) %>
       </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
