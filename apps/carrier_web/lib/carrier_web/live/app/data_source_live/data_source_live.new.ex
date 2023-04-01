@@ -1,10 +1,11 @@
 defmodule CarrierWeb.App.DataSourceLive.New do
   use CarrierWeb, :live_view
-  use CarrierWeb.Params
   use Carrier.Secrets
   use Carrier.Setting
   alias CarrierWeb.Components.Icon
   alias __MODULE__.ConnInfoParams
+  # TODO: move to CarrierWeb
+  alias Doumi.Phoenix.Params
 
   embed_templates "new/*"
 
@@ -60,8 +61,12 @@ defmodule CarrierWeb.App.DataSourceLive.New do
       end
 
     form =
-      data_source_module.changeset(data_source_module.init_attrs())
-      |> to_form(as: "data_source")
+      Params.to_form(
+        struct(data_source_module),
+        data_source_module.init_attrs(),
+        as: :data_source,
+        validate: false
+      )
 
     socket =
       socket
@@ -77,8 +82,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   def handle_event("validate_data_source", %{"data_source" => data_source_inputs}, socket) do
     form =
       socket
-      |> validate_changeset(data_source_inputs)
-      |> to_form(as: "data_source")
+      |> validate_form(data_source_inputs)
 
     socket =
       socket
@@ -90,7 +94,8 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   @impl true
   def handle_event("create_data_source", %{"data_source" => data_source_inputs}, socket) do
     data_source_params =
-      validate_changeset(socket, data_source_inputs)
+      socket
+      |> validate_form(data_source_inputs)
       |> Params.to_map()
 
     socket =
@@ -150,14 +155,13 @@ defmodule CarrierWeb.App.DataSourceLive.New do
               }}}
           end)
 
-        # TODO: hard coding
-        name = socket.assigns.form.source.changes[:name]
-        data_source_inputs = Map.put(data_source_inputs, "name", name)
+        data_source_inputs =
+          socket.assigns.form
+          |> Params.to_params(data_source_inputs)
 
         form =
           socket
-          |> validate_changeset(data_source_inputs)
-          |> to_form(as: "data_source")
+          |> validate_form(data_source_inputs)
 
         socket =
           socket
@@ -218,18 +222,14 @@ defmodule CarrierWeb.App.DataSourceLive.New do
     Secrets.create_data_source(params)
   end
 
-  defp validate_changeset(socket, data_source_inputs) do
+  defp validate_form(socket, data_source_inputs) do
     data_source_module = socket.assigns.data_source_module
 
-    params =
+    data_source_params =
       data_source_inputs
-      |> Map.merge(%{
-        "org_id" => socket.assigns.org_id
-      })
+      |> Map.merge(%{"org_id" => socket.assigns.org_id})
 
-    _changeset =
-      data_source_module.changeset(params)
-      |> Params.set_action(:validate)
+    Params.to_form(struct(data_source_module), data_source_params, as: :data_source)
   end
 
   defp data_sources() do
