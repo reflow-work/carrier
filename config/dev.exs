@@ -64,8 +64,7 @@ config :carrier_web, CarrierWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/carrier_web/(live|views)/.*(ex)$",
-      ~r"lib/carrier_web/templates/.*(eex)$"
+      ~r"lib/carrier_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 
