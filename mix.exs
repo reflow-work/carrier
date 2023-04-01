@@ -32,7 +32,8 @@ defmodule Carrier.Umbrella.MixProject do
       # run `mix setup` in all child apps
       setup: ["cmd mix setup"],
       "ecto.reset": ["cmd --app carrier mix ecto.reset"],
-      "release.setup": ["cmd mix release.setup"]
+      "release.setup": ["cmd mix release.setup"],
+      sobelow: ["cmd mix sobelow"]
     ]
   end
 

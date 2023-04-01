@@ -66,7 +66,8 @@ defmodule Carrier.MixProject do
       {:req_athena, "~> 0.1.2"},
       {:nebulex, "~> 2.4"},
       {:shards, "~> 1.1"},
-      {:decorator, "~> 1.4"}
+      {:decorator, "~> 1.4"},
+      {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false}
     ]
   end
 
