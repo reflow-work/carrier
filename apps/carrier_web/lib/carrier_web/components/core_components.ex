@@ -269,7 +269,7 @@ defmodule CarrierWeb.CoreComponents do
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
                 pattern placeholder readonly required rows size step)
 
-  slot :inner_block
+  slot :label_element, doc: "the slot for the label element"
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns
@@ -298,8 +298,11 @@ defmodule CarrierWeb.CoreComponents do
           class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
         />
-        <.label for={@id}><%= @label %></.label>
-        <%= render_slot(@inner_block) %>
+        <%= if slot_exist?(@label_element) do %>
+          <.label for={@id}><%= render_slot(@label_element) %></.label>
+        <% else %>
+          <.label for={@id}><%= @label %></.label>
+        <% end %>
       </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
@@ -309,7 +312,11 @@ defmodule CarrierWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div class={@class} phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <%= if slot_exist?(@label_element) do %>
+        <.label for={@id}><%= render_slot(@label_element) %></.label>
+      <% else %>
+        <.label for={@id}><%= @label %></.label>
+      <% end %>
       <select
         id={@id}
         name={@name}
@@ -328,7 +335,11 @@ defmodule CarrierWeb.CoreComponents do
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div class={@class} phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <%= if slot_exist?(@label_element) do %>
+        <.label for={@id}><%= render_slot(@label_element) %></.label>
+      <% else %>
+        <.label for={@id}><%= @label %></.label>
+      <% end %>
       <textarea
         id={@id}
         name={@name}
@@ -349,7 +360,11 @@ defmodule CarrierWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div class={@class} phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <%= if slot_exist?(@label_element) do %>
+        <.label for={@id}><%= render_slot(@label_element) %></.label>
+      <% else %>
+        <.label for={@id}><%= @label %></.label>
+      <% end %>
       <input
         type={@type}
         name={@name}
@@ -651,4 +666,6 @@ defmodule CarrierWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  defp slot_exist?(slot), do: slot |> Enum.empty?() |> Kernel.not()
 end

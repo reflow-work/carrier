@@ -44,7 +44,7 @@
                 type="checkbox"
                 field={f[:agreed_terms_of_service]}
               >
-                <CarrierWeb.CoreComponents.label for="agreed_terms_of_service">
+                <:label_element>
                   <a
                     href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
                     target="_blank"
@@ -53,11 +53,11 @@
                     이용약관
                   </a>
                   에 동의합니다.
-                </CarrierWeb.CoreComponents.label>
+                </:label_element>
               </.input>
 
               <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
-                <CarrierWeb.CoreComponents.label for="agreed_privacy_policy">
+                <:label_element>
                   <a
                     href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
                     target="_blank"
@@ -66,7 +66,7 @@
                     개인정보 처리방침
                   </a>
                   에 동의합니다.
-                </CarrierWeb.CoreComponents.label>
+                </:label_element>
               </.input>
             </div>
 
