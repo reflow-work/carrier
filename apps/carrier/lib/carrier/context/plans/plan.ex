@@ -2,7 +2,7 @@ defmodule Carrier.Plans.Plan do
   use Carrier.Schema
 
   schema "plans" do
-    field :billing_interval, Ecto.Enum, values: [:none, :monthly, :yearly]
+    field :billing_cycle, Ecto.Enum, values: [:none, :monthly, :yearly]
     field :name, :string
     field :type, Ecto.Enum, values: [:trial, :basic, :pro]
     field :price, :integer
