@@ -1,6 +1,6 @@
 defmodule Carrier.Factory do
   use ExMachina.Ecto, repo: Carrier.Repo
-  use Carrier.{Accounts, Secrets, Reports, Setting}
+  use Carrier.{Accounts, Secrets, Reports, Setting, Billing}
 
   def org_factory() do
     %Org{
@@ -156,6 +156,33 @@ defmodule Carrier.Factory do
       payload: [%{"key" => "value"}],
       succeeded_at: DateTime.utc_now()
     })
+  end
+
+  def plan_factory(attrs) do
+    type = attrs |> Map.get(:type, Enum.random([:trial, :basic, :pro]))
+
+    billing_cycle =
+      case type do
+        :trial -> :none
+        _ -> Enum.random([:monthly, :yearly])
+      end
+
+    subscribable =
+      case billing_cycle do
+        :none -> false
+        _ -> true
+      end
+
+    %Plan{
+      billing_cycle: billing_cycle,
+      name: seq(:plan_name),
+      type: type,
+      price: Enum.random(0..10_000_000) |> Decimal.new(),
+      currency: :KRW,
+      description: [seq(:plan_description), seq(:plan_description)],
+      subscribable: subscribable
+    }
+    |> merge_attributes(attrs)
   end
 
   def property_factory() do
