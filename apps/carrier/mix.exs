@@ -67,7 +67,8 @@ defmodule Carrier.MixProject do
       {:nebulex, "~> 2.4"},
       {:shards, "~> 1.1"},
       {:decorator, "~> 1.4"},
-      {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false}
+      {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 
