@@ -86,7 +86,7 @@ config :carrier, Carrier.Vault,
   ]
 
 config :carrier, :toss_payments,
-  client_key: "test_ck_O6BYq7GWPVvWzA11PznrNE5vbo1d",
-  secret_key: "test_sk_dP9BRQmyarYkvqM5RYa3J07KzLNk"
+  client_key: "test_ck_OALnQvDd2VJ5ZOooo0Y3Mj7X41mN",
+  secret_key: "test_sk_0Poxy1XQL8R0kqZQMKZV7nO5Wmlg"
 
 import_config "#{config_env()}.secret.exs"

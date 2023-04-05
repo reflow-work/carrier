@@ -52,3 +52,8 @@ config :carrier, Carrier.Vault,
       {Cloak.Ciphers.AES.GCM,
        tag: "AES.GCM.V1", key: Base.decode64!("mO9HUeIWNsMuVoLRcHB9UdPtdZ9PVDZSwUzT8jIIAxI=")}
   ]
+
+config :carrier, :toss_payments,
+  base_url: "http://localhost:4101.com",
+  client_key: "client_key",
+  secret_key: "secret_key"
