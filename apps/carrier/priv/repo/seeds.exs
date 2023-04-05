@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-use Carrier.{Accounts, Secrets, Reports, Setting}
+use Carrier.{Accounts, Secrets, Reports, Setting, Plans}
 alias Carrier.Repo
 
 Repo.transaction(fn ->
@@ -208,4 +208,51 @@ Repo.transaction(fn ->
 
   {1, _} =
     Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
+
+  {_, _} =
+    Repo.insert_all(
+      Plan,
+      [
+        %{
+          billing_cycle: :none,
+          name: "Trial",
+          type: :trial,
+          price: 0,
+          currency: :KRW,
+          description: ["모든 기능 사용 가능"]
+        },
+        %{
+          billing_cycle: :monthly,
+          name: "Basic",
+          type: :basic,
+          price: 48000,
+          currency: :KRW,
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"]
+        },
+        %{
+          billing_cycle: :monthly,
+          name: "Pro",
+          type: :pro,
+          price: 108_000,
+          currency: :KRW,
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"]
+        },
+        %{
+          billing_cycle: :yearly,
+          name: "Basic",
+          type: :basic,
+          price: 480_000,
+          currency: :KRW,
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"]
+        },
+        %{
+          billing_cycle: :yearly,
+          name: "Pro",
+          type: :pro,
+          price: 1_080_000,
+          currency: :KRW,
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"]
+        }
+      ]
+    )
 end)
