@@ -8,7 +8,11 @@ defmodule CarrierWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, {CarrierWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers, %{"content-security-policy" => "default-src 'self'"}
+
+    plug :put_secure_browser_headers, %{
+      "content-security-policy" =>
+        "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.channel.io js.tosspayments.com js.sentry-cdn.com blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' api.channel.io api.tosspayments.com event.tosspayments.com cf.channel.io gw.channel.io wss://*.channel.io; frame-src 'self' api.tosspayments.com checkout-pretest.tosspayments.com; img-src 'self' cf.channel.io data:; media-src cdn.channel.io"
+    }
   end
 
   pipeline :landing do
