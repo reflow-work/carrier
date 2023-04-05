@@ -8,7 +8,8 @@ defmodule Carrier.Repo.Migrations.CreatePlans do
       add :type, :string, null: false
       add :price, :decimal, null: false
       add :currency, :string, null: false
-      add :description, :jsonb, null: false,
+      add :description, :jsonb, null: false
+      add :subscribable, :boolean, null: false
 
       add :deleted_at, :timestamptz, null: true
 
