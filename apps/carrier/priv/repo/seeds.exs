@@ -219,7 +219,8 @@ Repo.transaction(fn ->
           type: :trial,
           price: 0,
           currency: :KRW,
-          description: ["모든 기능 사용 가능"]
+          description: ["모든 기능 사용 가능"],
+          subscribable: false
         },
         %{
           billing_cycle: :monthly,
@@ -227,7 +228,8 @@ Repo.transaction(fn ->
           type: :basic,
           price: 48000,
           currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"]
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"],
+          subscribable: true
         },
         %{
           billing_cycle: :monthly,
@@ -235,7 +237,8 @@ Repo.transaction(fn ->
           type: :pro,
           price: 108_000,
           currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"]
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
+          subscribable: true
         },
         %{
           billing_cycle: :yearly,
@@ -243,7 +246,8 @@ Repo.transaction(fn ->
           type: :basic,
           price: 480_000,
           currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"]
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"],
+          subscribable: true
         },
         %{
           billing_cycle: :yearly,
@@ -251,7 +255,8 @@ Repo.transaction(fn ->
           type: :pro,
           price: 1_080_000,
           currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"]
+          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
+          subscribable: true
         }
       ]
     )
