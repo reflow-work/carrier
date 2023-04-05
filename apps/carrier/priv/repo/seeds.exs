@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-use Carrier.{Accounts, Secrets, Reports, Setting, Plans}
+use Carrier.{Accounts, Secrets, Reports, Setting, Billing}
 alias Carrier.Repo
 
 Repo.transaction(fn ->

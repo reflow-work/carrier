@@ -1,4 +1,4 @@
-defmodule Carrier.Plans.Plan do
+defmodule Carrier.Billing.Plan do
   use Carrier.Schema
 
   schema "plans" do
