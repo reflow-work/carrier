@@ -1,5 +1,6 @@
 defmodule Carrier.External.TossPayments do
   require Logger
+  alias Carrier.External.Model.CreditCard
 
   def issue_billing_auth(auth_key, customer_key) do
     body = %{
@@ -10,8 +11,23 @@ defmodule Carrier.External.TossPayments do
     Tesla.post(client(), "/v1/billing/authorizations/issue", body)
     |> handle_response()
     |> case do
-      {:ok, %{"billingKey" => billing_key, "customerKey" => customer_key}} ->
-        {:ok, %{billing_key: billing_key, customer_key: customer_key}}
+      {:ok,
+       %{
+         "billingKey" => billing_key,
+         "customerKey" => customer_key,
+         "cardCompany" => card_company,
+         "card" => %{
+           "number" => card_number
+         }
+       }} ->
+        {:ok,
+         %CreditCard{
+           provider: :toss,
+           billing_key: billing_key,
+           customer_key: customer_key,
+           card_company: card_company,
+           card_number: card_number
+         }}
 
       {:error, reason} ->
         Logger.error("Failed to issue billing auth: #{customer_key}, #{inspect(reason)}")
