@@ -22,7 +22,7 @@ defmodule Carrier.External.TossPayments do
        }} ->
         {:ok,
          %CreditCard{
-           provider: :toss,
+           provider: :toss_payments,
            billing_key: billing_key,
            customer_key: customer_key,
            card_company: card_company,
