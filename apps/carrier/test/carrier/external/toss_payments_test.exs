@@ -24,7 +24,7 @@ defmodule Carrier.External.TossPaymentsTest do
         end
       )
 
-      assert {:ok, %External.Model.CreditCard{} = credit_card} =
+      assert {:ok, %External.Model.CreditCardInfo{} = credit_card} =
                TossPayments.issue_billing_auth("auth_key", "78wBm")
 
       assert credit_card.provider == :toss

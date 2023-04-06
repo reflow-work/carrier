@@ -16,7 +16,7 @@ defmodule Carrier.Payments do
         customer_key: customer_key,
         auth_key: auth_key
       }) do
-    with {:ok, %External.Model.CreditCard{} = credit_card_params} <-
+    with {:ok, %External.Model.CreditCardInfo{} = credit_card_params} <-
            request_credit_card_info(:toss_payments, %{
              org_id: org_id,
              customer_key: customer_key,
@@ -42,7 +42,7 @@ defmodule Carrier.Payments do
         auth_key: auth_key
       }) do
     with ^customer_key = Crypto.obfuscate(org_id),
-         {:ok, %External.Model.CreditCard{customer_key: ^customer_key} = credit_card_params} <-
+         {:ok, %External.Model.CreditCardInfo{customer_key: ^customer_key} = credit_card_params} <-
            External.TossPayments.issue_billing_auth(auth_key, customer_key) do
       {:ok, credit_card_params}
     end

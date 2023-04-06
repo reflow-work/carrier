@@ -1,6 +1,6 @@
 defmodule Carrier.External.TossPayments do
   require Logger
-  alias Carrier.External.Model.CreditCard
+  alias Carrier.External.Model.CreditCardInfo
 
   def issue_billing_auth(auth_key, customer_key) do
     body = %{
@@ -21,7 +21,7 @@ defmodule Carrier.External.TossPayments do
          }
        }} ->
         {:ok,
-         %CreditCard{
+         %CreditCardInfo{
            provider: :toss_payments,
            billing_key: billing_key,
            customer_key: customer_key,
