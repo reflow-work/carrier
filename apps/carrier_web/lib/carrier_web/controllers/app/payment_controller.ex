@@ -5,15 +5,16 @@ defmodule CarrierWeb.App.PaymentController do
   alias Carrier.Core.Crypto
 
   def toss_payments_callback(conn, %{"customerKey" => customer_key, "authKey" => auth_key}) do
-    with org_id = Crypto.deobfuscate!(customer_key),
-         ^org_id <- conn |> get_session(:org_id),
+    org_id = conn |> get_session(:org_id)
+
+    with ^customer_key = Crypto.obfuscate(org_id),
          {:ok, %External.Model.CreditCard{billing_key: _billing_key, customer_key: ^customer_key}} <-
            External.TossPayments.issue_billing_auth(auth_key, customer_key) do
       conn
       |> redirect(to: ~p"/app/payment/done")
     else
       {:error, reason} ->
-        Logger.error("Failed to pay with toss payments: #{reason}")
+        Logger.error("Failed to pay with toss payments: #{org_id} - #{reason}")
 
         conn
         |> redirect(to: ~p"/app/payment")
