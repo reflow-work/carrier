@@ -12,4 +12,17 @@ defmodule Carrier.Payments.CreditCard do
 
     timestamps()
   end
+
+  @required [:org_id, :provider, :billing_key, :customer_key, :card_company, :card_number]
+  defp changeset_for_create(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required)
+    |> validate_required(@required)
+    |> unique_constraint(:org_id)
+  end
+
+  def create(attrs) do
+    %__MODULE__{}
+    |> changeset_for_create(attrs)
+  end
 end
