@@ -16,6 +16,40 @@ defmodule Carrier.Core.CryptoTest do
     end
   end
 
+  describe "random_integer/2" do
+    test "with max and min" do
+      max = 100
+      min = 0
+      random_integer0 = Crypto.random_integer(max, min)
+      random_integer1 = Crypto.random_integer(max, min)
+
+      assert is_integer(random_integer0) == true
+      assert is_integer(random_integer1) == true
+      assert random_integer0 != random_integer1
+      assert random_integer0 >= min
+      assert random_integer0 <= max
+      assert random_integer1 >= min
+      assert random_integer1 <= max
+    end
+  end
+
+  describe "random_float/2" do
+    test "with max and min" do
+      max = 100.0
+      min = 0.0
+      random_float0 = Crypto.random_float(max, min)
+      random_float1 = Crypto.random_float(max, min)
+
+      assert is_float(random_float0) == true
+      assert is_float(random_float1) == true
+      assert random_float0 != random_float1
+      assert random_float0 >= min
+      assert random_float0 <= max
+      assert random_float1 >= min
+      assert random_float1 <= max
+    end
+  end
+
   describe "obfuscate/2" do
     test "with values" do
       value = 123

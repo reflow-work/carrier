@@ -5,6 +5,14 @@ defmodule Carrier.Core.Crypto do
     @letters |> Enum.take_random(length) |> to_string()
   end
 
+  def random_integer(max, min \\ 0) do
+    :rand.uniform(max - min) + min
+  end
+
+  def random_float(max \\ 1, min \\ 0) do
+    :rand.uniform() * (max - min) + min
+  end
+
   def obfuscate(coder \\ default_coder(), values)
 
   def obfuscate(coder, values) when is_list(values) do
