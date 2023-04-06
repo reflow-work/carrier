@@ -6,7 +6,7 @@ defmodule CarrierWeb.Router do
                              "default-src 'self'",
                              "script-src 'self' 'unsafe-inline' cdn.channel.io js.tosspayments.com js.sentry-cdn.com www.googletagmanager.com web-sdk.smartlook.com blob:",
                              "style-src 'self' 'unsafe-inline'",
-                             "connect-src 'self' api.channel.io api.tosspayments.com event.tosspayments.com cf.channel.io gw.channel.io www.google-analytics.com *.smartlook.cloud wss://*.channel.io",
+                             "connect-src 'self' api.channel.io api.tosspayments.com event.tosspayments.com cf.channel.io gw.channel.io www.google-analytics.com *.smartlook.cloud *.amplitude.com wss://*.channel.io",
                              "frame-src 'self' api.tosspayments.com checkout-pretest.tosspayments.com demo.arcade.software",
                              "img-src 'self' cf.channel.io data:",
                              "media-src cdn.channel.io"
