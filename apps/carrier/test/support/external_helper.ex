@@ -1,10 +1,19 @@
 defmodule Carrier.ExternalHelper do
-  def expect_once(bypass, method, path, {:json, body}, opts \\ [])
+  import ExUnit.Assertions, only: [assert: 1]
+
+  def expect(bypass, method, path, {:json, body}, opts \\ [])
       when is_atom(method) and is_binary(path) and (is_map(body) or is_list(body)) do
     status = opts |> Keyword.get(:status, 200)
     validate = opts |> Keyword.get(:validate, fn _params, _body -> true end)
+    once = opts |> Keyword.get(:once, false)
 
-    Bypass.expect_once(bypass, convert_method(method), path, fn conn ->
+    expect_fun =
+      case once do
+        true -> &Bypass.expect_once/4
+        false -> &Bypass.expect/4
+      end
+
+    expect_fun.(bypass, convert_method(method), path, fn conn ->
       {:ok, req_body, conn} = Plug.Conn.read_body(conn)
       validate.(conn.params, Jason.decode!(req_body))
 
@@ -20,6 +29,26 @@ defmodule Carrier.ExternalHelper do
       :post -> "POST"
       :put -> "PUT"
       :delete -> "DELETE"
+    end
+  end
+
+  defmodule TossPayments do
+    def prepare_issue_billing_auth(auth_key, customer_key) do
+      success_resp =
+        Carrier.Fixture.json("toss_payments/issue_billing_auth.success.json")
+        |> Map.put("customerKey", customer_key)
+
+      Bypass.open(port: 4101)
+      |> Carrier.ExternalHelper.expect(
+        :post,
+        "/v1/billing/authorizations/issue",
+        {:json, success_resp},
+        validate: fn _params, body ->
+          assert body == %{"authKey" => auth_key, "customerKey" => customer_key}
+        end
+      )
+
+      success_resp
     end
   end
 end

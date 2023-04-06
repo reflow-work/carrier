@@ -14,7 +14,7 @@ defmodule Carrier.External.TossPaymentsTest do
     end
 
     test "with valid params", %{bypass: bypass} do
-      ExternalHelper.expect_once(
+      ExternalHelper.expect(
         bypass,
         :post,
         "/v1/billing/authorizations/issue",
