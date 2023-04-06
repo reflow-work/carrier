@@ -144,6 +144,8 @@ config :carrier, Carrier.Core.Cache.Local,
 
 config :carrier, hashids_salt: "carrier"
 
+config :carrier, :toss_payments, base_url: "https://api.tosspayments.com"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -1,7 +1,6 @@
 defmodule Carrier.External.TossPayments do
   require Logger
-
-  @base_url "https://api.tosspayments.com/v1"
+  alias Carrier.External.Model.CreditCard
 
   def issue_billing_auth(auth_key, customer_key) do
     body = %{
@@ -9,11 +8,26 @@ defmodule Carrier.External.TossPayments do
       "customerKey" => customer_key
     }
 
-    Tesla.post(client(), "/billing/authorizations/issue", body)
+    Tesla.post(client(), "/v1/billing/authorizations/issue", body)
     |> handle_response()
     |> case do
-      {:ok, %{"billingKey" => billing_key, "customerKey" => customer_key}} ->
-        {:ok, %{billing_key: billing_key, customer_key: customer_key}}
+      {:ok,
+       %{
+         "billingKey" => billing_key,
+         "customerKey" => customer_key,
+         "cardCompany" => card_company,
+         "card" => %{
+           "number" => card_number
+         }
+       }} ->
+        {:ok,
+         %CreditCard{
+           provider: :toss,
+           billing_key: billing_key,
+           customer_key: customer_key,
+           card_company: card_company,
+           card_number: card_number
+         }}
 
       {:error, reason} ->
         Logger.error("Failed to issue billing auth: #{customer_key}, #{inspect(reason)}")
@@ -37,7 +51,7 @@ defmodule Carrier.External.TossPayments do
 
   defp client() do
     Tesla.client([
-      {Tesla.Middleware.BaseUrl, @base_url},
+      {Tesla.Middleware.BaseUrl, base_url()},
       {Tesla.Middleware.BasicAuth, username: secret_key(), password: ""},
       {Tesla.Middleware.Retry,
        delay: 500,
@@ -47,9 +61,13 @@ defmodule Carrier.External.TossPayments do
          {:ok, %{status: 200}} -> false
          _ -> true
        end},
-      {Tesla.Middleware.JSON, encode_content_type: "application/json; charset=utf-8"},
+      Tesla.Middleware.JSON,
       {Tesla.Middleware.Timeout, timeout: :timer.seconds(10)}
     ])
+  end
+
+  defp base_url() do
+    Application.get_env(:carrier, :toss_payments)[:base_url]
   end
 
   defp secret_key() do
