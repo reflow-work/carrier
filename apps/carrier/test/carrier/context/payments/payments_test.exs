@@ -93,6 +93,8 @@ defmodule Carrier.PaymentsTest do
 
       # TODO
       # assert payment.status == :confirmed
+      # assert payment.provider == ?
+      # assert payment.provider_key == ?
       # assert payment.payload == ?
     end
 

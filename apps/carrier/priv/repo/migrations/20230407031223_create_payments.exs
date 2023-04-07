@@ -10,6 +10,8 @@ defmodule Carrier.Repo.Migrations.CreatePayments do
       add :status, :string, null: false
       add :confirmed_at, :timestamptz, null: true
       add :failed_at, :timestamptz, null: true
+      add :provider, :string, null: true
+      add :provider_key, :json, null: true
       add :payload, :jsonb, null: true
 
       add_tstz()

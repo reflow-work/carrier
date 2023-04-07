@@ -11,6 +11,9 @@ defmodule Carrier.Payments.Payment do
 
     field :confirmed_at, :utc_datetime_usec
     field :failed_at, :utc_datetime_usec
+
+    field :provider, Ecto.Enum, values: [:toss_payments]
+    field :provider_key, :string
     field :payload, :map
 
     timestamps()
