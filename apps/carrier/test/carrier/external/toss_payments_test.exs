@@ -13,6 +13,8 @@ defmodule Carrier.External.TossPaymentsTest do
     %{bypass: bypass}
   end
 
+  @fail_resp Carrier.Fixture.json("toss_payments/fail.json")
+
   @success_resp Carrier.Fixture.json("toss_payments/issue_billing_auth.success.json")
 
   describe "issue_billing_auth/2" do
@@ -36,12 +38,29 @@ defmodule Carrier.External.TossPaymentsTest do
       assert credit_card.card_company == @success_resp["cardCompany"]
       assert credit_card.card_number == @success_resp["cardNumber"]
     end
+
+    test "with expired", %{bypass: bypass} do
+      ExternalHelper.expect(
+        bypass,
+        :post,
+        "/v1/billing/authorizations/issue",
+        {:json, @fail_resp},
+        status: 400
+      )
+
+      assert {:error, reason} = TossPayments.issue_billing_auth("auth_key", "678wBmAE")
+
+      assert %{
+               "code" => "INVALID_CARD_EXPIRATION",
+               "message" => "카드 정보를 다시 확인해주세요. (유효기간)"
+             } = reason
+    end
   end
 
   @success_resp Carrier.Fixture.json("toss_payments/bill.success.json")
 
   describe "bill/1" do
-    test "with valid params", %{bypass: bypass} do
+    setup do
       params = %{
         billing_key: "u7tiHB8fpmCTclS3d2J8xTsQtYnrF93C9S4s0g7ThIc=",
         amount: Decimal.new(100_000),
@@ -52,6 +71,10 @@ defmodule Carrier.External.TossPaymentsTest do
         customer_name: "json"
       }
 
+      %{params: params}
+    end
+
+    test "with valid params", %{bypass: bypass, params: params} do
       ExternalHelper.expect(
         bypass,
         :post,
@@ -75,6 +98,23 @@ defmodule Carrier.External.TossPaymentsTest do
       assert payment_info.provider_key == "9o5gEq4k6YZ1aOwX7K8mO2B6RE5Q1WVyQxzvNPGenpDAlBdb"
       assert payment_info.confirmed_at == ~U[2023-04-07 07:28:46Z]
       assert payment_info.payload == @success_resp
+    end
+
+    test "with expired", %{bypass: bypass, params: params} do
+      ExternalHelper.expect(
+        bypass,
+        :post,
+        "/v1/billing/#{params.billing_key}",
+        {:json, @fail_resp},
+        status: 400
+      )
+
+      assert {:error, reason} = TossPayments.bill(params)
+
+      assert %{
+               "code" => "INVALID_CARD_EXPIRATION",
+               "message" => "카드 정보를 다시 확인해주세요. (유효기간)"
+             } = reason
     end
   end
 end
