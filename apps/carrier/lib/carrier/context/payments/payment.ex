@@ -19,11 +19,18 @@ defmodule Carrier.Payments.Payment do
     timestamps()
   end
 
-  @required [:org_id, :credit_card_id, :amount, :currency]
+  @required_for_create [:org_id, :credit_card_id, :amount, :currency]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
-    |> cast(attrs, @required)
-    |> validate_required(@required)
+    |> cast(attrs, @required_for_create)
+    |> validate_required(@required_for_create)
+  end
+
+  @required_for_confirm [:status, :confirmed_at, :provider, :provider_key, :payload]
+  defp changeset_for_confirm(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_confirm)
+    |> validate_required(@required_for_confirm)
   end
 
   def create(%{org_id: org_id, credit_card_id: credit_card_id, amount: amount, currency: currency}) do
@@ -33,6 +40,22 @@ defmodule Carrier.Payments.Payment do
       credit_card_id: credit_card_id,
       amount: amount,
       currency: currency
+    })
+  end
+
+  def confirm(%__MODULE__{} = struct, %{
+        confirmed_at: confirmed_at,
+        provider: provider,
+        provider_key: provider_key,
+        payload: payload
+      }) do
+    struct
+    |> changeset_for_confirm(%{
+      status: :confirmed,
+      confirmed_at: confirmed_at,
+      provider: provider,
+      provider_key: provider_key,
+      payload: payload
     })
   end
 

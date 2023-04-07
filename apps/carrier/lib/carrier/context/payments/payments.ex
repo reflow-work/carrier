@@ -151,8 +151,19 @@ defmodule Carrier.Payments do
     end
   end
 
-  # TODO: implement it
-  defp confirm_payment(%Payment{} = payment, _params) do
-    {:ok, payment}
+  defp confirm_payment(%Payment{} = payment, %{
+         confirmed_at: confirmed_at,
+         provider: provider,
+         provider_key: provider_key,
+         payload: payload
+       }) do
+    payment
+    |> Payment.confirm(%{
+      confirmed_at: confirmed_at,
+      provider: provider,
+      provider_key: provider_key,
+      payload: payload
+    })
+    |> TenantRepo.update()
   end
 end
