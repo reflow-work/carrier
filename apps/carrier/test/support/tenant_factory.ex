@@ -174,6 +174,24 @@ defmodule Carrier.TenantFactory do
     |> merge_attributes(attrs)
   end
 
+  def payment_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    {credit_card, attrs} =
+      attrs |> Map.pop_lazy(:credit_card, fn -> insert(:credit_card, org_id: org_id) end)
+
+    {status, attrs} = attrs |> Map.pop(:status, :confirmed)
+
+    %Payment{
+      org_id: org_id,
+      credit_card: credit_card,
+      amount: Decimal.new(100_000),
+      currency: :KRW
+    }
+    |> apply_status(status)
+    |> merge_attributes(attrs)
+  end
+
   defp apply_status(%ReportLog{} = report_log, :scheduled) do
     report_log
     |> Map.merge(%{status: :scheduled, scheduled_at: DateTime.utc_now()})
@@ -192,6 +210,22 @@ defmodule Carrier.TenantFactory do
       status: :succeeded,
       payload: [%{"key" => "value"}],
       succeeded_at: DateTime.utc_now()
+    })
+  end
+
+  defp apply_status(%Payment{} = payment, :pending) do
+    payment
+  end
+
+  defp apply_status(%Payment{} = payment, :confirmed) do
+    payment
+    |> apply_status(:pending)
+    |> Map.merge(%{
+      status: :confirmed,
+      confirmed_at: DateTime.utc_now(),
+      provider: payment.credit_card.provider,
+      provider_key: seq(:payment_provider_key),
+      payload: %{}
     })
   end
 

@@ -32,4 +32,8 @@ defmodule Carrier.Payments.Payment do
       currency: currency
     })
   end
+
+  def calc_unique_key(%__MODULE__{id: payment_id, org_id: org_id}) do
+    Carrier.Core.Crypto.obfuscate([payment_id, org_id])
+  end
 end
