@@ -5,8 +5,8 @@ defmodule Carrier.Reports.Report do
   schema "reports" do
     belongs_to :report_info, ReportInfo
 
-    field :org_id, :integer
-    field :user_id, :integer
+    field :org_id, :id
+    field :user_id, :id
     field :name, :string
     field :trigger_time, :time
     field :timezone, :string

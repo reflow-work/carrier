@@ -3,7 +3,7 @@ defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.Postgres do
   import Ecto.Changeset
 
   embedded_schema do
-    field :org_id, :integer
+    field :org_id, :id
     field :name, :string
     field :source, Ecto.Enum, values: [:postgres], default: :postgres
 

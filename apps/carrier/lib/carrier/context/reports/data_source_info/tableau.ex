@@ -4,7 +4,7 @@ defmodule Carrier.Reports.DataSourceInfo.Tableau do
   @derive Jason.Encoder
   @primary_key false
   embedded_schema do
-    field :data_source_id, :integer
+    field :data_source_id, :id
     field :source, Ecto.Enum, values: [:tableau]
     field :view_id, :string
     field :view_full_name, :string

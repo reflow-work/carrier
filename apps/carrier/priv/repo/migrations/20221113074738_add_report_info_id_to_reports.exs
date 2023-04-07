@@ -3,7 +3,7 @@ defmodule Carrier.Repo.Migrations.AddReportInfoIdToReports do
 
   def change do
     alter table(:reports) do
-      add :report_info_id, :integer, null: true
+      add :report_info_id, :id, null: true
     end
 
     create unique_index(:reports, [:org_id, :report_info_id, :created_at])

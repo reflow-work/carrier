@@ -4,7 +4,7 @@ defmodule Carrier.Secrets.ConnInfo do
   alias Carrier.Secrets.ConnInfo
 
   schema "conn_infos" do
-    field :org_id, :integer
+    field :org_id, :id
     field :name, :string
     field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :slack, :tableau]
     field :info, Types.Map, source: :encrypted_info, redact: true

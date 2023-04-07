@@ -6,8 +6,8 @@ defmodule Carrier.Reports.ReportLog do
     belongs_to :report_info, ReportInfo
     belongs_to :report, Report
 
-    field :org_id, :integer
-    field :report_job_id, :integer
+    field :org_id, :id
+    field :report_job_id, :id
 
     field :status, Ecto.Enum,
       values: [:scheduled, :tried, :succeeded, :failed, :cancelled],

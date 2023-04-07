@@ -3,21 +3,21 @@ defmodule CarrierWeb.App.ReportLive.New.ReportTableau do
   import Ecto.Changeset
 
   embedded_schema do
-    field :org_id, :integer
-    field :user_id, :integer
+    field :org_id, :id
+    field :user_id, :id
     field :name, :string
     field :hour, :string
     field :trigger_time, :time
     field :timezone, :string
 
     embeds_one :integration_info, IntegrationInfo, primary_key: false, on_replace: :delete do
-      field :integration_id, :integer
+      field :integration_id, :id
       field :channel_id, :string
       field :channel_name, :string
     end
 
     embeds_one :data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete do
-      field :data_source_id, :integer
+      field :data_source_id, :id
       field :source, Ecto.Enum, values: [:tableau]
       field :view_id, :string
       field :view_full_name, :string

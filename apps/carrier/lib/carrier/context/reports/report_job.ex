@@ -3,7 +3,7 @@ defmodule Carrier.Reports.ReportJob do
 
   schema "oban_jobs" do
     embeds_one :args, Args do
-      field :org_id, :integer
+      field :org_id, :id
     end
 
     field :state, Ecto.Enum,

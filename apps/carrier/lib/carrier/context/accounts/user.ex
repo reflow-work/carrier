@@ -2,7 +2,7 @@ defmodule Carrier.Accounts.User do
   use Carrier.Schema
 
   schema "users" do
-    field :org_id, :integer
+    field :org_id, :id
     field :email, :string
     field :position, :string
 

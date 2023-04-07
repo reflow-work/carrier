@@ -5,7 +5,7 @@ defmodule Carrier.Secrets.Integration do
   schema "integrations" do
     belongs_to :conn_info, ConnInfo
 
-    field :org_id, :integer
+    field :org_id, :id
     field :service_name, Ecto.Enum, values: [:slack]
 
     field :deleted_at, :utc_datetime_usec

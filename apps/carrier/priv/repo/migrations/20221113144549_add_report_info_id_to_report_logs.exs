@@ -3,7 +3,7 @@ defmodule Carrier.Repo.Migrations.AddReportInfoIdToReportLogs do
 
   def change do
     alter table(:report_logs) do
-      add :report_info_id, :integer, null: true
+      add :report_info_id, :id, null: true
     end
   end
 end

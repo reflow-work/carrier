@@ -4,7 +4,7 @@ defmodule Carrier.Reports.IntegrationInfo do
   @derive Jason.Encoder
   @primary_key false
   embedded_schema do
-    field :integration_id, :integer
+    field :integration_id, :id
     field :channel_id, :string
     field :channel_name, :string
   end

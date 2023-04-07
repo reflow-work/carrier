@@ -5,7 +5,7 @@ defmodule Carrier.Setting.FeatureFlagValue do
   schema "feature_flag_values" do
     belongs_to :feature_flag, FeatureFlag
 
-    field :org_id, :integer
+    field :org_id, :id
     field :feature_flag_key, :string
     field :value, :boolean
   end
