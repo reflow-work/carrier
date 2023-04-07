@@ -5,6 +5,7 @@ defmodule Carrier.PaymentsTest do
   alias Carrier.Core.Crypto
 
   @moduletag repo: Carrier.TenantRepo
+
   describe "create_credit_card/1 with toss_payments" do
     setup do
       org = TenantFactory.insert(:org)
@@ -52,5 +53,43 @@ defmodule Carrier.PaymentsTest do
 
       assert {:ok, %CreditCard{}} = Payments.create_credit_card(:toss_payments, params)
     end
+  end
+
+  describe "process_payment/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+
+      %{org: org, credit_card: credit_card}
+    end
+
+    test "with valid params", %{org: org, credit_card: credit_card} do
+      assert {:ok, %Payment{} = payment} =
+               Payments.process_payment(%{
+                 org_id: org.org_id,
+                 credit_card_id: credit_card.id,
+                 amount: 10_000,
+                 currency: :KRW
+               })
+
+      assert payment.org_id == org.org_id
+      assert payment.credit_card_id == credit_card.id
+      assert same_values?(payment.amount, 10_000)
+      assert payment.currency == :KRW
+
+      # TODO
+      # assert payment.status == :confirmed
+      # assert payment.payload == ?
+    end
+
+    # TODO
+
+    # test "with invalid credit_card_id", %{org: org} do
+    # end
+
+    # test "with expired credit_card_id", %{org: org, credit_card: credit_card} do
+    # end
   end
 end

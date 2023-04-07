@@ -1,5 +1,5 @@
 defmodule Carrier.Payments do
-  alias Carrier.Payments.CreditCard
+  alias Carrier.Payments.{CreditCard, Payment}
   alias Carrier.External
   alias Carrier.TenantRepo
   alias Carrier.Core.Crypto
@@ -7,7 +7,7 @@ defmodule Carrier.Payments do
   defmacro __using__(_opts) do
     quote do
       alias Carrier.Payments
-      alias Carrier.Payments.CreditCard
+      alias Carrier.Payments.{CreditCard, Payment}
     end
   end
 
@@ -31,6 +31,29 @@ defmodule Carrier.Payments do
     end
   end
 
+  def process_payment(%{
+        org_id: org_id,
+        credit_card_id: credit_card_id,
+        amount: amount,
+        currency: currency
+      }) do
+    with {:ok, %CreditCard{} = credit_card} <- fetch_credit_card(credit_card_id),
+         {:ok, %Payment{} = payment} <-
+           create_payment(%{
+             org_id: org_id,
+             credit_card_id: credit_card_id,
+             amount: amount,
+             currency: currency
+           }),
+         {:ok, %Payment{} = confirmed_payment} <-
+           request_and_confirm_payment(payment, credit_card) do
+      {:ok, confirmed_payment}
+    else
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   defp do_create_credit_card(params) do
     CreditCard.create(params)
     |> TenantRepo.insert()
@@ -46,5 +69,47 @@ defmodule Carrier.Payments do
            External.TossPayments.issue_billing_auth(auth_key, customer_key) do
       {:ok, credit_card_params}
     end
+  end
+
+  # TODO: implement it
+  defp fetch_credit_card(credit_card_id) do
+    {:ok, %CreditCard{id: credit_card_id, provider: :toss_payments}}
+  end
+
+  defp create_payment(%{
+         org_id: org_id,
+         credit_card_id: credit_card_id,
+         amount: amount,
+         currency: currency
+       }) do
+    Payment.create(%{
+      org_id: org_id,
+      credit_card_id: credit_card_id,
+      amount: amount,
+      currency: currency
+    })
+    |> TenantRepo.insert()
+  end
+
+  # TODO: implement it
+  defp request_and_confirm_payment(%Payment{} = payment, %CreditCard{} = credit_card) do
+    with {:ok, %External.Model.PaymentInfo{} = payment_info} <- request_payment(credit_card, %{}),
+         {:ok, %Payment{} = confirmed_payment} <-
+           confirm_payment(payment, payment_info |> Map.from_struct()) do
+      {:ok, confirmed_payment}
+    end
+  rescue
+    error ->
+      {:error, error}
+  end
+
+  # TODO: implement it
+  defp request_payment(%CreditCard{provider: :toss_payments}, %{}) do
+    {:ok, %External.Model.PaymentInfo{}}
+  end
+
+  # TODO: implement it
+  defp confirm_payment(%Payment{} = payment, _params) do
+    {:ok, payment}
   end
 end

@@ -1,6 +1,7 @@
 defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
-  use Carrier.{Accounts, Secrets, Reports, Setting}
+  use Carrier.{Accounts, Secrets, Reports, Setting, Payments}
+  alias Carrier.Core.Crypto
 
   def org_factory() do
     %Org{
@@ -155,6 +156,20 @@ defmodule Carrier.TenantFactory do
       feature_flag: feature_flag,
       feature_flag_key: feature_flag.key,
       value: true
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def credit_card_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    %CreditCard{
+      org_id: org_id,
+      provider: Enum.random([:toss_payments]),
+      billing_key: seq(:credit_card_billing_key),
+      customer_key: org_id |> Crypto.obfuscate(),
+      card_company: Enum.random(["현대"]),
+      card_number: seq(:credit_card_card_number)
     }
     |> merge_attributes(attrs)
   end
