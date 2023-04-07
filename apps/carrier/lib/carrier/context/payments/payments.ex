@@ -35,7 +35,10 @@ defmodule Carrier.Payments do
         org_id: org_id,
         credit_card_id: credit_card_id,
         amount: amount,
-        currency: currency
+        currency: currency,
+        order_name: order_name,
+        customer_email: customer_email,
+        customer_name: customer_name
       }) do
     with {:ok, %CreditCard{} = credit_card} <- fetch_credit_card(credit_card_id),
          {:ok, %Payment{} = payment} <-
@@ -46,7 +49,11 @@ defmodule Carrier.Payments do
              currency: currency
            }),
          {:ok, %Payment{} = confirmed_payment} <-
-           request_and_confirm_payment(payment, credit_card) do
+           request_and_confirm_payment(payment, credit_card, %{
+             order_name: order_name,
+             customer_email: customer_email,
+             customer_name: customer_name
+           }) do
       {:ok, confirmed_payment}
     else
       {:error, reason} ->
@@ -101,8 +108,17 @@ defmodule Carrier.Payments do
   end
 
   # TODO: implement it
-  defp request_and_confirm_payment(%Payment{} = payment, %CreditCard{} = credit_card) do
-    with {:ok, %External.Model.PaymentInfo{} = payment_info} <- request_payment(credit_card, %{}),
+  defp request_and_confirm_payment(%Payment{} = payment, %CreditCard{} = credit_card, %{
+         order_name: order_name,
+         customer_email: customer_email,
+         customer_name: customer_name
+       }) do
+    with {:ok, %External.Model.PaymentInfo{} = payment_info} <-
+           request_payment(payment, credit_card, %{
+             order_name: order_name,
+             customer_email: customer_email,
+             customer_name: customer_name
+           }),
          {:ok, %Payment{} = confirmed_payment} <-
            confirm_payment(payment, payment_info |> Map.from_struct()) do
       {:ok, confirmed_payment}
@@ -112,14 +128,27 @@ defmodule Carrier.Payments do
       {:error, error}
   end
 
-  # TODO: implement it
-  defp request_payment(%CreditCard{provider: :toss_payments}, %{}) do
-    {:ok,
-     %External.Model.PaymentInfo{
-       provider: :toss_payments,
-       provider_key: "key",
-       payload: %{"test" => "hi"}
-     }}
+  defp request_payment(
+         %Payment{amount: amount, currency: :KRW} = payment,
+         %CreditCard{
+           provider: :toss_payments,
+           billing_key: billing_key,
+           customer_key: customer_key
+         },
+         %{order_name: order_name, customer_email: customer_email, customer_name: customer_name}
+       ) do
+    with {:ok, %External.Model.PaymentInfo{} = payment_info} <-
+           External.TossPayments.bill(%{
+             billing_key: billing_key,
+             amount: amount,
+             customer_key: customer_key,
+             order_id: Payment.calc_unique_key(payment),
+             order_name: order_name,
+             customer_email: customer_email,
+             customer_name: customer_name
+           }) do
+      {:ok, payment_info}
+    end
   end
 
   # TODO: implement it

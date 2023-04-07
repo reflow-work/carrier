@@ -65,7 +65,7 @@ defmodule Carrier.PaymentsTest do
       params = %{
         org_id: org.org_id,
         credit_card_id: credit_card.id,
-        amount: 10_000,
+        amount: Decimal.new(100_000),
         currency: :KRW,
         order_name: "Pro 연간 플랜 구독",
         customer_email: "json@reflow.work",
@@ -76,11 +76,19 @@ defmodule Carrier.PaymentsTest do
     end
 
     test "with valid params", %{org: org, credit_card: credit_card, params: params} do
+      ExternalHelper.TossPayments.prepare_bill(%{
+        billing_key: credit_card.billing_key,
+        amount: params.amount,
+        order_name: params.order_name,
+        customer_email: params.customer_email,
+        customer_name: params.customer_name
+      })
+
       assert {:ok, %Payment{} = payment} = Payments.process_payment(params)
 
       assert payment.org_id == org.org_id
       assert payment.credit_card_id == credit_card.id
-      assert same_values?(payment.amount, 10_000)
+      assert same_values?(payment.amount, 100_000)
       assert payment.currency == :KRW
 
       # TODO
