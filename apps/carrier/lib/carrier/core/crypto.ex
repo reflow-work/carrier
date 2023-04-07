@@ -35,6 +35,6 @@ defmodule Carrier.Core.Crypto do
   defp default_coder() do
     salt = Application.get_env(:carrier, :hashids_salt)
 
-    Hashids.new(salt: salt, min_len: 5)
+    Hashids.new(salt: salt, min_len: 8)
   end
 end

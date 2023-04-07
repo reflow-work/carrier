@@ -56,7 +56,7 @@ defmodule Carrier.Core.CryptoTest do
       obfuscated_value = Crypto.obfuscate([value])
 
       assert obfuscated_value != value
-      assert obfuscated_value |> String.length() >= 5
+      assert obfuscated_value |> String.length() >= 8
     end
 
     test "with value" do
@@ -64,7 +64,7 @@ defmodule Carrier.Core.CryptoTest do
       obfuscated_value = Crypto.obfuscate(value)
 
       assert obfuscated_value != value
-      assert obfuscated_value |> String.length() >= 5
+      assert obfuscated_value |> String.length() >= 8
     end
   end
 
