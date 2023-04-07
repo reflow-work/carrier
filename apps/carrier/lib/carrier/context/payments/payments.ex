@@ -71,9 +71,18 @@ defmodule Carrier.Payments do
     end
   end
 
-  # TODO: implement it
   defp fetch_credit_card(credit_card_id) do
-    {:ok, %CreditCard{id: credit_card_id, provider: :toss_payments}}
+    CreditCard.fetch(credit_card_id)
+    |> TenantRepo.one()
+    |> case do
+      %CreditCard{} = credit_card ->
+        {:ok, credit_card}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: CreditCard, conditions: %{credit_card_id: credit_card_id}}}}
+    end
   end
 
   defp create_payment(%{

@@ -62,17 +62,18 @@ defmodule Carrier.PaymentsTest do
 
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
 
-      %{org: org, credit_card: credit_card}
+      params = %{
+        org_id: org.org_id,
+        credit_card_id: credit_card.id,
+        amount: 10_000,
+        currency: :KRW
+      }
+
+      %{org: org, credit_card: credit_card, params: params}
     end
 
-    test "with valid params", %{org: org, credit_card: credit_card} do
-      assert {:ok, %Payment{} = payment} =
-               Payments.process_payment(%{
-                 org_id: org.org_id,
-                 credit_card_id: credit_card.id,
-                 amount: 10_000,
-                 currency: :KRW
-               })
+    test "with valid params", %{org: org, credit_card: credit_card, params: params} do
+      assert {:ok, %Payment{} = payment} = Payments.process_payment(params)
 
       assert payment.org_id == org.org_id
       assert payment.credit_card_id == credit_card.id
@@ -84,10 +85,12 @@ defmodule Carrier.PaymentsTest do
       # assert payment.payload == ?
     end
 
-    # TODO
+    test "with invalid credit_card_id", %{params: params} do
+      assert {:error, {:resource_not_found, %{target: CreditCard}}} =
+               Payments.process_payment(%{params | credit_card_id: 0})
+    end
 
-    # test "with invalid credit_card_id", %{org: org} do
-    # end
+    # TODO
 
     # test "with expired credit_card_id", %{org: org, credit_card: credit_card} do
     # end
