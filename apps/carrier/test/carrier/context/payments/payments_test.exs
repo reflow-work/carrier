@@ -31,10 +31,10 @@ defmodule Carrier.PaymentsTest do
 
       assert credit_card.org_id == org.org_id
       assert credit_card.provider == :toss_payments
-      assert credit_card.billing_key == "ueAUrnr8njSl-8Uub_ZZ192yXRApNep8zhJzpH5xNDE="
+      assert credit_card.billing_key == "u7tiHB8fpmCTclS3d2J8xTsQtYnrF93C9S4s0g7ThIc="
       assert credit_card.customer_key == params.customer_key
       assert credit_card.card_company == "현대"
-      assert credit_card.card_number == "41352680****123*"
+      assert credit_card.card_number == "41352680****790*"
     end
 
     test "with duplicated org_id", %{params: params} do
@@ -66,7 +66,10 @@ defmodule Carrier.PaymentsTest do
         org_id: org.org_id,
         credit_card_id: credit_card.id,
         amount: 10_000,
-        currency: :KRW
+        currency: :KRW,
+        order_name: "Pro 연간 플랜 구독",
+        customer_email: "json@reflow.work",
+        customer_name: "json"
       }
 
       %{org: org, credit_card: credit_card, params: params}

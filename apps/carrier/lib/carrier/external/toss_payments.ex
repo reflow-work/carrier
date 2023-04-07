@@ -1,6 +1,6 @@
 defmodule Carrier.External.TossPayments do
   require Logger
-  alias Carrier.External.Model.CreditCardInfo
+  alias Carrier.External.Model.{CreditCardInfo, PaymentInfo}
 
   def issue_billing_auth(auth_key, customer_key) do
     body = %{
@@ -16,9 +16,7 @@ defmodule Carrier.External.TossPayments do
          "billingKey" => billing_key,
          "customerKey" => customer_key,
          "cardCompany" => card_company,
-         "card" => %{
-           "number" => card_number
-         }
+         "cardNumber" => card_number
        }} ->
         {:ok,
          %CreditCardInfo{
@@ -31,6 +29,46 @@ defmodule Carrier.External.TossPayments do
 
       {:error, reason} ->
         Logger.error("Failed to issue billing auth: #{customer_key}, #{inspect(reason)}")
+
+        {:error, reason}
+    end
+  end
+
+  # order_id should be unique and its length should be >= 6
+  def bill(%{
+        billing_key: billing_key,
+        amount: %Decimal{} = amount,
+        customer_key: customer_key,
+        order_id: order_id,
+        order_name: order_name,
+        customer_email: customer_email,
+        customer_name: customer_name
+      }) do
+    body = %{
+      "amount" => amount |> Decimal.to_integer(),
+      "customerKey" => customer_key,
+      "orderId" => order_id,
+      "orderName" => order_name,
+      "customerEmail" => customer_email,
+      "customerName" => customer_name
+    }
+
+    Tesla.post(client(), "/v1/billing/#{billing_key}", body)
+    |> handle_response()
+    |> case do
+      {:ok, %{"paymentKey" => payment_key, "approvedAt" => approved_at_str} = body} ->
+        {:ok, approved_at, _offset} = DateTime.from_iso8601(approved_at_str)
+
+        {:ok,
+         %PaymentInfo{
+           provider: :toss_payments,
+           provider_key: payment_key,
+           confirmed_at: approved_at,
+           payload: body
+         }}
+
+      {:error, reason} ->
+        Logger.error("Failed to bill: #{order_id}, #{inspect(reason)}")
 
         {:error, reason}
     end
@@ -58,11 +96,12 @@ defmodule Carrier.External.TossPayments do
        max_retries: 3,
        max_delay: 4_000,
        should_retry: fn
-         {:ok, %{status: 200}} -> false
+         {:ok, %{status: status}} when status >= 200 and status < 500 -> false
          _ -> true
        end},
       Tesla.Middleware.JSON,
-      {Tesla.Middleware.Timeout, timeout: :timer.seconds(10)}
+      # https://docs.tosspayments.com/reference#%EC%B9%B4%EB%93%9C-%EC%9E%90%EB%8F%99-%EA%B2%B0%EC%A0%9C-%EC%8A%B9%EC%9D%B8
+      {Tesla.Middleware.Timeout, timeout: :timer.seconds(30)}
     ])
   end
 

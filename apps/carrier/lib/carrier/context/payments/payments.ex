@@ -114,7 +114,12 @@ defmodule Carrier.Payments do
 
   # TODO: implement it
   defp request_payment(%CreditCard{provider: :toss_payments}, %{}) do
-    {:ok, %External.Model.PaymentInfo{}}
+    {:ok,
+     %External.Model.PaymentInfo{
+       provider: :toss_payments,
+       provider_key: "key",
+       payload: %{"test" => "hi"}
+     }}
   end
 
   # TODO: implement it

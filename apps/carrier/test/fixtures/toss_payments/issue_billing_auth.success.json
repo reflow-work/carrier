@@ -1,16 +1,16 @@
 {
   "authenticatedAt": "2023-04-05T11:48:53+09:00",
-  "billingKey": "ueAUrnr8njSl-8Uub_ZZ192yXRApNep8zhJzpH5xNDE=",
+  "billingKey": "u7tiHB8fpmCTclS3d2J8xTsQtYnrF93C9S4s0g7ThIc=",
   "card": {
     "acquirerCode": "61",
     "cardType": "신용",
     "issuerCode": "61",
-    "number": "41352680****123*",
+    "number": "41352680****790*",
     "ownerType": "개인"
   },
   "cardCompany": "현대",
-  "cardNumber": "41352680****123*",
-  "customerKey": "78wBm",
-  "mId": "tvivarepublica2",
+  "cardNumber": "41352680****790*",
+  "customerKey": "678wBmAE",
+  "mId": "bill_reflomf9u",
   "method": "카드"
 }
