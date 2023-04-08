@@ -2,7 +2,7 @@ defmodule Carrier.Setting.Super do
   use Carrier.Setting
   use Carrier.Core.Cache
   require Logger
-  alias Carrier.Repo
+  alias Carrier.TenantRepo
 
   @ttl :timer.seconds(10)
   @decorate cacheable(
@@ -24,11 +24,11 @@ defmodule Carrier.Setting.Super do
   @decorate cacheable(cache: Cache.Local, key: {__MODULE__, :get_feature_flag, [key]})
   def get_feature_flag(key) do
     FeatureFlag.get_by_key(key)
-    |> Repo.one()
+    |> TenantRepo.one(skip_org_id: true)
   end
 
   defp get_property(key) do
     Property.get(key)
-    |> Repo.one()
+    |> TenantRepo.one(skip_org_id: true)
   end
 end

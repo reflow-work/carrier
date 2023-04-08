@@ -3,11 +3,11 @@ defmodule Carrier.Accounts.SuperTest do
   alias Carrier.Accounts
   alias Carrier.Accounts.{Org, User}
 
-  @moduletag repo: Repo
+  @moduletag repo: TenantRepo
 
   describe "auth/1" do
     test "with already signed up user" do
-      user = Factory.insert(:user)
+      user = TenantFactory.insert(:user)
 
       assert {:ok, {:signed_in, signed_in_user}} = Accounts.Super.auth(user.email)
       assert same_records?(signed_in_user, user)
@@ -35,7 +35,7 @@ defmodule Carrier.Accounts.SuperTest do
 
   describe "fetch_user_by_email/1" do
     setup do
-      user = Factory.insert(:user)
+      user = TenantFactory.insert(:user)
 
       %{user: user}
     end
@@ -52,7 +52,7 @@ defmodule Carrier.Accounts.SuperTest do
     end
 
     test "with deleted user email", %{user: user} do
-      user |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> Repo.update!()
+      user |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
 
       assert {:error, {:resource_not_found, %{target: User}}} =
                Accounts.Super.fetch_user_by_email("invalid_email")
@@ -61,7 +61,7 @@ defmodule Carrier.Accounts.SuperTest do
 
   describe "sign_up/1" do
     setup do
-      org = Factory.insert(:org)
+      org = TenantFactory.insert(:org)
 
       %{org: org}
     end
@@ -82,7 +82,7 @@ defmodule Carrier.Accounts.SuperTest do
         email: "json@reflow.work"
       }
 
-      Factory.insert(:user, params)
+      TenantFactory.insert(:user, params)
 
       assert {:error, _} = Accounts.Super.signup(params)
     end

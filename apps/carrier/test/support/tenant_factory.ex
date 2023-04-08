@@ -1,6 +1,6 @@
 defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
-  use Carrier.{Accounts, Secrets, Reports, Setting, Payments}
+  use Carrier.{Accounts, Secrets, Reports, Setting, Payments, Billing}
   alias Carrier.Core.Crypto
 
   def org_factory() do
@@ -137,6 +137,39 @@ defmodule Carrier.TenantFactory do
     }
     |> apply_status(status)
     |> merge_attributes(attrs)
+  end
+
+  def plan_factory(attrs) do
+    type = attrs |> Map.get(:type, Enum.random([:trial, :basic, :pro]))
+
+    billing_cycle =
+      case type do
+        :trial -> :none
+        _ -> Enum.random([:monthly, :yearly])
+      end
+
+    subscribable =
+      case billing_cycle do
+        :none -> false
+        _ -> true
+      end
+
+    %Plan{
+      billing_cycle: billing_cycle,
+      name: seq(:plan_name),
+      type: type,
+      price: Enum.random(0..10_000_000) |> Decimal.new(),
+      currency: :KRW,
+      description: [seq(:plan_description), seq(:plan_description)],
+      subscribable: subscribable
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def property_factory() do
+    %Property{
+      key: sequence(:property_key, &"key-#{&1}")
+    }
   end
 
   def feature_flag_factory(attrs) do

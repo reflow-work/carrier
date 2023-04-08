@@ -30,7 +30,7 @@ defmodule CarrierWeb.PricingLive do
   end
 
   defp load_plans_by_billing_cycle(socket) do
-    case Billing.list_subscribable_plans() do
+    case Billing.Super.list_subscribable_plans() do
       {:ok, plans} ->
         plans_by_billing_cycle =
           plans

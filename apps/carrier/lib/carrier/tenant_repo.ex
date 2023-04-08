@@ -13,11 +13,14 @@ defmodule Carrier.TenantRepo do
 
   @impl true
   def prepare_query(_operation, query, opts) do
-    case opts[:org_id] do
-      :skip ->
+    case {opts[:skip_org_id], opts[:org_id]} do
+      {true, _} ->
         {query, opts}
 
-      org_id when is_integer(org_id) ->
+      {_, :skip} ->
+        {query, opts}
+
+      {_, org_id} when is_integer(org_id) ->
         {Ecto.Query.where(query, org_id: ^org_id), opts}
 
       _ ->
