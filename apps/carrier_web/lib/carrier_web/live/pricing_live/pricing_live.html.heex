@@ -10,81 +10,46 @@
   </div>
 </section>
 
-<section class="landing-container section !pt-0 !pb-16">
+<section class="landing-container section !pt-8">
   <div class="space-y-4 md:space-y-0 md:space-x-4 md:flex">
-    <div class="border rounded-md p-6 text-center flex-1">
-      <div class="font-bold mb-2 text-xl">
-        Monthly
-      </div>
-      <div class="mb-4 text-sm">(매달 N일 결제, 최대 31일간 사용)</div>
-      <div class="pt-6">
-        <span class="font-bold text-2xl">49,000</span>
-        <span class="text-landingDescription text-sm">원 / 월</span>
-      </div>
-      <div>
-        <button
-          class="btn btn-primary mt-6"
-          type="button"
-          phx-click="click_link"
-          phx-value-name="start_monthly"
-          phx-value-to="/login"
-        >
-          무료로 시작하기
-        </button>
-      </div>
-      <hr class="my-6" />
-      <div class="space-y-2">
+    <%= for plan <- @plans_by_billing_cycle[:monthly] do %>
+      <div class="border rounded-md p-6 flex-1 flex flex-col justify-between">
         <div>
-          최대 28일 무료
+          <div class="mb-6">
+            <div class="mb-4 text-xl">
+              <%= plan.name %>
+            </div>
+            <div>
+              <span class="font-bold text-3xl">
+                <%= plan |> Plan.month_price() |> format_number() %>
+              </span>
+              <span class="text-landingDescription text-sm">
+                원 / <%= plan |> Plan.billing_cycle_name() %>
+              </span>
+            </div>
+          </div>
+          <hr class="my-8 w-10" />
+          <div class="space-y-3">
+            <%= for description <- plan.description do %>
+              <div class="flex items-center">
+                <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
+              </div>
+            <% end %>
+          </div>
         </div>
-        <div>
-          레포트 무제한 제공
-        </div>
-        <div>
-          채널톡 문의 지원
-        </div>
-      </div>
-    </div>
-
-    <div class="border rounded-md p-6 text-center flex-1">
-      <div class="font-bold mb-2 text-xl">
-        Yearly
-      </div>
-      <div class="text-sm mb-3">(매년 M/N일 결제, 365일 사용)</div>
-      <div class="flex justify-center mb-2">
-        <div class="border rounded-xl w-fit px-4 text-sm border-primary-red text-primary-red">
-          20% 할인
-        </div>
-      </div>
-      <div>
-        <del class="text-landingDescription text-2xl">49,000</del>
-        <span class="font-bold text-2xl">39,000</span>
-        <span class="text-landingDescription text-sm">원 / 월</span>
-      </div>
-      <div>
-        <button
-          class="btn btn-primary mt-6"
-          type="button"
-          phx-click="click_link"
-          phx-value-name="start_yearly"
-          phx-value-to="/login"
-        >
-          무료로 시작하기
-        </button>
-      </div>
-      <hr class="my-6" />
-      <div class="space-y-2">
-        <div>
-          최대 28일 무료
-        </div>
-        <div>
-          레포트 무제한 제공
-        </div>
-        <div>
-          채널톡 문의 지원
+        <div class="mt-10">
+          <button
+            class="btn btn-primary w-full"
+            type="button"
+            phx-click="click_link"
+            phx-value-name={"start_#{plan.billing_cycle}"}
+            phx-value-to="/login"
+          >
+            무료로 시작하기
+          </button>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
 </section>
 
