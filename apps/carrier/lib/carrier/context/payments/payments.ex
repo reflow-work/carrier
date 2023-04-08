@@ -107,25 +107,35 @@ defmodule Carrier.Payments do
     |> TenantRepo.insert()
   end
 
-  # TODO: implement it
   defp request_and_confirm_payment(%Payment{} = payment, %CreditCard{} = credit_card, %{
          order_name: order_name,
          customer_email: customer_email,
          customer_name: customer_name
        }) do
-    with {:ok, %External.Model.PaymentInfo{} = payment_info} <-
-           request_payment(payment, credit_card, %{
-             order_name: order_name,
-             customer_email: customer_email,
-             customer_name: customer_name
-           }),
-         {:ok, %Payment{} = confirmed_payment} <-
-           confirm_payment(payment, payment_info |> Map.from_struct()) do
-      {:ok, confirmed_payment}
+    request_payment(payment, credit_card, %{
+      order_name: order_name,
+      customer_email: customer_email,
+      customer_name: customer_name
+    })
+    |> case do
+      {:ok, %External.Model.PaymentInfo{} = payment_info} ->
+        with {:ok, %Payment{} = confirmed_payment} <-
+               confirm_payment(payment, payment_info |> Map.from_struct()) do
+          {:ok, confirmed_payment}
+        end
+
+      {:error, reason} ->
+        with {:ok, %Payment{} = failed_payment} <-
+               fail_payment(payment, reason) do
+          {:error, failed_payment}
+        end
     end
   rescue
     error ->
-      {:error, error}
+      with {:ok, %Payment{} = failed_payment} <-
+             fail_payment(payment, %{error: inspect(error)}) do
+        {:error, failed_payment}
+      end
   end
 
   defp request_payment(
@@ -163,6 +173,15 @@ defmodule Carrier.Payments do
       provider: provider,
       provider_key: provider_key,
       payload: payload
+    })
+    |> TenantRepo.update()
+  end
+
+  defp fail_payment(%Payment{} = payment, reason) do
+    payment
+    |> Payment.fail(%{
+      failed_at: DateTime.utc_now(),
+      payload: reason
     })
     |> TenantRepo.update()
   end

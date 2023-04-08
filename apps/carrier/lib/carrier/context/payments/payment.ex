@@ -33,6 +33,13 @@ defmodule Carrier.Payments.Payment do
     |> validate_required(@required_for_confirm)
   end
 
+  @required_for_fail [:status, :failed_at, :payload]
+  defp changeset_for_fail(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_fail)
+    |> validate_required(@required_for_fail)
+  end
+
   def create(%{org_id: org_id, credit_card_id: credit_card_id, amount: amount, currency: currency}) do
     %__MODULE__{}
     |> changeset_for_create(%{
@@ -55,6 +62,15 @@ defmodule Carrier.Payments.Payment do
       confirmed_at: confirmed_at,
       provider: provider,
       provider_key: provider_key,
+      payload: payload
+    })
+  end
+
+  def fail(%__MODULE__{} = struct, %{failed_at: failed_at, payload: payload}) do
+    struct
+    |> changeset_for_fail(%{
+      status: :failed,
+      failed_at: failed_at,
       payload: payload
     })
   end

@@ -103,9 +103,26 @@ defmodule Carrier.PaymentsTest do
                Payments.process_payment(%{params | credit_card_id: 0})
     end
 
-    # TODO
+    test "with expired credit_card_id", %{credit_card: credit_card, params: params} do
+      ExternalHelper.TossPayments.prepare_bill(
+        %{
+          billing_key: credit_card.billing_key,
+          amount: params.amount,
+          order_name: params.order_name,
+          customer_email: params.customer_email,
+          customer_name: params.customer_name
+        },
+        fail: true
+      )
 
-    # test "with expired credit_card_id", %{org: org, credit_card: credit_card} do
-    # end
+      assert {:error, %Payment{} = payment} = Payments.process_payment(params)
+
+      assert payment.status == :failed
+
+      assert payment.payload == %{
+               "code" => "INVALID_CARD_EXPIRATION",
+               "message" => "카드 정보를 다시 확인해주세요. (유효기간)"
+             }
+    end
   end
 end
