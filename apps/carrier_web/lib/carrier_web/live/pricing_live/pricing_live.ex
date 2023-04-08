@@ -13,10 +13,18 @@ defmodule CarrierWeb.PricingLive do
         monthly: [],
         yearly: []
       })
+      |> assign(:selected_billing_cycle, "yearly")
 
     socket = socket |> load_plans_by_billing_cycle()
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("select_billing_cycle", %{"billing-cycle" => billing_cycle}, socket) do
+    socket = socket |> assign(:selected_billing_cycle, billing_cycle)
+
+    {:noreply, socket}
   end
 
   @impl true
