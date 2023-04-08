@@ -25,4 +25,10 @@ defmodule Carrier.Payments.CreditCard do
     %__MODULE__{}
     |> changeset_for_create(attrs)
   end
+
+  def fetch(credit_card_id) do
+    __MODULE__
+    |> where([cc], cc.id == ^credit_card_id)
+    |> where([cc], is_nil(cc.deleted_at))
+  end
 end

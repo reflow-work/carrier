@@ -1,5 +1,6 @@
 defmodule Carrier.ExternalHelper do
   import ExUnit.Assertions, only: [assert: 1]
+  import Doumi.CaseHelper
 
   def expect(bypass, method, path, {:json, body}, opts \\ [])
       when is_atom(method) and is_binary(path) and (is_map(body) or is_list(body)) do
@@ -49,6 +50,46 @@ defmodule Carrier.ExternalHelper do
       )
 
       success_resp
+    end
+
+    def prepare_bill(
+          %{
+            billing_key: billing_key,
+            amount: amount,
+            order_name: order_name,
+            customer_email: customer_email,
+            customer_name: customer_name
+          },
+          opts \\ []
+        ) do
+      fail = opts |> Keyword.get(:fail, false)
+      status = if fail, do: 400, else: 200
+
+      resp =
+        case fail do
+          false -> Carrier.Fixture.json("toss_payments/bill.success.json")
+          true -> Carrier.Fixture.json("toss_payments/fail.json")
+        end
+
+      Bypass.open(port: 4101)
+      |> Carrier.ExternalHelper.expect(
+        :post,
+        "/v1/billing/#{billing_key}",
+        {:json, resp},
+        validate: fn _params, body ->
+          assert %{
+                   "amount" => body_amount,
+                   "orderName" => ^order_name,
+                   "customerEmail" => ^customer_email,
+                   "customerName" => ^customer_name
+                 } = body
+
+          assert same_values?(body_amount, amount)
+        end,
+        status: status
+      )
+
+      resp
     end
   end
 end
