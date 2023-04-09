@@ -12,18 +12,17 @@
 
 <section class="landing-container">
   <div class="flex justify-end text-sm">
-    <%= for billing_cycle <- ["monthly", "yearly"]  do %>
+    <%= for billing_cycle <- @billing_cycles do %>
       <div
+        id={"billing-cycle-selector-#{billing_cycle}"}
         class={[
+          "billing-cycle-selector",
           "border border-black rounded-full px-3 py-1 mr-1 cursor-pointer",
-          if @selected_billing_cycle == billing_cycle do
-            "bg-black text-white"
-          end
+          if(is_preselected_billing_cycle(billing_cycle), do: "bg-black text-white")
         ]}
-        phx-click="select_billing_cycle"
-        phx-value-billing-cycle={billing_cycle}
+        phx-click={select_billing_cycle(billing_cycle)}
       >
-        <%= billing_cycle |> String.capitalize() %>
+        <%= billing_cycle |> to_string() |> String.capitalize() %>
       </div>
     <% end %>
   </div>
@@ -31,8 +30,12 @@
 
 <section class="landing-container section !pt-4">
   <div class="space-y-4 md:space-y-0 md:space-x-4 md:flex">
-    <%= for plan <- @plans_by_billing_cycle[@selected_billing_cycle |> String.to_atom()] do %>
-      <div class="border rounded-md p-6 flex-1 flex flex-col justify-between">
+    <%= for {billing_cycle, plans} <- @plans_by_billing_cycle, plan <- plans do %>
+      <div class={[
+        "plan plan-#{billing_cycle}",
+        if(!is_preselected_billing_cycle(billing_cycle), do: "hidden"),
+        "border rounded-md p-6 flex-1 flex flex-col justify-between"
+      ]}>
         <div>
           <div class="mb-6">
             <div class="mb-4 text-xl">

@@ -3,28 +3,19 @@ defmodule CarrierWeb.PricingLive do
   alias Carrier.Billing
   alias Carrier.Billing.Plan
   alias CarrierWeb.Components.Icon
-  alias Phoenix.LiveView.JS
+
+  @preselected_billing_cycle :yearly
 
   @impl true
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:plans_by_billing_cycle, %{
-        monthly: [],
-        yearly: []
-      })
-      |> assign(:selected_billing_cycle, "yearly")
+      |> assign(:billing_cycles, [])
+      |> assign(:plans_by_billing_cycle, [])
 
     socket = socket |> load_plans_by_billing_cycle()
 
     {:ok, socket}
-  end
-
-  @impl true
-  def handle_event("select_billing_cycle", %{"billing-cycle" => billing_cycle}, socket) do
-    socket = socket |> assign(:selected_billing_cycle, billing_cycle)
-
-    {:noreply, socket}
   end
 
   @impl true
@@ -47,9 +38,25 @@ defmodule CarrierWeb.PricingLive do
           |> Enum.map(fn {billing_cycle, plans} ->
             {billing_cycle, plans |> Enum.sort_by(fn plan -> plan.price end)}
           end)
-          |> Enum.into(%{})
 
-        socket |> assign(:plans_by_billing_cycle, plans_by_billing_cycle)
+        billing_cycles =
+          plans_by_billing_cycle
+          |> Enum.map(fn {billing_cycle, _plans} -> billing_cycle end)
+
+        socket
+        |> assign(:billing_cycles, billing_cycles)
+        |> assign(:plans_by_billing_cycle, plans_by_billing_cycle)
     end
+  end
+
+  defp is_preselected_billing_cycle(billing_cycle) do
+    billing_cycle == @preselected_billing_cycle
+  end
+
+  defp select_billing_cycle(billing_cycle) do
+    JS.remove_class("bg-black text-white", to: ".billing-cycle-selector")
+    |> JS.add_class("bg-black text-white", to: "#billing-cycle-selector-#{billing_cycle}")
+    |> JS.add_class("hidden", to: ".plan")
+    |> JS.remove_class("hidden", to: ".plan-#{billing_cycle}")
   end
 end
