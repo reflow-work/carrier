@@ -1,0 +1,90 @@
+<section class="landing-container !py-16 flex flex-col md:flex-row md:items-center section">
+  <div>
+    <div class="h1">
+      가격 정책
+    </div>
+
+    <div class="text-landingDescription mt-4">
+      베타 기간(~2023.05.05) 동안 무료로 시작해보세요.<br /> 개발자가 몇 주에 걸쳐 작업해야 볼 수 있는 레포트를 단 5분 만에 설정할 수 있습니다.
+    </div>
+  </div>
+</section>
+
+<section class="landing-container">
+  <div class="flex justify-end text-sm">
+    <%= for billing_cycle <- @billing_cycles do %>
+      <div
+        id={"billing-cycle-selector-#{billing_cycle}"}
+        class={[
+          "billing-cycle-selector",
+          "border border-black rounded-full px-3 py-1 mr-1 cursor-pointer",
+          if(is_preselected_billing_cycle(billing_cycle), do: "bg-black text-white")
+        ]}
+        phx-click={select_billing_cycle(billing_cycle)}
+      >
+        <%= billing_cycle |> to_string() |> String.capitalize() %>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="landing-container section !pt-4">
+  <div>
+    <%= for {billing_cycle, plans} <- @plans_by_billing_cycle do %>
+      <div class={[
+        "plan plan-#{billing_cycle}",
+        "space-y-4 md:space-y-0 md:space-x-4 md:flex",
+        if(!is_preselected_billing_cycle(billing_cycle), do: "!hidden")
+      ]}>
+        <%= for plan <- plans do %>
+          <div class="border rounded-md p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="mb-6">
+                <div class="mb-4 text-xl">
+                  <%= plan.name %>
+                </div>
+                <div>
+                  <span class="font-bold text-3xl">
+                    <%= plan |> Plan.month_price() |> format_number() %>
+                  </span>
+                  <span class="text-landingDescription text-sm">
+                    원 / <%= plan |> Plan.billing_cycle_name() %>
+                  </span>
+                </div>
+              </div>
+              <hr class="my-8 w-10" />
+              <div class="space-y-3">
+                <%= for description <- plan.description do %>
+                  <div class="flex items-center">
+                    <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="mt-10">
+              <button
+                class="btn btn-primary w-full"
+                type="button"
+                phx-click="click_link"
+                phx-value-name={"start_#{plan.billing_cycle}"}
+                phx-value-to="/login"
+              >
+                무료로 시작하기
+              </button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="landing-container section !mt-0 !pt-0">
+  <div class="cursor-pointer" phx-click={JS.toggle(to: "#refund-policy")}>▶ 환불규정</div>
+  <div id="refund-policy" class="text-sm mt-4 hidden">
+    - Monthly 결제 : 서비스 기간의 50% 이상을 사용하지 않으면, 서비스 이용한 일수를 제외하고 일할계산으로 환불합니다. 1분이라도 사용한 날은 사용한 것으로 간주합니다. 결제일로부터 15일까지는 일할 계산으로 환불처리가 되며 16일부터는 환불이 불가능합니다. 일한 계산은 카드 수수료와 위약금을 포함한 결제 금액의 20%를 제외한 금액입니다.<br />
+    - Yearly 결제 : 연 기준은 12개월 기준으로 전체 연간결제 이용료를 월할 계산합니다. 하루라도 이용한 월은 사용한 월으로 간주합니다.<br />
+    환불할 할인이 적용안된 정기 Monthly 결제 기준으로 환불을 합니다. 따라서 환불 시점에서 따라 환불금액이 존재하지 않는 경우도 있을 수 있습니다.<br />
+    - 취소 신청 후 영업일 2일내에 취소처리가 완료됩니다. 카드사에 따라서 실제 환불까지는 더 시간이 소요되는 경우가 있습니다.
+  </div>
+</section>
