@@ -19,4 +19,18 @@ defmodule Carrier.Billing.Plan do
     __MODULE__
     |> where([p], p.subscribable == true)
   end
+
+  def month_price(%__MODULE__{billing_cycle: billing_cycle, price: price}) do
+    case billing_cycle do
+      :monthly -> price
+      :yearly -> price |> Decimal.div(12)
+    end
+  end
+
+  def billing_cycle_name(%__MODULE__{billing_cycle: billing_cycle}) do
+    case billing_cycle do
+      :monthly -> "월"
+      :yearly -> "년"
+    end
+  end
 end

@@ -32,7 +32,7 @@ defmodule Carrier.DataCase do
   end
 
   setup tags do
-    repos = tags[:repos] || [tags[:repo]] || Carrier.Repo
+    repos = tags[:repos] || [tags[:repo]] || [Carrier.TenantRepo]
 
     pids =
       repos
