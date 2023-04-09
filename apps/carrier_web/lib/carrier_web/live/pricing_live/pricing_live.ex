@@ -56,7 +56,7 @@ defmodule CarrierWeb.PricingLive do
   defp select_billing_cycle(billing_cycle) do
     JS.remove_class("bg-black text-white", to: ".billing-cycle-selector")
     |> JS.add_class("bg-black text-white", to: "#billing-cycle-selector-#{billing_cycle}")
-    |> JS.add_class("hidden", to: ".plan")
-    |> JS.remove_class("hidden", to: ".plan-#{billing_cycle}")
+    |> JS.add_class("!hidden", to: ".plan")
+    |> JS.remove_class("!hidden", to: ".plan-#{billing_cycle}")
   end
 end

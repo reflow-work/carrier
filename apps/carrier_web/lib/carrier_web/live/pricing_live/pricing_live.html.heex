@@ -29,47 +29,51 @@
 </section>
 
 <section class="landing-container section !pt-4">
-  <div class="space-y-4 md:space-y-0 md:space-x-4 md:flex">
-    <%= for {billing_cycle, plans} <- @plans_by_billing_cycle, plan <- plans do %>
+  <div>
+    <%= for {billing_cycle, plans} <- @plans_by_billing_cycle do %>
       <div class={[
         "plan plan-#{billing_cycle}",
-        if(!is_preselected_billing_cycle(billing_cycle), do: "hidden"),
-        "border rounded-md p-6 flex-1 flex flex-col justify-between"
+        "space-y-4 md:space-y-0 md:space-x-4 md:flex",
+        if(!is_preselected_billing_cycle(billing_cycle), do: "!hidden")
       ]}>
-        <div>
-          <div class="mb-6">
-            <div class="mb-4 text-xl">
-              <%= plan.name %>
-            </div>
+        <%= for plan <- plans do %>
+          <div class="border rounded-md p-6 flex-1 flex flex-col justify-between">
             <div>
-              <span class="font-bold text-3xl">
-                <%= plan |> Plan.month_price() |> format_number() %>
-              </span>
-              <span class="text-landingDescription text-sm">
-                원 / <%= plan |> Plan.billing_cycle_name() %>
-              </span>
+              <div class="mb-6">
+                <div class="mb-4 text-xl">
+                  <%= plan.name %>
+                </div>
+                <div>
+                  <span class="font-bold text-3xl">
+                    <%= plan |> Plan.month_price() |> format_number() %>
+                  </span>
+                  <span class="text-landingDescription text-sm">
+                    원 / <%= plan |> Plan.billing_cycle_name() %>
+                  </span>
+                </div>
+              </div>
+              <hr class="my-8 w-10" />
+              <div class="space-y-3">
+                <%= for description <- plan.description do %>
+                  <div class="flex items-center">
+                    <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="mt-10">
+              <button
+                class="btn btn-primary w-full"
+                type="button"
+                phx-click="click_link"
+                phx-value-name={"start_#{plan.billing_cycle}"}
+                phx-value-to="/login"
+              >
+                무료로 시작하기
+              </button>
             </div>
           </div>
-          <hr class="my-8 w-10" />
-          <div class="space-y-3">
-            <%= for description <- plan.description do %>
-              <div class="flex items-center">
-                <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-        <div class="mt-10">
-          <button
-            class="btn btn-primary w-full"
-            type="button"
-            phx-click="click_link"
-            phx-value-name={"start_#{plan.billing_cycle}"}
-            phx-value-to="/login"
-          >
-            무료로 시작하기
-          </button>
-        </div>
+        <% end %>
       </div>
     <% end %>
   </div>
