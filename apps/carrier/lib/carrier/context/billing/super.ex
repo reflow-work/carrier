@@ -8,8 +8,15 @@ defmodule Carrier.Billing.Super do
     |> then(&{:ok, &1})
   end
 
-  # TODO: implement it
   def fetch_plan(plan_id) do
-    {:ok, %Plan{id: plan_id}}
+    Plan.fetch(plan_id)
+    |> TenantRepo.one(skip_org_id: true)
+    |> case do
+      %Plan{} = plan ->
+        {:ok, plan}
+
+      nil ->
+        {:error, {:resource_not_found, %{target: Plan, conditions: %{plan_id: plan_id}}}}
+    end
   end
 end

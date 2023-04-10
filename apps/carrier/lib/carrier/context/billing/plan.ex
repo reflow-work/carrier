@@ -21,9 +21,10 @@ defmodule Carrier.Billing.Plan do
     |> where([p], is_nil(p.deleted_at))
   end
 
-  # TODO: implement it
-  def fetch(_plan_id) do
+  def fetch(plan_id) do
     __MODULE__
+    |> where([p], p.id == ^plan_id)
+    |> where([p], is_nil(p.deleted_at))
   end
 
   def month_price(%__MODULE__{billing_cycle: billing_cycle, price: price}) do
