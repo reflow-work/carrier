@@ -18,4 +18,19 @@ defmodule Carrier.Billing.Subscription do
 
     timestamps()
   end
+
+  # TODO: implement it
+  def create(_params) do
+    %__MODULE__{}
+  end
+
+  # TODO: implement it
+  def activate(%__MODULE__{status: :pending} = subscription) do
+    subscription
+  end
+
+  # TODO: implement it
+  def expire(%__MODULE__{status: :active} = subscription) do
+    subscription
+  end
 end
