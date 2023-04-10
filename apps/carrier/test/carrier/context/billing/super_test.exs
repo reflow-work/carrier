@@ -9,6 +9,7 @@ defmodule Carrier.Billing.SuperTest do
       plan1 = TenantFactory.insert(:plan, type: :trial)
       plan2 = TenantFactory.insert(:plan, type: :basic)
       plan3 = TenantFactory.insert(:plan, type: :pro)
+      TenantFactory.insert(:plan, type: :pro, status: :deleted)
 
       %{plans: [plan1, plan2, plan3]}
     end

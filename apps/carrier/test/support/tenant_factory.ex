@@ -140,7 +140,7 @@ defmodule Carrier.TenantFactory do
   end
 
   def plan_factory(attrs) do
-    type = attrs |> Map.get(:type, Enum.random([:trial, :basic, :pro]))
+    {type, attrs} = attrs |> Map.pop(:type, Enum.random([:trial, :basic, :pro]))
 
     billing_cycle =
       case type do
@@ -154,6 +154,8 @@ defmodule Carrier.TenantFactory do
         _ -> true
       end
 
+    {status, attrs} = attrs |> Map.pop(:status, :active)
+
     %Plan{
       billing_cycle: billing_cycle,
       name: seq(:plan_name),
@@ -163,6 +165,7 @@ defmodule Carrier.TenantFactory do
       description: [seq(:plan_description), seq(:plan_description)],
       subscribable: subscribable
     }
+    |> apply_status(status)
     |> merge_attributes(attrs)
   end
 
@@ -244,6 +247,16 @@ defmodule Carrier.TenantFactory do
       payload: [%{"key" => "value"}],
       succeeded_at: DateTime.utc_now()
     })
+  end
+
+  defp apply_status(%Plan{} = plan, :active) do
+    plan
+  end
+
+  defp apply_status(%Plan{} = plan, :deleted) do
+    plan
+    |> apply_status(:active)
+    |> Map.merge(%{deleted_at: DateTime.utc_now()})
   end
 
   defp apply_status(%Payment{} = payment, :pending) do
