@@ -21,4 +21,27 @@ defmodule Carrier.Billing.SuperTest do
       assert same_records?(fetched_plan2, plan3)
     end
   end
+
+  describe "fetch_plan/1" do
+    setup do
+      plan = TenantFactory.insert(:plan)
+
+      %{plan: plan}
+    end
+
+    test "with valid params", %{plan: plan} do
+      assert {:ok, %Plan{} = fetched_plan} = Billing.Super.fetch_plan(plan.id)
+      assert same_records?(fetched_plan, plan)
+    end
+
+    test "with invalid plan_id" do
+      assert {:error, {:resource_not_found, %{target: Plan}}} = Billing.Super.fetch_plan(0)
+    end
+
+    test "with deleted_ plan_id", %{plan: plan} do
+      plan |> Ecto.Changeset.change(%{deleted_at: DateTime.utc_now()}) |> TenantRepo.update!()
+
+      assert {:error, {:resource_not_found, %{target: Plan}}} = Billing.Super.fetch_plan(0)
+    end
+  end
 end
