@@ -3,6 +3,7 @@ defmodule Carrier.Billing do
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
+  alias Carrier.TenantRepo
 
   defmacro __using__([]) do
     quote do
@@ -50,9 +51,9 @@ defmodule Carrier.Billing do
     {:ok, %Subscription{id: subscription_id}}
   end
 
-  # TODO: implement it
   defp had_subscription?() do
-    true
+    Subscription.list_include_deleted()
+    |> TenantRepo.exists?()
   end
 
   # TODO: implement it

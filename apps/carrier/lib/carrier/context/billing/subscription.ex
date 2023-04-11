@@ -24,6 +24,10 @@ defmodule Carrier.Billing.Subscription do
     %__MODULE__{}
   end
 
+  def list_include_deleted() do
+    __MODULE__
+  end
+
   # TODO: implement it
   def activate(%__MODULE__{status: :pending} = subscription) do
     subscription
