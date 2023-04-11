@@ -12,11 +12,22 @@ defmodule Carrier.Billing do
   end
 
   # TODO: implement it
-  def start_subscription(%{plan_id: plan_id} = params) do
-    with {:ok, %Plan{subscribable: true} = plan} <- Super.fetch_plan(plan_id),
-         {:ok, %Subscription{} = subscription} <- create_subscription(params),
-         {:ok, %Subscription{} = activated_subscription} <- activate_subscription(subscription.id) do
-      {:ok, activated_subscription}
+  def start_subscription(%{org_id: org_id, plan_id: plan_id}) do
+    start_on = DateTime.utc_now()
+
+    with {:ok, maybe_trial_subscription} <-
+           create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
+         start_on = recalc_start_on(maybe_trial_subscription, start_on),
+         {:ok, %Plan{subscribable: true} = plan} <- Super.fetch_plan(plan_id),
+         end_on = Plan.calc_end_on(plan, start_on, 1),
+         {:ok, %Subscription{} = subscription} <-
+           create_subscription(%{
+             org_id: org_id,
+             plan_id: plan_id,
+             start_on: start_on,
+             end_on: end_on
+           }) do
+      {:ok, subscription}
     end
   end
 
@@ -37,6 +48,29 @@ defmodule Carrier.Billing do
   # TODO: implement it
   defp fetch_subscription(subscription_id) do
     {:ok, %Subscription{id: subscription_id}}
+  end
+
+  # TODO: implement it
+  defp had_subscription?() do
+    true
+  end
+
+  # TODO: implement it
+  defp create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}) do
+    with false <- had_subscription?(),
+         %Plan{} = plan <- Super.fetch_trial_plan!(),
+         end_on = Plan.calc_end_on(plan, start_on, 1),
+         {:ok, %Subscription{} = trial_subscription} <-
+           create_subscription(%{
+             org_id: org_id,
+             plan_id: plan.id,
+             start_on: start_on,
+             end_on: end_on
+           }) do
+      {:ok, trial_subscription}
+    else
+      true -> {:ok, nil}
+    end
   end
 
   # TODO: implement it
@@ -79,4 +113,7 @@ defmodule Carrier.Billing do
   defp pay_subscription(%Subscription{}) do
     {:ok, %Payment{}}
   end
+
+  defp recalc_start_on(%Subscription{end_on: end_on}, _start_on), do: end_on
+  defp recalc_start_on(nil, start_on), do: start_on
 end
