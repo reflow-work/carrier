@@ -19,4 +19,31 @@ defmodule Carrier.Core.DateTimeHelperTest do
                DateTime.from_naive!(~N[2018-01-02 12:00:00], "Etc/UTC")
     end
   end
+
+  describe "calc_next/3" do
+    test "with monthly cycle" do
+      start_datetime = ~U[2023-01-31 09:00:00Z]
+      cycle = :monthly
+
+      assert DateTimeHelper.calc_next(start_datetime, cycle, 1) ==
+               ~U[2023-02-28 09:00:00Z]
+
+      assert DateTimeHelper.calc_next(start_datetime, cycle, 2) ==
+               ~U[2023-03-31 09:00:00Z]
+
+      assert DateTimeHelper.calc_next(start_datetime, cycle, 3) ==
+               ~U[2023-04-30 09:00:00Z]
+    end
+
+    test "with yearly period" do
+      start_datetime = ~U[2024-02-29 09:00:00Z]
+      cycle = :yearly
+
+      assert DateTimeHelper.calc_next(start_datetime, cycle, 1) ==
+               ~U[2025-02-28 09:00:00Z]
+
+      assert DateTimeHelper.calc_next(start_datetime, cycle, 4) ==
+               ~U[2028-02-29 09:00:00Z]
+    end
+  end
 end
