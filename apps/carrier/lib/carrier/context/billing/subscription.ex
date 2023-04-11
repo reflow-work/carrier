@@ -19,9 +19,19 @@ defmodule Carrier.Billing.Subscription do
     timestamps()
   end
 
-  # TODO: implement it
-  def create(_params) do
+  @required_for_create [:org_id, :plan_id, :start_on, :end_on]
+  @optional_for_create [:prev_subscription_id]
+  defp changeset_for_create(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create ++ @optional_for_create)
+    |> validate_required(@required_for_create)
+    |> foreign_key_constraint(:plan_id)
+    |> foreign_key_constraint(:prev_subscription_id)
+  end
+
+  def create(params) do
     %__MODULE__{}
+    |> changeset_for_create(params)
   end
 
   def list_include_deleted() do

@@ -74,9 +74,17 @@ defmodule Carrier.Billing do
     end
   end
 
+  defp create_subscription(params) do
+    with {:ok, %Subscription{} = subscription} <-
+           Subscription.create(params) |> TenantRepo.insert(),
+         :ok <- create_subscription_activate_job(subscription) do
+      {:ok, subscription}
+    end
+  end
+
   # TODO: implement it
-  defp create_subscription(_params) do
-    {:ok, %Subscription{id: 1}}
+  defp create_subscription_activate_job(%Subscription{} = subscription) do
+    :ok
   end
 
   # TODO: implement it
