@@ -12,14 +12,12 @@ defmodule Carrier.Billing do
     end
   end
 
-  # TODO: implement it
-  def start_subscription(%{org_id: org_id, plan_id: plan_id}) do
-    start_on = DateTime.utc_now()
-
-    with {:ok, maybe_trial_subscription} <-
+  def start_subscription(%{org_id: org_id, plan_id: plan_id, start_on: start_on}) do
+    with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
+         :ok <- Plan.check_subscribable(plan),
+         {:ok, maybe_trial_subscription} <-
            create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
          start_on = recalc_start_on(maybe_trial_subscription, start_on),
-         {:ok, %Plan{subscribable: true} = plan} <- Super.fetch_plan(plan_id),
          end_on = Plan.calc_end_on(plan, start_on, 1),
          {:ok, %Subscription{} = subscription} <-
            create_subscription(%{
@@ -56,21 +54,25 @@ defmodule Carrier.Billing do
     |> TenantRepo.exists?()
   end
 
-  # TODO: implement it
   defp create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}) do
-    with false <- had_subscription?(),
-         %Plan{} = plan <- Super.fetch_trial_plan!(),
+    with {:had_subscribable, false} <- {:had_subscribable, had_subscription?()},
+         %Plan{type: :trial} = plan <- Super.fetch_trial_plan!(),
          end_on = Plan.calc_end_on(plan, start_on, 1),
          {:ok, %Subscription{} = trial_subscription} <-
-           create_subscription(%{
+           Subscription.create(%{
              org_id: org_id,
              plan_id: plan.id,
              start_on: start_on,
              end_on: end_on
-           }) do
-      {:ok, trial_subscription}
+           })
+           |> TenantRepo.insert(),
+         {:ok, %Subscription{} = activated_trial_subscription} <-
+           trial_subscription
+           |> Subscription.activate(%{activated_at: start_on})
+           |> TenantRepo.update() do
+      {:ok, activated_trial_subscription}
     else
-      true -> {:ok, nil}
+      {:had_subscribable, true} -> {:ok, nil}
     end
   end
 
