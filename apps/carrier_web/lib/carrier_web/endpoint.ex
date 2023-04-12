@@ -16,7 +16,8 @@ defmodule CarrierWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
-  plug :canonical_host
+  @canocial_host Application.compile_env(:carrier_web, :canonical_host)
+  plug PlugCanonicalHost, canonical_host: @canocial_host
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -59,18 +60,4 @@ defmodule CarrierWeb.Endpoint do
   # Disables logging for routes like /health/*
   def log_level(%{path_info: ["health" | _]}), do: false
   def log_level(_), do: :info
-
-  @canocial_host Application.compile_env(:carrier_web, :canonical_host)
-
-  defp canonical_host(conn, _opts) do
-    @canocial_host
-    |> case do
-      host when is_binary(host) ->
-        opts = PlugCanonicalHost.init(canonical_host: host)
-        PlugCanonicalHost.call(conn, opts)
-
-      _ ->
-        conn
-    end
-  end
 end
