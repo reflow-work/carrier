@@ -41,6 +41,9 @@ defmodule Carrier.Billing.Plan do
     end
   end
 
+  def check_subscribable(%__MODULE__{subscribable: true}), do: :ok
+  def check_subscribable(%__MODULE__{subscribable: false}), do: {:error, :plan_not_subscribable}
+
   def calc_end_on(%__MODULE__{type: :trial}, start_on, 1) do
     start_on |> Timex.shift(days: 7)
   end

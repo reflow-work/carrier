@@ -3,6 +3,20 @@ defmodule Carrier.Billing.PlanTest do
   alias Carrier.Billing.Plan
   alias Carrier.TenantFactory
 
+  describe "check_subscribable/1" do
+    test "with subscribable plan" do
+      plan = TenantFactory.build(:plan, type: :basic)
+
+      assert :ok = Plan.check_subscribable(plan)
+    end
+
+    test "with non-subscribable plan" do
+      plan = TenantFactory.build(:plan, type: :trial)
+
+      assert {:error, :plan_not_subscribable} = Plan.check_subscribable(plan)
+    end
+  end
+
   describe "calc_end_on/3" do
     setup do
       now = ~U[2023-04-11 09:00:00Z]
