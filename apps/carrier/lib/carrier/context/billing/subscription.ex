@@ -29,6 +29,15 @@ defmodule Carrier.Billing.Subscription do
     |> foreign_key_constraint(:prev_subscription_id)
   end
 
+  @required_for_activate [:status, :activated_at]
+  @optional_for_activate [:payment_id]
+  defp changeset_for_activate(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_activate ++ @optional_for_activate)
+    |> validate_required(@required_for_activate)
+    |> foreign_key_constraint(:payment_id)
+  end
+
   def create(params) do
     %__MODULE__{}
     |> changeset_for_create(params)
@@ -39,8 +48,9 @@ defmodule Carrier.Billing.Subscription do
   end
 
   # TODO: implement it
-  def activate(%__MODULE__{status: :pending} = subscription) do
+  def activate(%__MODULE__{status: :pending} = subscription, params) do
     subscription
+    |> changeset_for_activate(params |> Map.put(:status, :active))
   end
 
   # TODO: implement it
