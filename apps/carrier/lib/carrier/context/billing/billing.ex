@@ -13,21 +13,23 @@ defmodule Carrier.Billing do
   end
 
   def start_subscription(%{org_id: org_id, plan_id: plan_id, start_on: start_on}) do
-    with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
-         :ok <- Plan.check_subscribable(plan),
-         {:ok, maybe_trial_subscription} <-
-           create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
-         start_on = recalc_start_on(maybe_trial_subscription, start_on),
-         end_on = Plan.calc_end_on(plan, start_on, 1),
-         {:ok, %Subscription{} = subscription} <-
-           create_subscription(%{
-             org_id: org_id,
-             plan_id: plan_id,
-             start_on: start_on,
-             end_on: end_on
-           }) do
-      {:ok, subscription}
-    end
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
+           :ok <- Plan.check_subscribable(plan),
+           {:ok, maybe_trial_subscription} <-
+             create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
+           start_on = recalc_start_on(maybe_trial_subscription, start_on),
+           end_on = Plan.calc_end_on(plan, start_on, 1),
+           {:ok, %Subscription{} = subscription} <-
+             create_subscription(%{
+               org_id: org_id,
+               plan_id: plan_id,
+               start_on: start_on,
+               end_on: end_on
+             }) do
+        {:ok, subscription}
+      end
+    end)
   end
 
   # TODO: implement it
