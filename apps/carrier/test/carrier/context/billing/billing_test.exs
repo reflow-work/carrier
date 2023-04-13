@@ -1,6 +1,7 @@
 defmodule Carrier.BillingTest do
   use Carrier.DataCase, async: true
   use Carrier.Billing
+  use Oban.Testing, repo: Carrier.TenantRepo
 
   @moduletag repo: TenantRepo
 
@@ -15,7 +16,10 @@ defmodule Carrier.BillingTest do
       %{org: org, trial_plan: trial_plan}
     end
 
-    test "with valid params", %{org: org, trial_plan: trial_plan} do
+    test "with valid params (monthly plan, not first time subscription)", %{
+      org: org,
+      trial_plan: trial_plan
+    } do
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
       TenantFactory.insert(:subscription, org_id: org.org_id, plan_id: trial_plan.id)
       now = ~U[2023-04-10 09:00:00Z]
@@ -38,7 +42,22 @@ defmodule Carrier.BillingTest do
       assert created_subscription.activated_at == nil
       assert created_subscription.expired_at == nil
 
+      # no trial subscription is created
       assert Subscription |> TenantRepo.all() |> Enum.count() == 2
+
+      # SubscriptionActivatingJob is enqueued
+
+      TenantRepo.set_skip_org_id()
+
+      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
+               all_enqueued(worker: Carrier.Works.SubscriptionActivatingJob)
+
+      assert job_args == %{
+               "org_id" => created_subscription.org_id,
+               "subscription_id" => created_subscription.id
+             }
+
+      assert same_values?(job_scheduled_at, created_subscription.start_on)
     end
 
     test "with yearly plan", %{org: org, trial_plan: trial_plan} do
