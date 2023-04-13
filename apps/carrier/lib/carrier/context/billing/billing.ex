@@ -38,7 +38,7 @@ defmodule Carrier.Billing do
   def activate_subscription(subscription_id) do
     with {:ok, %Subscription{status: :pending} = subscription} <-
            fetch_subscription_with_state(subscription_id, :pending),
-         :ok <- expire_prev_subscription(subscription),
+         {:ok, _} <- expire_prev_subscription(subscription),
          {:ok, maybe_payment} <- pay_subscription(subscription),
          {:ok, %Subscription{} = activated_subscription} <-
            Subscription.activate(subscription, %{payment_id: maybe_payment[:id]}),
@@ -125,28 +125,30 @@ defmodule Carrier.Billing do
     {:ok, %Subscription{}}
   end
 
-  # TODO: implement it
   # TODO: refund?
   defp expire_prev_subscription(%Subscription{prev_subscription_id: prev_subscription_id})
        when not is_nil(prev_subscription_id) do
-    with {:ok, %Subscription{} = prev_subscription} <- fetch_subscription(prev_subscription_id),
-         {:ok, %Subscription{}} <- do_expire_subscription(prev_subscription_id) do
-      :ok
-    end
-  end
-
-  defp expire_subscription(%Subscription{prev_subscription_id: nil}) do
-    :ok
-  end
-
-  # TODO: implement it
-  defp do_expire_subscription(%Subscription{status: :active} = subscription) do
-    with {:ok, %Subscription{} = expired_subscription} <- Subscription.expire(subscription) do
+    with {:ok, %Subscription{} = prev_subscription} <-
+           fetch_subscription_with_state(prev_subscription_id, :active),
+         {:ok, %Subscription{} = expired_subscription} <-
+           expire_subscription(prev_subscription) do
       {:ok, expired_subscription}
     end
   end
 
-  defp do_expire_subscription(%Subscription{status: :expired} = subscription) do
+  defp expire_prev_subscription(%Subscription{prev_subscription_id: nil}) do
+    {:ok, nil}
+  end
+
+  defp expire_subscription(%Subscription{status: :active} = subscription) do
+    with {:ok, %Subscription{} = expired_subscription} <-
+           Subscription.expire(subscription, %{expired_at: DateTime.utc_now()})
+           |> TenantRepo.update() do
+      {:ok, expired_subscription}
+    end
+  end
+
+  defp expire_subscription(%Subscription{status: :expired} = subscription) do
     Logger.warn("Subscription #{subscription.id} is already expired")
 
     {:ok, subscription}
