@@ -37,7 +37,7 @@ defmodule Carrier.Billing do
   # TODO: use the same time for expire and activate
   def activate_subscription(subscription_id) do
     with {:ok, %Subscription{status: :pending} = subscription} <-
-           fetch_subscription(subscription_id),
+           fetch_subscription_with_state(subscription_id, :pending),
          :ok <- expire_prev_subscription(subscription),
          {:ok, maybe_payment} <- pay_subscription(subscription),
          {:ok, %Subscription{} = activated_subscription} <-
@@ -47,9 +47,18 @@ defmodule Carrier.Billing do
     end
   end
 
-  # TODO: implement it
-  defp fetch_subscription(subscription_id) do
-    {:ok, %Subscription{id: subscription_id}}
+  defp fetch_subscription_with_state(subscription_id, state) do
+    Subscription.fetch_with_state(subscription_id, state)
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        {:ok, subscription}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: Subscription, conditions: %{subscription_id: subscription_id, state: state}}}}
+    end
   end
 
   defp had_subscription?() do
