@@ -34,7 +34,7 @@ defmodule Carrier.ReportsTest do
   describe "create_report/1" do
     setup do
       org = TenantFactory.insert(:org)
-      user = TenantFactory.insert(:user, org_id: org.org_id)
+      user = TenantFactory.insert(:user, org: org)
       integration = TenantFactory.insert(:integration, org_id: org.org_id)
       data_source = TenantFactory.insert(:data_source, org_id: org.org_id, source: :postgres)
 

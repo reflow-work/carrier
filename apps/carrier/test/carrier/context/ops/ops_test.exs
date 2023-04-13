@@ -10,8 +10,8 @@ defmodule Carrier.OpsTest do
       org = TenantFactory.insert(:org)
       other_org = TenantFactory.insert(:org)
 
-      TenantFactory.insert(:user, org_id: org.org_id)
-      TenantFactory.insert(:user, org_id: other_org.org_id)
+      TenantFactory.insert(:user, org: org)
+      TenantFactory.insert(:user, org: other_org)
 
       %{org: org, other_org: other_org}
     end
@@ -43,8 +43,8 @@ defmodule Carrier.OpsTest do
       org = TenantFactory.insert(:org)
       other_org = TenantFactory.insert(:org)
 
-      TenantFactory.insert(:user, org_id: org.org_id)
-      TenantFactory.insert(:user, org_id: other_org.org_id)
+      TenantFactory.insert(:user, org: org)
+      TenantFactory.insert(:user, org: other_org)
 
       %{org: org, other_org: other_org}
     end

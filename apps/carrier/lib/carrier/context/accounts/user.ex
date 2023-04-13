@@ -1,8 +1,10 @@
 defmodule Carrier.Accounts.User do
   use Carrier.Schema
+  alias Carrier.Accounts.Org
 
   schema "users" do
-    field :org_id, :id
+    belongs_to :org, Org, references: :org_id
+
     field :email, :string
     field :position, :string
 
