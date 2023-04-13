@@ -1,5 +1,9 @@
 defmodule Carrier.Works.ReportJob do
-  use Oban.Worker, queue: :default, max_attempts: 2
+  use Oban.Worker,
+    queue: :report,
+    priority: 2,
+    max_attempts: 2
+
   use Carrier.{Reports, Secrets}
   require Logger
   alias Carrier.Data.QueryData
@@ -46,6 +50,9 @@ defmodule Carrier.Works.ReportJob do
 
       {:error, e}
   end
+
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(3)
 
   defp generate_slack_args(%{
          report: %Report{

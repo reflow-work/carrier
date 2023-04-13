@@ -94,7 +94,6 @@ config :carrier_worker, Oban,
     {Oban.Plugins.Lifeline, interval: :timer.minutes(1), rescue_after: :timer.minutes(5)},
     Oban.Plugins.Reindexer
   ],
-  queues: [default: 1, sample: 1],
   stage_interval: :timer.seconds(5)
 
 config :carrier, Carrier.Vault, json_library: Jason
