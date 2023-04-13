@@ -33,11 +33,4 @@ defmodule Carrier.Billing.Plan do
       :yearly -> price |> Decimal.div(12)
     end
   end
-
-  def billing_cycle_name(%__MODULE__{billing_cycle: billing_cycle}) do
-    case billing_cycle do
-      :monthly -> "월"
-      :yearly -> "년"
-    end
-  end
 end

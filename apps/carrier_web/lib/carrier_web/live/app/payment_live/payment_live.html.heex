@@ -1,0 +1,119 @@
+<section class="page-container">
+  <header class="page-header">
+    <h1 class="page-title">
+      <span class="page-title-icon">💳</span> 플랜 선택하기
+    </h1>
+  </header>
+  <div class="text-sm mt-3">
+    베타 기간(~2023.05.05) 동안 무료로 시작해보세요. <br /> 베타 기간 안에 언제든지 구독을 취소할 수 있습니다.
+  </div>
+
+  <div class="mt-8 grid grid-cols-12 gap-4">
+    <div class="col-span-7 card">
+      <div class="card-body">
+        <div>
+          <div class="flex justify-end text-sm mb-4">
+            <%= for billing_cycle <- @billing_cycles do %>
+              <div
+                id={"billing-cycle-selector-#{billing_cycle}"}
+                class={[
+                  "billing-cycle-selector",
+                  "border border-black rounded-full px-3 py-1 mr-1 cursor-pointer",
+                  if(@selected_billing_cycle == billing_cycle, do: "bg-black text-white")
+                ]}
+                phx-click="select_billing_cycle"
+                phx-value-billing-cycle={billing_cycle}
+              >
+                <%= billing_cycle |> to_string() |> String.capitalize() %>
+              </div>
+            <% end %>
+          </div>
+
+          <div>
+            <%= for {billing_cycle, plans} <- @plans_by_billing_cycle do %>
+              <div class={[
+                "plan plan-#{billing_cycle}",
+                "space-y-3",
+                if(@selected_billing_cycle == billing_cycle, do: "block", else: "hidden")
+              ]}>
+                <%= for plan <- plans do %>
+                  <div
+                    class={[
+                      "plan-item plan-item-#{plan.type}",
+                      "border rounded-md p-4 flex flex-col justify-between cursor-pointer",
+                      if(@selected_type == plan.type, do: "border-2 border-black")
+                    ]}
+                    phx-click="select_type"
+                    phx-value-type={plan.type}
+                  >
+                    <div>
+                      <div class="mb-4 flex items-center">
+                        <div class="text-lg w-16">
+                          <%= plan.name %>
+                        </div>
+                        <div>
+                          <span class="font-bold text-xl">
+                            <%= plan |> Plan.month_price() |> format_number() %>
+                          </span>
+                          <span class="text-landingDescription text-sm">
+                            원 / 월
+                          </span>
+                        </div>
+                      </div>
+                      <div class="space-y-2 text-sm">
+                        <%= for description <- plan.description do %>
+                          <div class="flex items-center">
+                            <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 card h-min">
+      <div class="card-body flex justify-between">
+        <div>
+          <h2 class="card-title mb-4">
+            결제 정보
+          </h2>
+          <div class="text-xl font-bold mb-2">
+            월 <%= @selected_plan
+            |> Plan.month_price()
+            |> format_number() %>원
+            <span class={[
+              "text-description text-sm font-normal ml-1",
+              if(@selected_billing_cycle == :yearly, do: "inline", else: "hidden")
+            ]}>
+              연 <%= @selected_plan.price
+              |> format_number() %>
+            </span>
+          </div>
+
+          <div>
+            결제 예정일: 2023년 5월 12일 <span class="text-sm">(2023년 5월 5일 + 7일)</span>
+          </div>
+        </div>
+        <div class="text-center mt-6">
+          <button
+            id="submit-button"
+            class="btn btn-primary w-full"
+            type="button"
+            phx-click="request_payment"
+          >
+            결제하기
+          </button>
+          <div class="text-landingDescription text-sm mt-2">
+            결제 예정일 전까지 언제든지 구독을 취소할 수 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
