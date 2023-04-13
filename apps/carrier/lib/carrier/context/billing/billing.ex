@@ -3,6 +3,7 @@ defmodule Carrier.Billing do
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
+  alias Carrier.Works
   alias Carrier.TenantRepo
 
   defmacro __using__([]) do
@@ -78,17 +79,36 @@ defmodule Carrier.Billing do
     end
   end
 
+  # for only subscribable plans
   defp create_subscription(params) do
-    with {:ok, %Subscription{} = subscription} <-
-           Subscription.create(params) |> TenantRepo.insert(),
-         :ok <- create_subscription_activate_job(subscription) do
-      {:ok, subscription}
-    end
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %Subscription{} = subscription} <-
+             Subscription.create(params) |> TenantRepo.insert(),
+           {:ok, _} <- create_subscription_activating_job(subscription) do
+        {:ok, subscription}
+      end
+    end)
   end
 
-  # TODO: implement it
-  defp create_subscription_activate_job(%Subscription{} = subscription) do
-    :ok
+  defp create_subscription_activating_job(%Subscription{
+         id: subscription_id,
+         org_id: org_id,
+         start_on: start_on
+       }) do
+    with {:ok, subscription_activating_job} <-
+           %{org_id: org_id, subscription_id: subscription_id}
+           |> Works.SubscriptionActivatingJob.new(
+             scheduled_at: start_on,
+             meta: %{org_id: org_id}
+           )
+           |> TenantRepo.insert() do
+      {:ok, subscription_activating_job}
+    end
+    |> tap(fn _ ->
+      Logger.debug(
+        "next SubscriptionActivatingJob of subscription_id: #{subscription_id} is scheduled_at #{inspect(start_on)}"
+      )
+    end)
   end
 
   # TODO: implement it

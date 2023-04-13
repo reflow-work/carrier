@@ -241,7 +241,9 @@ defmodule Carrier.Reports do
       end
     end)
     |> tap(fn _ ->
-      Logger.debug("next job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}")
+      Logger.debug(
+        "next report job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}"
+      )
     end)
   end
 

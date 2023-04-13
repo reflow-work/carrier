@@ -41,6 +41,7 @@ defmodule Carrier.Billing.Plan do
     end
   end
 
+  # 현재는 subscribable = payable = is not trial
   def check_subscribable(%__MODULE__{subscribable: true}), do: :ok
   def check_subscribable(%__MODULE__{subscribable: false}), do: {:error, :plan_not_subscribable}
 
