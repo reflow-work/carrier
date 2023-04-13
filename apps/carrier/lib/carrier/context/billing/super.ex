@@ -19,4 +19,9 @@ defmodule Carrier.Billing.Super do
         {:error, {:resource_not_found, %{target: Plan, conditions: %{plan_id: plan_id}}}}
     end
   end
+
+  def fetch_trial_plan!() do
+    Plan.fetch_trial()
+    |> TenantRepo.one(skip_org_id: true)
+  end
 end

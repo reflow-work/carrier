@@ -44,4 +44,18 @@ defmodule Carrier.Billing.SuperTest do
       assert {:error, {:resource_not_found, %{target: Plan}}} = Billing.Super.fetch_plan(0)
     end
   end
+
+  describe "fetch_trial_plan!/0" do
+    setup do
+      TenantFactory.insert(:plan, type: :basic)
+      trial_plan = TenantFactory.insert(:plan, type: :trial)
+
+      %{trial_plan: trial_plan}
+    end
+
+    test "test", %{trial_plan: trial_plan} do
+      assert %Plan{} = fetched_plan = Billing.Super.fetch_trial_plan!()
+      assert same_records?(fetched_plan, trial_plan)
+    end
+  end
 end

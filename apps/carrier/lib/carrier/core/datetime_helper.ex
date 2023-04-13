@@ -8,4 +8,20 @@ defmodule Carrier.Core.DateTimeHelper do
       _ -> utc_datetime_with_time |> Timex.shift(days: 1)
     end
   end
+
+  def calc_next(%DateTime{month: month, day: day} = start_datetime, cycle, nth) do
+    shift_option =
+      case cycle do
+        :monthly -> :months
+        :yearly -> :years
+      end
+
+    next = start_datetime |> Timex.shift([{shift_option, nth}])
+
+    # https://github.com/bitwalker/timex/issues/739
+    case month == 2 and day == 29 and cycle == :yearly and not Timex.is_leap?(next) do
+      true -> next |> Timex.shift(days: -1)
+      false -> next
+    end
+  end
 end

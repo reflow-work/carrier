@@ -13,6 +13,8 @@
 use Carrier.{Accounts, Secrets, Reports, Setting, Billing}
 alias Carrier.Repo
 
+now = DateTime.utc_now()
+
 Repo.transaction(fn ->
   {_, [org0, org1]} =
     Repo.insert_all(
@@ -196,8 +198,8 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {:ok, _} = Reports.create_job_from_report(report0, DateTime.utc_now(), %{repo: Repo})
-  {:ok, _} = Reports.create_job_from_report(report1, DateTime.utc_now(), %{repo: Repo})
+  {:ok, _} = Reports.create_job_from_report(report0, now, %{repo: Repo})
+  {:ok, _} = Reports.create_job_from_report(report1, now, %{repo: Repo})
 
   {3, _} =
     Repo.insert_all(FeatureFlag, [
@@ -209,7 +211,7 @@ Repo.transaction(fn ->
   {1, _} =
     Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
 
-  {_, _} =
+  {_, [trial_plan | _]} =
     Repo.insert_all(
       Plan,
       [
@@ -258,6 +260,19 @@ Repo.transaction(fn ->
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
           subscribable: true
         }
-      ]
+      ],
+      returning: true
     )
+
+  {_, _} =
+    Repo.insert_all(Subscription, [
+      %{
+        org_id: org0.org_id,
+        plan_id: trial_plan.id,
+        start_on: now,
+        end_on: now |> Timex.shift(years: 1),
+        status: :active,
+        activated_at: now
+      }
+    ])
 end)

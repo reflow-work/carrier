@@ -142,16 +142,10 @@ defmodule Carrier.TenantFactory do
   def plan_factory(attrs) do
     {type, attrs} = attrs |> Map.pop(:type, Enum.random([:trial, :basic, :pro]))
 
-    billing_cycle =
+    {billing_cycle, subscribable} =
       case type do
-        :trial -> :none
-        _ -> Enum.random([:monthly, :yearly])
-      end
-
-    subscribable =
-      case billing_cycle do
-        :none -> false
-        _ -> true
+        :trial -> {:none, false}
+        _ -> {attrs |> Map.get(:billing_cycle, Enum.random([:monthly, :yearly])), true}
       end
 
     {status, attrs} = attrs |> Map.pop(:status, :active)
@@ -164,6 +158,23 @@ defmodule Carrier.TenantFactory do
       currency: :KRW,
       description: [seq(:plan_description), seq(:plan_description)],
       subscribable: subscribable
+    }
+    |> apply_status(status)
+    |> merge_attributes(attrs)
+  end
+
+  def subscription_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> insert(:plan) end)
+    {start_on, attrs} = attrs |> Map.pop(:start_on, DateTime.utc_now())
+    end_on = Plan.calc_end_on(plan, start_on, 1)
+    {status, attrs} = attrs |> Map.pop(:status, :active)
+
+    %Subscription{
+      org_id: org_id,
+      plan_id: plan.id,
+      start_on: DateTime.utc_now(),
+      end_on: end_on
     }
     |> apply_status(status)
     |> merge_attributes(attrs)
@@ -257,6 +268,29 @@ defmodule Carrier.TenantFactory do
     plan
     |> apply_status(:active)
     |> Map.merge(%{deleted_at: DateTime.utc_now()})
+  end
+
+  defp apply_status(%Subscription{} = subscription, :pending) do
+    subscription
+  end
+
+  defp apply_status(%Subscription{} = subscription, :active) do
+    subscription
+    |> apply_status(:pending)
+    |> Map.merge(%{
+      status: :active,
+      payment: insert(:payment),
+      activated_at: DateTime.utc_now()
+    })
+  end
+
+  defp apply_status(%Subscription{} = subscription, :expired) do
+    subscription
+    |> apply_status(:active)
+    |> Map.merge(%{
+      status: :expired,
+      expired_at: DateTime.utc_now()
+    })
   end
 
   defp apply_status(%Payment{} = payment, :pending) do

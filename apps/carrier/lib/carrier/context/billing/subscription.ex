@@ -19,14 +19,38 @@ defmodule Carrier.Billing.Subscription do
     timestamps()
   end
 
-  # TODO: implement it
-  def create(_params) do
+  @required_for_create [:org_id, :plan_id, :start_on, :end_on]
+  @optional_for_create [:prev_subscription_id]
+  defp changeset_for_create(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_create ++ @optional_for_create)
+    |> validate_required(@required_for_create)
+    |> foreign_key_constraint(:plan_id)
+    |> foreign_key_constraint(:prev_subscription_id)
+  end
+
+  @required_for_activate [:status, :activated_at]
+  @optional_for_activate [:payment_id]
+  defp changeset_for_activate(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_activate ++ @optional_for_activate)
+    |> validate_required(@required_for_activate)
+    |> foreign_key_constraint(:payment_id)
+  end
+
+  def create(params) do
     %__MODULE__{}
+    |> changeset_for_create(params)
+  end
+
+  def list_include_deleted() do
+    __MODULE__
   end
 
   # TODO: implement it
-  def activate(%__MODULE__{status: :pending} = subscription) do
+  def activate(%__MODULE__{status: :pending} = subscription, params) do
     subscription
+    |> changeset_for_activate(params |> Map.put(:status, :active))
   end
 
   # TODO: implement it

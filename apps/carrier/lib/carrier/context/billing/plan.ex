@@ -1,5 +1,6 @@
 defmodule Carrier.Billing.Plan do
   use Carrier.Schema
+  alias Carrier.Core.DateTimeHelper
 
   schema "plans" do
     field :billing_cycle, Ecto.Enum, values: [:none, :monthly, :yearly]
@@ -27,10 +28,27 @@ defmodule Carrier.Billing.Plan do
     |> where([p], is_nil(p.deleted_at))
   end
 
+  def fetch_trial() do
+    __MODULE__
+    |> where([p], p.type == :trial)
+    |> where([p], is_nil(p.deleted_at))
+  end
+
   def month_price(%__MODULE__{billing_cycle: billing_cycle, price: price}) do
     case billing_cycle do
       :monthly -> price
       :yearly -> price |> Decimal.div(12)
     end
+  end
+
+  def check_subscribable(%__MODULE__{subscribable: true}), do: :ok
+  def check_subscribable(%__MODULE__{subscribable: false}), do: {:error, :plan_not_subscribable}
+
+  def calc_end_on(%__MODULE__{type: :trial}, start_on, 1) do
+    start_on |> Timex.shift(days: 7)
+  end
+
+  def calc_end_on(%__MODULE__{billing_cycle: billing_cycle}, start_on, nth) do
+    DateTimeHelper.calc_next(start_on, billing_cycle, nth)
   end
 end
