@@ -68,6 +68,10 @@ defmodule Carrier.Accounts.User do
     |> changeset_for_update(attrs)
   end
 
+  def preload_org(query) do
+    query |> preload([:org])
+  end
+
   def positions do
     [
       "CEO/대표",

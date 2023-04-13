@@ -11,6 +11,7 @@ defmodule Carrier.Accounts do
 
   def fetch_user(user_id) do
     User.get(user_id)
+    |> User.preload_org()
     |> TenantRepo.one()
     |> case do
       %User{} = user -> {:ok, user}

@@ -18,6 +18,7 @@ defmodule Carrier.AccountsTest do
       assert {:ok, %User{} = fetched_user} = Accounts.fetch_user(user.id)
 
       assert same_records?(fetched_user, user)
+      assert same_records?(fetched_user.org, user.org)
     end
 
     test "with deleted user_id", %{user: user} do
