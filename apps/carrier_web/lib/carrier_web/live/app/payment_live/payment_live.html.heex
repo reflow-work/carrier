@@ -84,17 +84,14 @@
             결제 정보
           </h2>
           <div class="text-xl font-bold mb-2">
-            월 <%= month_price(@plans_by_billing_cycle, @selected_billing_cycle, @selected_type)
+            월 <%= @selected_plan
+            |> Plan.month_price()
             |> format_number() %>원
             <span class={[
               "text-description text-sm font-normal ml-1",
               if(@selected_billing_cycle == :yearly, do: "inline", else: "hidden")
             ]}>
-              연 <%= selected_plan(
-                @plans_by_billing_cycle,
-                @selected_billing_cycle,
-                @selected_type
-              ).price
+              연 <%= @selected_plan.price
               |> format_number() %>
             </span>
           </div>

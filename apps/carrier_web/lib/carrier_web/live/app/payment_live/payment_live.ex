@@ -13,9 +13,13 @@ defmodule CarrierWeb.App.PaymentLive do
       |> assign(:plans_by_billing_cycle, [])
       |> assign(:selected_billing_cycle, :yearly)
       |> assign(:selected_type, :basic)
+      |> assign(:selected_plan, nil)
       |> TossPaymentsHelper.init()
 
-    socket = socket |> load_plans_by_billing_cycle()
+    socket =
+      socket
+      |> load_plans_by_billing_cycle()
+      |> assign_selected_plan()
 
     {:ok, socket}
   end
@@ -24,7 +28,8 @@ defmodule CarrierWeb.App.PaymentLive do
   def handle_event("select_billing_cycle", %{"billing-cycle" => billing_cycle}, socket) do
     socket =
       socket
-      |> assign(:selected_billing_cycle, billing_cycle |> String.to_atom())
+      |> assign(:selected_billing_cycle, billing_cycle |> String.to_existing_atom())
+      |> assign_selected_plan()
 
     {:noreply, socket}
   end
@@ -33,7 +38,8 @@ defmodule CarrierWeb.App.PaymentLive do
   def handle_event("select_type", %{"type" => type}, socket) do
     socket =
       socket
-      |> assign(:selected_type, type |> String.to_atom())
+      |> assign(:selected_type, type |> String.to_existing_atom())
+      |> assign_selected_plan()
 
     {:noreply, socket}
   end
@@ -68,14 +74,20 @@ defmodule CarrierWeb.App.PaymentLive do
     end
   end
 
+  defp assign_selected_plan(socket) do
+    plans_by_billing_cycle = socket.assigns.plans_by_billing_cycle
+    selected_billing_cycle = socket.assigns.selected_billing_cycle
+    selected_type = socket.assigns.selected_type
+
+    selected_plan = selected_plan(plans_by_billing_cycle, selected_billing_cycle, selected_type)
+
+    socket
+    |> assign(:selected_plan, selected_plan)
+  end
+
   defp selected_plan(plans_by_billing_cycle, selected_billing_cycle, selected_type) do
     plans_by_billing_cycle
     |> Map.get(selected_billing_cycle)
     |> Enum.find(fn plan -> plan.type == selected_type end)
-  end
-
-  defp month_price(plans_by_billing_cycle, selected_billing_cycle, selected_type) do
-    selected_plan = selected_plan(plans_by_billing_cycle, selected_billing_cycle, selected_type)
-    Plan.month_price(selected_plan)
   end
 end
