@@ -1,5 +1,5 @@
 defmodule Carrier.Billing do
-  use Carrier.Payments
+  use Carrier.{Payments, Accounts}
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
@@ -39,7 +39,7 @@ defmodule Carrier.Billing do
     with {:ok, %Subscription{status: :pending} = subscription} <-
            fetch_subscription_with_state(subscription_id, :pending),
          {:ok, _} <- expire_prev_subscription(subscription),
-         {:ok, maybe_payment} <- pay_subscription(subscription),
+         {:ok, %Payment{} = payment} <- pay_subscription(subscription),
          {:ok, %Subscription{} = activated_subscription} <-
            Subscription.activate(subscription, %{payment_id: maybe_payment[:id]}),
          {:ok, maybe_next_subscription} <- create_next_subscription(subscription) do
@@ -154,8 +154,27 @@ defmodule Carrier.Billing do
     {:ok, subscription}
   end
 
-  defp pay_subscription(%Subscription{}) do
-    {:ok, %Payment{}}
+  # Assumption: plan is always subscribable
+  defp pay_subscription(%Subscription{
+         org_id: org_id,
+         plan_id: plan_id
+       }) do
+    with {:ok, %Plan{name: name, price: price, currency: currency}} <- Super.fetch_plan(plan_id),
+         {:ok, %CreditCard{} = credit_card} <- Payments.fetch_credit_card(),
+         {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
+           Accounts.fetch_billing_user(),
+         {:ok, %Payment{} = payment} <-
+           Payments.process_payment(%{
+             org_id: org_id,
+             credit_card_id: credit_card.id,
+             amount: price,
+             currency: currency,
+             order_name: "reflow #{name} Plan",
+             customer_email: billing_email,
+             customer_name: billing_name
+           }) do
+      {:ok, payment}
+    end
   end
 
   defp recalc_start_on(%Subscription{end_on: end_on}, _start_on), do: end_on

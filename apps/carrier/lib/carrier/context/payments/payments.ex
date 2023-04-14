@@ -31,6 +31,11 @@ defmodule Carrier.Payments do
     end
   end
 
+  # TODO: implement it
+  def fetch_credit_card() do
+    {:ok, %CreditCard{}}
+  end
+
   def process_payment(%{
         org_id: org_id,
         credit_card_id: credit_card_id,

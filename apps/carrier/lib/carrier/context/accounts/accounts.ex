@@ -35,6 +35,12 @@ defmodule Carrier.Accounts do
     end
   end
 
+  # TODO: implement it
+  # TODO: it should returns billing user account
+  def fetch_billing_user() do
+    {:ok, %User{}}
+  end
+
   def update_user(user_id, attrs) do
     with {:ok, %User{} = user} <- fetch_user(user_id),
          {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
