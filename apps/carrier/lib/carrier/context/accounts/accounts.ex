@@ -35,10 +35,16 @@ defmodule Carrier.Accounts do
     end
   end
 
-  # TODO: implement it
   # TODO: it should returns billing user account
+  # Assumption: There is only one billing user per Org.
   def fetch_billing_user() do
-    {:ok, %User{}}
+    User.fetch_billing()
+    |> User.preload_org()
+    |> TenantRepo.one()
+    |> case do
+      %User{} = user -> {:ok, user}
+      nil -> {:error, {:resource_not_found, %{target: User, conditions: %{role: :billing}}}}
+    end
   end
 
   def update_user(user_id, attrs) do

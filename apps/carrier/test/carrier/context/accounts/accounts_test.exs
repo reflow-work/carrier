@@ -11,7 +11,7 @@ defmodule Carrier.AccountsTest do
 
       TenantRepo.put_org_id(user.org_id)
 
-      {:ok, %{user: user}}
+      %{user: user}
     end
 
     test "with valid user_id", %{user: user} do
@@ -28,13 +28,29 @@ defmodule Carrier.AccountsTest do
     end
   end
 
+  describe "fetch_billing_user/0" do
+    setup do
+      user = TenantFactory.insert(:user)
+
+      TenantRepo.put_org_id(user.org_id)
+
+      %{user: user}
+    end
+
+    test "test", %{user: user} do
+      assert {:ok, %User{} = fetched_billing_user} = Accounts.fetch_billing_user()
+
+      assert same_records?(fetched_billing_user, user)
+    end
+  end
+
   describe "update_user/2" do
     setup do
       user = TenantFactory.insert(:user)
 
       TenantRepo.put_org_id(user.org_id)
 
-      {:ok, %{user: user}}
+      %{user: user}
     end
 
     test "with valid user_id and attrs", %{user: user} do
