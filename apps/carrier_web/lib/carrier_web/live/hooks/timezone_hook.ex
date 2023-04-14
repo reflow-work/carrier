@@ -10,10 +10,11 @@ defmodule CarrierWeb.TimezoneHook do
   end
 
   defp get_timezone(socket) do
-    case get_connect_params(socket)["timezone"] do
-      nil -> "UTC"
-      "Etc/Unknown" -> "UTC"
-      timezone -> timezone
+    timezone = get_connect_params(socket)["timezone"]
+
+    case Timex.is_valid_timezone?(timezone) do
+      true -> timezone
+      false -> "UTC"
     end
   rescue
     _ -> "UTC"
