@@ -35,6 +35,7 @@ defmodule Carrier.Billing.Subscription do
     struct
     |> cast(attrs, @required_for_activate ++ @optional_for_activate)
     |> validate_required(@required_for_activate)
+    |> validate_inclusion(:status, [:active])
     |> foreign_key_constraint(:payment_id)
   end
 
