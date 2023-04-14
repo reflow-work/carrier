@@ -170,8 +170,8 @@
           phx-submit="save_report"
           autocomplete="off"
         >
-          <%= hidden_input(f, :org_id, value: @org_id) %>
-          <%= hidden_input(f, :user_id, value: @user_id) %>
+          <%= hidden_input(f, :org_id, value: @org.org_id) %>
+          <%= hidden_input(f, :user_id, value: @user.id) %>
           <%= hidden_input(f, :timezone, value: @timezone) %>
 
           <div class="space-y-6">
@@ -486,8 +486,8 @@
             phx-submit="save_report"
             autocomplete="off"
           >
-            <%= hidden_input(f, :org_id, value: @org_id) %>
-            <%= hidden_input(f, :user_id, value: @user_id) %>
+            <%= hidden_input(f, :org_id, value: @org.org_id) %>
+            <%= hidden_input(f, :user_id, value: @user.id) %>
             <%= hidden_input(f, :timezone, value: @timezone) %>
 
             <%= inputs_for f, :data_source_info, fn fdsi -> %>

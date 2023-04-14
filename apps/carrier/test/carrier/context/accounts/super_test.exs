@@ -77,12 +77,14 @@ defmodule Carrier.Accounts.SuperTest do
     end
 
     test "with duplicated email", %{org: org} do
+      email = "json@reflow.work"
+
+      TenantFactory.insert(:user, org: org, email: email)
+
       params = %{
         org_id: org.org_id,
-        email: "json@reflow.work"
+        email: email
       }
-
-      TenantFactory.insert(:user, params)
 
       assert {:error, _} = Accounts.Super.signup(params)
     end

@@ -10,8 +10,9 @@ defmodule CarrierWeb.AuthPlug do
   def call(conn, _opts) do
     with %{"user_id" => user_id, "org_id" => org_id} <- get_session(conn),
          TenantRepo.put_org_id(org_id),
-         {:ok, _user} <- Accounts.fetch_user(user_id) do
+         {:ok, user} <- Accounts.fetch_user(user_id) do
       conn
+      |> assign(:user, user)
     else
       _ ->
         conn

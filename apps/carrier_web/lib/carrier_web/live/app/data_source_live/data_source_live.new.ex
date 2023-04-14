@@ -230,7 +230,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
 
     data_source_params =
       data_source_inputs
-      |> Map.merge(%{"org_id" => socket.assigns.org_id})
+      |> Map.merge(%{"org_id" => socket.assigns.org.org_id})
 
     Params.to_form(struct(data_source_module), data_source_params, as: :data_source)
   end
