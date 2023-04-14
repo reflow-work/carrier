@@ -160,13 +160,11 @@ defmodule Carrier.Billing do
          plan_id: plan_id
        }) do
     with {:ok, %Plan{name: name, price: price, currency: currency}} <- Super.fetch_plan(plan_id),
-         {:ok, %CreditCard{} = credit_card} <- Payments.fetch_credit_card(),
          {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
            Accounts.fetch_billing_user(),
          {:ok, %Payment{} = payment} <-
            Payments.process_payment(%{
              org_id: org_id,
-             credit_card_id: credit_card.id,
              amount: price,
              currency: currency,
              order_name: "reflow #{name} Plan",
