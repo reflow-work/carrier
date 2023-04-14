@@ -5,10 +5,10 @@ defmodule Carrier.Ops do
 
   def restart_failed_report(report_log_id) do
     Repo.wrap_transaction(fn ->
-      with {:ok, %ReportLog{report_job_id: report_job_id}} <-
+      with {:ok, %ReportLog{report_job_id: report_job_id} = report_log} <-
              retry_failed_report_log(report_log_id),
-           {:ok, %ReportJob{}} <- retry_discarded_report_job(report_job_id) do
-        {:ok, nil}
+           {:ok, %ReportJob{} = report_job} <- retry_discarded_report_job(report_job_id) do
+        {:ok, {report_log, report_job}}
       end
     end)
   end
