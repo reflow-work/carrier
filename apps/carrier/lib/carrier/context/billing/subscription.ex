@@ -11,7 +11,7 @@ defmodule Carrier.Billing.Subscription do
     field :org_id, :id
     field :start_on, :utc_datetime_usec
     field :end_on, :utc_datetime_usec
-    field :status, Ecto.Enum, values: [:pending, :active, :expired, :canceled], default: :pending
+    field :status, Ecto.Enum, values: [:pending, :active, :expired, :cancelled], default: :pending
 
     field :activated_at, :utc_datetime_usec
     field :expired_at, :utc_datetime_usec
