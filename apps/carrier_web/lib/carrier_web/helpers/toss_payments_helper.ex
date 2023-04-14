@@ -11,7 +11,7 @@ defmodule CarrierWeb.TossPaymentsHelper do
   end
 
   def issue_billing_key(socket) do
-    customer_key = Crypto.obfuscate(socket.assigns.org_id)
+    customer_key = Crypto.obfuscate(socket.assigns.org.org_id)
 
     socket
     |> push_event("toss-payments-request", %{

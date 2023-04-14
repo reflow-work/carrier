@@ -135,7 +135,7 @@ defmodule CarrierWeb.App.ReportLive.New do
               :report_changeset,
               ReportParams.changeset(
                 ReportParams.init_attrs(%{
-                  org_id: socket.assigns.org_id,
+                  org_id: socket.assigns.org.org_id,
                   user_id: socket.assigns.user_id,
                   name: report.name,
                   hour: hour,
@@ -182,7 +182,7 @@ defmodule CarrierWeb.App.ReportLive.New do
             :report_changeset,
             ReportTableau.changeset(
               ReportTableau.init_attrs(%{
-                org_id: socket.assigns.org_id,
+                org_id: socket.assigns.org.org_id,
                 user_id: socket.assigns.user_id,
                 name: report.name,
                 hour: hour,
@@ -319,7 +319,7 @@ defmodule CarrierWeb.App.ReportLive.New do
 
     socket =
       QueryData.fetch_table_names(%{
-        org_id: socket.assigns.org_id,
+        org_id: socket.assigns.org.org_id,
         data_source_id: socket.assigns.data_source.id
       })
       |> case do
@@ -404,7 +404,7 @@ defmodule CarrierWeb.App.ReportLive.New do
     socket =
       with {:ok, %{columns: columns, data: data}} <-
              QueryData.query(%{
-               org_id: socket.assigns.org_id,
+               org_id: socket.assigns.org.org_id,
                data_source_id: socket.assigns.data_source.id,
                sql_template: sql_template,
                datetime: DateTime.utc_now(),
@@ -444,7 +444,7 @@ defmodule CarrierWeb.App.ReportLive.New do
           &ReportParams.changeset(
             &1 |> Params.to_params(),
             ReportParams.init_attrs(%{
-              org_id: socket.assigns.org_id,
+              org_id: socket.assigns.org.org_id,
               user_id: socket.assigns.user.id,
               integration_info: %{
                 integration_id: socket.assigns.integration.id
@@ -855,7 +855,7 @@ defmodule CarrierWeb.App.ReportLive.New do
 
   defp load_columns(socket, table_name) do
     QueryData.fetch_columns(%{
-      org_id: socket.assigns.org_id,
+      org_id: socket.assigns.org.org_id,
       data_source_id: socket.assigns.data_source.id,
       table_name: table_name
     })
@@ -961,7 +961,7 @@ defmodule CarrierWeb.App.ReportLive.New do
 
     with {:ok, %{image_urls: img_urls}} <-
            ImageGenerator.gen_chart_images(%{
-             org_id: socket.assigns.org_id,
+             org_id: socket.assigns.org.org_id,
              report_id: "preview",
              data: data
            }),
@@ -991,7 +991,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   defp send_preview_for_tableau(socket, channel_id) do
     with {:ok, url} <-
            ImageGenerator.upload_chart_image(%{
-             org_id: socket.assigns.org_id,
+             org_id: socket.assigns.org.org_id,
              report_id: "preview",
              binary: socket.assigns.tableau_image_binary
            }),
