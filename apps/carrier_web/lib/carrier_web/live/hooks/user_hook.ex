@@ -36,7 +36,6 @@ defmodule CarrierWeb.UserHook do
 
   defp assign_new_user(socket, %{user_id: user_id}) do
     socket
-    |> assign_new(:user_id, fn -> user_id end)
     |> assign_new(:user, fn -> load_user(user_id) end)
     |> assign_new(:org, fn -> load_org() end)
   end

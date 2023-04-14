@@ -136,7 +136,7 @@ defmodule CarrierWeb.App.ReportLive.New do
               ReportParams.changeset(
                 ReportParams.init_attrs(%{
                   org_id: socket.assigns.org.org_id,
-                  user_id: socket.assigns.user_id,
+                  user_id: socket.assigns.user.id,
                   name: report.name,
                   hour: hour,
                   trigger_time: report.trigger_time,
@@ -183,7 +183,7 @@ defmodule CarrierWeb.App.ReportLive.New do
             ReportTableau.changeset(
               ReportTableau.init_attrs(%{
                 org_id: socket.assigns.org.org_id,
-                user_id: socket.assigns.user_id,
+                user_id: socket.assigns.user.id,
                 name: report.name,
                 hour: hour,
                 trigger_time: report.trigger_time,
