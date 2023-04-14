@@ -1,5 +1,5 @@
 defmodule Carrier.Billing do
-  use Carrier.Payments
+  use Carrier.{Payments, Accounts}
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
@@ -36,20 +36,35 @@ defmodule Carrier.Billing do
   # TODO: implement it
   # TODO: use the same time for expire and activate
   def activate_subscription(subscription_id) do
-    with {:ok, %Subscription{status: :pending} = subscription} <-
-           fetch_subscription(subscription_id),
-         :ok <- expire_prev_subscription(subscription),
-         {:ok, maybe_payment} <- pay_subscription(subscription),
-         {:ok, %Subscription{} = activated_subscription} <-
-           Subscription.activate(subscription, %{payment_id: maybe_payment[:id]}),
-         {:ok, maybe_next_subscription} <- create_next_subscription(subscription) do
-      {:ok, activated_subscription}
-    end
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %Subscription{status: :pending} = subscription} <-
+             fetch_subscription_with_state(subscription_id, :pending),
+           {:ok, _} <- expire_prev_subscription(subscription),
+           {:ok, %Payment{} = payment} <- pay_subscription(subscription),
+           {:ok, %Subscription{} = activated_subscription} <-
+             Subscription.activate(subscription, %{
+               payment_id: payment.id,
+               activated_at: DateTime.utc_now()
+             })
+             |> TenantRepo.update(),
+           {:ok, _maybe_next_subscription} <- create_next_subscription(subscription) do
+        {:ok, activated_subscription}
+      end
+    end)
   end
 
-  # TODO: implement it
-  defp fetch_subscription(subscription_id) do
-    {:ok, %Subscription{id: subscription_id}}
+  defp fetch_subscription_with_state(subscription_id, state) do
+    Subscription.fetch_with_state(subscription_id, state)
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        {:ok, subscription}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: Subscription, conditions: %{subscription_id: subscription_id, state: state}}}}
+    end
   end
 
   defp had_subscription?() do
@@ -116,35 +131,54 @@ defmodule Carrier.Billing do
     {:ok, %Subscription{}}
   end
 
-  # TODO: implement it
   # TODO: refund?
   defp expire_prev_subscription(%Subscription{prev_subscription_id: prev_subscription_id})
        when not is_nil(prev_subscription_id) do
-    with {:ok, %Subscription{} = prev_subscription} <- fetch_subscription(prev_subscription_id),
-         {:ok, %Subscription{}} <- do_expire_subscription(prev_subscription_id) do
-      :ok
-    end
-  end
-
-  defp expire_subscription(%Subscription{prev_subscription_id: nil}) do
-    :ok
-  end
-
-  # TODO: implement it
-  defp do_expire_subscription(%Subscription{status: :active} = subscription) do
-    with {:ok, %Subscription{} = expired_subscription} <- Subscription.expire(subscription) do
+    with {:ok, %Subscription{} = prev_subscription} <-
+           fetch_subscription_with_state(prev_subscription_id, :active),
+         {:ok, %Subscription{} = expired_subscription} <-
+           expire_subscription(prev_subscription) do
       {:ok, expired_subscription}
     end
   end
 
-  defp do_expire_subscription(%Subscription{status: :expired} = subscription) do
+  defp expire_prev_subscription(%Subscription{prev_subscription_id: nil}) do
+    {:ok, nil}
+  end
+
+  defp expire_subscription(%Subscription{status: :active} = subscription) do
+    with {:ok, %Subscription{} = expired_subscription} <-
+           Subscription.expire(subscription, %{expired_at: DateTime.utc_now()})
+           |> TenantRepo.update() do
+      {:ok, expired_subscription}
+    end
+  end
+
+  defp expire_subscription(%Subscription{status: :expired} = subscription) do
     Logger.warn("Subscription #{subscription.id} is already expired")
 
     {:ok, subscription}
   end
 
-  defp pay_subscription(%Subscription{}) do
-    {:ok, %Payment{}}
+  # Assumption: plan is always subscribable
+  defp pay_subscription(%Subscription{
+         org_id: org_id,
+         plan_id: plan_id
+       }) do
+    with {:ok, %Plan{name: name, price: price, currency: currency}} <- Super.fetch_plan(plan_id),
+         {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
+           Accounts.fetch_billing_user(),
+         {:ok, %Payment{} = payment} <-
+           Payments.process_payment(%{
+             org_id: org_id,
+             amount: price,
+             currency: currency,
+             order_name: "reflow #{name} Plan",
+             customer_email: billing_email,
+             customer_name: billing_name
+           }) do
+      {:ok, payment}
+    end
   end
 
   defp recalc_start_on(%Subscription{end_on: end_on}, _start_on), do: end_on

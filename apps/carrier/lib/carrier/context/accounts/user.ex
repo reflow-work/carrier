@@ -63,6 +63,12 @@ defmodule Carrier.Accounts.User do
     |> where([u], is_nil(u.deleted_at))
   end
 
+  # TODO: it should returns billing user account
+  def fetch_billing() do
+    __MODULE__
+    |> where([u], is_nil(u.deleted_at))
+  end
+
   def update(%__MODULE__{} = struct, attrs \\ %{}) do
     struct
     |> changeset_for_update(attrs)

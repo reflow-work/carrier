@@ -9,6 +9,22 @@ defmodule Carrier.Accounts do
     end
   end
 
+  def fetch_org() do
+    Org
+    |> TenantRepo.one()
+    |> case do
+      %Org{} = org -> {:ok, org}
+      nil -> {:error, {:resource_not_found, %{target: Org}}}
+    end
+  end
+
+  def update_org(attrs) do
+    with {:ok, %Org{} = org} <- fetch_org(),
+         {:ok, %Org{} = updated_org} <- Org.update(org, attrs) |> TenantRepo.update() do
+      {:ok, updated_org}
+    end
+  end
+
   def fetch_user(user_id) do
     User.get(user_id)
     |> User.preload_org()
@@ -19,12 +35,15 @@ defmodule Carrier.Accounts do
     end
   end
 
-  def fetch_org() do
-    Org
+  # TODO: it should returns billing user account
+  # Assumption: There is only one billing user per Org.
+  def fetch_billing_user() do
+    User.fetch_billing()
+    |> User.preload_org()
     |> TenantRepo.one()
     |> case do
-      %Org{} = org -> {:ok, org}
-      nil -> {:error, {:resource_not_found, %{target: Org}}}
+      %User{} = user -> {:ok, user}
+      nil -> {:error, {:resource_not_found, %{target: User, conditions: %{role: :billing}}}}
     end
   end
 
@@ -32,13 +51,6 @@ defmodule Carrier.Accounts do
     with {:ok, %User{} = user} <- fetch_user(user_id),
          {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
       {:ok, updated_user}
-    end
-  end
-
-  def update_org(attrs) do
-    with {:ok, %Org{} = org} <- fetch_org(),
-         {:ok, %Org{} = updated_org} <- Org.update(org, attrs) |> TenantRepo.update() do
-      {:ok, updated_org}
     end
   end
 end

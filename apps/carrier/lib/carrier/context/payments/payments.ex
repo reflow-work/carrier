@@ -33,18 +33,17 @@ defmodule Carrier.Payments do
 
   def process_payment(%{
         org_id: org_id,
-        credit_card_id: credit_card_id,
         amount: amount,
         currency: currency,
         order_name: order_name,
         customer_email: customer_email,
         customer_name: customer_name
       }) do
-    with {:ok, %CreditCard{} = credit_card} <- fetch_credit_card(credit_card_id),
+    with {:ok, %CreditCard{} = credit_card} <- fetch_default_credit_card(),
          {:ok, %Payment{} = payment} <-
            create_payment(%{
              org_id: org_id,
-             credit_card_id: credit_card_id,
+             credit_card_id: credit_card.id,
              amount: amount,
              currency: currency
            }),
@@ -78,17 +77,16 @@ defmodule Carrier.Payments do
     end
   end
 
-  defp fetch_credit_card(credit_card_id) do
-    CreditCard.fetch(credit_card_id)
+  # Assumption: There is only one CreditCard per Org.
+  defp fetch_default_credit_card() do
+    CreditCard.fetch_default()
     |> TenantRepo.one()
     |> case do
       %CreditCard{} = credit_card ->
         {:ok, credit_card}
 
       nil ->
-        {:error,
-         {:resource_not_found,
-          %{target: CreditCard, conditions: %{credit_card_id: credit_card_id}}}}
+        {:error, {:resource_not_found, %{target: CreditCard, conditions: %{}}}}
     end
   end
 

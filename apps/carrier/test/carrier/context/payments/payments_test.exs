@@ -60,12 +60,8 @@ defmodule Carrier.PaymentsTest do
       org = TenantFactory.insert(:org)
       TenantRepo.put_org_id(org.org_id)
 
-      credit_card =
-        TenantFactory.insert(:credit_card, org_id: org.org_id, provider: :toss_payments)
-
       params = %{
         org_id: org.org_id,
-        credit_card_id: credit_card.id,
         amount: Decimal.new(100_000),
         currency: :KRW,
         order_name: "Pro 연간 플랜 구독",
@@ -73,10 +69,13 @@ defmodule Carrier.PaymentsTest do
         customer_name: "json"
       }
 
-      %{org: org, credit_card: credit_card, params: params}
+      %{org: org, params: params}
     end
 
-    test "with valid params", %{org: org, credit_card: credit_card, params: params} do
+    test "with valid params", %{org: org, params: params} do
+      credit_card =
+        TenantFactory.insert(:credit_card, org_id: org.org_id, provider: :toss_payments)
+
       resp =
         ExternalHelper.TossPayments.prepare_bill(%{
           billing_key: credit_card.billing_key,
@@ -98,12 +97,15 @@ defmodule Carrier.PaymentsTest do
       assert payment.payload == resp
     end
 
-    test "with invalid credit_card_id", %{params: params} do
+    test "without credit_card", %{params: params} do
       assert {:error, {:resource_not_found, %{target: CreditCard}}} =
-               Payments.process_payment(%{params | credit_card_id: 0})
+               Payments.process_payment(params)
     end
 
-    test "with expired credit_card_id", %{credit_card: credit_card, params: params} do
+    test "with expired credit_card", %{org: org, params: params} do
+      credit_card =
+        TenantFactory.insert(:credit_card, org_id: org.org_id, provider: :toss_payments)
+
       ExternalHelper.TossPayments.prepare_bill(
         %{
           billing_key: credit_card.billing_key,
