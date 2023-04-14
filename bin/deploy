@@ -10,6 +10,7 @@ case $ENV in
         HOST="ec2-user@ec2-15-165-126-27.ap-northeast-2.compute.amazonaws.com"
         ;;
     prod-private)
+        ENV="prod"
         HOST="ec2-user@10.50.40.87"
         ;;
     # staging)
