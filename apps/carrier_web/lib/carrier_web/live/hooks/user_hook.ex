@@ -6,7 +6,7 @@ defmodule CarrierWeb.UserHook do
   alias Carrier.Core.Nillable
 
   def on_mount(:default, _params, %{"org_id" => org_id, "user_id" => user_id}, socket) do
-    Logger.metadata(user_id: user_id)
+    Logger.metadata(org_id: org_id, user_id: user_id)
 
     TenantRepo.put_org_id(org_id)
 

@@ -68,14 +68,14 @@ config :logger,
   backends: [:console, LoggerPapertrailBackend.Logger],
   console: [
     format: "$time $metadata[$level] $message\n",
-    metadata: [:mfa, :request_id, :user_id]
+    metadata: [:mfa, :request_id, :org_id, :user_id]
   ],
   logger_papertrail_backend: [
     level: :info,
     host: "logs.papertrailapp.com:46175",
     system_name: "carrier_app_#{config_env()}",
     format: "$metadata[$level] $message\n",
-    metadata: [:mfa, :request_id, :user_id]
+    metadata: [:mfa, :request_id, :org_id, :user_id]
   ]
 
 # Use Jason for JSON parsing in Phoenix
