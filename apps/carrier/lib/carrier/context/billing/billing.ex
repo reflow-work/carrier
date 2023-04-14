@@ -41,7 +41,11 @@ defmodule Carrier.Billing do
          {:ok, _} <- expire_prev_subscription(subscription),
          {:ok, %Payment{} = payment} <- pay_subscription(subscription),
          {:ok, %Subscription{} = activated_subscription} <-
-           Subscription.activate(subscription, %{payment_id: maybe_payment[:id]}),
+           Subscription.activate(subscription, %{
+             payment_id: payment.id,
+             activated_at: DateTime.utc_now()
+           })
+           |> TenantRepo.update(),
          {:ok, maybe_next_subscription} <- create_next_subscription(subscription) do
       {:ok, activated_subscription}
     end
