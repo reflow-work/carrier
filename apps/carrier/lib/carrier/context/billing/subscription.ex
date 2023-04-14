@@ -73,4 +73,19 @@ defmodule Carrier.Billing.Subscription do
     struct
     |> changeset_for_expire(params |> Map.put(:status, :expired))
   end
+
+  def get_info_for_next_subscription(%__MODULE__{
+        id: subscription_id,
+        origin_subscription_id: nil,
+        prev_subscription_id: nil
+      }) do
+    %{origin_subscription_id: subscription_id, prev_subscription_id: subscription_id}
+  end
+
+  def get_info_for_next_subscription(%__MODULE__{
+        id: subscription_id,
+        origin_subscription_id: origin_subscription_id
+      }) do
+    %{origin_subscription_id: origin_subscription_id, prev_subscription_id: subscription_id}
+  end
 end
