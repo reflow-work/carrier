@@ -25,6 +25,7 @@ defmodule Carrier.Billing do
              create_subscription(%{
                org_id: org_id,
                plan_id: plan_id,
+               extension_count: 0,
                start_on: start_on,
                end_on: end_on
              }) do
@@ -80,6 +81,7 @@ defmodule Carrier.Billing do
            Subscription.create(%{
              org_id: org_id,
              plan_id: plan.id,
+             extension_count: 0,
              start_on: start_on,
              end_on: end_on
            })

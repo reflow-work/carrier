@@ -172,7 +172,8 @@ defmodule Carrier.TenantFactory do
 
     %Subscription{
       org_id: org_id,
-      plan_id: plan.id,
+      plan: plan,
+      extension_count: 0,
       start_on: DateTime.utc_now(),
       end_on: end_on
     }

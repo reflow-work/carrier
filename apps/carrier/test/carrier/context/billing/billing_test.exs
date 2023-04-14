@@ -35,6 +35,7 @@ defmodule Carrier.BillingTest do
       assert created_subscription.org_id == org.org_id
       assert created_subscription.plan_id == plan.id
       assert created_subscription.payment_id == nil
+      assert created_subscription.origin_subscription_id == nil
       assert created_subscription.prev_subscription_id == nil
       assert same_values?(created_subscription.start_on, now)
       assert same_values?(created_subscription.end_on, ~U[2023-05-10 09:00:00Z])
