@@ -13,13 +13,13 @@ defmodule CarrierWeb.App.PaymentController do
              auth_key: auth_key
            }) do
       conn
-      |> redirect(to: ~p"/app/payment/done")
+      |> redirect(to: ~p"/app/subscriptions/done")
     else
       {:error, reason} ->
         Logger.error("Failed to pay with toss payments: #{org_id} - #{reason}")
 
         conn
-        |> redirect(to: ~p"/app/payment")
+        |> redirect(to: ~p"/app/subscriptions/new")
     end
   end
 
@@ -28,6 +28,6 @@ defmodule CarrierWeb.App.PaymentController do
 
     conn
     |> put_flash(:error, "결제에 실패했습니다. 다시 시도해주세요. #{message}")
-    |> redirect(to: ~p"/app/payment")
+    |> redirect(to: ~p"/app/subscriptions/new")
   end
 end

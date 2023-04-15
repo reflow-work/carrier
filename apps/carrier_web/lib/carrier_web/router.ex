@@ -81,8 +81,8 @@ defmodule CarrierWeb.Router do
         CarrierWeb.OnboardingHook
       ] do
       live "/onboarding", OnboardingLive.Index, :index
-      live "/payment", PaymentLive, :index
-      live "/payment/done", PaymentLive.Done, :index
+      live "/subscriptions/new", SubscriptionLive.New
+      live "/subscriptions/done", SubscriptionLive.Done
       live "/integrations/new", IntegrationLive.New, :new
       live "/data-sources", DataSourceLive.Index, :index
       live "/data-sources/new", DataSourceLive.New, :new

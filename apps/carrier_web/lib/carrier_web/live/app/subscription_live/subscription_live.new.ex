@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.PaymentLive do
+defmodule CarrierWeb.App.SubscriptionLive.New do
   use CarrierWeb, :live_view
   alias Carrier.Billing
   alias Carrier.Billing.Plan

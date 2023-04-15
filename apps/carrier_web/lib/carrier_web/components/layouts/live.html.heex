@@ -11,7 +11,7 @@
 
       <div class="max-w-7xl px-6 flex flex-row">
         <%= if Carrier.Setting.get_feature_flag_value("payment") do %>
-          <.link navigate={~p"/app/payment"}>
+          <.link navigate={~p"/app/subscriptions/new"}>
             <div class="menu-item">
               <CarrierWeb.Components.Icon.list_small />
               <span class="ml-2 text-sm">결제</span>

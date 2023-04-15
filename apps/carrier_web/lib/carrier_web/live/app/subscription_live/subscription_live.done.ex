@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.PaymentLive.Done do
+defmodule CarrierWeb.App.SubscriptionLive.Done do
   use CarrierWeb, :live_view
 
   @impl true
