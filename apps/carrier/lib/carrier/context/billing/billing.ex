@@ -20,7 +20,7 @@ defmodule Carrier.Billing do
            {:ok, maybe_trial_subscription} <-
              create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
            start_on = recalc_start_on(maybe_trial_subscription, start_on),
-           end_on = Plan.calc_end_on(plan, start_on, 1),
+           end_on = Plan.calc_end_on(plan, start_on, 0),
            {:ok, %Subscription{} = subscription} <-
              create_subscription(%{
                org_id: org_id,
@@ -76,7 +76,7 @@ defmodule Carrier.Billing do
   defp create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}) do
     with {:had_subscribable, false} <- {:had_subscribable, had_subscription?()},
          %Plan{type: :trial} = plan <- Super.fetch_trial_plan!(),
-         end_on = Plan.calc_end_on(plan, start_on, 1),
+         end_on = Plan.calc_end_on(plan, start_on, 0),
          {:ok, %Subscription{} = trial_subscription} <-
            Subscription.create(%{
              org_id: org_id,

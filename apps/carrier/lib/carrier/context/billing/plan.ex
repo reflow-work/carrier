@@ -45,11 +45,25 @@ defmodule Carrier.Billing.Plan do
   def check_subscribable(%__MODULE__{subscribable: true}), do: :ok
   def check_subscribable(%__MODULE__{subscribable: false}), do: {:error, :plan_not_subscribable}
 
-  def calc_end_on(%__MODULE__{type: :trial}, start_on, 1) do
-    start_on |> Timex.shift(days: 7)
+  def calc_start_on(%__MODULE__{type: :trial}, origin_start_on, _extension_count = 0) do
+    origin_start_on
   end
 
-  def calc_end_on(%__MODULE__{billing_cycle: billing_cycle}, start_on, nth) do
-    DateTimeHelper.calc_next(start_on, billing_cycle, nth)
+  def calc_start_on(%__MODULE__{type: type} = struct, origin_start_on, extension_count)
+      when type != :trial do
+    calc_end_on(struct, origin_start_on, extension_count - 1)
+  end
+
+  def calc_end_on(%__MODULE__{type: :trial}, origin_start_on, _extension_count = 0) do
+    origin_start_on |> Timex.shift(days: 7)
+  end
+
+  def calc_end_on(
+        %__MODULE__{type: type, billing_cycle: billing_cycle},
+        origin_start_on,
+        extension_count
+      )
+      when type != :trial do
+    DateTimeHelper.calc_next(origin_start_on, billing_cycle, extension_count + 1)
   end
 end
