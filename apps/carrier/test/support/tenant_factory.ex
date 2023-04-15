@@ -174,7 +174,7 @@ defmodule Carrier.TenantFactory do
       org_id: org_id,
       plan: plan,
       extension_count: 0,
-      start_on: DateTime.utc_now(),
+      start_on: start_on,
       end_on: end_on
     }
     |> apply_status(status)

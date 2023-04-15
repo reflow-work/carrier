@@ -1,7 +1,8 @@
 defmodule Carrier.BillingTest do
   use Carrier.DataCase, async: true
-  use Carrier.Billing
+  use Carrier.{Billing, Payments}
   use Oban.Testing, repo: Carrier.TenantRepo
+  alias Carrier.ExternalHelper
 
   @moduletag repo: TenantRepo
 
@@ -37,6 +38,7 @@ defmodule Carrier.BillingTest do
       assert created_subscription.payment_id == nil
       assert created_subscription.origin_subscription_id == nil
       assert created_subscription.prev_subscription_id == nil
+      assert created_subscription.extension_count == 0
       assert same_values?(created_subscription.start_on, now)
       assert same_values?(created_subscription.end_on, ~U[2023-05-10 09:00:00Z])
       assert created_subscription.status == :pending
@@ -135,16 +137,149 @@ defmodule Carrier.BillingTest do
   end
 
   describe "activate_subscription/1" do
-    # test "with valid params" do
-    # end
+    setup do
+      org = TenantFactory.insert(:org)
 
-    # test "with invalid subscription_id" do
-    # end
+      TenantRepo.put_org_id(org.org_id)
 
-    # test "with not pending subscription" do
-    # end
+      billing_user = TenantFactory.insert(:user, org: org)
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
 
-    # test "with subscription that has no prev_subscription" do
-    # end
+      %{org: org, billing_user: billing_user, credit_card: credit_card}
+    end
+
+    test "with valid params (basic, monthly, with prev_subscription)", %{
+      org: org,
+      billing_user: billing_user,
+      credit_card: credit_card
+    } do
+      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+
+      prev_subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: plan,
+          origin_subscription: nil,
+          prev_subscription: nil,
+          extension_count: 0,
+          start_on: ~U[2023-01-31 09:00:00Z],
+          end_on: ~U[2023-02-28 09:00:00Z],
+          status: :active
+        )
+
+      subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: plan,
+          origin_subscription: prev_subscription,
+          prev_subscription: prev_subscription,
+          extension_count: 1,
+          start_on: ~U[2023-02-28 09:00:00Z],
+          end_on: ~U[2023-03-31 09:00:00Z],
+          status: :pending
+        )
+
+      ExternalHelper.TossPayments.prepare_bill(%{
+        billing_key: credit_card.billing_key,
+        amount: plan.price,
+        order_name: "reflow Basic Monthly Plan",
+        customer_email: billing_user.email,
+        customer_name: org.name
+      })
+
+      assert {:ok, %Subscription{} = activated_subscription} =
+               Billing.activate_subscription(subscription.id)
+
+      assert activated_subscription.id == subscription.id
+      assert activated_subscription.status == :active
+      assert activated_subscription.activated_at != nil
+      assert activated_subscription.payment_id != nil
+
+      # expired prev subscription
+
+      prev_subscription = Subscription |> TenantRepo.get(prev_subscription.id)
+
+      assert prev_subscription.status == :expired
+
+      # created payment
+
+      assert %Payment{} = payment = Payment |> TenantRepo.get(activated_subscription.payment_id)
+
+      assert payment.org_id == activated_subscription.org_id
+      assert payment.credit_card_id == credit_card.id
+      assert same_values?(payment.amount, plan.price)
+      assert payment.status == :confirmed
+
+      # created next subscription
+
+      assert %Subscription{} =
+               next_subscription =
+               Subscription |> TenantRepo.get_by(prev_subscription_id: subscription.id)
+
+      assert next_subscription.org_id == activated_subscription.org_id
+      assert next_subscription.plan_id == activated_subscription.plan_id
+      assert next_subscription.payment_id == nil
+
+      assert next_subscription.origin_subscription_id ==
+               activated_subscription.origin_subscription_id
+
+      assert next_subscription.prev_subscription_id == activated_subscription.id
+      assert next_subscription.extension_count == 2
+      assert same_values?(next_subscription.start_on, ~U[2023-03-31 09:00:00Z])
+      assert same_values?(next_subscription.end_on, ~U[2023-04-30 09:00:00Z])
+      assert next_subscription.status == :pending
+    end
+
+    test "with invalid subscription_id" do
+      assert {:error, :subscription_can_not_be_activated} = Billing.activate_subscription(0)
+    end
+
+    test "with not pending subscription" do
+      subscription = TenantFactory.insert(:subscription, status: :active)
+
+      assert {:error, :subscription_can_not_be_activated} =
+               Billing.activate_subscription(subscription.id)
+    end
+
+    test "with subscription that has no prev_subscription", %{
+      org: org,
+      billing_user: billing_user,
+      credit_card: credit_card
+    } do
+      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+
+      subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: plan,
+          origin_subscription: nil,
+          prev_subscription: nil,
+          extension_count: 0,
+          start_on: ~U[2023-01-31 09:00:00Z],
+          end_on: ~U[2023-02-28 09:00:00Z],
+          status: :pending
+        )
+
+      ExternalHelper.TossPayments.prepare_bill(%{
+        billing_key: credit_card.billing_key,
+        amount: plan.price,
+        order_name: "reflow Basic Monthly Plan",
+        customer_email: billing_user.email,
+        customer_name: org.name
+      })
+
+      assert {:ok, %Subscription{} = activated_subscription} =
+               Billing.activate_subscription(subscription.id)
+
+      assert %Payment{} = Payment |> TenantRepo.get(activated_subscription.payment_id)
+
+      assert %Subscription{} =
+               next_subscription =
+               Subscription |> TenantRepo.get_by(prev_subscription_id: subscription.id)
+
+      assert next_subscription.origin_subscription_id == activated_subscription.id
+      assert next_subscription.prev_subscription_id == activated_subscription.id
+      assert next_subscription.extension_count == 1
+    end
   end
 end
