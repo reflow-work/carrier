@@ -80,4 +80,24 @@ defmodule Carrier.Billing.PlanTest do
       assert Plan.calc_end_on(plan, origin_start_on, 1) == ~U[2025-04-11 09:00:00Z]
     end
   end
+
+  describe "get_full_name/1" do
+    test "with trial plan" do
+      plan = TenantFactory.build(:plan, type: :trial)
+
+      assert Plan.get_full_name(plan) == "reflow Trial Plan"
+    end
+
+    test "with basic monthly plan" do
+      plan = TenantFactory.build(:plan, type: :basic, billing_cycle: :monthly)
+
+      assert Plan.get_full_name(plan) == "reflow Basic Monthly Plan"
+    end
+
+    test "with pro yearly plan" do
+      plan = TenantFactory.build(:plan, type: :pro, billing_cycle: :yearly)
+
+      assert Plan.get_full_name(plan) == "reflow Pro Yearly Plan"
+    end
+  end
 end

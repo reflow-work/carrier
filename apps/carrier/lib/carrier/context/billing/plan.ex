@@ -66,4 +66,15 @@ defmodule Carrier.Billing.Plan do
       when type != :trial do
     DateTimeHelper.calc_next(origin_start_on, billing_cycle, extension_count + 1)
   end
+
+  def get_full_name(%__MODULE__{type: :trial}) do
+    "reflow Trial Plan"
+  end
+
+  def get_full_name(%__MODULE__{type: type, billing_cycle: billing_cycle}) do
+    type_str = type |> Atom.to_string() |> String.capitalize()
+    billing_cycle_str = billing_cycle |> Atom.to_string() |> String.capitalize()
+
+    "reflow #{type_str} #{billing_cycle_str} Plan"
+  end
 end
