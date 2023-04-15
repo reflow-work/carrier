@@ -20,11 +20,12 @@ defmodule Carrier.Billing do
            {:ok, maybe_trial_subscription} <-
              create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
            start_on = recalc_start_on(maybe_trial_subscription, start_on),
-           end_on = Plan.calc_end_on(plan, start_on, 1),
+           end_on = Plan.calc_end_on(plan, start_on, 0),
            {:ok, %Subscription{} = subscription} <-
              create_subscription(%{
                org_id: org_id,
                plan_id: plan_id,
+               extension_count: 0,
                start_on: start_on,
                end_on: end_on
              }) do
@@ -33,24 +34,40 @@ defmodule Carrier.Billing do
     end)
   end
 
-  # TODO: implement it
   # TODO: use the same time for expire and activate
   def activate_subscription(subscription_id) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %Subscription{status: :pending} = subscription} <-
+      with {:ok, %Subscription{status: :pending} = pending_subscription} <-
              fetch_subscription_with_state(subscription_id, :pending),
-           {:ok, _} <- expire_prev_subscription(subscription),
-           {:ok, %Payment{} = payment} <- pay_subscription(subscription),
+           {:ok, _} <- expire_prev_subscription(pending_subscription),
+           {:ok, %Payment{} = payment} <- pay_subscription(pending_subscription),
            {:ok, %Subscription{} = activated_subscription} <-
-             Subscription.activate(subscription, %{
+             Subscription.activate(pending_subscription, %{
                payment_id: payment.id,
                activated_at: DateTime.utc_now()
              })
              |> TenantRepo.update(),
-           {:ok, _maybe_next_subscription} <- create_next_subscription(subscription) do
+           {:ok, _maybe_next_subscription} <- create_next_subscription(activated_subscription) do
         {:ok, activated_subscription}
+      else
+        {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :pending}}}} ->
+          {:error, :subscription_can_not_be_activated}
       end
     end)
+  end
+
+  defp fetch_subscription(subscription_id) do
+    Subscription.fetch(subscription_id)
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        {:ok, subscription}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: Subscription, conditions: %{subscription_id: subscription_id}}}}
+    end
   end
 
   defp fetch_subscription_with_state(subscription_id, state) do
@@ -75,11 +92,12 @@ defmodule Carrier.Billing do
   defp create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}) do
     with {:had_subscribable, false} <- {:had_subscribable, had_subscription?()},
          %Plan{type: :trial} = plan <- Super.fetch_trial_plan!(),
-         end_on = Plan.calc_end_on(plan, start_on, 1),
+         end_on = Plan.calc_end_on(plan, start_on, 0),
          {:ok, %Subscription{} = trial_subscription} <-
            Subscription.create(%{
              org_id: org_id,
              plan_id: plan.id,
+             extension_count: 0,
              start_on: start_on,
              end_on: end_on
            })
@@ -126,9 +144,35 @@ defmodule Carrier.Billing do
     end)
   end
 
-  # TODO: implement it
-  defp create_next_subscription(%Subscription{}) do
-    {:ok, %Subscription{}}
+  defp create_next_subscription(
+         %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
+           subscription
+       ) do
+    TenantRepo.wrap_transaction(fn ->
+      new_extension_count = extension_count + 1
+
+      with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
+           %{
+             origin_subscription_id: origin_subscription_id,
+             prev_subscription_id: prev_subscription_id
+           } = Subscription.get_info_for_next_subscription(subscription),
+           {:ok, %Subscription{} = origin_subscription} <-
+             fetch_subscription(origin_subscription_id),
+           start_on = Plan.calc_start_on(plan, origin_subscription.start_on, new_extension_count),
+           end_on = Plan.calc_end_on(plan, origin_subscription.start_on, new_extension_count),
+           {:ok, %Subscription{} = subscription} <-
+             create_subscription(%{
+               org_id: org_id,
+               plan_id: plan_id,
+               origin_subscription_id: origin_subscription_id,
+               prev_subscription_id: prev_subscription_id,
+               extension_count: new_extension_count,
+               start_on: start_on,
+               end_on: end_on
+             }) do
+        {:ok, subscription}
+      end
+    end)
   end
 
   # TODO: refund?
@@ -165,7 +209,8 @@ defmodule Carrier.Billing do
          org_id: org_id,
          plan_id: plan_id
        }) do
-    with {:ok, %Plan{name: name, price: price, currency: currency}} <- Super.fetch_plan(plan_id),
+    with {:ok, %Plan{price: price, currency: currency} = plan} <-
+           Super.fetch_plan(plan_id),
          {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
            Accounts.fetch_billing_user(),
          {:ok, %Payment{} = payment} <-
@@ -173,7 +218,7 @@ defmodule Carrier.Billing do
              org_id: org_id,
              amount: price,
              currency: currency,
-             order_name: "reflow #{name} Plan",
+             order_name: Plan.get_full_name(plan),
              customer_email: billing_email,
              customer_name: billing_name
            }) do

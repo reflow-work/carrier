@@ -6,9 +6,11 @@ defmodule Carrier.Billing.Subscription do
   schema "subscriptions" do
     belongs_to :plan, Plan
     belongs_to :payment, Payment
+    belongs_to :origin_subscription, __MODULE__
     belongs_to :prev_subscription, __MODULE__
 
     field :org_id, :id
+    field :extension_count, :integer
     field :start_on, :utc_datetime_usec
     field :end_on, :utc_datetime_usec
     field :status, Ecto.Enum, values: [:pending, :active, :expired, :cancelled], default: :pending
@@ -19,8 +21,8 @@ defmodule Carrier.Billing.Subscription do
     timestamps()
   end
 
-  @required_for_create [:org_id, :plan_id, :start_on, :end_on]
-  @optional_for_create [:prev_subscription_id]
+  @required_for_create [:org_id, :plan_id, :start_on, :end_on, :extension_count]
+  @optional_for_create [:origin_subscription_id, :prev_subscription_id]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create ++ @optional_for_create)
@@ -56,6 +58,11 @@ defmodule Carrier.Billing.Subscription do
     __MODULE__
   end
 
+  def fetch(subscription_id) do
+    __MODULE__
+    |> where([s], s.id == ^subscription_id)
+  end
+
   def fetch_with_state(subscription_id, state) do
     __MODULE__
     |> where([s], s.id == ^subscription_id)
@@ -70,5 +77,20 @@ defmodule Carrier.Billing.Subscription do
   def expire(%__MODULE__{status: :active} = struct, params) do
     struct
     |> changeset_for_expire(params |> Map.put(:status, :expired))
+  end
+
+  def get_info_for_next_subscription(%__MODULE__{
+        id: subscription_id,
+        origin_subscription_id: nil,
+        prev_subscription_id: nil
+      }) do
+    %{origin_subscription_id: subscription_id, prev_subscription_id: subscription_id}
+  end
+
+  def get_info_for_next_subscription(%__MODULE__{
+        id: subscription_id,
+        origin_subscription_id: origin_subscription_id
+      }) do
+    %{origin_subscription_id: origin_subscription_id, prev_subscription_id: subscription_id}
   end
 end
