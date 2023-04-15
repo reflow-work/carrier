@@ -58,6 +58,11 @@ defmodule Carrier.Billing.Subscription do
     __MODULE__
   end
 
+  def fetch(subscription_id) do
+    __MODULE__
+    |> where([s], s.id == ^subscription_id)
+  end
+
   def fetch_with_state(subscription_id, state) do
     __MODULE__
     |> where([s], s.id == ^subscription_id)

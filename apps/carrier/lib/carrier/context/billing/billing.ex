@@ -54,6 +54,20 @@ defmodule Carrier.Billing do
     end)
   end
 
+  defp fetch_subscription(subscription_id) do
+    Subscription.fetch(subscription_id)
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        {:ok, subscription}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: Subscription, conditions: %{subscription_id: subscription_id}}}}
+    end
+  end
+
   defp fetch_subscription_with_state(subscription_id, state) do
     Subscription.fetch_with_state(subscription_id, state)
     |> TenantRepo.one()
@@ -128,9 +142,35 @@ defmodule Carrier.Billing do
     end)
   end
 
-  # TODO: implement it
-  defp create_next_subscription(%Subscription{}) do
-    {:ok, %Subscription{}}
+  defp create_next_subscription(
+         %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
+           subscription
+       ) do
+    TenantRepo.wrap_transaction(fn ->
+      new_extension_count = extension_count + 1
+
+      with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
+           %{
+             origin_subscription_id: origin_subscription_id,
+             prev_subscription_id: prev_subscription_id
+           } = Subscription.get_info_for_next_subscription(subscription),
+           {:ok, %Subscription{} = origin_subscription} <-
+             fetch_subscription(origin_subscription_id),
+           start_on = Plan.calc_start_on(plan, origin_subscription.start_on, new_extension_count),
+           end_on = Plan.calc_end_on(plan, origin_subscription.start_on, new_extension_count),
+           {:ok, %Subscription{} = subscription} <-
+             create_subscription(%{
+               org_id: org_id,
+               plan_id: plan_id,
+               origin_subscription_id: origin_subscription_id,
+               prev_subscription_id: prev_subscription_id,
+               extension_count: new_extension_count,
+               start_on: start_on,
+               end_on: end_on
+             }) do
+        {:ok, subscription}
+      end
+    end)
   end
 
   # TODO: refund?
