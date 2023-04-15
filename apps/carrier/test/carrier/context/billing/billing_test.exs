@@ -21,7 +21,7 @@ defmodule Carrier.BillingTest do
       trial_plan: trial_plan
     } do
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
-      TenantFactory.insert(:subscription, org_id: org.org_id, plan_id: trial_plan.id)
+      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan)
       now = ~U[2023-04-10 09:00:00Z]
 
       params = %{
@@ -63,7 +63,7 @@ defmodule Carrier.BillingTest do
 
     test "with yearly plan", %{org: org, trial_plan: trial_plan} do
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :yearly)
-      TenantFactory.insert(:subscription, org_id: org.org_id, plan_id: trial_plan.id)
+      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan)
       now = ~U[2023-04-10 09:00:00Z]
 
       params = %{

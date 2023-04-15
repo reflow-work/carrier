@@ -165,7 +165,7 @@ defmodule Carrier.TenantFactory do
 
   def subscription_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
-    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> insert(:plan) end)
+    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> insert(:plan, type: :basic) end)
     {start_on, attrs} = attrs |> Map.pop(:start_on, DateTime.utc_now())
     end_on = Plan.calc_end_on(plan, start_on, 0)
     {status, attrs} = attrs |> Map.pop(:status, :active)
