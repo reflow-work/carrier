@@ -56,13 +56,13 @@ defmodule Carrier.External.TossPayments do
     Tesla.post(client(), "/v1/billing/#{billing_key}", body)
     |> handle_response()
     |> case do
-      {:ok, %{"paymentKey" => payment_key, "approvedAt" => approved_at_str} = body} ->
+      {:ok, %{"orderId" => order_id, "approvedAt" => approved_at_str} = body} ->
         {:ok, approved_at, _offset} = DateTime.from_iso8601(approved_at_str)
 
         {:ok,
          %PaymentInfo{
            provider: :toss_payments,
-           provider_key: payment_key,
+           provider_key: order_id,
            confirmed_at: approved_at,
            payload: body
          }}

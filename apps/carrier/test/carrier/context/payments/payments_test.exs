@@ -117,7 +117,7 @@ defmodule Carrier.PaymentsTest do
       assert payment.currency == :KRW
       assert payment.status == :confirmed
       assert payment.provider == :toss_payments
-      assert payment.provider_key == "9o5gEq4k6YZ1aOwX7K8mO2B6RE5Q1WVyQxzvNPGenpDAlBdb"
+      assert payment.provider_key == "nmaBsy8a"
       assert payment.payload == resp
     end
 
