@@ -3,8 +3,12 @@ defmodule CarrierWeb.App.PaymentController do
   use Carrier.Payments
   require Logger
 
-  def toss_payments_callback(conn, %{"customerKey" => customer_key, "authKey" => auth_key}) do
+  def toss_payments_callback(
+        conn,
+        %{"customerKey" => customer_key, "authKey" => auth_key, "plan_id" => plan_id_str}
+      ) do
     org_id = conn |> get_session(:org_id)
+    plan_id = plan_id_str |> String.to_integer()
 
     with {:ok, %CreditCard{}} <-
            Payments.create_credit_card(:toss_payments, %{
