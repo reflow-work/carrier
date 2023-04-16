@@ -31,6 +31,19 @@ defmodule Carrier.Payments do
     end
   end
 
+  # Assumption: There is only one CreditCard per Org.
+  def fetch_default_credit_card() do
+    CreditCard.fetch_default()
+    |> TenantRepo.one()
+    |> case do
+      %CreditCard{} = credit_card ->
+        {:ok, credit_card}
+
+      nil ->
+        {:error, {:resource_not_found, %{target: CreditCard, conditions: %{}}}}
+    end
+  end
+
   def process_payment(%{
         org_id: org_id,
         amount: amount,
@@ -74,19 +87,6 @@ defmodule Carrier.Payments do
          {:ok, %External.Model.CreditCardInfo{customer_key: ^customer_key} = credit_card_params} <-
            External.TossPayments.issue_billing_auth(auth_key, customer_key) do
       {:ok, credit_card_params}
-    end
-  end
-
-  # Assumption: There is only one CreditCard per Org.
-  defp fetch_default_credit_card() do
-    CreditCard.fetch_default()
-    |> TenantRepo.one()
-    |> case do
-      %CreditCard{} = credit_card ->
-        {:ok, credit_card}
-
-      nil ->
-        {:error, {:resource_not_found, %{target: CreditCard, conditions: %{}}}}
     end
   end
 
