@@ -39,7 +39,7 @@ defmodule Carrier.Billing do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Subscription{status: :pending} = pending_subscription} <-
              fetch_subscription_with_state(subscription_id, :pending),
-           {:ok, _} <- expire_prev_subscription(pending_subscription),
+           {:ok, _} <- expire_active_subscription(),
            {:ok, %Payment{} = payment} <- pay_subscription(pending_subscription),
            {:ok, %Subscription{} = activated_subscription} <-
              Subscription.activate(pending_subscription, %{
@@ -81,6 +81,18 @@ defmodule Carrier.Billing do
         {:error,
          {:resource_not_found,
           %{target: Subscription, conditions: %{subscription_id: subscription_id, state: state}}}}
+    end
+  end
+
+  defp fetch_active_subscription() do
+    Subscription.fetch_active()
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        {:ok, subscription}
+
+      nil ->
+        {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}}
     end
   end
 
@@ -153,8 +165,7 @@ defmodule Carrier.Billing do
 
       with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
            %{
-             origin_subscription_id: origin_subscription_id,
-             prev_subscription_id: prev_subscription_id
+             origin_subscription_id: origin_subscription_id
            } = Subscription.get_info_for_next_subscription(subscription),
            {:ok, %Subscription{} = origin_subscription} <-
              fetch_subscription(origin_subscription_id),
@@ -165,7 +176,6 @@ defmodule Carrier.Billing do
                org_id: org_id,
                plan_id: plan_id,
                origin_subscription_id: origin_subscription_id,
-               prev_subscription_id: prev_subscription_id,
                extension_count: new_extension_count,
                start_on: start_on,
                end_on: end_on
@@ -176,18 +186,15 @@ defmodule Carrier.Billing do
   end
 
   # TODO: refund?
-  defp expire_prev_subscription(%Subscription{prev_subscription_id: prev_subscription_id})
-       when not is_nil(prev_subscription_id) do
-    with {:ok, %Subscription{} = prev_subscription} <-
-           fetch_subscription_with_state(prev_subscription_id, :active),
+  defp expire_active_subscription() do
+    with {:ok, %Subscription{} = active_subscription} <- fetch_active_subscription(),
          {:ok, %Subscription{} = expired_subscription} <-
-           expire_subscription(prev_subscription) do
+           expire_subscription(active_subscription) do
       {:ok, expired_subscription}
+    else
+      {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}} ->
+        {:ok, nil}
     end
-  end
-
-  defp expire_prev_subscription(%Subscription{prev_subscription_id: nil}) do
-    {:ok, nil}
   end
 
   defp expire_subscription(%Subscription{status: :active} = subscription) do

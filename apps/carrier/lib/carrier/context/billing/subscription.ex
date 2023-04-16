@@ -7,7 +7,6 @@ defmodule Carrier.Billing.Subscription do
     belongs_to :plan, Plan
     belongs_to :payment, Payment
     belongs_to :origin_subscription, __MODULE__
-    belongs_to :prev_subscription, __MODULE__
 
     field :org_id, :id
     field :extension_count, :integer
@@ -22,13 +21,13 @@ defmodule Carrier.Billing.Subscription do
   end
 
   @required_for_create [:org_id, :plan_id, :start_on, :end_on, :extension_count]
-  @optional_for_create [:origin_subscription_id, :prev_subscription_id]
+  @optional_for_create [:origin_subscription_id]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create ++ @optional_for_create)
     |> validate_required(@required_for_create)
     |> foreign_key_constraint(:plan_id)
-    |> foreign_key_constraint(:prev_subscription_id)
+    |> unique_constraint(:status, name: :subscriptions_org_id_pending)
   end
 
   @required_for_activate [:status, :activated_at]
@@ -39,6 +38,7 @@ defmodule Carrier.Billing.Subscription do
     |> validate_required(@required_for_activate)
     |> validate_inclusion(:status, [:active])
     |> foreign_key_constraint(:payment_id)
+    |> unique_constraint(:status, name: :subscriptions_org_id_active)
   end
 
   @required_for_expire [:status, :expired_at]
@@ -69,6 +69,12 @@ defmodule Carrier.Billing.Subscription do
     |> where([s], s.status == ^state)
   end
 
+  # Assumtion: there is only one active subscription per org
+  def fetch_active() do
+    __MODULE__
+    |> where([s], s.status == :active)
+  end
+
   def activate(%__MODULE__{status: :pending} = struct, params) do
     struct
     |> changeset_for_activate(params |> Map.put(:status, :active))
@@ -81,16 +87,14 @@ defmodule Carrier.Billing.Subscription do
 
   def get_info_for_next_subscription(%__MODULE__{
         id: subscription_id,
-        origin_subscription_id: nil,
-        prev_subscription_id: nil
+        origin_subscription_id: nil
       }) do
-    %{origin_subscription_id: subscription_id, prev_subscription_id: subscription_id}
+    %{origin_subscription_id: subscription_id}
   end
 
   def get_info_for_next_subscription(%__MODULE__{
-        id: subscription_id,
         origin_subscription_id: origin_subscription_id
       }) do
-    %{origin_subscription_id: origin_subscription_id, prev_subscription_id: subscription_id}
+    %{origin_subscription_id: origin_subscription_id}
   end
 end
