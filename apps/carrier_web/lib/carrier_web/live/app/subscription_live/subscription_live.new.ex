@@ -123,12 +123,4 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
     |> Map.get(selected_billing_cycle)
     |> Enum.find(fn plan -> plan.type == selected_type end)
   end
-
-  defp payment_method(%CreditCard{} = credit_card) do
-    CreditCard.format_card_info(credit_card)
-  end
-
-  defp payment_method(nil) do
-    "구독 신청을 하면서 등록될 예정입니다."
-  end
 end
