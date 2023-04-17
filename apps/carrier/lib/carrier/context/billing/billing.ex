@@ -56,6 +56,22 @@ defmodule Carrier.Billing do
     end)
   end
 
+  def fetch_active_subscription() do
+    Subscription.fetch_active()
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        subscription_with_plan =
+          subscription
+          |> TenantRepo.preload([:plan], skip_org_id: true)
+
+        {:ok, subscription_with_plan}
+
+      nil ->
+        {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}}
+    end
+  end
+
   def have_active_subscription?() do
     Subscription.fetch_active()
     |> TenantRepo.exists?()
@@ -86,18 +102,6 @@ defmodule Carrier.Billing do
         {:error,
          {:resource_not_found,
           %{target: Subscription, conditions: %{subscription_id: subscription_id, state: state}}}}
-    end
-  end
-
-  defp fetch_active_subscription() do
-    Subscription.fetch_active()
-    |> TenantRepo.one()
-    |> case do
-      %Subscription{} = subscription ->
-        {:ok, subscription}
-
-      nil ->
-        {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}}
     end
   end
 
