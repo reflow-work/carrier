@@ -1,7 +1,6 @@
 defmodule CarrierWeb.App.SubscriptionLive.New do
   use CarrierWeb, :live_view
-  alias Carrier.Billing
-  alias Carrier.Billing.Plan
+  use Carrier.{Billing, Payments}
   alias CarrierWeb.TossPaymentsHelper
   alias CarrierWeb.Components.Icon
 
@@ -19,11 +18,13 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
       |> assign(:selected_billing_cycle, plan_billing_cycle)
       |> assign(:selected_type, plan_type)
       |> assign(:selected_plan, nil)
+      |> assign(:credit_card, nil)
       |> TossPaymentsHelper.init()
 
     socket =
       socket
       |> load_plans_by_billing_cycle()
+      |> load_credit_card()
       |> assign_selected_plan()
 
     {:ok, socket}
@@ -95,6 +96,17 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
     end
   end
 
+  defp load_credit_card(socket) do
+    case Payments.fetch_default_credit_card() do
+      {:ok, credit_card} ->
+        socket
+        |> assign(:credit_card, credit_card)
+
+      {:error, _} ->
+        socket
+    end
+  end
+
   defp assign_selected_plan(socket) do
     plans_by_billing_cycle = socket.assigns.plans_by_billing_cycle
     selected_billing_cycle = socket.assigns.selected_billing_cycle
@@ -110,5 +122,13 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
     plans_by_billing_cycle
     |> Map.get(selected_billing_cycle)
     |> Enum.find(fn plan -> plan.type == selected_type end)
+  end
+
+  defp payment_method(%CreditCard{} = credit_card) do
+    CreditCard.format_card_info(credit_card)
+  end
+
+  defp payment_method(nil) do
+    "구독 신청을 하면서 등록될 예정입니다."
   end
 end
