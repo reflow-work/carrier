@@ -24,9 +24,13 @@
           구독 정보
         </h2>
 
-        <p>
-          Trial (오픈 베타 중)
-        </p>
+        <div>
+          <span class="text-lg font-bold"><%= @active_subscription.plan.name %></span>
+          <%= if @active_subscription.plan.billing_cycle != :none do %>
+            <span>(<%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>)</span>
+          <% end %>
+        </div>
+        <div>다음 결제 예정일: <%= @active_subscription.end_on |> format_datetime(@timezone) %></div>
       </div>
     </div>
 

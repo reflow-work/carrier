@@ -338,4 +338,25 @@ defmodule Carrier.BillingTest do
                Billing.activate_subscription(subscription.id)
     end
   end
+
+  describe "fetch_active_subscription/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      plan = TenantFactory.insert(:plan)
+
+      subscription =
+        TenantFactory.insert(:subscription, status: :active, org_id: org.org_id, plan: plan)
+
+      %{plan: plan, subscription: subscription}
+    end
+
+    test "test", %{plan: plan, subscription: subscription} do
+      assert {:ok, %Subscription{} = fetched_subscription} = Billing.fetch_active_subscription()
+      assert same_records?(fetched_subscription, subscription)
+      assert same_records?(fetched_subscription.plan, plan)
+    end
+  end
 end
