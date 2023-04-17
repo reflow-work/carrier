@@ -7,6 +7,7 @@ defmodule Carrier.Billing.Plan do
     field :name, :string
     field :type, Ecto.Enum, values: [:trial, :basic, :pro]
     field :price, :decimal
+    field :original_price, :decimal
     field :currency, Ecto.Enum, values: [:KRW]
     field :description, {:array, :string}
     field :subscribable, :boolean, default: false
