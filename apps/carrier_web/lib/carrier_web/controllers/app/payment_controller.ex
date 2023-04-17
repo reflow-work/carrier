@@ -29,7 +29,7 @@ defmodule CarrierWeb.App.PaymentController do
         Logger.error("Failed to pay with toss payments: org_id: #{org_id}, #{inspect(reason)}")
 
         conn
-        |> put_flash(:error, "결제에 실패했습니다. 다시 시도해주세요.")
+        |> put_flash(:error, "구독 신청에 실패했습니다. 다시 시도해주세요.")
         |> redirect(to: ~p"/app/subscriptions/new")
     end
   end
@@ -38,7 +38,7 @@ defmodule CarrierWeb.App.PaymentController do
     Logger.error("Failed to pay with toss payments: #{code}, #{message}")
 
     conn
-    |> put_flash(:error, "결제에 실패했습니다. 다시 시도해주세요. #{message}")
+    |> put_flash(:error, "구독 신청에 실패했습니다. 다시 시도해주세요. #{message}")
     |> redirect(to: ~p"/app/subscriptions/new")
   end
 end
