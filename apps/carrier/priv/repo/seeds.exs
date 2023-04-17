@@ -41,10 +41,10 @@ Repo.transaction(fn ->
           name: "test DB",
           source: :postgres,
           info: %{
-            "hostname" => "carrier-app-db.cdw6skjbo8fk.ap-northeast-2.rds.amazonaws.com",
+            "hostname" => "db.cdigyzxhugungdxntpwg.supabase.co",
             "port" => 5432,
-            "username" => "tester",
-            "password" => "JJJxcv7MUzaFct9R6vEB",
+            "username" => "postgres",
+            "password" => "2IIx7Xk5KoiB",
             "database" => "test_db"
           }
         },
@@ -63,10 +63,10 @@ Repo.transaction(fn ->
           name: "test DB",
           source: :postgres,
           info: %{
-            "hostname" => "carrier-app-db.cdw6skjbo8fk.ap-northeast-2.rds.amazonaws.com",
+            "hostname" => "db.cdigyzxhugungdxntpwg.supabase.co",
             "port" => 5432,
-            "username" => "tester",
-            "password" => "JJJxcv7MUzaFct9R6vEB",
+            "username" => "postgres",
+            "password" => "2IIx7Xk5KoiB",
             "database" => "test_db"
           }
         },
