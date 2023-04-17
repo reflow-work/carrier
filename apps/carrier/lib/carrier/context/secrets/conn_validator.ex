@@ -27,14 +27,19 @@ defmodule Carrier.Secrets.ConnValidator do
   end
 
   def validate_data_sources() do
-    DataSource
+    DataSource.list()
     |> DataSource.preload_conn_info()
     |> Repo.all()
     |> Enum.map(fn %DataSource{
                      id: data_source_id,
                      conn_info: %ConnInfo{source: source, info: info}
                    } ->
-      {data_source_id, validate(source, info)}
+      try do
+        {data_source_id, validate(source, info)}
+      rescue
+        e ->
+          {data_source_id, {:error, inspect(e)}}
+      end
     end)
   end
 end
