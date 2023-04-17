@@ -43,6 +43,11 @@
                 <div class="mb-4 text-xl">
                   <%= plan.name %>
                 </div>
+                <%= if plan.original_price != nil do %>
+                  <div class="line-through text-landingDescription">
+                    <%= plan.original_price |> format_number() %>원
+                  </div>
+                <% end %>
                 <div>
                   <span class="font-bold text-3xl">
                     <%= plan |> Plan.month_price() |> format_number() %>
