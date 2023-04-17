@@ -31,6 +31,7 @@ defmodule Carrier.AccountsTest do
   describe "fetch_billing_user/0" do
     setup do
       user = TenantFactory.insert(:user)
+      _user_of_another_org = TenantFactory.insert(:user)
 
       TenantRepo.put_org_id(user.org_id)
 
