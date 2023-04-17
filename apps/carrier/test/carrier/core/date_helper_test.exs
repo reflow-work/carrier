@@ -17,9 +17,15 @@ defmodule Carrier.Core.DateHelperTest do
     end
 
     test "with valid datetime" do
-      datetime = ~U[2023-02-14 14:49:31.721776Z]
+      datetime = ~U[2023-02-14 08:00:00Z]
 
       assert DateHelper.safe_format_date(datetime) == "2023년 2월 14일"
+    end
+
+    test "with valid datetime with timezone" do
+      datetime = ~U[2023-02-14 23:00:00Z] |> DateTime.shift_zone!("Asia/Seoul")
+
+      assert DateHelper.safe_format_date(datetime) == "2023년 2월 15일"
     end
 
     test "with valid date and format", %{date: date} do
