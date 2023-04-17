@@ -1,10 +1,12 @@
 defmodule Carrier.Core.DateHelperTest do
   use ExUnit.Case, async: true
   alias Carrier.Core.DateHelper
+  alias Carrier.Core.Cldr
 
   describe "safe_format_date/2" do
     setup do
-      Carrier.Cldr.put_locale(:ko)
+      Cldr.put_locale(:ko)
+
       date = ~D[2023-02-14]
 
       %{date: date}

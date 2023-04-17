@@ -1,6 +1,5 @@
 defmodule Carrier.Core.DateHelper do
-  alias Carrier.Cldr
-  alias Carrier.Core.OkTuple
+  alias Carrier.Core.{Cldr, OkTuple}
 
   def safe_format_date(maybe_date_or_datetime, opts \\ []) do
     format = opts |> Keyword.get(:format, :long)
