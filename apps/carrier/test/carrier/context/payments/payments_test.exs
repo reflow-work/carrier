@@ -55,6 +55,30 @@ defmodule Carrier.PaymentsTest do
     end
   end
 
+  describe "fetch_default_credit_card/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+
+      %{credit_card: credit_card}
+    end
+
+    test "with credit_card", %{credit_card: credit_card} do
+      assert {:ok, fetched_credit_card} = Payments.fetch_default_credit_card()
+
+      assert same_records?(fetched_credit_card, credit_card)
+    end
+
+    test "with deleted credit_card", %{credit_card: credit_card} do
+      credit_card |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
+
+      assert {:error, {:resource_not_found, %{target: CreditCard}}} =
+               Payments.fetch_default_credit_card()
+    end
+  end
+
   describe "process_payment/1" do
     setup do
       org = TenantFactory.insert(:org)
@@ -93,7 +117,7 @@ defmodule Carrier.PaymentsTest do
       assert payment.currency == :KRW
       assert payment.status == :confirmed
       assert payment.provider == :toss_payments
-      assert payment.provider_key == "9o5gEq4k6YZ1aOwX7K8mO2B6RE5Q1WVyQxzvNPGenpDAlBdb"
+      assert payment.provider_key == "nmaBsy8a"
       assert payment.payload == resp
     end
 

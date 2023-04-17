@@ -95,7 +95,7 @@ defmodule Carrier.External.TossPaymentsTest do
       assert {:ok, %External.Model.PaymentInfo{} = payment_info} = TossPayments.bill(params)
 
       assert payment_info.provider == :toss_payments
-      assert payment_info.provider_key == "9o5gEq4k6YZ1aOwX7K8mO2B6RE5Q1WVyQxzvNPGenpDAlBdb"
+      assert payment_info.provider_key == "nmaBsy8a"
       assert payment_info.confirmed_at == ~U[2023-04-07 07:28:46Z]
       assert payment_info.payload == @success_resp
     end

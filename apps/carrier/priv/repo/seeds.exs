@@ -29,9 +29,7 @@ Repo.transaction(fn ->
   {_, _} =
     Repo.insert_all(User, [
       %{org_id: org0.org_id, email: "nallwhy@gmail.com"},
-      %{org_id: org0.org_id, email: "wonny727@gmail.com"},
-      %{org_id: org1.org_id, email: "bonghyun.d.kim@gmail.com"},
-      %{org_id: org1.org_id, email: "ftsgsd@gmail.com"}
+      %{org_id: org1.org_id, email: "wonny727@gmail.com"}
     ])
 
   {_, [conn_info0, conn_info1, conn_info2, conn_info3]} =
@@ -211,7 +209,7 @@ Repo.transaction(fn ->
   {1, _} =
     Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
 
-  {_, [trial_plan | _]} =
+  {_, [_trial_plan, _basic_monthly_plan, _pro_monthly_plan | _]} =
     Repo.insert_all(
       Plan,
       [
@@ -264,15 +262,15 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {_, _} =
-    Repo.insert_all(Subscription, [
-      %{
-        org_id: org0.org_id,
-        plan_id: trial_plan.id,
-        start_on: now,
-        end_on: now |> Timex.shift(years: 1),
-        status: :active,
-        activated_at: now
-      }
-    ])
+  # {_, _} =
+  #   Repo.insert_all(Subscription, [
+  #     %{
+  #       org_id: org0.org_id,
+  #       plan_id: pro_monthly_plan.id,
+  #       start_on: now,
+  #       end_on: Plan.calc_end_on(pro_monthly_plan, now, 0),
+  #       status: :active,
+  #       activated_at: now
+  #     }
+  #   ])
 end)

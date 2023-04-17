@@ -48,7 +48,7 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
   def handle_event("request_payment", _, socket) do
     socket =
       socket
-      |> TossPaymentsHelper.issue_billing_key()
+      |> TossPaymentsHelper.issue_billing_key(socket.assigns.selected_plan.id)
 
     {:noreply, socket}
   end
