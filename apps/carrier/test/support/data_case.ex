@@ -15,6 +15,7 @@ defmodule Carrier.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Carrier.Core.Nillable
 
   using do
     quote do
@@ -32,7 +33,7 @@ defmodule Carrier.DataCase do
   end
 
   setup tags do
-    repos = tags[:repos] || [tags[:repo]] || [Carrier.TenantRepo]
+    repos = tags[:repos] || tags[:repo] |> Nillable.map(&[&1]) || [Carrier.TenantRepo]
 
     pids =
       repos
