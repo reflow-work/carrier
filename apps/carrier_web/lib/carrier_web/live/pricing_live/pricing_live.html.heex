@@ -72,7 +72,7 @@
                 type="button"
                 phx-click="click_link"
                 phx-value-name={"start_#{plan.billing_cycle}"}
-                phx-value-to="/login"
+                phx-value-to={"/app/subscriptions/new?plan-type=#{plan.type}&plan-billing-cycle=#{plan.billing_cycle}"}
               >
                 무료로 시작하기
               </button>
