@@ -5,14 +5,19 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
   alias CarrierWeb.TossPaymentsHelper
   alias CarrierWeb.Components.Icon
 
+  on_mount(CarrierWeb.SubscriptionRedirectionHook)
+
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
+    plan_billing_cycle = get_plan_billing_cycle(params["plan-billing-cycle"])
+    plan_type = get_plan_type(params["plan-type"])
+
     socket =
       socket
       |> assign(:billing_cycles, [])
       |> assign(:plans_by_billing_cycle, [])
-      |> assign(:selected_billing_cycle, :yearly)
-      |> assign(:selected_type, :basic)
+      |> assign(:selected_billing_cycle, plan_billing_cycle)
+      |> assign(:selected_type, plan_type)
       |> assign(:selected_plan, nil)
       |> TossPaymentsHelper.init()
 
@@ -51,6 +56,22 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
       |> TossPaymentsHelper.issue_billing_key(socket.assigns.selected_plan.id)
 
     {:noreply, socket}
+  end
+
+  defp get_plan_billing_cycle(plan_billing_cycle) do
+    case plan_billing_cycle do
+      nil -> :yearly
+      "" -> :yearly
+      _ -> plan_billing_cycle |> String.to_existing_atom()
+    end
+  end
+
+  defp get_plan_type(plan_type) do
+    case plan_type do
+      nil -> :basic
+      "" -> :basic
+      _ -> plan_type |> String.to_existing_atom()
+    end
   end
 
   defp load_plans_by_billing_cycle(socket) do

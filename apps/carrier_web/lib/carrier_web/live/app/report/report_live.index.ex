@@ -4,6 +4,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Core.TimeHelper
 
   on_mount(CarrierWeb.IntegrationHook)
+  on_mount(CarrierWeb.SubscriptionHook)
 
   @impl true
   def mount(params, session, socket) do

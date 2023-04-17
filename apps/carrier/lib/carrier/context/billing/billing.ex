@@ -56,6 +56,11 @@ defmodule Carrier.Billing do
     end)
   end
 
+  def have_active_subscription?() do
+    Subscription.fetch_active()
+    |> TenantRepo.exists?()
+  end
+
   defp fetch_subscription(subscription_id) do
     Subscription.fetch(subscription_id)
     |> TenantRepo.one()
