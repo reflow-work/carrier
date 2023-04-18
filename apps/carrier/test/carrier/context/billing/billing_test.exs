@@ -383,4 +383,49 @@ defmodule Carrier.BillingTest do
       assert fetched_subscription.payment == nil
     end
   end
+
+  describe "fetch_pending_subscription/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      plan = TenantFactory.insert(:plan)
+
+      %{org: org, plan: plan}
+    end
+
+    test "test", %{org: org, plan: plan} do
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+      payment = TenantFactory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
+
+      subscription =
+        TenantFactory.insert(:subscription,
+          status: :pending,
+          org_id: org.org_id,
+          plan: plan,
+          payment: payment
+        )
+
+      assert {:ok, %Subscription{} = fetched_subscription} = Billing.fetch_pending_subscription()
+
+      assert same_records?(fetched_subscription, subscription)
+      assert same_records?(fetched_subscription.plan, plan)
+      assert same_records?(fetched_subscription.payment, payment)
+      assert same_records?(fetched_subscription.payment.credit_card, credit_card)
+    end
+
+    test "without payment", %{org: org, plan: plan} do
+      TenantFactory.insert(:subscription,
+        status: :pending,
+        org_id: org.org_id,
+        plan: plan,
+        payment: nil
+      )
+
+      assert {:ok, %Subscription{} = fetched_subscription} = Billing.fetch_pending_subscription()
+
+      assert fetched_subscription.payment == nil
+    end
+  end
 end

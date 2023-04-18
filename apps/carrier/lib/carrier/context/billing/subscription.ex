@@ -75,6 +75,11 @@ defmodule Carrier.Billing.Subscription do
     |> where([s], s.status == :active)
   end
 
+  def fetch_pending() do
+    __MODULE__
+    |> where([s], s.status == :pending)
+  end
+
   def activate(%__MODULE__{status: :pending} = struct, params) do
     struct
     |> changeset_for_activate(params |> Map.put(:status, :active))
