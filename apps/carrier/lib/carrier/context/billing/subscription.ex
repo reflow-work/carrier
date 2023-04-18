@@ -97,4 +97,8 @@ defmodule Carrier.Billing.Subscription do
       }) do
     %{origin_subscription_id: origin_subscription_id}
   end
+
+  def preload_payment(query) do
+    query |> preload(payment: [:credit_card])
+  end
 end

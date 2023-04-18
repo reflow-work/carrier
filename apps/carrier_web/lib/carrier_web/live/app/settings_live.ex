@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.SettingsLive do
   use CarrierWeb, :live_view
-  use Carrier.Billing
+  use Carrier.{Billing, Payments}
   alias Carrier.Core.{TimezoneHelper, DateHelper}
 
   @impl true
