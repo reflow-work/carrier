@@ -1,5 +1,5 @@
 defmodule Carrier.Ops do
-  use Carrier.{Accounts, Secrets, Reports}
+  use Carrier.{Accounts, Secrets, Reports, Billing, Payments}
   import Ecto.Query, only: [from: 2]
   alias Carrier.{Repo, TenantRepo}
 
@@ -21,6 +21,9 @@ defmodule Carrier.Ops do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Org{name: ^org_name} = org} <- Accounts.fetch_org() do
         [
+          Subscription,
+          Payment,
+          CreditCard,
           Report,
           ReportInfo,
           DataSource,
@@ -49,6 +52,9 @@ defmodule Carrier.Ops do
     with {:ok, org} <-
            TenantRepo.wrap_transaction(fn ->
              with {:ok, %Org{name: ^org_name} = org} <- Accounts.fetch_org() do
+               TenantRepo.delete_all(Subscription)
+               TenantRepo.delete_all(Payment)
+               TenantRepo.delete_all(CreditCard)
                TenantRepo.delete_all(ReportLog)
                TenantRepo.delete_all(Report)
                TenantRepo.delete_all(ReportInfo)
