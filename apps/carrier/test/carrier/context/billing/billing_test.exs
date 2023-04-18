@@ -347,16 +347,40 @@ defmodule Carrier.BillingTest do
 
       plan = TenantFactory.insert(:plan)
 
-      subscription =
-        TenantFactory.insert(:subscription, status: :active, org_id: org.org_id, plan: plan)
-
-      %{plan: plan, subscription: subscription}
+      %{org: org, plan: plan}
     end
 
-    test "test", %{plan: plan, subscription: subscription} do
+    test "test", %{org: org, plan: plan} do
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+      payment = TenantFactory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
+
+      subscription =
+        TenantFactory.insert(:subscription,
+          status: :active,
+          org_id: org.org_id,
+          plan: plan,
+          payment: payment
+        )
+
       assert {:ok, %Subscription{} = fetched_subscription} = Billing.fetch_active_subscription()
+
       assert same_records?(fetched_subscription, subscription)
       assert same_records?(fetched_subscription.plan, plan)
+      assert same_records?(fetched_subscription.payment, payment)
+      assert same_records?(fetched_subscription.payment.credit_card, credit_card)
+    end
+
+    test "without payment", %{org: org, plan: plan} do
+      TenantFactory.insert(:subscription,
+        status: :active,
+        org_id: org.org_id,
+        plan: plan,
+        payment: nil
+      )
+
+      assert {:ok, %Subscription{} = fetched_subscription} = Billing.fetch_active_subscription()
+
+      assert fetched_subscription.payment == nil
     end
   end
 end

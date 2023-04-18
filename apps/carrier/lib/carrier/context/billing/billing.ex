@@ -58,6 +58,7 @@ defmodule Carrier.Billing do
 
   def fetch_active_subscription() do
     Subscription.fetch_active()
+    |> Subscription.preload_payment()
     |> TenantRepo.one()
     |> case do
       %Subscription{} = subscription ->
