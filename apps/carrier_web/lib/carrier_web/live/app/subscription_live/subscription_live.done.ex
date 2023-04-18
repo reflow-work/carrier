@@ -8,6 +8,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
     socket =
       socket
       |> load_active_subscription()
+      |> load_pending_subscription()
 
     {:ok, socket}
   end
@@ -36,7 +37,12 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
                 </span>
               </div>
               <div>
-                다음 결제 예정일: <%= format_next_payment_date(@active_subscription) %>
+                구독 기간: <%= format_date(@active_subscription.start_on) %> - <%= format_date(
+                  @active_subscription.end_on
+                ) %>
+              </div>
+              <div :if={@pending_subscription}>
+                다음 결제 예정일: <%= format_date(@pending_subscription.start_on) %>
               </div>
               <div :if={@active_subscription.payment}>
                 결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
@@ -59,8 +65,18 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
     end
   end
 
-  defp format_next_payment_date(%Subscription{end_on: end_on} = _active_subscription) do
-    end_on
+  defp load_pending_subscription(socket) do
+    case Billing.fetch_pending_subscription() do
+      {:ok, subscription} ->
+        socket |> assign(:pending_subscription, subscription)
+
+      {:error, _} ->
+        socket
+    end
+  end
+
+  defp format_date(datetime) do
+    datetime
     |> TimezoneHelper.apply_timezone()
     |> DateHelper.safe_format_date()
   end
