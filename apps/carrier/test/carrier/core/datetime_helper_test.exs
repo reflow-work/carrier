@@ -46,4 +46,48 @@ defmodule Carrier.Core.DateTimeHelperTest do
                ~U[2028-02-29 09:00:00Z]
     end
   end
+
+  describe "max/2" do
+    test "with first datetime is greater" do
+      datetime1 = ~U[2023-01-31 09:00:00Z]
+      datetime2 = ~U[2023-01-30 09:00:00Z]
+
+      assert DateTimeHelper.max(datetime1, datetime2) == datetime1
+    end
+
+    test "with second datetime is greater" do
+      datetime1 = ~U[2023-01-30 09:00:00Z]
+      datetime2 = ~U[2023-01-31 09:00:00Z]
+
+      assert DateTimeHelper.max(datetime1, datetime2) == datetime2
+    end
+
+    test "with equal datetimes" do
+      datetime = ~U[2023-01-31 09:00:00Z]
+
+      assert DateTimeHelper.max(datetime, datetime) == datetime
+    end
+  end
+
+  describe "min/2" do
+    test "with first datetime is greater" do
+      datetime1 = ~U[2023-01-31 09:00:00Z]
+      datetime2 = ~U[2023-01-30 09:00:00Z]
+
+      assert DateTimeHelper.min(datetime1, datetime2) == datetime2
+    end
+
+    test "with second datetime is greater" do
+      datetime1 = ~U[2023-01-30 09:00:00Z]
+      datetime2 = ~U[2023-01-31 09:00:00Z]
+
+      assert DateTimeHelper.min(datetime1, datetime2) == datetime1
+    end
+
+    test "with equal datetimes" do
+      datetime = ~U[2023-01-31 09:00:00Z]
+
+      assert DateTimeHelper.min(datetime, datetime) == datetime
+    end
+  end
 end
