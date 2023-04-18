@@ -18,9 +18,11 @@ defmodule Carrier.Billing do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
            :ok <- Plan.check_subscribable(plan),
-           {:ok, maybe_trial_subscription} <-
+           {:ok, _} <-
              create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
-           start_on = recalc_start_on(maybe_trial_subscription, start_on),
+           # TODO: expire active subscription?
+           maybe_active_subscription <- get_active_subscription(),
+           start_on = recalc_start_on(maybe_active_subscription, start_on),
            end_on = Plan.calc_end_on(plan, start_on, 0),
            {:ok, %Subscription{} = subscription} <-
              create_subscription(%{
@@ -105,6 +107,11 @@ defmodule Carrier.Billing do
          {:resource_not_found,
           %{target: Subscription, conditions: %{subscription_id: subscription_id, state: state}}}}
     end
+  end
+
+  defp get_active_subscription() do
+    Subscription.fetch_active()
+    |> TenantRepo.one()
   end
 
   defp had_subscription?() do
