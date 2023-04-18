@@ -15,7 +15,8 @@ defmodule Carrier.Setting do
   @decorate cacheable(
               cache: Cache.Local,
               key:
-                {__MODULE__, :get_feature_flag_value, [feature_flag_key, TenantRepo.get_org_id()]}
+                {__MODULE__, :get_feature_flag_value, [feature_flag_key, TenantRepo.get_org_id()]},
+              opts: [ttl: Cache.ttl(:infinity)]
             )
   def get_feature_flag_value(feature_flag_key) do
     with {:feature_flag, %FeatureFlag{value: false}} <-

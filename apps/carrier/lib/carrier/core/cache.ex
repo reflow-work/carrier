@@ -14,4 +14,11 @@ defmodule Carrier.Core.Cache do
 
   def default_matcher({:ok, _}), do: true
   def default_matcher(_), do: false
+
+  def ttl(ttl) do
+    case Application.get_env(:carrier, __MODULE__)[:force_ttl] do
+      nil -> ttl
+      force_ttl -> force_ttl
+    end
+  end
 end
