@@ -7,6 +7,7 @@ defmodule CarrierWeb.App.SettingsLive do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:active_subscription, nil)
       |> load_active_subscription()
 
     {:ok, socket}
@@ -31,7 +32,7 @@ defmodule CarrierWeb.App.SettingsLive do
         socket |> assign(:active_subscription, subscription)
 
       {:error, _} ->
-        nil
+        socket
     end
   end
 
