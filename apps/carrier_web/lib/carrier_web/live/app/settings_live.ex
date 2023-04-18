@@ -8,7 +8,9 @@ defmodule CarrierWeb.App.SettingsLive do
     socket =
       socket
       |> assign(:active_subscription, nil)
+      |> assign(:pending_subscription, nil)
       |> load_active_subscription()
+      |> load_pending_subscription()
 
     {:ok, socket}
   end
@@ -36,8 +38,18 @@ defmodule CarrierWeb.App.SettingsLive do
     end
   end
 
-  defp format_next_payment_date(%Subscription{end_on: end_on} = _active_subscription) do
-    end_on
+  defp load_pending_subscription(socket) do
+    case Billing.fetch_pending_subscription() do
+      {:ok, subscription} ->
+        socket |> assign(:pending_subscription, subscription)
+
+      {:error, _} ->
+        socket
+    end
+  end
+
+  defp format_date(datetime) do
+    datetime
     |> TimezoneHelper.apply_timezone()
     |> DateHelper.safe_format_date()
   end
