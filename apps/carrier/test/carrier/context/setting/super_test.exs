@@ -58,6 +58,13 @@ defmodule Carrier.Setting.SuperTest do
 
       assert Setting.Super.get_property_value(property.key, %{}) == %{"a" => 1, "b" => 2}
     end
+
+    test "with datetime value" do
+      property = TenantFactory.insert(:property, type: :datetime, value: ~U[2023-04-18 09:00:00Z])
+
+      assert Setting.Super.get_property_value(property.key, ~U[2023-07-26 15:00:00Z]) ==
+               ~U[2023-04-18 09:00:00Z]
+    end
   end
 
   describe "get_feature_flag/1" do

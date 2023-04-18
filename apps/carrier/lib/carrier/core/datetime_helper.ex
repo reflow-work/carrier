@@ -1,4 +1,6 @@
 defmodule Carrier.Core.DateTimeHelper do
+  import Kernel, except: [max: 2, min: 2]
+
   def get_next_with_time(%DateTime{utc_offset: 0} = utc_datetime, %Time{} = utc_time) do
     date = utc_datetime |> DateTime.to_date()
     utc_datetime_with_time = DateTime.new!(date, utc_time, utc_datetime.time_zone)
@@ -22,6 +24,20 @@ defmodule Carrier.Core.DateTimeHelper do
     case month == 2 and day == 29 and cycle == :yearly and not Timex.is_leap?(next) do
       true -> next |> Timex.shift(days: -1)
       false -> next
+    end
+  end
+
+  def max(%DateTime{} = datetime1, %DateTime{} = datetime2) do
+    case DateTime.compare(datetime1, datetime2) do
+      :lt -> datetime2
+      _ -> datetime1
+    end
+  end
+
+  def min(%DateTime{} = datetime1, %DateTime{} = datetime2) do
+    case DateTime.compare(datetime1, datetime2) do
+      :gt -> datetime2
+      _ -> datetime1
     end
   end
 end

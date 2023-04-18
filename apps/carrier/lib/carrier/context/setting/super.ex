@@ -4,16 +4,15 @@ defmodule Carrier.Setting.Super do
   require Logger
   alias Carrier.TenantRepo
 
-  @ttl :timer.seconds(10)
   @decorate cacheable(
               cache: Cache.Local,
               key: {__MODULE__, :get_property_value, [key, default_value]},
-              opts: [ttl: @ttl]
+              opts: [ttl: Cache.ttl(:timer.seconds(10))]
             )
   def get_property_value(key, default_value) do
     case get_property(key) do
-      %Property{value: value} when not is_nil(value) ->
-        value
+      %Property{value: value} = property when not is_nil(value) ->
+        Property.get_value_by_type(property)
 
       _ ->
         Logger.warn("property not found for key: #{key}")
@@ -21,7 +20,11 @@ defmodule Carrier.Setting.Super do
     end
   end
 
-  @decorate cacheable(cache: Cache.Local, key: {__MODULE__, :get_feature_flag, [key]})
+  @decorate cacheable(
+              cache: Cache.Local,
+              key: {__MODULE__, :get_feature_flag, [key]},
+              opts: [ttl: Cache.ttl(:infinity)]
+            )
   def get_feature_flag(key) do
     FeatureFlag.get_by_key(key)
     |> TenantRepo.one(skip_org_id: true)

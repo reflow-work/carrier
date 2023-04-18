@@ -1,10 +1,11 @@
 defmodule Carrier.Billing do
-  use Carrier.{Payments, Accounts}
+  use Carrier.{Payments, Accounts, Setting}
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
   alias Carrier.Works
   alias Carrier.TenantRepo
+  alias Carrier.Core.DateTimeHelper
 
   defmacro __using__([]) do
     quote do
@@ -17,9 +18,11 @@ defmodule Carrier.Billing do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
            :ok <- Plan.check_subscribable(plan),
-           {:ok, maybe_trial_subscription} <-
+           {:ok, _} <-
              create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}),
-           start_on = recalc_start_on(maybe_trial_subscription, start_on),
+           # TODO: expire active subscription?
+           maybe_active_subscription <- get_active_subscription(),
+           start_on = recalc_start_on(maybe_active_subscription, start_on),
            end_on = Plan.calc_end_on(plan, start_on, 0),
            {:ok, %Subscription{} = subscription} <-
              create_subscription(%{
@@ -106,6 +109,11 @@ defmodule Carrier.Billing do
     end
   end
 
+  defp get_active_subscription() do
+    Subscription.fetch_active()
+    |> TenantRepo.one()
+  end
+
   defp had_subscription?() do
     Subscription.list_include_deleted()
     |> TenantRepo.exists?()
@@ -114,7 +122,8 @@ defmodule Carrier.Billing do
   defp create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}) do
     with {:had_subscribable, false} <- {:had_subscribable, had_subscription?()},
          %Plan{type: :trial} = plan <- Super.fetch_trial_plan!(),
-         end_on = Plan.calc_end_on(plan, start_on, 0),
+         end_on =
+           Plan.calc_end_on(plan, DateTimeHelper.max(start_on, get_trial_promotion_end_on()), 0),
          {:ok, %Subscription{} = trial_subscription} <-
            Subscription.create(%{
              org_id: org_id,
@@ -245,4 +254,9 @@ defmodule Carrier.Billing do
 
   defp recalc_start_on(%Subscription{end_on: end_on}, _start_on), do: end_on
   defp recalc_start_on(nil, start_on), do: start_on
+
+  # TODO: remove it after 5/5
+  defp get_trial_promotion_end_on() do
+    Setting.Super.get_property_value("trial_promotion_end_on", ~U[2023-05-04 15:00:00Z])
+  end
 end

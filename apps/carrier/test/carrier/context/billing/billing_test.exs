@@ -1,7 +1,8 @@
 defmodule Carrier.BillingTest do
-  use Carrier.DataCase, async: true
+  use Carrier.DataCase
   use Carrier.{Billing, Payments}
   use Oban.Testing, repo: Carrier.TenantRepo
+  alias Carrier.TenantFactory
   alias Carrier.ExternalHelper
 
   @moduletag repo: TenantRepo
@@ -17,12 +18,13 @@ defmodule Carrier.BillingTest do
       %{org: org, trial_plan: trial_plan}
     end
 
-    test "with valid params (monthly plan, not first time subscription)", %{
-      org: org,
-      trial_plan: trial_plan
-    } do
+    test "with valid params (monthly plan, not first time subscription, expired prev subscription)",
+         %{
+           org: org,
+           trial_plan: trial_plan
+         } do
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
-      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan)
+      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
       now = ~U[2023-04-10 09:00:00Z]
 
       params = %{
@@ -64,7 +66,7 @@ defmodule Carrier.BillingTest do
 
     test "with yearly plan", %{org: org, trial_plan: trial_plan} do
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :yearly)
-      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan)
+      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
       now = ~U[2023-04-10 09:00:00Z]
 
       params = %{
@@ -79,7 +81,64 @@ defmodule Carrier.BillingTest do
       assert same_values?(created_subscription.end_on, ~U[2024-04-10 09:00:00Z])
     end
 
+    test "with active prev subscription", %{org: org, trial_plan: trial_plan} do
+      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+
+      trial_subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: trial_plan,
+          start_on: ~U[2023-03-20 15:00:00Z],
+          end_on: ~U[2023-04-20 15:00:00Z],
+          status: :active
+        )
+
+      now = ~U[2023-04-10 09:00:00Z]
+
+      params = %{
+        org_id: org.org_id,
+        plan_id: plan.id,
+        start_on: now
+      }
+
+      assert {:ok, %Subscription{} = created_subscription} = Billing.start_subscription(params)
+
+      assert created_subscription.org_id == org.org_id
+      assert created_subscription.plan_id == plan.id
+      assert created_subscription.payment_id == nil
+      assert created_subscription.origin_subscription_id == nil
+      assert created_subscription.extension_count == 0
+      assert same_values?(created_subscription.start_on, trial_subscription.end_on)
+      assert same_values?(created_subscription.end_on, ~U[2023-05-20 15:00:00Z])
+      assert created_subscription.status == :pending
+      assert created_subscription.activated_at == nil
+      assert created_subscription.expired_at == nil
+
+      # no trial subscription is created
+      assert Subscription |> TenantRepo.all() |> Enum.count() == 2
+
+      # SubscriptionActivatingJob is enqueued
+
+      TenantRepo.set_skip_org_id()
+
+      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
+               all_enqueued(worker: Carrier.Works.SubscriptionActivatingJob)
+
+      assert job_args == %{
+               "org_id" => created_subscription.org_id,
+               "subscription_id" => created_subscription.id
+             }
+
+      assert same_values?(job_scheduled_at, created_subscription.start_on)
+    end
+
     test "with first time subscription", %{org: org, trial_plan: trial_plan} do
+      TenantFactory.insert(:property,
+        key: "trial_promotion_end_on",
+        type: :datetime,
+        value: ~U[2023-03-01 15:00:00Z]
+      )
+
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
       now = ~U[2023-04-10 09:00:00Z]
 
@@ -94,6 +153,8 @@ defmodule Carrier.BillingTest do
       assert same_values?(created_subscription.start_on, ~U[2023-04-17 09:00:00Z])
       assert same_values?(created_subscription.end_on, ~U[2023-05-17 09:00:00Z])
 
+      # created trial subscription
+
       %Subscription{} =
         created_trial_subscription = Subscription |> TenantRepo.get_by(plan_id: trial_plan.id)
 
@@ -103,6 +164,46 @@ defmodule Carrier.BillingTest do
       assert created_subscription.origin_subscription_id == nil
       assert same_values?(created_trial_subscription.start_on, now)
       assert same_values?(created_trial_subscription.end_on, ~U[2023-04-17 09:00:00Z])
+      assert created_trial_subscription.status == :active
+      assert same_values?(created_trial_subscription.activated_at, now)
+      assert created_trial_subscription.expired_at == nil
+    end
+
+    test "with first time subscription (before trial promotion ends)", %{
+      org: org,
+      trial_plan: trial_plan
+    } do
+      TenantFactory.insert(:property,
+        key: "trial_promotion_end_on",
+        type: :datetime,
+        value: ~U[2023-05-04 15:00:00Z]
+      )
+
+      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+      now = ~U[2023-04-10 09:00:00Z]
+
+      params = %{
+        org_id: org.org_id,
+        plan_id: plan.id,
+        start_on: now
+      }
+
+      assert {:ok, %Subscription{} = created_subscription} = Billing.start_subscription(params)
+
+      assert same_values?(created_subscription.start_on, ~U[2023-05-11 15:00:00Z])
+      assert same_values?(created_subscription.end_on, ~U[2023-06-11 15:00:00Z])
+
+      # created trial subscription
+
+      %Subscription{} =
+        created_trial_subscription = Subscription |> TenantRepo.get_by(plan_id: trial_plan.id)
+
+      assert created_trial_subscription.org_id == org.org_id
+      assert created_trial_subscription.plan_id == trial_plan.id
+      assert created_trial_subscription.payment_id == nil
+      assert created_subscription.origin_subscription_id == nil
+      assert same_values?(created_trial_subscription.start_on, now)
+      assert same_values?(created_trial_subscription.end_on, ~U[2023-05-11 15:00:00Z])
       assert created_trial_subscription.status == :active
       assert same_values?(created_trial_subscription.activated_at, now)
       assert created_trial_subscription.expired_at == nil

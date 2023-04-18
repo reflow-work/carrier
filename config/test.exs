@@ -57,3 +57,5 @@ config :carrier, :toss_payments,
   base_url: "http://localhost:4101.com",
   client_key: "client_key",
   secret_key: "secret_key"
+
+config :carrier, Carrier.Core.Cache, force_ttl: 0

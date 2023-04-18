@@ -6,7 +6,7 @@ defmodule Carrier.Reports.Super do
   @decorate cacheable(
               cache: Cache.Local,
               key: {__MODULE__, :get_report_log_count, []},
-              opts: [ttl: :timer.minutes(1)]
+              opts: [ttl: Cache.ttl(:timer.minutes(1))]
             )
   def get_report_log_count() do
     ReportLog
