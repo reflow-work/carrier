@@ -30,7 +30,9 @@
             <span>(<%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>)</span>
           <% end %>
         </div>
-        <div>다음 결제 예정일: <%= @active_subscription.end_on |> format_datetime(@timezone) %></div>
+        <div>
+          다음 결제 예정일: <%= format_next_payment_date(@active_subscription) %>
+        </div>
       </div>
     </div>
 

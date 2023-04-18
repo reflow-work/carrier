@@ -1,6 +1,7 @@
 defmodule CarrierWeb.App.SettingsLive do
   use CarrierWeb, :live_view
-  alias Carrier.Billing
+  use Carrier.Billing
+  alias Carrier.Core.{TimezoneHelper, DateHelper}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -34,9 +35,9 @@ defmodule CarrierWeb.App.SettingsLive do
     end
   end
 
-  defp format_datetime(datetime, timezone) when not is_nil(datetime) and not is_nil(timezone) do
-    datetime
-    |> DateTime.shift_zone!(timezone)
-    |> Timex.format!("{YYYY}년 {M}월 {D}일")
+  defp format_next_payment_date(%Subscription{end_on: end_on} = _active_subscription) do
+    end_on
+    |> TimezoneHelper.apply_timezone()
+    |> DateHelper.safe_format_date()
   end
 end
