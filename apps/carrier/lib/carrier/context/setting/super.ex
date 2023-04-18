@@ -11,8 +11,8 @@ defmodule Carrier.Setting.Super do
             )
   def get_property_value(key, default_value) do
     case get_property(key) do
-      %Property{value: value} when not is_nil(value) ->
-        value
+      %Property{value: value} = property when not is_nil(value) ->
+        Property.get_value_by_type(property)
 
       _ ->
         Logger.warn("property not found for key: #{key}")
