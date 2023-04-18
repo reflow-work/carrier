@@ -38,7 +38,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
               <div>
                 다음 결제 예정일: <%= format_next_payment_date(@active_subscription) %>
               </div>
-              <div :if={@active_subscription.payment.credit_card}>
+              <div :if={@active_subscription.payment}>
                 결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
               </div>
             </div>
