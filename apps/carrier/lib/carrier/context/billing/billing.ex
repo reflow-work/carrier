@@ -1,10 +1,11 @@
 defmodule Carrier.Billing do
-  use Carrier.{Payments, Accounts}
+  use Carrier.{Payments, Accounts, Setting}
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
   alias Carrier.Works
   alias Carrier.TenantRepo
+  alias Carrier.Core.DateTimeHelper
 
   defmacro __using__([]) do
     quote do
@@ -114,7 +115,8 @@ defmodule Carrier.Billing do
   defp create_trial_subscription_if_first_time(%{org_id: org_id, start_on: start_on}) do
     with {:had_subscribable, false} <- {:had_subscribable, had_subscription?()},
          %Plan{type: :trial} = plan <- Super.fetch_trial_plan!(),
-         end_on = Plan.calc_end_on(plan, start_on, 0),
+         end_on =
+           Plan.calc_end_on(plan, DateTimeHelper.max(start_on, get_trial_promotion_end_on()), 0),
          {:ok, %Subscription{} = trial_subscription} <-
            Subscription.create(%{
              org_id: org_id,
@@ -245,4 +247,9 @@ defmodule Carrier.Billing do
 
   defp recalc_start_on(%Subscription{end_on: end_on}, _start_on), do: end_on
   defp recalc_start_on(nil, start_on), do: start_on
+
+  # TODO: remove it after 5/5
+  defp get_trial_promotion_end_on() do
+    Setting.Super.get_property_value("trial_promotion_end_on", ~U[2023-05-04 15:00:00Z])
+  end
 end
