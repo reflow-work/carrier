@@ -89,7 +89,7 @@ defmodule CarrierWeb.Router do
       live "/reports", ReportLive.Index, :index
       live "/reports/:id/delete", ReportLive.Index, :delete
       live "/reports/new", ReportLive.New, :new
-      live "/reports/new2", ReportLive.New2
+      live "/reports/new2", ReportLive.New2, :new
       live "/reports/:id/edit", ReportLive.New, :edit
       live "/report_logs", ReportLogLive.Index, :index
       live "/settings", SettingsLive, :index
