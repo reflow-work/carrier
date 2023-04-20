@@ -59,6 +59,12 @@ defmodule Carrier.Billing do
     end)
   end
 
+  def expire_subscription(subscription_id) do
+    TenantRepo.wrap_transaction(fn ->
+      nil
+    end)
+  end
+
   def fetch_active_subscription() do
     Subscription.fetch_active()
     |> Subscription.preload_payment()
@@ -225,7 +231,7 @@ defmodule Carrier.Billing do
   defp expire_active_subscription() do
     with {:ok, %Subscription{} = active_subscription} <- fetch_active_subscription(),
          {:ok, %Subscription{} = expired_subscription} <-
-           expire_subscription(active_subscription) do
+           do_expire_subscription(active_subscription) do
       {:ok, expired_subscription}
     else
       {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}} ->
@@ -233,7 +239,7 @@ defmodule Carrier.Billing do
     end
   end
 
-  defp expire_subscription(%Subscription{status: :active} = subscription) do
+  defp do_expire_subscription(%Subscription{status: :active} = subscription) do
     with {:ok, %Subscription{} = expired_subscription} <-
            Subscription.expire(subscription, %{expired_at: DateTime.utc_now()})
            |> TenantRepo.update() do
@@ -241,7 +247,7 @@ defmodule Carrier.Billing do
     end
   end
 
-  defp expire_subscription(%Subscription{status: :expired} = subscription) do
+  defp do_expire_subscription(%Subscription{status: :expired} = subscription) do
     Logger.warn("Subscription #{subscription.id} is already expired")
 
     {:ok, subscription}
