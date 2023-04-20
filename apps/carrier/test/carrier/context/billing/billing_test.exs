@@ -42,26 +42,26 @@ defmodule Carrier.BillingTest do
       assert created_subscription.extension_count == 0
       assert same_values?(created_subscription.start_on, now)
       assert same_values?(created_subscription.end_on, ~U[2023-05-10 09:00:00Z])
-      assert created_subscription.status == :pending
-      assert created_subscription.activated_at == nil
+      assert created_subscription.status == :active
+      assert same_values?(created_subscription.activated_at, now)
       assert created_subscription.expired_at == nil
 
       # no trial subscription is created
       assert Subscription |> TenantRepo.all() |> Enum.count() == 2
 
-      # SubscriptionActivatingJob is enqueued
+      # SubscriptionExpiringJob is enqueued
 
       TenantRepo.set_skip_org_id()
 
       assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
-               all_enqueued(worker: Carrier.Works.SubscriptionActivatingJob)
+               all_enqueued(worker: Carrier.Works.SubscriptionExpiringJob)
 
       assert job_args == %{
                "org_id" => created_subscription.org_id,
                "subscription_id" => created_subscription.id
              }
 
-      assert same_values?(job_scheduled_at, created_subscription.start_on)
+      assert same_values?(job_scheduled_at, created_subscription.end_on)
     end
 
     test "with yearly plan", %{org: org, trial_plan: trial_plan} do
@@ -81,7 +81,7 @@ defmodule Carrier.BillingTest do
       assert same_values?(created_subscription.end_on, ~U[2024-04-10 09:00:00Z])
     end
 
-    test "with active prev subscription", %{org: org, trial_plan: trial_plan} do
+    test "with prev active trial subscription", %{org: org, trial_plan: trial_plan} do
       plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
 
       trial_subscription =
@@ -117,19 +117,11 @@ defmodule Carrier.BillingTest do
       # no trial subscription is created
       assert Subscription |> TenantRepo.all() |> Enum.count() == 2
 
-      # SubscriptionActivatingJob is enqueued
+      # no SubscriptionExpiringJob is enqueued
 
       TenantRepo.set_skip_org_id()
 
-      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
-               all_enqueued(worker: Carrier.Works.SubscriptionActivatingJob)
-
-      assert job_args == %{
-               "org_id" => created_subscription.org_id,
-               "subscription_id" => created_subscription.id
-             }
-
-      assert same_values?(job_scheduled_at, created_subscription.start_on)
+      assert [] = all_enqueued(worker: Carrier.Works.SubscriptionExpiringJob)
     end
 
     test "with first time subscription", %{org: org, trial_plan: trial_plan} do
@@ -167,6 +159,20 @@ defmodule Carrier.BillingTest do
       assert created_trial_subscription.status == :active
       assert same_values?(created_trial_subscription.activated_at, now)
       assert created_trial_subscription.expired_at == nil
+
+      # SubscriptionExpiringJob for trial subscription is enqueued
+
+      TenantRepo.set_skip_org_id()
+
+      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
+               all_enqueued(worker: Carrier.Works.SubscriptionExpiringJob)
+
+      assert job_args == %{
+               "org_id" => created_trial_subscription.org_id,
+               "subscription_id" => created_trial_subscription.id
+             }
+
+      assert same_values?(job_scheduled_at, created_trial_subscription.end_on)
     end
 
     test "with first time subscription (before trial promotion ends)", %{
@@ -207,6 +213,20 @@ defmodule Carrier.BillingTest do
       assert created_trial_subscription.status == :active
       assert same_values?(created_trial_subscription.activated_at, now)
       assert created_trial_subscription.expired_at == nil
+
+      # SubscriptionExpiringJob for trial subscription is enqueued
+
+      TenantRepo.set_skip_org_id()
+
+      assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
+               all_enqueued(worker: Carrier.Works.SubscriptionExpiringJob)
+
+      assert job_args == %{
+               "org_id" => created_trial_subscription.org_id,
+               "subscription_id" => created_trial_subscription.id
+             }
+
+      assert same_values?(job_scheduled_at, created_trial_subscription.end_on)
     end
 
     test "with invalid plan_id", %{org: org} do
