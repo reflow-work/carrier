@@ -223,13 +223,19 @@ defmodule Carrier.Billing do
     end)
   end
 
-  defp do_activate_subscription(%Subscription{status: :pending} = subscription) do
-    with {:ok, %Subscription{} = activated_subscription} <-
-           Subscription.activate(subscription, %{activated_at: DateTime.utc_now()})
-           |> TenantRepo.update(),
-         {:ok, _} <- create_subscription_expiring_job(activated_subscription) do
-      {:ok, activated_subscription}
-    end
+  defp do_activate_subscription(%Subscription{status: :pending} = pending_subscription) do
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, maybe_payment} <- pay_subscription(pending_subscription),
+           {:ok, %Subscription{} = activated_subscription} <-
+             Subscription.activate(pending_subscription, %{
+               payment_id: maybe_payment |> Nillable.map(& &1.id),
+               activated_at: DateTime.utc_now()
+             })
+             |> TenantRepo.update(),
+           {:ok, _} <- create_subscription_expiring_job(activated_subscription) do
+        {:ok, activated_subscription}
+      end
+    end)
   end
 
   # TODO: refund?
@@ -258,12 +264,11 @@ defmodule Carrier.Billing do
     {:ok, subscription}
   end
 
-  # Assumption: plan is always subscribable
   defp pay_subscription(%Subscription{
          org_id: org_id,
          plan_id: plan_id
        }) do
-    with {:ok, %Plan{price: price, currency: currency} = plan} <-
+    with {:ok, %Plan{subscribable: true, price: price, currency: currency} = plan} <-
            Super.fetch_plan(plan_id),
          {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
            Accounts.fetch_billing_user(),
@@ -277,6 +282,9 @@ defmodule Carrier.Billing do
              customer_name: billing_name
            }) do
       {:ok, payment}
+    else
+      {:ok, %Plan{subscribable: false}} -> {:ok, nil}
+      {:error, reason} -> {:error, reason}
     end
   end
 
