@@ -42,28 +42,6 @@ defmodule Carrier.Billing do
     end)
   end
 
-  # TODO: use the same time for expire and activate
-  def activate_subscription(subscription_id) do
-    TenantRepo.wrap_transaction(fn ->
-      with {:ok, %Subscription{status: :pending} = pending_subscription} <-
-             fetch_subscription_with_state(subscription_id, :pending),
-           {:ok, _} <- expire_active_subscription(),
-           {:ok, %Payment{} = payment} <- pay_subscription(pending_subscription),
-           {:ok, %Subscription{} = activated_subscription} <-
-             Subscription.activate(pending_subscription, %{
-               payment_id: payment.id,
-               activated_at: DateTime.utc_now()
-             })
-             |> TenantRepo.update(),
-           {:ok, _maybe_next_subscription} <- create_next_subscription(activated_subscription) do
-        {:ok, activated_subscription}
-      else
-        {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :pending}}}} ->
-          {:error, :subscription_can_not_be_activated}
-      end
-    end)
-  end
-
   def expire_subscription(subscription_id) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, active_subscription} <- fetch_subscription_with_state(subscription_id, :active),
@@ -264,18 +242,6 @@ defmodule Carrier.Billing do
         {:ok, activated_subscription}
       end
     end)
-  end
-
-  # TODO: refund?
-  defp expire_active_subscription() do
-    with {:ok, %Subscription{} = active_subscription} <- fetch_active_subscription(),
-         {:ok, %Subscription{} = expired_subscription} <-
-           do_expire_subscription(active_subscription) do
-      {:ok, expired_subscription}
-    else
-      {:error, {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}} ->
-        {:ok, nil}
-    end
   end
 
   defp do_expire_subscription(%Subscription{status: :active} = subscription) do
