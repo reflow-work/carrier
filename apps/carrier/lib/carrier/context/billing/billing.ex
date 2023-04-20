@@ -5,7 +5,7 @@ defmodule Carrier.Billing do
   alias Carrier.Billing.Super
   alias Carrier.Works
   alias Carrier.TenantRepo
-  alias Carrier.Core.DateTimeHelper
+  alias Carrier.Core.{DateTimeHelper, Nillable}
 
   defmacro __using__([]) do
     quote do
@@ -66,7 +66,26 @@ defmodule Carrier.Billing do
 
   def expire_subscription(subscription_id) do
     TenantRepo.wrap_transaction(fn ->
-      nil
+      with {:ok, active_subscription} <- fetch_subscription_with_state(subscription_id, :active),
+           {:ok, expired_subscription} <-
+             do_expire_subscription(active_subscription),
+           maybe_pending_subscription = get_pending_subscription(),
+           {:ok, _} <-
+             if(maybe_pending_subscription,
+               do: do_activate_subscription(maybe_pending_subscription),
+               else: create_next_active_subscription(expired_subscription)
+             ) do
+        {:ok, expired_subscription}
+      else
+        {
+          :error,
+          {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}
+        } ->
+          {:error, :subscription_can_not_be_expired}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
     end)
   end
 
@@ -133,6 +152,11 @@ defmodule Carrier.Billing do
     end
   end
 
+  defp get_pending_subscription() do
+    Subscription.fetch_pending()
+    |> TenantRepo.one()
+  end
+
   defp get_active_subscription() do
     Subscription.fetch_active()
     |> TenantRepo.one()
@@ -194,19 +218,18 @@ defmodule Carrier.Billing do
     end)
   end
 
-  defp create_next_subscription(
+  defp create_next_active_subscription(
          %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
            subscription
        ) do
     TenantRepo.wrap_transaction(fn ->
-      new_extension_count = extension_count + 1
-
-      with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
+      with {:ok, %Plan{subscribable: true} = plan} <- Super.fetch_plan(plan_id),
            %{
              origin_subscription_id: origin_subscription_id
            } = Subscription.get_info_for_next_subscription(subscription),
            {:ok, %Subscription{} = origin_subscription} <-
              fetch_subscription(origin_subscription_id),
+           new_extension_count = extension_count + 1,
            start_on = Plan.calc_start_on(plan, origin_subscription.start_on, new_extension_count),
            end_on = Plan.calc_end_on(plan, origin_subscription.start_on, new_extension_count),
            {:ok, %Subscription{} = subscription} <-
@@ -217,8 +240,13 @@ defmodule Carrier.Billing do
                extension_count: new_extension_count,
                start_on: start_on,
                end_on: end_on
-             }) do
-        {:ok, subscription}
+             }),
+           {:ok, activated_subscription} <-
+             do_activate_subscription(subscription) do
+        {:ok, activated_subscription}
+      else
+        {:ok, %Plan{subscribable: false}} -> {:ok, nil}
+        {:error, reason} -> {:error, reason}
       end
     end)
   end

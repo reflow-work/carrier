@@ -293,6 +293,147 @@ defmodule Carrier.BillingTest do
     end
   end
 
+  describe "expire_subscription/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      billing_user = TenantFactory.insert(:user, org: org)
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+
+      %{org: org, billing_user: billing_user, credit_card: credit_card}
+    end
+
+    test "with valid params (basic, monthly, no next pending subscription)", %{
+      org: org,
+      billing_user: billing_user,
+      credit_card: credit_card
+    } do
+      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+
+      subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: plan,
+          origin_subscription: nil,
+          extension_count: 0,
+          start_on: ~U[2023-01-31 09:00:00Z],
+          end_on: ~U[2023-02-28 09:00:00Z],
+          status: :active
+        )
+
+      ExternalHelper.TossPayments.prepare_bill(%{
+        billing_key: credit_card.billing_key,
+        amount: plan.price,
+        order_name: Plan.get_full_name(plan),
+        customer_email: billing_user.email,
+        customer_name: org.name
+      })
+
+      assert {:ok, %Subscription{} = expired_subscription} =
+               Billing.expire_subscription(subscription.id)
+
+      assert same_records?(expired_subscription, subscription)
+      assert expired_subscription.status == :expired
+      assert expired_subscription.expired_at != nil
+
+      # created next subscription
+
+      assert %Subscription{} =
+               next_subscription = Subscription |> TenantRepo.get_by(status: :active)
+
+      assert next_subscription.org_id == org.org_id
+      assert next_subscription.plan_id == plan.id
+      assert next_subscription.payment_id != nil
+      assert next_subscription.origin_subscription_id == expired_subscription.id
+      assert next_subscription.extension_count == 1
+      assert same_values?(next_subscription.start_on, expired_subscription.end_on)
+      assert same_values?(next_subscription.end_on, ~U[2023-03-31 09:00:00Z])
+      assert next_subscription.status == :active
+      assert next_subscription.activated_at != nil
+      assert next_subscription.expired_at == nil
+
+      # created payment
+
+      assert %Payment{} = payment = Payment |> TenantRepo.get(next_subscription.payment_id)
+
+      assert payment.org_id == next_subscription.org_id
+      assert payment.credit_card_id == credit_card.id
+      assert same_values?(payment.amount, plan.price)
+      assert payment.status == :confirmed
+    end
+
+    test "with trial subscription and next pending subscription", %{
+      org: org,
+      billing_user: billing_user,
+      credit_card: credit_card
+    } do
+      trial_plan = TenantFactory.insert(:plan, type: :trial)
+      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+
+      trial_subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: trial_plan,
+          start_on: ~U[2023-03-20 15:00:00Z],
+          end_on: ~U[2023-04-20 15:00:00Z],
+          status: :active
+        )
+
+      pending_subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: plan,
+          origin_subscription: nil,
+          extension_count: 0,
+          start_on: ~U[2023-04-20 15:00:00Z],
+          end_on: ~U[2023-05-20 15:00:00Z],
+          status: :pending
+        )
+
+      ExternalHelper.TossPayments.prepare_bill(%{
+        billing_key: credit_card.billing_key,
+        amount: plan.price,
+        order_name: Plan.get_full_name(plan),
+        customer_email: billing_user.email,
+        customer_name: org.name
+      })
+
+      assert {:ok, %Subscription{} = _expired_subscription} =
+               Billing.expire_subscription(trial_subscription.id)
+
+      # activated next subscription
+
+      %Subscription{} =
+        next_subscription = Subscription |> TenantRepo.get(pending_subscription.id)
+
+      assert next_subscription.status == :active
+      assert next_subscription.activated_at != nil
+      assert next_subscription.payment_id != nil
+
+      # created payment
+
+      assert %Payment{} = payment = Payment |> TenantRepo.get(next_subscription.payment_id)
+
+      assert payment.org_id == next_subscription.org_id
+      assert payment.credit_card_id == credit_card.id
+      assert same_values?(payment.amount, plan.price)
+      assert payment.status == :confirmed
+    end
+
+    test "with invalid subscription_id" do
+      assert {:error, :subscription_can_not_be_expired} = Billing.expire_subscription(0)
+    end
+
+    test "with not active subscription", %{org: org} do
+      subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :expired)
+
+      assert {:error, :subscription_can_not_be_expired} =
+               Billing.expire_subscription(subscription.id)
+    end
+  end
+
   describe "activate_subscription/1" do
     setup do
       org = TenantFactory.insert(:org)
