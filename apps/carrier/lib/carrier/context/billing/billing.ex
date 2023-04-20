@@ -148,52 +148,47 @@ defmodule Carrier.Billing do
          end_on =
            Plan.calc_end_on(plan, DateTimeHelper.max(start_on, get_trial_promotion_end_on()), 0),
          {:ok, %Subscription{} = trial_subscription} <-
-           Subscription.create(%{
+           create_subscription(%{
              org_id: org_id,
              plan_id: plan.id,
              extension_count: 0,
              start_on: start_on,
              end_on: end_on
-           })
-           |> TenantRepo.insert(),
+           }),
          {:ok, %Subscription{} = activated_trial_subscription} <-
-           trial_subscription
-           |> Subscription.activate(%{activated_at: start_on})
-           |> TenantRepo.update() do
+           trial_subscription |> do_activate_subscription(%{activated_at: start_on}) do
       {:ok, activated_trial_subscription}
     else
       {:had_subscribable, true} -> {:ok, nil}
     end
   end
 
-  # for only subscribable plans
   defp create_subscription(params) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Subscription{} = subscription} <-
-             Subscription.create(params) |> TenantRepo.insert(),
-           {:ok, _} <- create_subscription_activating_job(subscription) do
+             Subscription.create(params) |> TenantRepo.insert() do
         {:ok, subscription}
       end
     end)
   end
 
-  defp create_subscription_activating_job(%Subscription{
+  defp create_subscription_expiring_job(%Subscription{
          id: subscription_id,
          org_id: org_id,
-         start_on: start_on
+         end_on: end_on
        }) do
-    with {:ok, subscription_activating_job} <-
+    with {:ok, subscription_expiring_job} <-
            %{org_id: org_id, subscription_id: subscription_id}
-           |> Works.SubscriptionActivatingJob.new(
-             scheduled_at: start_on,
+           |> Works.SubscriptionExpiringJob.new(
+             scheduled_at: end_on,
              meta: %{org_id: org_id}
            )
            |> TenantRepo.insert() do
-      {:ok, subscription_activating_job}
+      {:ok, subscription_expiring_job}
     end
     |> tap(fn _ ->
       Logger.debug(
-        "next SubscriptionActivatingJob of subscription_id: #{subscription_id} is scheduled_at #{inspect(start_on)}"
+        "next SubscriptionExpiringJob of subscription_id: #{subscription_id} is scheduled_at #{inspect(end_on)}"
       )
     end)
   end
@@ -225,6 +220,14 @@ defmodule Carrier.Billing do
         {:ok, subscription}
       end
     end)
+  end
+
+  defp do_activate_subscription(%Subscription{status: :pending} = subscription, params) do
+    with {:ok, %Subscription{} = activated_subscription} <-
+           Subscription.activate(subscription, params) |> TenantRepo.update(),
+         {:ok, _} <- create_subscription_expiring_job(activated_subscription) do
+      {:ok, activated_subscription}
+    end
   end
 
   # TODO: refund?
