@@ -311,6 +311,16 @@ defmodule CarrierWeb.CoreComponents do
   end
 
   def input(%{type: "select"} = assigns) do
+    assigns =
+      case assigns.prompt do
+        prompt when is_binary(prompt) ->
+          assigns
+          |> update(:options, &[[key: prompt, value: "", disabled: true] | &1])
+
+        nil ->
+          assigns
+      end
+
     ~H"""
     <div class={@class} phx-feedback-for={@name}>
       <%= if slot_exist?(@label_element) do %>
@@ -321,11 +331,10 @@ defmodule CarrierWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6"
+        class="select mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6"
         multiple={@multiple}
         {@rest}
       >
-        <option :if={@prompt} value=""><%= @prompt %></option>
         <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
