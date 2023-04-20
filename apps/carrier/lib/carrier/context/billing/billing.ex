@@ -35,7 +35,7 @@ defmodule Carrier.Billing do
            {:ok, subscription} <-
              if(maybe_active_subscription,
                do: {:ok, subscription},
-               else: do_activate_subscription(subscription, %{activated_at: start_on})
+               else: do_activate_subscription(subscription)
              ) do
         {:ok, subscription}
       end
@@ -76,9 +76,7 @@ defmodule Carrier.Billing do
     |> TenantRepo.one()
     |> case do
       %Subscription{} = subscription ->
-        subscription_with_plan =
-          subscription
-          |> TenantRepo.preload([:plan], skip_org_id: true)
+        subscription_with_plan = subscription |> Super.postload_plan()
 
         {:ok, subscription_with_plan}
 
@@ -93,9 +91,7 @@ defmodule Carrier.Billing do
     |> TenantRepo.one()
     |> case do
       %Subscription{} = subscription ->
-        subscription_with_plan =
-          subscription
-          |> TenantRepo.preload([:plan], skip_org_id: true)
+        subscription_with_plan = subscription |> Super.postload_plan()
 
         {:ok, subscription_with_plan}
 
@@ -161,7 +157,7 @@ defmodule Carrier.Billing do
              end_on: end_on
            }),
          {:ok, %Subscription{} = activated_trial_subscription} <-
-           trial_subscription |> do_activate_subscription(%{activated_at: start_on}) do
+           trial_subscription |> do_activate_subscription() do
       {:ok, activated_trial_subscription}
     else
       {:had_subscribable, true} -> {:ok, nil}
@@ -227,9 +223,10 @@ defmodule Carrier.Billing do
     end)
   end
 
-  defp do_activate_subscription(%Subscription{status: :pending} = subscription, params) do
+  defp do_activate_subscription(%Subscription{status: :pending} = subscription) do
     with {:ok, %Subscription{} = activated_subscription} <-
-           Subscription.activate(subscription, params) |> TenantRepo.update(),
+           Subscription.activate(subscription, %{activated_at: DateTime.utc_now()})
+           |> TenantRepo.update(),
          {:ok, _} <- create_subscription_expiring_job(activated_subscription) do
       {:ok, activated_subscription}
     end

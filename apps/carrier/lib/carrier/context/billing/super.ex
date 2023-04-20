@@ -24,4 +24,9 @@ defmodule Carrier.Billing.Super do
     Plan.fetch_trial()
     |> TenantRepo.one(skip_org_id: true)
   end
+
+  def postload_plan(%Subscription{} = subscription) do
+    subscription
+    |> TenantRepo.preload(:plan, skip_org_id: true)
+  end
 end
