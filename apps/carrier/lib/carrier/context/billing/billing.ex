@@ -31,7 +31,12 @@ defmodule Carrier.Billing do
                extension_count: 0,
                start_on: start_on,
                end_on: end_on
-             }) do
+             }),
+           {:ok, subscription} <-
+             if(maybe_active_subscription,
+               do: {:ok, subscription},
+               else: do_activate_subscription(subscription, %{activated_at: start_on})
+             ) do
         {:ok, subscription}
       end
     end)
