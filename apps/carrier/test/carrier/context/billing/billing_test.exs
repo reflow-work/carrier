@@ -59,8 +59,8 @@ defmodule Carrier.BillingTest do
       assert created_subscription.activated_at != nil
       assert created_subscription.expired_at == nil
 
-      # no trial subscription is created
-      assert Subscription |> TenantRepo.all() |> Enum.count() == 2
+      # no trial subscription is created & new pending subscription is created
+      assert Subscription |> TenantRepo.all() |> Enum.count() == 3
 
       # created payment
 
@@ -84,6 +84,22 @@ defmodule Carrier.BillingTest do
              }
 
       assert same_values?(job_scheduled_at, created_subscription.end_on)
+
+      # created pending subscription
+
+      assert %Subscription{} =
+               pending_subscription = Subscription |> TenantRepo.get_by(status: :pending)
+
+      assert pending_subscription.org_id == created_subscription.org_id
+      assert pending_subscription.plan_id == created_subscription.plan_id
+      assert pending_subscription.payment_id == nil
+      assert pending_subscription.origin_subscription_id == created_subscription.id
+      assert pending_subscription.extension_count == 1
+      assert same_values?(pending_subscription.start_on, created_subscription.end_on)
+      assert same_values?(pending_subscription.end_on, ~U[2023-06-10 09:00:00Z])
+      assert pending_subscription.status == :pending
+      assert pending_subscription.activated_at == nil
+      assert pending_subscription.expired_at == nil
     end
 
     test "with yearly plan", %{
@@ -149,7 +165,7 @@ defmodule Carrier.BillingTest do
       assert created_subscription.activated_at == nil
       assert created_subscription.expired_at == nil
 
-      # no trial subscription is created
+      # no trial subscription is created & no pending subscription is created
       assert Subscription |> TenantRepo.all() |> Enum.count() == 2
 
       # no SubscriptionExpiringJob is enqueued
@@ -179,6 +195,9 @@ defmodule Carrier.BillingTest do
 
       assert same_values?(created_subscription.start_on, ~U[2023-04-17 09:00:00Z])
       assert same_values?(created_subscription.end_on, ~U[2023-05-17 09:00:00Z])
+
+      # trial subscription is created & no pending subscription is created
+      assert Subscription |> TenantRepo.all() |> Enum.count() == 2
 
       # created trial subscription
 
@@ -234,6 +253,9 @@ defmodule Carrier.BillingTest do
 
       assert same_values?(created_subscription.start_on, ~U[2023-05-11 15:00:00Z])
       assert same_values?(created_subscription.end_on, ~U[2023-06-11 15:00:00Z])
+
+      # trial subscription is created & no pending subscription is created
+      assert Subscription |> TenantRepo.all() |> Enum.count() == 2
 
       # created trial subscription
 
@@ -305,7 +327,7 @@ defmodule Carrier.BillingTest do
       %{org: org, billing_user: billing_user, credit_card: credit_card}
     end
 
-    test "with valid params (basic, monthly, no next pending subscription)", %{
+    test "with valid params (basic, monthly)", %{
       org: org,
       billing_user: billing_user,
       credit_card: credit_card
@@ -323,6 +345,17 @@ defmodule Carrier.BillingTest do
           status: :active
         )
 
+      pending_subscription =
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: plan,
+          origin_subscription: subscription,
+          extension_count: 1,
+          start_on: ~U[2023-02-28 09:00:00Z],
+          end_on: ~U[2023-03-31 09:00:00Z],
+          status: :pending
+        )
+
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
@@ -338,30 +371,42 @@ defmodule Carrier.BillingTest do
       assert expired_subscription.status == :expired
       assert expired_subscription.expired_at != nil
 
-      # created next subscription
+      # activate pending subscription
 
       assert %Subscription{} =
-               next_subscription = Subscription |> TenantRepo.get_by(status: :active)
+               activated_subscription = Subscription |> TenantRepo.get(pending_subscription.id)
 
-      assert next_subscription.org_id == org.org_id
-      assert next_subscription.plan_id == plan.id
-      assert next_subscription.payment_id != nil
-      assert next_subscription.origin_subscription_id == expired_subscription.id
-      assert next_subscription.extension_count == 1
-      assert same_values?(next_subscription.start_on, expired_subscription.end_on)
-      assert same_values?(next_subscription.end_on, ~U[2023-03-31 09:00:00Z])
-      assert next_subscription.status == :active
-      assert next_subscription.activated_at != nil
-      assert next_subscription.expired_at == nil
+      assert activated_subscription.payment_id != nil
+      assert activated_subscription.status == :active
+      assert activated_subscription.activated_at != nil
 
       # created payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(next_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> TenantRepo.get(activated_subscription.payment_id)
 
-      assert payment.org_id == next_subscription.org_id
+      assert payment.org_id == activated_subscription.org_id
       assert payment.credit_card_id == credit_card.id
       assert same_values?(payment.amount, plan.price)
       assert payment.status == :confirmed
+
+      # created pending subscription
+
+      assert %Subscription{} =
+               pending_subscription = Subscription |> TenantRepo.get_by(status: :pending)
+
+      assert pending_subscription.org_id == activated_subscription.org_id
+      assert pending_subscription.plan_id == activated_subscription.plan_id
+      assert pending_subscription.payment_id == nil
+
+      assert pending_subscription.origin_subscription_id ==
+               activated_subscription.origin_subscription_id
+
+      assert pending_subscription.extension_count == 2
+      assert same_values?(pending_subscription.start_on, activated_subscription.end_on)
+      assert same_values?(pending_subscription.end_on, ~U[2023-04-30 09:00:00Z])
+      assert pending_subscription.status == :pending
+      assert pending_subscription.activated_at == nil
+      assert pending_subscription.expired_at == nil
     end
 
     test "with trial subscription and next pending subscription", %{
@@ -377,7 +422,7 @@ defmodule Carrier.BillingTest do
           org_id: org.org_id,
           plan: trial_plan,
           start_on: ~U[2023-03-20 15:00:00Z],
-          end_on: ~U[2023-04-20 15:00:00Z],
+          end_on: ~U[2023-03-25 15:00:00Z],
           status: :active
         )
 
@@ -387,8 +432,8 @@ defmodule Carrier.BillingTest do
           plan: plan,
           origin_subscription: nil,
           extension_count: 0,
-          start_on: ~U[2023-04-20 15:00:00Z],
-          end_on: ~U[2023-05-20 15:00:00Z],
+          start_on: ~U[2023-03-25 15:00:00Z],
+          end_on: ~U[2023-04-25 15:00:00Z],
           status: :pending
         )
 
@@ -403,23 +448,39 @@ defmodule Carrier.BillingTest do
       assert {:ok, %Subscription{} = _expired_subscription} =
                Billing.expire_subscription(trial_subscription.id)
 
-      # activated next subscription
+      # activated pending subscription
 
       %Subscription{} =
-        next_subscription = Subscription |> TenantRepo.get(pending_subscription.id)
+        activated_subscription = Subscription |> TenantRepo.get(pending_subscription.id)
 
-      assert next_subscription.status == :active
-      assert next_subscription.activated_at != nil
-      assert next_subscription.payment_id != nil
+      assert activated_subscription.status == :active
+      assert activated_subscription.activated_at != nil
+      assert activated_subscription.payment_id != nil
 
       # created payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(next_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> TenantRepo.get(activated_subscription.payment_id)
 
-      assert payment.org_id == next_subscription.org_id
+      assert payment.org_id == activated_subscription.org_id
       assert payment.credit_card_id == credit_card.id
       assert same_values?(payment.amount, plan.price)
       assert payment.status == :confirmed
+
+      # created pending subscription
+
+      assert %Subscription{} =
+               pending_subscription = Subscription |> TenantRepo.get_by(status: :pending)
+
+      assert pending_subscription.org_id == activated_subscription.org_id
+      assert pending_subscription.plan_id == activated_subscription.plan_id
+      assert pending_subscription.payment_id == nil
+      assert pending_subscription.origin_subscription_id == activated_subscription.id
+      assert pending_subscription.extension_count == 1
+      assert same_values?(pending_subscription.start_on, activated_subscription.end_on)
+      assert same_values?(pending_subscription.end_on, ~U[2023-05-25 15:00:00Z])
+      assert pending_subscription.status == :pending
+      assert pending_subscription.activated_at == nil
+      assert pending_subscription.expired_at == nil
     end
 
     test "with invalid subscription_id" do

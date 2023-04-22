@@ -51,7 +51,7 @@ defmodule Carrier.Billing do
            {:ok, _} <-
              if(maybe_pending_subscription,
                do: activate_subscription(maybe_pending_subscription),
-               else: create_next_active_subscription(expired_subscription)
+               else: {:ok, nil}
              ) do
         {:ok, expired_subscription}
       else
@@ -196,7 +196,7 @@ defmodule Carrier.Billing do
     end)
   end
 
-  defp create_next_active_subscription(
+  defp create_next_subscription(
          %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
            subscription
        ) do
@@ -210,7 +210,7 @@ defmodule Carrier.Billing do
            new_extension_count = extension_count + 1,
            start_on = Plan.calc_start_on(plan, origin_subscription.start_on, new_extension_count),
            end_on = Plan.calc_end_on(plan, origin_subscription.start_on, new_extension_count),
-           {:ok, %Subscription{} = subscription} <-
+           {:ok, %Subscription{} = pending_subscription} <-
              create_subscription(%{
                org_id: org_id,
                plan_id: plan_id,
@@ -218,10 +218,8 @@ defmodule Carrier.Billing do
                extension_count: new_extension_count,
                start_on: start_on,
                end_on: end_on
-             }),
-           {:ok, activated_subscription} <-
-             activate_subscription(subscription) do
-        {:ok, activated_subscription}
+             }) do
+        {:ok, pending_subscription}
       else
         {:ok, %Plan{subscribable: false}} -> {:ok, nil}
         {:error, reason} -> {:error, reason}
@@ -238,7 +236,8 @@ defmodule Carrier.Billing do
                activated_at: DateTime.utc_now()
              })
              |> TenantRepo.update(),
-           {:ok, _} <- create_subscription_expiring_job(activated_subscription) do
+           {:ok, _} <- create_subscription_expiring_job(activated_subscription),
+           {:ok, _} <- create_next_subscription(activated_subscription) do
         {:ok, activated_subscription}
       end
     end)
