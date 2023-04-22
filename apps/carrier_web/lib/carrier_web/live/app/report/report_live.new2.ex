@@ -1,12 +1,10 @@
 defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
   use Carrier.Secrets
-  alias Carrier.Core.Nillable
+  alias __MODULE__.Components
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
-
-  embed_templates "new2/*"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -36,7 +34,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           <span class="page-title-icon">📊</span> <%= @title %>
         </h1>
       </header>
-      <.data_source_selector
+      <Components.data_source_selector
         data_sources={@data_sources}
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
@@ -57,16 +55,5 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       )
 
     {:noreply, socket}
-  end
-
-  attr :data_sources, :list, required: true
-  attr :selected_data_source, :any, required: true
-  attr :onselect, :any, required: true
-
-  def data_source_selector(assigns)
-
-  defp data_source_options(data_sources) do
-    data_sources
-    |> Enum.map(fn %DataSource{id: id, name: name} -> {name, id} end)
   end
 end
