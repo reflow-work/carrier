@@ -106,4 +106,12 @@ defmodule Carrier.Billing.Subscription do
   def preload_payment(query) do
     query |> preload(payment: [:credit_card])
   end
+
+  def calc_unique_key(%__MODULE__{id: subscription, org_id: org_id, start_on: start_on}) do
+    Carrier.Core.Crypto.obfuscate([
+      subscription,
+      org_id,
+      start_on |> DateTime.to_unix(:millisecond)
+    ])
+  end
 end
