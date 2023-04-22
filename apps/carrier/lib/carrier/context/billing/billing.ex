@@ -35,7 +35,7 @@ defmodule Carrier.Billing do
            {:ok, subscription} <-
              if(maybe_active_subscription,
                do: {:ok, subscription},
-               else: do_activate_subscription(subscription)
+               else: activate_subscription(subscription)
              ) do
         {:ok, subscription}
       end
@@ -50,7 +50,7 @@ defmodule Carrier.Billing do
            maybe_pending_subscription = get_pending_subscription(),
            {:ok, _} <-
              if(maybe_pending_subscription,
-               do: do_activate_subscription(maybe_pending_subscription),
+               do: activate_subscription(maybe_pending_subscription),
                else: create_next_active_subscription(expired_subscription)
              ) do
         {:ok, expired_subscription}
@@ -159,7 +159,7 @@ defmodule Carrier.Billing do
              end_on: end_on
            }),
          {:ok, %Subscription{} = activated_trial_subscription} <-
-           trial_subscription |> do_activate_subscription() do
+           trial_subscription |> activate_subscription() do
       {:ok, activated_trial_subscription}
     else
       {:had_subscribable, true} -> {:ok, nil}
@@ -220,7 +220,7 @@ defmodule Carrier.Billing do
                end_on: end_on
              }),
            {:ok, activated_subscription} <-
-             do_activate_subscription(subscription) do
+             activate_subscription(subscription) do
         {:ok, activated_subscription}
       else
         {:ok, %Plan{subscribable: false}} -> {:ok, nil}
@@ -229,7 +229,7 @@ defmodule Carrier.Billing do
     end)
   end
 
-  defp do_activate_subscription(%Subscription{status: :pending} = pending_subscription) do
+  defp activate_subscription(%Subscription{status: :pending} = pending_subscription) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, maybe_payment} <- pay_subscription(pending_subscription),
            {:ok, %Subscription{} = activated_subscription} <-
