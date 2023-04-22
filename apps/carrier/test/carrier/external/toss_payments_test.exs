@@ -65,7 +65,7 @@ defmodule Carrier.External.TossPaymentsTest do
         billing_key: "u7tiHB8fpmCTclS3d2J8xTsQtYnrF93C9S4s0g7ThIc=",
         amount: Decimal.new(100_000),
         customer_key: "678wBmAE",
-        order_id: "nmaBsy8a",
+        order_id: "2MsAs0Bk0wKML",
         order_name: "Pro 연간 플랜 구독",
         customer_email: "json@refow.work",
         customer_name: "json"
@@ -84,7 +84,7 @@ defmodule Carrier.External.TossPaymentsTest do
           assert body == %{
                    "amount" => 100_000,
                    "customerKey" => "678wBmAE",
-                   "orderId" => "nmaBsy8a",
+                   "orderId" => "2MsAs0Bk0wKML",
                    "orderName" => "Pro 연간 플랜 구독",
                    "customerEmail" => "json@refow.work",
                    "customerName" => "json"
@@ -95,7 +95,7 @@ defmodule Carrier.External.TossPaymentsTest do
       assert {:ok, %External.Model.PaymentInfo{} = payment_info} = TossPayments.bill(params)
 
       assert payment_info.provider == :toss_payments
-      assert payment_info.provider_key == "nmaBsy8a"
+      assert payment_info.provider_key == "2MsAs0Bk0wKML"
       assert payment_info.confirmed_at == ~U[2023-04-07 07:28:46Z]
       assert payment_info.payload == @success_resp
     end
