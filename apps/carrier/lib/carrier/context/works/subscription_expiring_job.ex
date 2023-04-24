@@ -1,6 +1,6 @@
-defmodule Carrier.Works.SubscriptionActivatingJob do
+defmodule Carrier.Works.SubscriptionExpiringJob do
   use Oban.Worker,
-    queue: :subscription_activating,
+    queue: :subscription_expiring,
     priority: 0,
     max_attempts: 2
 
@@ -14,12 +14,12 @@ defmodule Carrier.Works.SubscriptionActivatingJob do
       }) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %Subscription{}} <- Billing.activate_subscription(subscription_id) do
+    with {:ok, %Subscription{}} <- Billing.expire_subscription(subscription_id) do
       :ok
     else
       {:error, reason} ->
         Logger.error(
-          "Failed to activate subscription: subscription_id: #{subscription_id}, #{inspect(reason)}"
+          "Failed to expire subscription: subscription_id: #{subscription_id}, #{inspect(reason)}"
         )
 
         {:error, reason}

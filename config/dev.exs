@@ -89,6 +89,6 @@ config :carrier, :toss_payments,
   client_key: "test_ck_OALnQvDd2VJ5ZOooo0Y3Mj7X41mN",
   secret_key: "test_sk_0Poxy1XQL8R0kqZQMKZV7nO5Wmlg"
 
-config :carrier_worker, Oban, queues: [report: 1, subscription_activating: 1]
+config :carrier_worker, Oban, queues: [report: 1, subscription_expiring: 1]
 
 import_config "#{config_env()}.secret.exs"
