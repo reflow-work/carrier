@@ -257,10 +257,12 @@ defmodule Carrier.Billing do
     {:ok, subscription}
   end
 
-  defp pay_subscription(%Subscription{
-         org_id: org_id,
-         plan_id: plan_id
-       }) do
+  defp pay_subscription(
+         %Subscription{
+           org_id: org_id,
+           plan_id: plan_id
+         } = subscription
+       ) do
     with {:ok, %Plan{subscribable: true, price: price, currency: currency} = plan} <-
            Super.fetch_plan(plan_id),
          {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
@@ -270,6 +272,7 @@ defmodule Carrier.Billing do
              org_id: org_id,
              amount: price,
              currency: currency,
+             order_id: Subscription.calc_unique_key(subscription),
              order_name: Plan.get_full_name(plan),
              customer_email: billing_email,
              customer_name: billing_name

@@ -25,4 +25,17 @@ defmodule Carrier.Billing.SubscriptionTest do
                %{origin_subscription_id: origin_subscription.id}
     end
   end
+
+  test "calc_unique_key/1" do
+    subscription0 = TenantFactory.insert(:subscription)
+    subscription1 = TenantFactory.insert(:subscription)
+
+    unique_key0 = Subscription.calc_unique_key(subscription0)
+    unique_key1 = Subscription.calc_unique_key(subscription0)
+    unique_key2 = Subscription.calc_unique_key(subscription1)
+
+    assert unique_key0 == unique_key1
+    assert unique_key0 != unique_key2
+    assert unique_key0 |> String.length() >= 8
+  end
 end

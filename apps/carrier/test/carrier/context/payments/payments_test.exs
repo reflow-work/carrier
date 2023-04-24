@@ -88,6 +88,7 @@ defmodule Carrier.PaymentsTest do
         org_id: org.org_id,
         amount: Decimal.new(100_000),
         currency: :KRW,
+        order_id: "2MsAs0Bk0wKML",
         order_name: "Pro 연간 플랜 구독",
         customer_email: "json@reflow.work",
         customer_name: "json"
@@ -104,6 +105,7 @@ defmodule Carrier.PaymentsTest do
         ExternalHelper.TossPayments.prepare_bill(%{
           billing_key: credit_card.billing_key,
           amount: params.amount,
+          order_id: "2MsAs0Bk0wKML",
           order_name: params.order_name,
           customer_email: params.customer_email,
           customer_name: params.customer_name
@@ -117,7 +119,7 @@ defmodule Carrier.PaymentsTest do
       assert payment.currency == :KRW
       assert payment.status == :confirmed
       assert payment.provider == :toss_payments
-      assert payment.provider_key == "nmaBsy8a"
+      assert payment.provider_key == "2MsAs0Bk0wKML"
       assert payment.payload == resp
     end
 
@@ -134,6 +136,7 @@ defmodule Carrier.PaymentsTest do
         %{
           billing_key: credit_card.billing_key,
           amount: params.amount,
+          order_id: params.order_id,
           order_name: params.order_name,
           customer_email: params.customer_email,
           customer_name: params.customer_name

@@ -48,6 +48,7 @@ defmodule Carrier.Payments do
         org_id: org_id,
         amount: amount,
         currency: currency,
+        order_id: order_id,
         order_name: order_name,
         customer_email: customer_email,
         customer_name: customer_name
@@ -62,6 +63,7 @@ defmodule Carrier.Payments do
            }),
          {:ok, %Payment{} = confirmed_payment} <-
            request_and_confirm_payment(payment, credit_card, %{
+             order_id: order_id,
              order_name: order_name,
              customer_email: customer_email,
              customer_name: customer_name
@@ -106,11 +108,13 @@ defmodule Carrier.Payments do
   end
 
   defp request_and_confirm_payment(%Payment{} = payment, %CreditCard{} = credit_card, %{
+         order_id: order_id,
          order_name: order_name,
          customer_email: customer_email,
          customer_name: customer_name
        }) do
     request_payment(payment, credit_card, %{
+      order_id: order_id,
       order_name: order_name,
       customer_email: customer_email,
       customer_name: customer_name
@@ -137,20 +141,25 @@ defmodule Carrier.Payments do
   end
 
   defp request_payment(
-         %Payment{amount: amount, currency: :KRW} = payment,
+         %Payment{amount: amount, currency: :KRW},
          %CreditCard{
            provider: :toss_payments,
            billing_key: billing_key,
            customer_key: customer_key
          },
-         %{order_name: order_name, customer_email: customer_email, customer_name: customer_name}
+         %{
+           order_id: order_id,
+           order_name: order_name,
+           customer_email: customer_email,
+           customer_name: customer_name
+         }
        ) do
     with {:ok, %External.Model.PaymentInfo{} = payment_info} <-
            External.TossPayments.bill(%{
              billing_key: billing_key,
              amount: amount,
              customer_key: customer_key,
-             order_id: Payment.calc_unique_key(payment),
+             order_id: order_id,
              order_name: order_name,
              customer_email: customer_email,
              customer_name: customer_name
