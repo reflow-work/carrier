@@ -42,7 +42,7 @@ defmodule Carrier.External.Tableau do
     end
   end
 
-  def signin(host, name, password, site) do
+  def signin(%{host: host, name: name, password: password, site: site}) do
     Tesla.post(client(host), "/auth/signin", %{
       "credentials" => %{
         "name" => name,
@@ -62,7 +62,7 @@ defmodule Carrier.External.Tableau do
     end
   end
 
-  def query_views_for_site(host, site_id, page, token) do
+  def query_views_for_site(%{host: host, site_id: site_id, page: page, token: token}) do
     Tesla.get(client(host, token), "/sites/#{site_id}/views",
       query: [
         {"pageNumber", page},
@@ -81,7 +81,7 @@ defmodule Carrier.External.Tableau do
     end
   end
 
-  def query_view_image(host, site_id, view_id, token) do
+  def query_view_image(%{host: host, site_id: site_id, view_id: view_id, token: token}) do
     Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/image")
     |> handle_response()
   end
