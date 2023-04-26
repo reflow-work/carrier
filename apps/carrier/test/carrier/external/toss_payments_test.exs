@@ -96,6 +96,7 @@ defmodule Carrier.External.TossPaymentsTest do
 
       assert payment_info.provider == :toss_payments
       assert payment_info.provider_key == "2MsAs0Bk0wKML"
+      assert payment_info.item == "Pro 연간 플랜 구독"
       assert payment_info.confirmed_at == ~U[2023-04-07 07:28:46Z]
       assert payment_info.payload == @success_resp
     end
