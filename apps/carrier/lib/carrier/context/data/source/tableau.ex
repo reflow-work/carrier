@@ -1,6 +1,10 @@
 defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.Tableau, as: TableauAPI
 
+  def signin(%{host: host, id: id, password: password, site: site}) do
+    TableauAPI.signin(%{host: host, name: id, password: password, site: site})
+  end
+
   def list_views(%{host: host} = conn_info) do
     with {:ok, %{token: token, site_id: site_id}} <- signin(conn_info),
          {:ok, views} <- do_list_views(%{host: host, site_id: site_id, token: token}) do
@@ -19,10 +23,6 @@ defmodule Carrier.Data.Source.Tableau do
            }) do
       {:ok, view_image_binary}
     end
-  end
-
-  defp signin(%{host: host, id: id, password: password, site: site}) do
-    TableauAPI.signin(%{host: host, name: id, password: password, site: site})
   end
 
   defp do_list_views(%{host: host, site_id: site_id, token: token}) do
