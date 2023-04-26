@@ -14,11 +14,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   def render(assigns) do
     ~H"""
     <section class="page-container" id="reports-index-container" phx-hook="Smartlook">
-      <header class="page-header">
-        <h1 class="page-title">
-          <span class="page-title-icon">💾</span> 레포트 발송 기록
-        </h1>
-      </header>
+      <.page_header icon="💾" title="레포트 발송 기록" />
 
       <section class="mt-6">
         <div class="overflow-x-auto">

@@ -29,11 +29,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def render(assigns) do
     ~H"""
     <section class="page-container">
-      <header class="page-header">
-        <h1 class="page-title">
-          <span class="page-title-icon">📊</span> <%= @title %>
-        </h1>
-      </header>
+      <.page_header icon="📊" title={@title} />
       <Components.data_source_selector
         data_sources={@data_sources}
         selected_data_source={@selected_data_source}

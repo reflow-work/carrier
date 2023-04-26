@@ -17,11 +17,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
   def render(assigns) do
     ~H"""
     <section class="page-container">
-      <header class="page-header">
-        <h1 class="page-title">
-          <span class="page-title-icon">💳</span> 구독 완료
-        </h1>
-      </header>
+      <.page_header icon="💳" title="구독 완료" />
 
       <div class="mt-6 grid grid-cols-12 gap-4">
         <div class="col-span-8 card">
