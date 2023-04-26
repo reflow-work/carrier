@@ -19,4 +19,38 @@ defmodule CarrierWeb.MainComponents do
     </header>
     """
   end
+
+  attr :class, :string, default: "space-y-8"
+
+  slot :inner_block, required: true
+
+  def card_container(assigns) do
+    ~H"""
+    <div class={["mt-6", @class]}>
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  attr :class, :string, default: nil
+
+  slot :inner_block, required: true
+
+  def card(assigns) do
+    ~H"""
+    <div class={["card", @class]}>
+      <div class="card-body">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  attr :title, :string, required: true
+
+  def card_title(assigns) do
+    ~H"""
+    <h2 class="card-title mb-2"><%= @title %></h2>
+    """
+  end
 end
