@@ -19,34 +19,30 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
     <section class="page-container">
       <.page_header icon="💳" title="구독 완료" />
 
-      <div class="mt-6 grid grid-cols-12 gap-4">
-        <div class="col-span-8 card">
-          <div class="card-body">
-            <h2 class="card-title">
-              구독되었습니다.
-            </h2>
-            <div class="mt-8 space-y-1">
-              <div>
-                <span class="text-lg font-bold"><%= @active_subscription.plan.name %></span>
-                <span :if={@active_subscription.plan.billing_cycle != :none}>
-                  (<%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>)
-                </span>
-              </div>
-              <div>
-                구독 기간: <%= format_date(@active_subscription.start_on) %> - <%= format_date(
-                  @active_subscription.end_on
-                ) %>
-              </div>
-              <div :if={@pending_subscription}>
-                다음 결제 예정일: <%= format_date(@pending_subscription.start_on) %>
-              </div>
-              <div :if={@active_subscription.payment}>
-                결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
-              </div>
+      <.card_container>
+        <.card>
+          <.card_title title="구독 정보" />
+          <div class="space-y-1">
+            <div>
+              <span class="text-lg font-bold"><%= @active_subscription.plan.name %></span>
+              <span :if={@active_subscription.plan.billing_cycle != :none}>
+                (<%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>)
+              </span>
+            </div>
+            <div>
+              구독 기간: <%= format_date(@active_subscription.start_on) %> - <%= format_date(
+                @active_subscription.end_on
+              ) %>
+            </div>
+            <div :if={@pending_subscription}>
+              다음 결제 예정일: <%= format_date(@pending_subscription.start_on) %>
+            </div>
+            <div :if={@active_subscription.payment}>
+              결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
             </div>
           </div>
-        </div>
-      </div>
+        </.card>
+      </.card_container>
     </section>
     """
   end
