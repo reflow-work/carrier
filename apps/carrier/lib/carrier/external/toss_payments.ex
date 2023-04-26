@@ -63,6 +63,7 @@ defmodule Carrier.External.TossPayments do
          %PaymentInfo{
            provider: :toss_payments,
            provider_key: order_id,
+           item: order_name,
            confirmed_at: approved_at,
            payload: body
          }}

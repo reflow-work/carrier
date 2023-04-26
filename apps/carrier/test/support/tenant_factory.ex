@@ -306,6 +306,7 @@ defmodule Carrier.TenantFactory do
       confirmed_at: DateTime.utc_now(),
       provider: payment.credit_card.provider,
       provider_key: seq(:payment_provider_key),
+      item: seq(:payment_item),
       payload: %{}
     })
   end

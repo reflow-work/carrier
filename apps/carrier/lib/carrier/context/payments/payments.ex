@@ -172,6 +172,7 @@ defmodule Carrier.Payments do
          confirmed_at: confirmed_at,
          provider: provider,
          provider_key: provider_key,
+         item: item,
          payload: payload
        }) do
     payment
@@ -179,6 +180,7 @@ defmodule Carrier.Payments do
       confirmed_at: confirmed_at,
       provider: provider,
       provider_key: provider_key,
+      item: item,
       payload: payload
     })
     |> TenantRepo.update()
