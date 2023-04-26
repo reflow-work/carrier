@@ -1,6 +1,7 @@
 defmodule CarrierWeb.LiveHelpers do
   import Phoenix.Component
   alias Phoenix.LiveView.JS
+  alias Carrier.Core.{TimezoneHelper, DateHelper}
 
   @doc """
   Renders a live component inside a modal.
@@ -59,6 +60,12 @@ defmodule CarrierWeb.LiveHelpers do
       {:ok, n} -> n
       {:error, _msg} -> "0"
     end
+  end
+
+  def format_date(datetime) do
+    datetime
+    |> TimezoneHelper.apply_timezone()
+    |> DateHelper.safe_format_date()
   end
 
   def current_datetime!(timezone) do

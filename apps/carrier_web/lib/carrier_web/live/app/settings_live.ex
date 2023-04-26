@@ -47,10 +47,4 @@ defmodule CarrierWeb.App.SettingsLive do
         socket
     end
   end
-
-  defp format_date(datetime) do
-    datetime
-    |> TimezoneHelper.apply_timezone()
-    |> DateHelper.safe_format_date()
-  end
 end
