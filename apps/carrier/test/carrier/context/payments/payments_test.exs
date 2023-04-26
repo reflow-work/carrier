@@ -155,4 +155,56 @@ defmodule Carrier.PaymentsTest do
              }
     end
   end
+
+  describe "list_confirmed_payments/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+
+      now = DateTime.utc_now()
+
+      _pending_payment =
+        TenantFactory.insert(:payment,
+          org_id: org.org_id,
+          credit_card: credit_card,
+          status: :pending
+        )
+
+      confirmed_payment0 =
+        TenantFactory.insert(:payment,
+          org_id: org.org_id,
+          credit_card: credit_card,
+          status: :confirmed,
+          confirmed_at: now |> Timex.shift(days: -2)
+        )
+
+      confirmed_payment1 =
+        TenantFactory.insert(:payment,
+          org_id: org.org_id,
+          credit_card: credit_card,
+          status: :confirmed,
+          confirmed_at: now |> Timex.shift(days: -1)
+        )
+
+      _failed_payment =
+        TenantFactory.insert(:payment,
+          org_id: org.org_id,
+          credit_card: credit_card,
+          status: :failed
+        )
+
+      _others_confirmed_payment = TenantFactory.insert(:payment, status: :confirmed)
+
+      %{payment: [confirmed_payment0, confirmed_payment1]}
+    end
+
+    test "test", %{payment: [payment0, payment1]} do
+      assert {:ok, [fetched_payment0, fetched_payment1]} = Payments.list_confirmed_payments()
+      assert same_records?(fetched_payment0, payment1)
+      assert same_records?(fetched_payment1, payment0)
+    end
+  end
 end
