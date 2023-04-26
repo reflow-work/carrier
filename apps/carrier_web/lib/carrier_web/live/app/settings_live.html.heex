@@ -1,55 +1,39 @@
 <section class="page-container">
   <.page_header icon="⚙️" title="설정" />
 
-  <div class="space-y-8 mt-6">
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">
-          계정 정보
-        </h2>
-
-        <p>
-          <%= @user.email %>
-        </p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">
-          구독 정보
-        </h2>
-
-        <%= if @active_subscription do %>
-          <div>
-            <span class="text-lg font-bold"><%= @active_subscription.plan.name %></span>
-            <span :if={@active_subscription.plan.billing_cycle != :none}>
-              <%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>
-            </span>
-          </div>
-          <div>
-            구독 기간: <%= format_date(@active_subscription.start_on) %> - <%= format_date(
-              @active_subscription.end_on
-            ) %>
-          </div>
-          <div :if={@pending_subscription}>
-            다음 결제 예정일: <%= format_date(@pending_subscription.start_on) %>
-          </div>
-          <div :if={@active_subscription.payment}>
-            결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
-          </div>
-        <% else %>
-          <.link navigate={~p"/app/subscriptions/new"} class="btn btn-primary">구독하기</.link>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <.link href={~p"/logout"} phx-click="smartlook_anonymize" class="btn">
-          로그아웃
-        </.link>
-      </div>
-    </div>
-  </div>
+  <.card_container>
+    <.card>
+      <.card_title title="계정 정보" />
+      <p><%= @user.email %></p>
+    </.card>
+    <.card>
+      <.card_title title="구독 정보" />
+      <%= if @active_subscription do %>
+        <div>
+          <span class="text-lg font-bold"><%= @active_subscription.plan.name %></span>
+          <span :if={@active_subscription.plan.billing_cycle != :none}>
+            <%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>
+          </span>
+        </div>
+        <div>
+          구독 기간: <%= format_date(@active_subscription.start_on) %> - <%= format_date(
+            @active_subscription.end_on
+          ) %>
+        </div>
+        <div :if={@pending_subscription}>
+          다음 결제 예정일: <%= format_date(@pending_subscription.start_on) %>
+        </div>
+        <div :if={@active_subscription.payment}>
+          결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
+        </div>
+      <% else %>
+        <.link navigate={~p"/app/subscriptions/new"} class="btn btn-primary">구독하기</.link>
+      <% end %>
+    </.card>
+    <.card>
+      <.link href={~p"/logout"} phx-click="smartlook_anonymize" class="btn">
+        로그아웃
+      </.link>
+    </.card>
+  </.card_container>
 </section>

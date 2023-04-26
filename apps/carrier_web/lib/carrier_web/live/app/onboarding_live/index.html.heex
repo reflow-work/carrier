@@ -1,77 +1,72 @@
 <section class="page-container">
   <.page_header icon="💳" title="플랜 선택하기" />
 
-  <div class="space-y-8 mt-6">
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">
-          회사 정보
-        </h2>
+  <.card_container>
+    <.card>
+      <.card_title title="구독 정보" />
+      <div>
+        <.simple_form
+          :let={f}
+          for={%{}}
+          as={:onboarding}
+          phx-submit="update_onboarding"
+          class="max-w-xs"
+        >
+          <.input label="회사 이름" type="text" field={f[:name]} placeholder="리플로우" />
 
-        <div>
-          <.simple_form
-            :let={f}
-            for={%{}}
-            as={:onboarding}
-            phx-submit="update_onboarding"
-            class="max-w-xs"
-          >
-            <.input label="회사 이름" type="text" field={f[:name]} placeholder="리플로우" />
+          <.input
+            label="회사 업종"
+            type="select"
+            field={f[:industry]}
+            options={Org.industries()}
+          />
 
+          <.input
+            label="회사 직원수"
+            type="select"
+            field={f[:employee_count]}
+            options={Org.employee_counts()}
+          />
+
+          <.input label="직무" type="select" field={f[:position]} options={User.positions()} />
+
+          <div>
             <.input
-              label="회사 업종"
-              type="select"
-              field={f[:industry]}
-              options={Org.industries()}
-            />
+              id="agreed_terms_of_service"
+              type="checkbox"
+              field={f[:agreed_terms_of_service]}
+            >
+              <:label_element>
+                <a
+                  href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
+                  target="_blank"
+                  class="underline"
+                >
+                  이용약관
+                </a>
+                에 동의합니다.
+              </:label_element>
+            </.input>
 
-            <.input
-              label="회사 직원수"
-              type="select"
-              field={f[:employee_count]}
-              options={Org.employee_counts()}
-            />
+            <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
+              <:label_element>
+                <a
+                  href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
+                  target="_blank"
+                  class="underline"
+                >
+                  개인정보 처리방침
+                </a>
+                에 동의합니다.
+              </:label_element>
+            </.input>
+          </div>
 
-            <.input label="직무" type="select" field={f[:position]} options={User.positions()} />
-
-            <div>
-              <.input
-                id="agreed_terms_of_service"
-                type="checkbox"
-                field={f[:agreed_terms_of_service]}
-              >
-                <:label_element>
-                  <a
-                    href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
-                    target="_blank"
-                    class="underline"
-                  >
-                    이용약관
-                  </a>
-                  에 동의합니다.
-                </:label_element>
-              </.input>
-
-              <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
-                <:label_element>
-                  <a
-                    href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
-                    target="_blank"
-                    class="underline"
-                  >
-                    개인정보 처리방침
-                  </a>
-                  에 동의합니다.
-                </:label_element>
-              </.input>
-            </div>
-
-            <:actions>
-              <.button phx-disable-with="가입중">가입하기</.button>
-            </:actions>
-          </.simple_form>
-        </div>
+          <:actions>
+            <.button phx-disable-with="가입중">가입하기</.button>
+          </:actions>
+        </.simple_form>
       </div>
-    </div>
-  </div>
+    </.card>
+  </.card_container>
 </section>
