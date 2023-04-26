@@ -14,6 +14,7 @@ defmodule Carrier.Payments.Payment do
 
     field :provider, Ecto.Enum, values: [:toss_payments]
     field :provider_key, :string
+    field :item, :string
     field :payload, :map
 
     timestamps()
