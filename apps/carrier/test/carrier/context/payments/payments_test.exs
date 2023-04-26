@@ -120,6 +120,7 @@ defmodule Carrier.PaymentsTest do
       assert payment.status == :confirmed
       assert payment.provider == :toss_payments
       assert payment.provider_key == "2MsAs0Bk0wKML"
+      assert payment.item == "Pro 연간 플랜 구독"
       assert payment.payload == resp
     end
 

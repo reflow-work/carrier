@@ -27,7 +27,7 @@ defmodule Carrier.Payments.Payment do
     |> validate_required(@required_for_create)
   end
 
-  @required_for_confirm [:status, :confirmed_at, :provider, :provider_key, :payload]
+  @required_for_confirm [:status, :confirmed_at, :provider, :provider_key, :item, :payload]
   defp changeset_for_confirm(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_confirm)
@@ -55,6 +55,7 @@ defmodule Carrier.Payments.Payment do
         confirmed_at: confirmed_at,
         provider: provider,
         provider_key: provider_key,
+        item: item,
         payload: payload
       }) do
     struct
@@ -63,6 +64,7 @@ defmodule Carrier.Payments.Payment do
       confirmed_at: confirmed_at,
       provider: provider,
       provider_key: provider_key,
+      item: item,
       payload: payload
     })
   end
