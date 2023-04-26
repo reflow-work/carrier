@@ -1,27 +1,21 @@
 <section class="page-container">
-  <header class="page-header">
-    <h1 class="page-title">
-      <span class="page-title-icon">💾</span> 데이터 소스 목록
-    </h1>
-
-    <div class="text-right">
-      <.link
-        navigate={~p"/app/data-sources/new"}
-        class={[
-          "btn",
-          "btn-primary",
-          if(@is_disabled_to_create_new_data_source, do: "btn-disabled")
-        ]}
-      >
-        새 데이터 소스 생성
-      </.link>
-      <%= if @is_disabled_to_create_new_data_source do %>
-        <div>
-          데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
-        </div>
-      <% end %>
-    </div>
-  </header>
+  <.page_header icon="💾" title="데이터 소스 목록">
+    <.link
+      navigate={~p"/app/data-sources/new"}
+      class={[
+        "btn",
+        "btn-primary",
+        if(@is_disabled_to_create_new_data_source, do: "btn-disabled")
+      ]}
+    >
+      새 데이터 소스 생성
+    </.link>
+    <%= if @is_disabled_to_create_new_data_source do %>
+      <div>
+        데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
+      </div>
+    <% end %>
+  </.page_header>
 
   <section class="mt-6">
     <div class="overflow-x-auto">

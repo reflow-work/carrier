@@ -160,7 +160,7 @@ defmodule CarrierWeb do
       # TODO: change to `import Phoenix.HTML`
       use Phoenix.HTML
       # Core UI components and translation
-      import CarrierWeb.CoreComponents
+      import CarrierWeb.{CoreComponents, MainComponents}
       import CarrierWeb.Gettext
 
       # Shortcut for generating JS commands
