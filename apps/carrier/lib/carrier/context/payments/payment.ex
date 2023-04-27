@@ -41,6 +41,12 @@ defmodule Carrier.Payments.Payment do
     |> validate_required(@required_for_fail)
   end
 
+  def list_confirmed() do
+    __MODULE__
+    |> where([p], p.status == :confirmed)
+    |> order_by([p], desc: p.confirmed_at)
+  end
+
   def create(%{org_id: org_id, credit_card_id: credit_card_id, amount: amount, currency: currency}) do
     %__MODULE__{}
     |> changeset_for_create(%{

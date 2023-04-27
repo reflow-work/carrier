@@ -75,6 +75,12 @@ defmodule Carrier.Payments do
     end
   end
 
+  def list_confirmed_payments() do
+    Payment.list_confirmed()
+    |> TenantRepo.all()
+    |> then(&{:ok, &1})
+  end
+
   defp do_create_credit_card(params) do
     CreditCard.create(params)
     |> TenantRepo.insert()

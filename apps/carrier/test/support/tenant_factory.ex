@@ -311,6 +311,16 @@ defmodule Carrier.TenantFactory do
     })
   end
 
+  defp apply_status(%Payment{} = payment, :failed) do
+    payment
+    |> apply_status(:pending)
+    |> Map.merge(%{
+      status: :failed,
+      failed_at: DateTime.utc_now(),
+      payload: %{}
+    })
+  end
+
   defp seq(name) when is_atom(name) do
     sequence(Atom.to_string(name))
   end
