@@ -40,5 +40,36 @@ defmodule Carrier.External.TableauAPITest do
       assert token == @success_resp["credentials"]["token"]
       assert site_id == @success_resp["credentials"]["site"]["id"]
     end
+
+    @success_resp Carrier.Fixture.json("tableau_api/signin.pat.success.json")
+
+    test "with valid params (pat)", %{bypass: bypass} do
+      params = %{
+        host: "http://localhost:4102",
+        site: "reflow",
+        pat_name: "reflow",
+        pat_secret: "secret"
+      }
+
+      ExternalHelper.expect(
+        bypass,
+        :post,
+        "/api/3.18/auth/signin",
+        {:json, @success_resp},
+        validate: fn _params, body ->
+          assert body == %{
+                   "credentials" => %{
+                     "personalAccessTokenName" => params[:pat_name],
+                     "personalAccessTokenSecret" => params[:pat_secret],
+                     "site" => %{"contentUrl" => params[:site]}
+                   }
+                 }
+        end
+      )
+
+      assert {:ok, %{token: token, site_id: site_id}} = TableauAPI.signin(params)
+      assert token == @success_resp["credentials"]["token"]
+      assert site_id == @success_resp["credentials"]["site"]["id"]
+    end
   end
 end
