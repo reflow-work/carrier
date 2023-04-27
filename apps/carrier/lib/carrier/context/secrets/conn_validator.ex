@@ -22,6 +22,13 @@ defmodule Carrier.Secrets.ConnValidator do
     end
   end
 
+  def do_validate(:tableau, credentials, _opts) do
+    case Source.Tableau.signin(credentials) do
+      {:ok, _} -> :ok
+      {:error, _} -> {:error, :invalid_conn_info}
+    end
+  end
+
   def do_validate(_, _, _) do
     :ok
   end
