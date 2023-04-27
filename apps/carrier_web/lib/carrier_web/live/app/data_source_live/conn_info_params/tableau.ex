@@ -9,7 +9,7 @@ defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.Tableau do
 
     embeds_one :conn_info, ConnInfo, primary_key: false do
       field :host, :string
-      field :id, :string
+      field :email, :string
       field :password, :string
       field :site, :string
     end
@@ -25,7 +25,7 @@ defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.Tableau do
 
   @required_for_conn_info [
     :host,
-    :id,
+    :email,
     :password,
     :site
   ]

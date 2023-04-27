@@ -1,4 +1,4 @@
-defmodule Carrier.External.Tableau do
+defmodule Carrier.External.TableauAPI do
   require Logger
 
   @api_version 3.18
@@ -43,7 +43,7 @@ defmodule Carrier.External.Tableau do
   end
 
   def signin(%{host: host, name: name, password: password, site: site}) do
-    Tesla.post(client(host), "/auth/signin", %{
+    body = %{
       "credentials" => %{
         "name" => name,
         "password" => password,
@@ -51,7 +51,27 @@ defmodule Carrier.External.Tableau do
           "contentUrl" => site
         }
       }
-    })
+    }
+
+    do_signin(host, body)
+  end
+
+  def signin(%{host: host, pat_name: pat_name, pat_secret: pat_secret, site: site}) do
+    body = %{
+      "credentials" => %{
+        "personalAccessTokenName" => pat_name,
+        "personalAccessTokenSecret" => pat_secret,
+        "site" => %{
+          "contentUrl" => site
+        }
+      }
+    }
+
+    do_signin(host, body)
+  end
+
+  defp do_signin(host, body) do
+    Tesla.post(client(host), "/auth/signin", body)
     |> handle_response()
     |> case do
       {:ok, %{"credentials" => %{"token" => token, "site" => %{"id" => site_id}}}} ->

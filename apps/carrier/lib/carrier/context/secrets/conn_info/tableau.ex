@@ -4,13 +4,13 @@ defmodule Carrier.Secrets.ConnInfo.Tableau do
   @primary_key false
   embedded_schema do
     field :host, :string
-    field :id, :string
+    field :email, :string
     field :password, :string
     field :site, :string
   end
 
   @impl true
-  @required [:host, :id, :password, :site]
+  @required [:host, :email, :password, :site]
   def changeset(%__MODULE__{} = struct \\ %__MODULE__{}, attrs) do
     struct
     |> cast(attrs, @required)
