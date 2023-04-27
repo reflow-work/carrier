@@ -1,7 +1,6 @@
 defmodule CarrierWeb.App.SubscriptionLive.Done do
   use CarrierWeb, :live_view
   use Carrier.{Billing, Payments}
-  alias Carrier.Core.{TimezoneHelper, DateHelper}
 
   @impl true
   def mount(_params, _session, socket) do
