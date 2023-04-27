@@ -1,8 +1,8 @@
 defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.Tableau, as: TableauAPI
 
-  def signin(%{host: host, id: id, password: password, site: site}) do
-    TableauAPI.signin(%{host: host, name: id, password: password, site: site})
+  def signin(%{host: host, email: email, password: password, site: site}) do
+    TableauAPI.signin(%{host: host, name: email, password: password, site: site})
   end
 
   def list_views(%{host: host} = conn_info) do
