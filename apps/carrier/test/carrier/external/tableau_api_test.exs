@@ -71,5 +71,26 @@ defmodule Carrier.External.TableauAPITest do
       assert token == @success_resp["credentials"]["token"]
       assert site_id == @success_resp["credentials"]["site"]["id"]
     end
+
+    @fail_resp Carrier.Fixture.json("tableau_api/signin.fail.json")
+
+    test "with invalid params", %{bypass: bypass} do
+      params = %{
+        host: "http://localhost:4102",
+        site: "reflow",
+        name: "invalid",
+        password: "invalid"
+      }
+
+      ExternalHelper.expect(
+        bypass,
+        :post,
+        "/api/3.18/auth/signin",
+        {:json, @fail_resp},
+        status: 401
+      )
+
+      assert {:error, "Error signing in to Tableau Server"} = TableauAPI.signin(params)
+    end
   end
 end
