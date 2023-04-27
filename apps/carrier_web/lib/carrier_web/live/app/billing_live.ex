@@ -29,6 +29,15 @@ defmodule CarrierWeb.App.BillingLive do
             <:col :let={payment} label="플랜"><%= payment.item %></:col>
           </.table>
         </.card>
+        <.card>
+          <.card_title title="환불" />
+          <div>
+            환불 규정:
+            <.link class="link" href={Const.get(:refund_policy_url)} target="_blank">
+              보기
+            </.link>
+          </div>
+        </.card>
       </.card_container>
     </section>
     """
