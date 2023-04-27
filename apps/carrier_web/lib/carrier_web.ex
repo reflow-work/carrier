@@ -169,6 +169,8 @@ defmodule CarrierWeb do
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
+      alias Carrier.Const
+
       # TODO: remove
       import CarrierWeb.ErrorHelpers
       import Phoenix.Component
