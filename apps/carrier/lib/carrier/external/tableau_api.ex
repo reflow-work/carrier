@@ -1,4 +1,4 @@
-defmodule Carrier.External.Tableau do
+defmodule Carrier.External.TableauAPI do
   require Logger
 
   @api_version 3.18

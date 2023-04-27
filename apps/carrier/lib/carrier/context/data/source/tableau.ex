@@ -1,5 +1,5 @@
 defmodule Carrier.Data.Source.Tableau do
-  alias Carrier.External.Tableau, as: TableauAPI
+  alias Carrier.External.TableauAPI
 
   def signin(%{host: host, email: email, password: password, site: site}) do
     TableauAPI.signin(%{host: host, name: email, password: password, site: site})
