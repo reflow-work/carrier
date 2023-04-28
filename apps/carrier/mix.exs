@@ -68,7 +68,8 @@ defmodule Carrier.MixProject do
       {:shards, "~> 1.1"},
       {:decorator, "~> 1.4"},
       {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false},
-      {:bypass, "~> 2.1", only: :test}
+      {:bypass, "~> 2.1", only: :test},
+      {:decimal, "~> 2.0"}
     ]
   end
 
