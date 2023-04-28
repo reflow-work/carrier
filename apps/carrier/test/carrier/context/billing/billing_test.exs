@@ -495,6 +495,28 @@ defmodule Carrier.BillingTest do
     end
   end
 
+  describe "fetch_subscription/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :active)
+
+      %{subscription: subscription}
+    end
+
+    test "with valid params", %{subscription: subscription} do
+      assert {:ok, %Subscription{} = fetched_subscription} =
+               Billing.fetch_subscription(subscription.id)
+
+      assert same_records?(fetched_subscription, subscription)
+      assert %Plan{} = fetched_subscription.plan
+      assert %Payment{} = fetched_subscription.payment
+      assert %CreditCard{} = fetched_subscription.payment.credit_card
+    end
+  end
+
   describe "fetch_active_subscription/0" do
     setup do
       org = TenantFactory.insert(:org)
