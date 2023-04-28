@@ -53,7 +53,7 @@ defmodule CarrierWeb.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
       {:ueberauth, "~> 0.10"},
-      {:ueberauth_google, github: "ueberauth/ueberauth_google", ref: "341b289"},
+      {:ueberauth_google, "~> 0.10"},
       {:ueberauth_slack_v2, "~> 2.0"},
       {:reverse_proxy_plug, "~> 2.1"},
       {:doumi_phoenix_svg, "~> 0.3.0"},
