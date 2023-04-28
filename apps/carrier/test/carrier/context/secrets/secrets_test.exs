@@ -2,6 +2,7 @@ defmodule Carrier.SecretsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Secrets
   alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
+  alias Carrier.ExternalHelper
 
   @moduletag repo: TenantRepo
 
@@ -33,26 +34,48 @@ defmodule Carrier.SecretsTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      valid_params = %{
+      params = %{
         org_id: org.org_id,
-        name: "my app database",
-        source: :postgres,
-        conn_info: %{
-          hostname: "localhost",
-          port: 48140,
-          username: "postgres",
-          password: "postgres",
-          database: "postgres"
-        }
+        name: "my data source",
+        source: nil,
+        conn_info: nil
       }
 
-      %{valid_params: valid_params}
+      %{params: params}
     end
 
-    test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %DataSource{} = data_source} = Secrets.create_data_source(valid_params)
+    test "with valid params (postgres)", %{params: params} do
+      conn_info = %{
+        hostname: "localhost",
+        port: 48140,
+        username: "postgres",
+        password: "postgres",
+        database: "postgres"
+      }
 
-      assert same_fields?(data_source, valid_params, [:org_id, :name, :source])
+      params = %{params | source: :postgres, conn_info: conn_info}
+
+      assert {:ok, %DataSource{} = data_source} = Secrets.create_data_source(params)
+
+      assert same_fields?(data_source, params, [:org_id, :name, :source])
+    end
+
+    test "with valid params (tableau user)", %{params: params} do
+      ExternalHelper.TableauAPI.prepare_signin()
+
+      conn_info = %{
+        host: "http://localhost:4102",
+        site: "reflow",
+        type: :user,
+        email: "tableau@reflow.work",
+        password: "password"
+      }
+
+      params = %{params | source: :tableau, conn_info: conn_info}
+
+      assert {:ok, %DataSource{} = data_source} = Secrets.create_data_source(params)
+
+      assert same_fields?(data_source, params, [:org_id, :name, :source])
     end
   end
 

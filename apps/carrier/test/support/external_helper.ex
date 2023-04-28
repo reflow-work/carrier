@@ -92,4 +92,19 @@ defmodule Carrier.ExternalHelper do
       resp
     end
   end
+
+  defmodule TableauAPI do
+    def prepare_signin() do
+      success_resp = Carrier.Fixture.json("tableau_api/signin.user.success.json")
+
+      Bypass.open(port: 4102)
+      |> Carrier.ExternalHelper.expect(
+        :post,
+        "/api/3.18/auth/signin",
+        {:json, success_resp}
+      )
+
+      success_resp
+    end
+  end
 end
