@@ -81,7 +81,6 @@ defmodule CarrierWeb do
       # TODO: remove
       import CarrierWeb.LiveHelpers
       import CarrierWeb.AnalyticsHelper
-      alias Phoenix.LiveView.JS
 
       def put_flash_for(socket, kind, message, opts \\ []) do
         timeout = opts |> Keyword.get(:timeout, :infinity)
@@ -127,6 +126,7 @@ defmodule CarrierWeb do
   def component do
     quote do
       use Phoenix.Component
+      import CarrierWeb.LiveHelpers
 
       unquote(html_helpers())
     end
@@ -168,6 +168,8 @@ defmodule CarrierWeb do
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
+
+      alias CarrierWeb.Components.Icon
 
       alias Carrier.Const
 

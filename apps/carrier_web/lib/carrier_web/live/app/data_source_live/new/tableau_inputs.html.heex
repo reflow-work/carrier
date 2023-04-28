@@ -9,7 +9,20 @@
 
   <.input type="text" field={fci[:site]} label="Sitename" class="max-w-xs" />
 
-  <.input type="text" field={fci[:email]} label="Email" class="max-w-xs" />
+  <.input
+    type="radio-group"
+    field={fci[:type]}
+    label="인증 방법"
+    options={[{"ID / Password", :user}, {"Personal Access Token", :pat}]}
+  />
 
-  <.input type="password" field={fci[:password]} label="Password" class="max-w-xs" />
+  <%= if fci[:type].value == :user do %>
+    <.input type="text" field={fci[:email]} label="Email" class="max-w-xs" />
+    <.input type="password" field={fci[:password]} label="Password" class="max-w-xs" />
+  <% end %>
+
+  <%= if fci[:type].value == :pat do %>
+    <.input type="text" field={fci[:pat_name]} label="PAT Name" class="max-w-xs" />
+    <.input type="password" field={fci[:pat_secret]} label="PAT Secret" class="max-w-xs" />
+  <% end %>
 </.inputs_for>

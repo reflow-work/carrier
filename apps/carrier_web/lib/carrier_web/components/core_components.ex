@@ -253,7 +253,7 @@ defmodule CarrierWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
-               range radio search select tel text textarea time url week)
+               range radio radio-group search select tel text textarea time url week)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -361,6 +361,23 @@ defmodule CarrierWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "radio-group"} = assigns) do
+    ~H"""
+    <div class={@class} phx-feedback-for={@name}>
+      <%= if slot_exist?(@label_element) do %>
+        <.label><%= render_slot(@label_element) %></.label>
+      <% else %>
+        <.label><%= @label %></.label>
+      <% end %>
+      <label :for={{label, value} <- @options} class="label block cursor-pointer">
+        <input type="radio" id={@id} name={@name} value={value} checked={@value == value} />
+        <span class="label-text"><%= label %></span>
+      </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
