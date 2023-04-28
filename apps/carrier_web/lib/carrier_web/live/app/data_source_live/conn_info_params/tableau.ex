@@ -32,9 +32,24 @@ defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.Tableau do
     struct
     |> cast(attrs, @required_for_conn_info ++ @optional_for_conn_info)
     |> validate_required(@required_for_conn_info)
+    |> validate_by_type()
+  end
+
+  defp validate_by_type(%Ecto.Changeset{changes: %{type: type}, valid?: true} = changeset) do
+    case type do
+      :user ->
+        validate_required(changeset, [:email, :password])
+
+      :pat ->
+        validate_required(changeset, [:pat_name, :pat_secret])
+    end
+  end
+
+  defp validate_by_type(%Ecto.Changeset{} = changeset) do
+    changeset
   end
 
   def init_attrs() do
-    %{conn_info: %{}}
+    %{conn_info: %{type: :user}}
   end
 end
