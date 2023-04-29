@@ -85,19 +85,19 @@ defmodule Carrier.Billing.PlanTest do
     test "with trial plan" do
       plan = TenantFactory.build(:plan, type: :trial)
 
-      assert Plan.get_full_name(plan) == "reflow Trial Plan"
+      assert Plan.get_full_name(plan) == "Trial Plan"
     end
 
     test "with basic monthly plan" do
       plan = TenantFactory.build(:plan, type: :basic, billing_cycle: :monthly)
 
-      assert Plan.get_full_name(plan) == "reflow Basic Monthly Plan"
+      assert Plan.get_full_name(plan) == "Basic Monthly Plan"
     end
 
     test "with pro yearly plan" do
       plan = TenantFactory.build(:plan, type: :pro, billing_cycle: :yearly)
 
-      assert Plan.get_full_name(plan) == "reflow Pro Yearly Plan"
+      assert Plan.get_full_name(plan) == "Pro Yearly Plan"
     end
   end
 end

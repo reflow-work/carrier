@@ -276,7 +276,7 @@ defmodule Carrier.Billing do
              amount: price,
              currency: currency,
              order_id: Subscription.calc_unique_key(subscription),
-             order_name: Plan.get_full_name(plan),
+             order_name: "reflow #{Plan.get_full_name(plan)}",
              customer_email: billing_email,
              customer_name: billing_name
            }) do

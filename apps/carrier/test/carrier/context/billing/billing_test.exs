@@ -35,7 +35,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -115,7 +115,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -359,7 +359,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -440,7 +440,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })

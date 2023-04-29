@@ -80,6 +80,13 @@ defmodule Carrier.Billing.Subscription do
     |> where([s], s.status == :pending)
   end
 
+  def fetch_active_trial() do
+    __MODULE__
+    |> join(:inner, [s], p in assoc(s, :plan))
+    |> where([s], s.status == :active)
+    |> where([s, p], p.type == :trial)
+  end
+
   def activate(%__MODULE__{status: :pending} = struct, params) do
     struct
     |> changeset_for_activate(params |> Map.put(:status, :active))
