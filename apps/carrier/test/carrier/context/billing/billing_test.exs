@@ -606,4 +606,31 @@ defmodule Carrier.BillingTest do
       assert fetched_subscription.payment == nil
     end
   end
+
+  describe "get_active_trial_subscription/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      trial_plan = TenantFactory.insert(:plan, type: :trial)
+
+      %{org: org, trial_plan: trial_plan}
+    end
+
+    test "with active trial subscription", %{org: org, trial_plan: trial_plan} do
+      active_trial_subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+
+      assert %Subscription{} = fetched_subscription = Billing.get_active_trial_subscription()
+      assert same_records?(fetched_subscription, active_trial_subscription)
+    end
+
+    test "without active trial subscription", %{org: org, trial_plan: trial_plan} do
+      _expired_trial_subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
+
+      assert Billing.get_active_trial_subscription() == nil
+    end
+  end
 end
