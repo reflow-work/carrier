@@ -38,6 +38,12 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
                 (<%= format_date(@active_trial_subscription.end_on) %> 전까지 무료 Trial Plan)
               <% end %>
             </p>
+            <p>
+              결제 예정 금액: <%= format_money(@subscription.payment.amount, @subscription.payment.currency) %> (VAT 10% 포함)
+            </p>
+            <p>
+              결제 수단: <%= CreditCard.format_card_info(@subscription.payment.credit_card) %>
+            </p>
           </div>
         </.card>
       </.card_container>
