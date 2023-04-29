@@ -9,7 +9,9 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
     socket =
       socket
       |> assign(:subscription, nil)
+      |> assign(:active_trial_subscription, nil)
       |> load_subscription(subscription_id)
+      |> load_active_trial_subscription()
 
     {:ok, socket}
   end
@@ -25,11 +27,16 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
           <.card_title title="구독 정보" />
           <div class="space-y-1">
             <p class="text-lg font-bold"><%= Plan.get_full_name(@subscription.plan) %></p>
-            <p>결제 예정일: <%= format_date(@subscription.start_on) %></p>
             <p>
               구독 기간: <%= format_date(@subscription.start_on) %> - <%= format_date(
                 @subscription.end_on
               ) %>
+            </p>
+            <p>
+              결제 예정일: <%= format_date(@subscription.start_on) %>
+              <%= if @active_trial_subscription do %>
+                (<%= format_date(@active_trial_subscription.end_on) %> 전까지 무료 Trial Plan)
+              <% end %>
             </p>
           </div>
         </.card>
@@ -46,5 +53,12 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
       {:error, _} ->
         socket
     end
+  end
+
+  defp load_active_trial_subscription(socket) do
+    maybe_active_trial_subscription = Billing.get_active_trial_subscription()
+
+    socket
+    |> assign(:active_trial_subscription, maybe_active_trial_subscription)
   end
 end
