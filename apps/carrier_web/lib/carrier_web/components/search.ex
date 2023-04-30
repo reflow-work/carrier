@@ -49,9 +49,7 @@ defmodule CarrierWeb.Components.Search do
           </div>
         </div>
         <!-- for disabling submit by enter -->
-        <:actions>
-          <.button class="hidden" disabled></.button>
-        </:actions>
+        <.button class="hidden" disabled></.button>
       </.simple_form>
     </div>
     """
