@@ -36,6 +36,8 @@ defmodule CarrierWeb.Components.Search do
             value={@keyword}
             phx-target={@myself}
             phx-change="search"
+            phx-focus="show_selectable_items"
+            phx-click-away="hide_selectable_items"
           />
           <div
             :if={@show_selectable_items}
@@ -79,6 +81,24 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> assign(:keyword, keyword)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("show_selectable_items", _params, socket) do
+    socket =
+      socket
+      |> assign(:show_selectable_items, true)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("hide_selectable_items", _params, socket) do
+    socket =
+      socket
+      |> assign(:show_selectable_items, false)
 
     {:noreply, socket}
   end
