@@ -20,6 +20,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(assigns)
       |> assign(:items, normalize_items(items))
       |> assign(:selectable_items, [])
+      |> assign(:selected_items, [])
 
     {:ok, socket}
   end
@@ -43,7 +44,12 @@ defmodule CarrierWeb.Components.Search do
             :if={@show_selectable_items}
             class="absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50"
           >
-            <div :for={selectable_item <- @selectable_items} class="px-4 py-2">
+            <div
+              :for={selectable_item <- @selectable_items}
+              class="px-4 py-2"
+              phx-target={@myself}
+              phx-click={JS.push("select", value: %{value: selectable_item.value})}
+            >
               <%= selectable_item.label %>
             </div>
           </div>
@@ -51,6 +57,12 @@ defmodule CarrierWeb.Components.Search do
         <!-- for disabling submit by enter -->
         <.button class="hidden" disabled></.button>
       </.simple_form>
+
+      <div>
+        <div :for={selected_item <- @selected_items}>
+          <%= selected_item.label %>
+        </div>
+      </div>
     </div>
     """
   end
@@ -79,6 +91,20 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> assign(:keyword, keyword)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select", %{"value" => value}, socket) do
+    selected_item =
+      socket.assigns.items
+      |> Enum.find(&(&1.value == value))
+
+    socket =
+      socket
+      |> update(:selected_items, &(&1 ++ [selected_item]))
+      |> assign(:show_selectable_items, true)
 
     {:noreply, socket}
   end
