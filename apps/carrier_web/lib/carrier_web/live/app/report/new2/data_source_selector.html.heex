@@ -6,21 +6,16 @@
     </div>
 
     <.simple_form for={%{}} phx-change={@onselect}>
-      <div class="max-w-xs mt-4">
+      <div class="max-w-md">
         <.input
-          class="flex items-center gap-x-2"
           type="select"
           name="id"
+          label="데이터 소스 이름"
+          label_align={:left}
           prompt="데이터 소스를 선택해주세요"
           options={data_source_options(@data_sources)}
           value={@selected_data_source |> Nillable.map(& &1.id) |> Nillable.fallback("")}
-        >
-          <:label_element>
-            <CarrierWeb.CoreComponents.label for="id" class="label w-28 text-gray-500 text-sm">
-              데이터 소스 이름
-            </CarrierWeb.CoreComponents.label>
-          </:label_element>
-        </.input>
+        />
       </div>
     </.simple_form>
   </.card>
