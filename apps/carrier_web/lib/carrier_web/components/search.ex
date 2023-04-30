@@ -115,6 +115,8 @@ defmodule CarrierWeb.Components.Search do
       |> update(:selected_items, &(&1 ++ [selected_item]))
       |> assign(:show_selectable_items, true)
 
+    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+
     {:noreply, socket}
   end
 
@@ -123,6 +125,8 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> update(:selected_items, &(&1 |> List.delete_at(index)))
+
+    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
 
     {:noreply, socket}
   end

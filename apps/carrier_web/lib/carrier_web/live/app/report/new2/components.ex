@@ -17,6 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   end
 
   attr :data_source, :any, required: true
+  attr :onselects, :map, required: true
 
   def data_transformer(assigns) do
     case assigns.data_source do

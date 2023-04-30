@@ -9,7 +9,8 @@
       <.live_component
         module={Search}
         id="tableau_view_selector"
-        items={[{"A \\ C / D", "a"}, {"B", "b"}]}
+        items={[{"A \\ C / D", "a"}, {"B C", "b"}, {"Wow C", "x"}]}
+        onselect={@onselects.select_tableau_view}
       />
     </div>
   </.card>
