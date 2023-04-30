@@ -52,6 +52,10 @@ defmodule CarrierWeb.Components.Search do
             >
               <%= selectable_item.label %>
             </div>
+
+            <div :if={@selectable_items |> Enum.empty?()} class="px-4 py-2">
+              검색 결과가 없습니다.
+            </div>
           </div>
         </div>
         <!-- for disabling submit by enter -->
@@ -112,8 +116,14 @@ defmodule CarrierWeb.Components.Search do
   @impl true
   def handle_event("show_selectable_items", _params, socket) do
     socket =
-      socket
-      |> assign(:show_selectable_items, true)
+      case socket.assigns.keyword |> String.trim() do
+        "" ->
+          socket
+
+        _ ->
+          socket
+          |> assign(:show_selectable_items, true)
+      end
 
     {:noreply, socket}
   end
