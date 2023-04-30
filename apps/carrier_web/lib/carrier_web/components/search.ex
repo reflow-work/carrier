@@ -12,9 +12,12 @@ defmodule CarrierWeb.Components.Search do
 
   @impl true
   def update(assigns, socket) do
+    {items, assigns} = assigns |> Map.pop(:items)
+
     socket =
       socket
       |> assign(assigns)
+      |> assign(:items, normalize_items(items))
 
     {:ok, socket}
   end
@@ -41,5 +44,10 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:keyword, keyword)
 
     {:noreply, socket}
+  end
+
+  defp normalize_items(items) do
+    items
+    |> Enum.map(fn {label, value} -> %{label: label, value: value} end)
   end
 end
