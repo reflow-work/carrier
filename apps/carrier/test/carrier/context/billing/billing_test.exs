@@ -35,7 +35,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -115,7 +115,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -359,7 +359,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -440,7 +440,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: Plan.get_full_name(plan),
+        order_name: "reflow #{Plan.get_full_name(plan)}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -492,6 +492,28 @@ defmodule Carrier.BillingTest do
 
       assert {:error, :subscription_can_not_be_expired} =
                Billing.expire_subscription(subscription.id)
+    end
+  end
+
+  describe "fetch_subscription/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :active)
+
+      %{subscription: subscription}
+    end
+
+    test "with valid params", %{subscription: subscription} do
+      assert {:ok, %Subscription{} = fetched_subscription} =
+               Billing.fetch_subscription(subscription.id)
+
+      assert same_records?(fetched_subscription, subscription)
+      assert %Plan{} = fetched_subscription.plan
+      assert %Payment{} = fetched_subscription.payment
+      assert %CreditCard{} = fetched_subscription.payment.credit_card
     end
   end
 
@@ -582,6 +604,33 @@ defmodule Carrier.BillingTest do
       assert {:ok, %Subscription{} = fetched_subscription} = Billing.fetch_pending_subscription()
 
       assert fetched_subscription.payment == nil
+    end
+  end
+
+  describe "get_active_trial_subscription/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      trial_plan = TenantFactory.insert(:plan, type: :trial)
+
+      %{org: org, trial_plan: trial_plan}
+    end
+
+    test "with active trial subscription", %{org: org, trial_plan: trial_plan} do
+      active_trial_subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+
+      assert %Subscription{} = fetched_subscription = Billing.get_active_trial_subscription()
+      assert same_records?(fetched_subscription, active_trial_subscription)
+    end
+
+    test "without active trial subscription", %{org: org, trial_plan: trial_plan} do
+      _expired_trial_subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
+
+      assert Billing.get_active_trial_subscription() == nil
     end
   end
 end

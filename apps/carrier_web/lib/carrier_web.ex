@@ -81,6 +81,7 @@ defmodule CarrierWeb do
       # TODO: remove
       import CarrierWeb.LiveHelpers
       import CarrierWeb.AnalyticsHelper
+      alias Carrier.Core.Crypto
 
       def put_flash_for(socket, kind, message, opts \\ []) do
         timeout = opts |> Keyword.get(:timeout, :infinity)

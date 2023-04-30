@@ -1,6 +1,7 @@
 defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
   use Carrier.{Accounts, Secrets, Reports, Setting, Payments, Billing}
+  alias Carrier.TenantRepo
   alias Carrier.Core.Crypto
 
   def org_factory() do
@@ -140,7 +141,7 @@ defmodule Carrier.TenantFactory do
   end
 
   def plan_factory(attrs) do
-    {type, attrs} = attrs |> Map.pop(:type, Enum.random([:trial, :basic, :pro]))
+    {type, attrs} = attrs |> Map.pop(:type, Enum.random([:basic, :pro]))
 
     {billing_cycle, subscribable} =
       case type do
@@ -165,10 +166,10 @@ defmodule Carrier.TenantFactory do
 
   def subscription_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
-    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> insert(:plan, type: :basic) end)
+    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> insert(:plan) end)
     {start_on, attrs} = attrs |> Map.pop(:start_on, DateTime.utc_now())
     end_on = Plan.calc_end_on(plan, start_on, 0)
-    {status, attrs} = attrs |> Map.pop(:status, :active)
+    {status, attrs} = attrs |> Map.pop(:status, :pending)
 
     %Subscription{
       org_id: org_id,
@@ -177,7 +178,7 @@ defmodule Carrier.TenantFactory do
       start_on: start_on,
       end_on: end_on
     }
-    |> apply_status(status)
+    |> apply_status(status, attrs)
     |> merge_attributes(attrs)
   end
 
@@ -226,7 +227,13 @@ defmodule Carrier.TenantFactory do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
     {credit_card, attrs} =
-      attrs |> Map.pop_lazy(:credit_card, fn -> insert(:credit_card, org_id: org_id) end)
+      attrs
+      |> Map.pop_lazy(:credit_card, fn ->
+        case TenantRepo.get_by(CreditCard, org_id: org_id) do
+          nil -> insert(:credit_card, org_id: org_id)
+          credit_card -> credit_card
+        end
+      end)
 
     {status, attrs} = attrs |> Map.pop(:status, :confirmed)
 
@@ -271,23 +278,32 @@ defmodule Carrier.TenantFactory do
     |> Map.merge(%{deleted_at: DateTime.utc_now()})
   end
 
-  defp apply_status(%Subscription{} = subscription, :pending) do
+  defp apply_status(%Subscription{} = subscription, :pending, _attrs) do
     subscription
   end
 
-  defp apply_status(%Subscription{} = subscription, :active) do
+  defp apply_status(%Subscription{} = subscription, :active, attrs) do
+    payment =
+      attrs
+      |> Map.get_lazy(:payment, fn ->
+        case subscription.plan.type do
+          :trial -> nil
+          _ -> insert(:payment, org_id: subscription.org_id)
+        end
+      end)
+
     subscription
-    |> apply_status(:pending)
+    |> apply_status(:pending, attrs)
     |> Map.merge(%{
       status: :active,
-      payment: insert(:payment),
+      payment: payment,
       activated_at: DateTime.utc_now()
     })
   end
 
-  defp apply_status(%Subscription{} = subscription, :expired) do
+  defp apply_status(%Subscription{} = subscription, :expired, attrs) do
     subscription
-    |> apply_status(:active)
+    |> apply_status(:active, attrs)
     |> Map.merge(%{
       status: :expired,
       expired_at: DateTime.utc_now()

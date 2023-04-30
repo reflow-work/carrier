@@ -3,11 +3,15 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
   use Carrier.{Billing, Payments}
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"subscription_id" => obfuscated_subscription_id}, _session, socket) do
+    subscription_id = Crypto.deobfuscate!(obfuscated_subscription_id)
+
     socket =
       socket
-      |> load_active_subscription()
-      |> load_pending_subscription()
+      |> assign(:subscription, nil)
+      |> assign(:active_trial_subscription, nil)
+      |> load_subscription(subscription_id)
+      |> load_active_trial_subscription()
 
     {:ok, socket}
   end
@@ -22,23 +26,24 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
         <.card>
           <.card_title title="구독 정보" />
           <div class="space-y-1">
-            <div>
-              <span class="text-lg font-bold"><%= @active_subscription.plan.name %></span>
-              <span :if={@active_subscription.plan.billing_cycle != :none}>
-                (<%= @active_subscription.plan.billing_cycle |> to_string() |> String.capitalize() %>)
-              </span>
-            </div>
-            <div>
-              구독 기간: <%= format_date(@active_subscription.start_on) %> - <%= format_date(
-                @active_subscription.end_on
+            <p class="text-lg font-bold"><%= Plan.get_full_name(@subscription.plan) %></p>
+            <p>
+              구독 기간: <%= format_date(@subscription.start_on) %> - <%= format_date(
+                @subscription.end_on
               ) %>
-            </div>
-            <div :if={@pending_subscription}>
-              다음 결제 예정일: <%= format_date(@pending_subscription.start_on) %>
-            </div>
-            <div :if={@active_subscription.payment}>
-              결제 수단: <%= CreditCard.format_card_info(@active_subscription.payment.credit_card) %>
-            </div>
+            </p>
+            <p>
+              결제 예정일: <%= format_date(@subscription.start_on) %>
+              <%= if @active_trial_subscription do %>
+                (<%= format_date(@active_trial_subscription.end_on) %> 전까지 무료 Trial Plan)
+              <% end %>
+            </p>
+            <p>
+              결제 예정 금액: <%= format_money(@subscription.payment.amount, @subscription.payment.currency) %> (VAT 10% 포함)
+            </p>
+            <p>
+              결제 수단: <%= CreditCard.format_card_info(@subscription.payment.credit_card) %>
+            </p>
           </div>
         </.card>
       </.card_container>
@@ -46,23 +51,20 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
     """
   end
 
-  defp load_active_subscription(socket) do
-    case Billing.fetch_active_subscription() do
+  defp load_subscription(socket, subscription_id) do
+    case Billing.fetch_subscription(subscription_id) do
       {:ok, subscription} ->
-        socket |> assign(:active_subscription, subscription)
-
-      {:error, _} ->
-        nil
-    end
-  end
-
-  defp load_pending_subscription(socket) do
-    case Billing.fetch_pending_subscription() do
-      {:ok, subscription} ->
-        socket |> assign(:pending_subscription, subscription)
+        socket |> assign(:subscription, subscription)
 
       {:error, _} ->
         socket
     end
+  end
+
+  defp load_active_trial_subscription(socket) do
+    maybe_active_trial_subscription = Billing.get_active_trial_subscription()
+
+    socket
+    |> assign(:active_trial_subscription, maybe_active_trial_subscription)
   end
 end

@@ -67,6 +67,23 @@ defmodule Carrier.Billing do
     end)
   end
 
+  def fetch_subscription(subscription_id) do
+    Subscription.fetch(subscription_id)
+    |> Subscription.preload_payment()
+    |> TenantRepo.one()
+    |> case do
+      %Subscription{} = subscription ->
+        subscription_with_plan = subscription |> Super.postload_plan()
+
+        {:ok, subscription_with_plan}
+
+      nil ->
+        {:error,
+         {:resource_not_found,
+          %{target: Subscription, conditions: %{subscription_id: subscription_id}}}}
+    end
+  end
+
   def fetch_active_subscription() do
     Subscription.fetch_active()
     |> Subscription.preload_payment()
@@ -97,23 +114,14 @@ defmodule Carrier.Billing do
     end
   end
 
+  def get_active_trial_subscription() do
+    Subscription.fetch_active_trial()
+    |> TenantRepo.one()
+  end
+
   def have_active_subscription?() do
     Subscription.fetch_active()
     |> TenantRepo.exists?()
-  end
-
-  defp fetch_subscription(subscription_id) do
-    Subscription.fetch(subscription_id)
-    |> TenantRepo.one()
-    |> case do
-      %Subscription{} = subscription ->
-        {:ok, subscription}
-
-      nil ->
-        {:error,
-         {:resource_not_found,
-          %{target: Subscription, conditions: %{subscription_id: subscription_id}}}}
-    end
   end
 
   defp fetch_subscription_with_state(subscription_id, state) do
@@ -273,7 +281,7 @@ defmodule Carrier.Billing do
              amount: price,
              currency: currency,
              order_id: Subscription.calc_unique_key(subscription),
-             order_name: Plan.get_full_name(plan),
+             order_name: "reflow #{Plan.get_full_name(plan)}",
              customer_email: billing_email,
              customer_name: billing_name
            }) do
