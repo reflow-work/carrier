@@ -15,4 +15,21 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     data_sources
     |> Enum.map(fn %DataSource{id: id, name: name} -> {name, id} end)
   end
+
+  attr :data_source, :any, required: true
+
+  def data_transformer(assigns) do
+    case assigns.data_source do
+      nil ->
+        empty_data_transformer(assigns)
+
+      %DataSource{source: :tableau} ->
+        tableau_data_transformer(assigns)
+
+      _ ->
+        ~H"""
+        Not implemented
+        """
+    end
+  end
 end

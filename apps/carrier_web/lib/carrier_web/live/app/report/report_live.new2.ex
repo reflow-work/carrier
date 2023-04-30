@@ -35,6 +35,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
+      <Components.data_transformer data_source={@selected_data_source} />
     </section>
     """
   end
