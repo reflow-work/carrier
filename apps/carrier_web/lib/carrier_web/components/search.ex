@@ -62,9 +62,14 @@ defmodule CarrierWeb.Components.Search do
         <.button class="hidden" disabled></.button>
       </.simple_form>
 
-      <div>
-        <div :for={selected_item <- @selected_items}>
-          <%= selected_item.label %>
+      <div class="mt-4 space-y-2">
+        <div :for={{selected_item, i} <- @selected_items |> Enum.with_index()}>
+          <.icon
+            name="hero-x-circle"
+            class="mr-2 w-6 h-6 cursor-pointer"
+            phx-target={@myself}
+            phx-click={JS.push("unselect", value: %{index: i})}
+          /><%= selected_item.label %>
         </div>
       </div>
     </div>
@@ -109,6 +114,15 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> update(:selected_items, &(&1 ++ [selected_item]))
       |> assign(:show_selectable_items, true)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("unselect", %{"index" => index}, socket) do
+    socket =
+      socket
+      |> update(:selected_items, &(&1 |> List.delete_at(index)))
 
     {:noreply, socket}
   end
