@@ -29,7 +29,10 @@
                 <.link navigate={~p"/app/reports/#{report.id}/edit"} class="btn btn-sm">
                   수정
                 </.link>
-                <.link patch={~p"/app/reports/#{report.id}/delete"} class="btn btn-sm">
+                <.link
+                  patch={~p"/app/reports/#{Crypto.obfuscate(report.id)}/delete"}
+                  class="btn btn-sm"
+                >
                   삭제
                 </.link>
               </td>
