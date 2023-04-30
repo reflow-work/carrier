@@ -26,7 +26,10 @@
               <td><%= report.trigger_time |> format_trigger_time(@timezone) %></td>
               <td>#<%= report.integration_info.channel_name %></td>
               <td class="flex justify-end gap-x-2">
-                <.link navigate={~p"/app/reports/#{report.id}/edit"} class="btn btn-sm">
+                <.link
+                  navigate={~p"/app/reports/#{Crypto.obfuscate(report.id)}/edit"}
+                  class="btn btn-sm"
+                >
                   수정
                 </.link>
                 <.link

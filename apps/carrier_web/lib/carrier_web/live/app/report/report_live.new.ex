@@ -56,9 +56,8 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   @impl true
-  def handle_params(params, _uri, %{assigns: %{live_action: :edit}} = socket) do
-    %{"id" => report_id_str} = params
-    report_id = report_id_str |> String.to_integer()
+  def handle_params(%{"id" => report_id_str}, _uri, %{assigns: %{live_action: :edit}} = socket) do
+    report_id = report_id_str |> Crypto.deobfuscate!()
 
     socket =
       socket
