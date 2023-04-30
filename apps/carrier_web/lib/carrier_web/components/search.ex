@@ -6,6 +6,7 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> assign(:keyword, "")
+      |> assign(:show_selectable_items, false)
 
     {:ok, socket}
   end
@@ -18,6 +19,7 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> assign(assigns)
       |> assign(:items, normalize_items(items))
+      |> assign(:selectable_items, [])
 
     {:ok, socket}
   end
@@ -27,7 +29,23 @@ defmodule CarrierWeb.Components.Search do
     ~H"""
     <div>
       <.simple_form for={%{}}>
-        <.input type="text" name="keyword" value={@keyword} phx-target={@myself} phx-change="search" />
+        <div class="relative">
+          <.input
+            type="text"
+            name="keyword"
+            value={@keyword}
+            phx-target={@myself}
+            phx-change="search"
+          />
+          <div
+            :if={@show_selectable_items}
+            class="absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50"
+          >
+            <div :for={selectable_item <- @selectable_items} class="px-4 py-2">
+              <%= selectable_item.label %>
+            </div>
+          </div>
+        </div>
         <!-- for disabling submit by enter -->
         <:actions>
           <.button class="hidden" disabled></.button>
@@ -39,6 +57,25 @@ defmodule CarrierWeb.Components.Search do
 
   @impl true
   def handle_event("search", %{"keyword" => keyword}, socket) do
+    socket =
+      case keyword |> String.trim() do
+        "" ->
+          socket
+          |> assign(:show_selectable_items, false)
+          |> assign(:selectable_items, [])
+
+        trimmed_keyword ->
+          regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
+
+          selectable_items =
+            socket.assigns.items
+            |> Enum.filter(fn item -> item.label =~ regex end)
+
+          socket
+          |> assign(:show_selectable_items, true)
+          |> assign(:selectable_items, selectable_items)
+      end
+
     socket =
       socket
       |> assign(:keyword, keyword)

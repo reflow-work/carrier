@@ -220,3 +220,7 @@ input[type="checkbox"] {
 .badge.failed {
   @apply bg-red-300;
 }
+
+.card {
+  overflow: unset;
+}
