@@ -17,7 +17,6 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   end
 
   attr :data_source, :any, required: true
-  attr :onselects, :map, required: true
 
   def data_transformer(assigns) do
     case assigns.data_source do
@@ -25,7 +24,13 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
         empty_data_transformer(assigns)
 
       %DataSource{source: :tableau} ->
-        tableau_data_transformer(assigns)
+        ~H"""
+        <.live_component
+          module={CarrierWeb.App.ReportLive.New2.TableauDataTransformer}
+          id="tableau_data_transformer"
+          data_source={@data_source}
+        />
+        """
 
       _ ->
         ~H"""

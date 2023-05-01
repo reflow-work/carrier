@@ -7,6 +7,12 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> assign(:keyword, "")
       |> assign(:show_selectable_items, false)
+      |> assign(:max_search, 5)
+      |> assign(:max_select, nil)
+      |> assign(:position, :bottom)
+      |> assign(:label, nil)
+      |> assign(:label_align, nil)
+      |> assign(:multiple, false)
 
     {:ok, socket}
   end
@@ -34,15 +40,24 @@ defmodule CarrierWeb.Components.Search do
           <.input
             type="text"
             name="keyword"
+            label={@label}
+            label_align={@label_align}
             value={@keyword}
             phx-target={@myself}
             phx-change="search"
             phx-focus="show_selectable_items"
             phx-click-away="hide_selectable_items"
-          />
+          >
+            <:icon>
+              <.icon name="hero-magnifying-glass" />
+            </:icon>
+          </.input>
           <div
-            :if={@show_selectable_items}
-            class="absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50"
+            :if={@show_selectable_items && @max_select > @selected_items |> Enum.count()}
+            class={[
+              "absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50",
+              @position == :top && "bottom-12"
+            ]}
           >
             <div
               :for={selectable_item <- @selectable_items}
@@ -63,6 +78,9 @@ defmodule CarrierWeb.Components.Search do
       </.simple_form>
 
       <div class="mt-4 space-y-2">
+        <p :if={@max_select}>
+          최대 <span class="font-semibold"><%= @max_select %></span> 개까지 선택할 수 있습니다.
+        </p>
         <div :for={{selected_item, i} <- @selected_items |> Enum.with_index()}>
           <.icon
             name="hero-x-circle"
@@ -79,27 +97,9 @@ defmodule CarrierWeb.Components.Search do
   @impl true
   def handle_event("search", %{"keyword" => keyword}, socket) do
     socket =
-      case keyword |> String.trim() do
-        "" ->
-          socket
-          |> assign(:show_selectable_items, false)
-          |> assign(:selectable_items, [])
-
-        trimmed_keyword ->
-          regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
-
-          selectable_items =
-            socket.assigns.items
-            |> Enum.filter(fn item -> item.label =~ regex end)
-
-          socket
-          |> assign(:show_selectable_items, true)
-          |> assign(:selectable_items, selectable_items)
-      end
-
-    socket =
       socket
       |> assign(:keyword, keyword)
+      |> assign_selectable_items()
 
     {:noreply, socket}
   end
@@ -113,9 +113,8 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> update(:selected_items, &(&1 ++ [selected_item]))
-      |> assign(:show_selectable_items, true)
-
-    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+      |> assign_selectable_items()
+      |> run_onchange()
 
     {:noreply, socket}
   end
@@ -125,8 +124,8 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> update(:selected_items, &(&1 |> List.delete_at(index)))
-
-    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+      |> assign_selectable_items()
+      |> run_onchange()
 
     {:noreply, socket}
   end
@@ -158,5 +157,44 @@ defmodule CarrierWeb.Components.Search do
   defp normalize_items(items) do
     items
     |> Enum.map(fn {label, value} -> %{label: label, value: value} end)
+  end
+
+  defp assign_selectable_items(socket) do
+    case socket.assigns.keyword |> String.trim() do
+      "" ->
+        socket
+        |> assign(:show_selectable_items, false)
+        |> assign(:selectable_items, [])
+
+      trimmed_keyword ->
+        regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
+
+        selectable_items =
+          socket.assigns.items
+          |> handle_multiple(socket.assigns.multiple, socket.assigns.selected_items)
+          |> Stream.filter(fn item -> item.label =~ regex end)
+          |> Stream.take(socket.assigns.max_search)
+          |> Enum.to_list()
+
+        socket
+        |> assign(:show_selectable_items, true)
+        |> assign(:selectable_items, selectable_items)
+    end
+  end
+
+  defp handle_multiple(items, false, selected_items) do
+    items |> Stream.reject(fn item -> item in selected_items end)
+  end
+
+  defp handle_multiple(items, true, selected_items) do
+    items
+  end
+
+  defp run_onchange(socket) do
+    socket.assigns.selected_items
+    |> Enum.map(& &1.value)
+    |> socket.assigns.onchange.()
+
+    socket
   end
 end

@@ -272,6 +272,7 @@ defmodule CarrierWeb.CoreComponents do
                 pattern placeholder readonly required rows size step)
 
   slot :label_element, doc: "the slot for the label element"
+  slot :icon
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns
@@ -412,21 +413,29 @@ defmodule CarrierWeb.CoreComponents do
       <% else %>
         <.label for={@id} align={@label_align}><%= @label %></.label>
       <% end %>
-      <input
-        type={@type}
-        name={@name}
-        id={@id}
-        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "block rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          "border-zinc-300 focus:border-zinc-400",
-          @label_align == :top && "mt-1 w-full",
-          @label_align == :left && "flex-1",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
-        {@rest}
-      />
+      <div class={[
+        "relative",
+        @label_align == :top && "mt-1 w-full",
+        @label_align == :left && "flex-1"
+      ]}>
+        <div class="absolute top-2 right-2 w-6 h-6">
+          <%= render_slot(@icon) %>
+        </div>
+        <input
+          type={@type}
+          name={@name}
+          id={@id}
+          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+          class={[
+            "block rounded-lg w-full text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+            "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+            "border-zinc-300 focus:border-zinc-400",
+            @errors != [] && "border-rose-400 focus:border-rose-400",
+            if(slot_exist?(@icon), do: "pr-10")
+          ]}
+          {@rest}
+        />
+      </div>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
