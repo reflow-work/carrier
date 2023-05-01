@@ -12,6 +12,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       socket
       |> assign(:title, nil)
       |> assign(:selected_data_source, nil)
+      |> assign(:data_transformer_onselects, %{})
 
     {:ok, socket}
   end
@@ -35,9 +36,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
+      <Components.data_transformer
+        data_source={@selected_data_source}
+        onselects={@data_transformer_onselects}
+      />
     </section>
     """
   end
+
+  ### Data Source Selector ###
 
   @impl true
   def handle_event("select_data_source", %{"id" => data_source_id_str}, socket) do
@@ -49,6 +56,39 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         :selected_data_source,
         socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
       )
+      |> init_data_source_info()
+
+    {:noreply, socket}
+  end
+
+  defp init_data_source_info(socket) do
+    data_source = socket.assigns.selected_data_source
+
+    socket
+    |> do_init_common_data_source_info(data_source)
+    |> do_init_data_source_info(data_source)
+  end
+
+  defp do_init_common_data_source_info(socket, %DataSource{id: data_source_id, source: source}) do
+    socket
+    |> assign(:data_source_info, %{data_source_id: data_source_id, source: source})
+  end
+
+  defp do_init_data_source_info(socket, %DataSource{source: :tableau}) do
+    socket
+    |> assign(:data_transformer_onselects, %{select_tableau_view: &{:select_tableau_view, &1}})
+  end
+
+  # TODO: implement it
+  defp do_init_data_source_info(socket, %DataSource{}) do
+    socket
+  end
+
+  ### Data Transformer ###
+
+  @impl true
+  def handle_info({:select_tableau_view, selected_views}, socket) do
+    selected_views |> IO.inspect()
 
     {:noreply, socket}
   end

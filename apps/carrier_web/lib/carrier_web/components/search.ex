@@ -1,0 +1,162 @@
+defmodule CarrierWeb.Components.Search do
+  use CarrierWeb, :live_component
+
+  @impl true
+  def mount(socket) do
+    socket =
+      socket
+      |> assign(:keyword, "")
+      |> assign(:show_selectable_items, false)
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(assigns, socket) do
+    {items, assigns} = assigns |> Map.pop(:items)
+
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(:items, normalize_items(items))
+      |> assign(:selectable_items, [])
+      |> assign(:selected_items, [])
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <div>
+      <.simple_form for={%{}}>
+        <div class="relative">
+          <.input
+            type="text"
+            name="keyword"
+            value={@keyword}
+            phx-target={@myself}
+            phx-change="search"
+            phx-focus="show_selectable_items"
+            phx-click-away="hide_selectable_items"
+          />
+          <div
+            :if={@show_selectable_items}
+            class="absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50"
+          >
+            <div
+              :for={selectable_item <- @selectable_items}
+              class="px-4 py-2"
+              phx-target={@myself}
+              phx-click={JS.push("select", value: %{value: selectable_item.value})}
+            >
+              <%= selectable_item.label %>
+            </div>
+
+            <div :if={@selectable_items |> Enum.empty?()} class="px-4 py-2">
+              검색 결과가 없습니다.
+            </div>
+          </div>
+        </div>
+        <!-- for disabling submit by enter -->
+        <.button class="hidden" disabled></.button>
+      </.simple_form>
+
+      <div class="mt-4 space-y-2">
+        <div :for={{selected_item, i} <- @selected_items |> Enum.with_index()}>
+          <.icon
+            name="hero-x-circle"
+            class="mr-2 w-6 h-6 cursor-pointer"
+            phx-target={@myself}
+            phx-click={JS.push("unselect", value: %{index: i})}
+          /><%= selected_item.label %>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @impl true
+  def handle_event("search", %{"keyword" => keyword}, socket) do
+    socket =
+      case keyword |> String.trim() do
+        "" ->
+          socket
+          |> assign(:show_selectable_items, false)
+          |> assign(:selectable_items, [])
+
+        trimmed_keyword ->
+          regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
+
+          selectable_items =
+            socket.assigns.items
+            |> Enum.filter(fn item -> item.label =~ regex end)
+
+          socket
+          |> assign(:show_selectable_items, true)
+          |> assign(:selectable_items, selectable_items)
+      end
+
+    socket =
+      socket
+      |> assign(:keyword, keyword)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("select", %{"value" => value}, socket) do
+    selected_item =
+      socket.assigns.items
+      |> Enum.find(&(&1.value == value))
+
+    socket =
+      socket
+      |> update(:selected_items, &(&1 ++ [selected_item]))
+      |> assign(:show_selectable_items, true)
+
+    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("unselect", %{"index" => index}, socket) do
+    socket =
+      socket
+      |> update(:selected_items, &(&1 |> List.delete_at(index)))
+
+    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("show_selectable_items", _params, socket) do
+    socket =
+      case socket.assigns.keyword |> String.trim() do
+        "" ->
+          socket
+
+        _ ->
+          socket
+          |> assign(:show_selectable_items, true)
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("hide_selectable_items", _params, socket) do
+    socket =
+      socket
+      |> assign(:show_selectable_items, false)
+
+    {:noreply, socket}
+  end
+
+  defp normalize_items(items) do
+    items
+    |> Enum.map(fn {label, value} -> %{label: label, value: value} end)
+  end
+end

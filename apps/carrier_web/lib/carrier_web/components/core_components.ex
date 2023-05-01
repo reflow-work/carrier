@@ -264,6 +264,7 @@ defmodule CarrierWeb.CoreComponents do
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
 
+  attr :label_align, :atom, default: :top, values: ~w(top left)a
   attr :class, :string, default: nil
 
   attr :rest, :global,
@@ -322,16 +323,28 @@ defmodule CarrierWeb.CoreComponents do
       end
 
     ~H"""
-    <div class={@class} phx-feedback-for={@name}>
+    <div
+      class={[
+        @label_align == :top && nil,
+        @label_align == :left && "flex items-center gap-2",
+        @class
+      ]}
+      phx-feedback-for={@name}
+    >
       <%= if slot_exist?(@label_element) do %>
-        <.label for={@id}><%= render_slot(@label_element) %></.label>
+        <.label for={@id} align={@label_align}><%= render_slot(@label_element) %></.label>
       <% else %>
-        <.label for={@id}><%= @label %></.label>
+        <.label for={@id} align={@label_align}><%= @label %></.label>
       <% end %>
       <select
         id={@id}
         name={@name}
-        class="select mt-1 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6"
+        class={[
+          "select block rounded-md border border-gray-300 bg-white shadow-sm",
+          "focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6",
+          @label_align == :top && "mt-1 w-full",
+          @label_align == :left && "flex-1"
+        ]}
         multiple={@multiple}
         {@rest}
       >
@@ -386,11 +399,18 @@ defmodule CarrierWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div class={@class} phx-feedback-for={@name}>
+    <div
+      class={[
+        @label_align == :top && nil,
+        @label_align == :left && "flex items-center gap-2",
+        @class
+      ]}
+      phx-feedback-for={@name}
+    >
       <%= if slot_exist?(@label_element) do %>
-        <.label for={@id}><%= render_slot(@label_element) %></.label>
+        <.label for={@id} align={@label_align}><%= render_slot(@label_element) %></.label>
       <% else %>
-        <.label for={@id}><%= @label %></.label>
+        <.label for={@id} align={@label_align}><%= @label %></.label>
       <% end %>
       <input
         type={@type}
@@ -398,9 +418,11 @@ defmodule CarrierWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "block rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           "border-zinc-300 focus:border-zinc-400",
+          @label_align == :top && "mt-1 w-full",
+          @label_align == :left && "flex-1",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -414,13 +436,21 @@ defmodule CarrierWeb.CoreComponents do
   Renders a label.
   """
   attr :for, :string, default: nil
+  attr :align, :atom, default: :top, values: [:top, :left]
   attr :class, :string, default: nil
 
   slot :inner_block, required: true
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class={["block text-sm font-semibold leading-6 text-zinc-800", @class]}>
+    <label
+      for={@for}
+      class={[
+        "block text-sm font-semibold leading-6 text-zinc-800",
+        @align == :left && "w-28",
+        @class
+      ]}
+    >
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -612,10 +642,11 @@ defmodule CarrierWeb.CoreComponents do
   """
   attr :name, :string, required: true
   attr :class, :string, default: nil
+  attr :rest, :global
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
-    <span class={[@name, @class]} />
+    <span class={[@name, @class]} {@rest} />
     """
   end
 
