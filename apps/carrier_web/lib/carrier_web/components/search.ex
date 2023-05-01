@@ -7,6 +7,7 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> assign(:keyword, "")
       |> assign(:show_selectable_items, false)
+      |> assign(:max, 5)
 
     {:ok, socket}
   end
@@ -90,7 +91,9 @@ defmodule CarrierWeb.Components.Search do
 
           selectable_items =
             socket.assigns.items
-            |> Enum.filter(fn item -> item.label =~ regex end)
+            |> Stream.filter(fn item -> item.label =~ regex end)
+            |> Stream.take(socket.assigns.max)
+            |> Enum.to_list()
 
           socket
           |> assign(:show_selectable_items, true)
