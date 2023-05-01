@@ -11,6 +11,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:position, :bottom)
       |> assign(:label, nil)
       |> assign(:label_align, nil)
+      |> assign(:multiple, false)
 
     {:ok, socket}
   end
@@ -92,29 +93,9 @@ defmodule CarrierWeb.Components.Search do
   @impl true
   def handle_event("search", %{"keyword" => keyword}, socket) do
     socket =
-      case keyword |> String.trim() do
-        "" ->
-          socket
-          |> assign(:show_selectable_items, false)
-          |> assign(:selectable_items, [])
-
-        trimmed_keyword ->
-          regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
-
-          selectable_items =
-            socket.assigns.items
-            |> Stream.filter(fn item -> item.label =~ regex end)
-            |> Stream.take(socket.assigns.max)
-            |> Enum.to_list()
-
-          socket
-          |> assign(:show_selectable_items, true)
-          |> assign(:selectable_items, selectable_items)
-      end
-
-    socket =
       socket
       |> assign(:keyword, keyword)
+      |> assign_selectable_items()
 
     {:noreply, socket}
   end
@@ -128,7 +109,7 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> update(:selected_items, &(&1 ++ [selected_item]))
-      |> assign(:show_selectable_items, true)
+      |> assign_selectable_items()
       |> run_onchange()
 
     {:noreply, socket}
@@ -139,6 +120,7 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> update(:selected_items, &(&1 |> List.delete_at(index)))
+      |> assign_selectable_items()
       |> run_onchange()
 
     {:noreply, socket}
@@ -171,6 +153,37 @@ defmodule CarrierWeb.Components.Search do
   defp normalize_items(items) do
     items
     |> Enum.map(fn {label, value} -> %{label: label, value: value} end)
+  end
+
+  defp assign_selectable_items(socket) do
+    case socket.assigns.keyword |> String.trim() do
+      "" ->
+        socket
+        |> assign(:show_selectable_items, false)
+        |> assign(:selectable_items, [])
+
+      trimmed_keyword ->
+        regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
+
+        selectable_items =
+          socket.assigns.items
+          |> handle_multiple(socket.assigns.multiple, socket.assigns.selected_items)
+          |> Stream.filter(fn item -> item.label =~ regex end)
+          |> Stream.take(socket.assigns.max)
+          |> Enum.to_list()
+
+        socket
+        |> assign(:show_selectable_items, true)
+        |> assign(:selectable_items, selectable_items)
+    end
+  end
+
+  defp handle_multiple(items, false, selected_items) do
+    items |> Stream.reject(fn item -> item in selected_items end)
+  end
+
+  defp handle_multiple(items, true, selected_items) do
+    items
   end
 
   defp run_onchange(socket) do
