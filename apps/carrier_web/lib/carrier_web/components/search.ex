@@ -45,7 +45,11 @@ defmodule CarrierWeb.Components.Search do
             phx-change="search"
             phx-focus="show_selectable_items"
             phx-click-away="hide_selectable_items"
-          />
+          >
+            <:icon>
+              <.icon name="hero-magnifying-glass" />
+            </:icon>
+          </.input>
           <div
             :if={@show_selectable_items}
             class={[
