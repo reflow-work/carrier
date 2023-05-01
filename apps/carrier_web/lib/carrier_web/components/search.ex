@@ -9,6 +9,8 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:show_selectable_items, false)
       |> assign(:max, 5)
       |> assign(:position, :bottom)
+      |> assign(:label, nil)
+      |> assign(:label_align, nil)
 
     {:ok, socket}
   end
@@ -36,6 +38,8 @@ defmodule CarrierWeb.Components.Search do
           <.input
             type="text"
             name="keyword"
+            label={@label}
+            label_align={@label_align}
             value={@keyword}
             phx-target={@myself}
             phx-change="search"
