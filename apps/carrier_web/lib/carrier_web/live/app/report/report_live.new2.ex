@@ -79,4 +79,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   defp do_init_data_source_info(socket, %DataSource{}) do
     socket
   end
+
+  @impl true
+  def handle_info(message, socket) do
+    case handle_async_assigns(message, socket) do
+      {:ok, socket} ->
+        {:noreply, socket}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
 end
