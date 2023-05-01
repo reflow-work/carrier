@@ -8,6 +8,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:keyword, "")
       |> assign(:show_selectable_items, false)
       |> assign(:max, 5)
+      |> assign(:position, :bottom)
 
     {:ok, socket}
   end
@@ -43,7 +44,10 @@ defmodule CarrierWeb.Components.Search do
           />
           <div
             :if={@show_selectable_items}
-            class="absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50"
+            class={[
+              "absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50",
+              @position == :top && "bottom-12"
+            ]}
           >
             <div
               :for={selectable_item <- @selectable_items}
