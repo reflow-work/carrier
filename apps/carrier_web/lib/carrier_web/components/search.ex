@@ -114,8 +114,7 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> update(:selected_items, &(&1 ++ [selected_item]))
       |> assign(:show_selectable_items, true)
-
-    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+      |> run_onchange()
 
     {:noreply, socket}
   end
@@ -125,8 +124,7 @@ defmodule CarrierWeb.Components.Search do
     socket =
       socket
       |> update(:selected_items, &(&1 |> List.delete_at(index)))
-
-    send(self(), socket.assigns.onselect.(socket.assigns.selected_items))
+      |> run_onchange()
 
     {:noreply, socket}
   end
@@ -158,5 +156,13 @@ defmodule CarrierWeb.Components.Search do
   defp normalize_items(items) do
     items
     |> Enum.map(fn {label, value} -> %{label: label, value: value} end)
+  end
+
+  defp run_onchange(socket) do
+    socket.assigns.selected_items
+    |> Enum.map(& &1.value)
+    |> socket.assigns.onchange.()
+
+    socket
   end
 end

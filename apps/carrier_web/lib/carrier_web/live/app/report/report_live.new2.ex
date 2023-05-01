@@ -36,10 +36,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
-      <Components.data_transformer
-        data_source={@selected_data_source}
-        onselects={@data_transformer_onselects}
-      />
+      <Components.data_transformer data_source={@selected_data_source} />
     </section>
     """
   end
@@ -76,20 +73,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   defp do_init_data_source_info(socket, %DataSource{source: :tableau}) do
     socket
-    |> assign(:data_transformer_onselects, %{select_tableau_view: &{:select_tableau_view, &1}})
   end
 
   # TODO: implement it
   defp do_init_data_source_info(socket, %DataSource{}) do
     socket
-  end
-
-  ### Data Transformer ###
-
-  @impl true
-  def handle_info({:select_tableau_view, selected_views}, socket) do
-    selected_views |> IO.inspect()
-
-    {:noreply, socket}
   end
 end
