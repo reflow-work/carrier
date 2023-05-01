@@ -7,7 +7,8 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> assign(:keyword, "")
       |> assign(:show_selectable_items, false)
-      |> assign(:max, 5)
+      |> assign(:max_search, 5)
+      |> assign(:max_select, nil)
       |> assign(:position, :bottom)
       |> assign(:label, nil)
       |> assign(:label_align, nil)
@@ -52,7 +53,7 @@ defmodule CarrierWeb.Components.Search do
             </:icon>
           </.input>
           <div
-            :if={@show_selectable_items}
+            :if={@show_selectable_items && @max_select > @selected_items |> Enum.count()}
             class={[
               "absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50",
               @position == :top && "bottom-12"
@@ -77,6 +78,9 @@ defmodule CarrierWeb.Components.Search do
       </.simple_form>
 
       <div class="mt-4 space-y-2">
+        <p :if={@max_select}>
+          최대 <span class="font-semibold"><%= @max_select %></span> 개까지 선택할 수 있습니다.
+        </p>
         <div :for={{selected_item, i} <- @selected_items |> Enum.with_index()}>
           <.icon
             name="hero-x-circle"
@@ -169,7 +173,7 @@ defmodule CarrierWeb.Components.Search do
           socket.assigns.items
           |> handle_multiple(socket.assigns.multiple, socket.assigns.selected_items)
           |> Stream.filter(fn item -> item.label =~ regex end)
-          |> Stream.take(socket.assigns.max)
+          |> Stream.take(socket.assigns.max_search)
           |> Enum.to_list()
 
         socket
