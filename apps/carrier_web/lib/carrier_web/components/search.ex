@@ -61,7 +61,7 @@ defmodule CarrierWeb.Components.Search do
           >
             <div
               :for={selectable_item <- @selectable_items}
-              class="px-4 py-2"
+              class="px-4 py-2 hover:bg-gray-100"
               phx-target={@myself}
               phx-click={JS.push("select", value: %{value: selectable_item.value})}
             >
