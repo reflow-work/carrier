@@ -4,26 +4,9 @@
   <div class="flex gap-4">
     <.card_container class="w-52">
       <div class="card p-4 space-y-1">
-        <div
-          class={[
-            "rounded-md p-2 cursor-pointer hover:bg-gray-100",
-            @selected_menu == :account && "!bg-gray-200"
-          ]}
-          phx-click="select_menu"
-          phx-value-menu="account"
-        >
-          Account
-        </div>
-        <div
-          class={[
-            "rounded-md p-2 cursor-pointer hover:bg-gray-100",
-            @selected_menu == :billing && "!bg-gray-200"
-          ]}
-          phx-click="select_menu"
-          phx-value-menu="billing"
-        >
-          Billing
-        </div>
+        <.menu menu={:account} selected_menu={@selected_menu} />
+        <.menu menu={:billing} selected_menu={@selected_menu} />
+        <.menu menu={:data_source} selected_menu={@selected_menu} />
       </div>
     </.card_container>
 
@@ -107,6 +90,51 @@
             보기
           </.link>
         </div>
+      </.card>
+    </.card_container>
+
+    <.card_container :if={@selected_menu == :data_source} class="space-y-4 flex-1">
+      <.card>
+        <div class="flex justify-between">
+          <.card_title title="데이터 소스 목록" />
+          <.link
+            navigate={~p"/app/data-sources/new"}
+            class={[
+              "btn",
+              "btn-primary",
+              if(@is_disabled_to_create_new_data_source, do: "btn-disabled")
+            ]}
+          >
+            새 데이터 소스 생성
+          </.link>
+
+          <%= if @is_disabled_to_create_new_data_source do %>
+            <div>
+              데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
+            </div>
+          <% end %>
+        </div>
+
+        <section class="mt-6">
+          <div class="overflow-x-auto">
+            <table class="table w-full">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>소스</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for data_source <- @data_sources do %>
+                  <tr class="hover">
+                    <td><%= data_source.name %></td>
+                    <td><%= transl_data_source_source(data_source) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </.card>
     </.card_container>
   </div>
