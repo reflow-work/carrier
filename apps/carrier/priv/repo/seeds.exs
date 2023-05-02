@@ -235,7 +235,7 @@ Repo.transaction(fn ->
           billing_cycle: :monthly,
           name: "Pro",
           type: :pro,
-          price: 108_000,
+          price: 150_000,
           currency: :KRW,
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
           subscribable: true
@@ -254,8 +254,8 @@ Repo.transaction(fn ->
           billing_cycle: :yearly,
           name: "Pro",
           type: :pro,
-          original_price: 1_296_000,
-          price: 1_080_000,
+          original_price: 1_800_000,
+          price: 1_500_000,
           currency: :KRW,
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
           subscribable: true
