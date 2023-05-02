@@ -1,7 +1,8 @@
 defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   use CarrierWeb, :live_component
   use Carrier.Secrets
-  alias Carrier.Data.Source
+  alias CarrierWeb.App.ReportLive.New2.TableauView
+  alias Carrier.Data.Source.Tableau
 
   @impl true
   def mount(socket) do
@@ -15,14 +16,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   # init
   @impl true
   def update(%{data_source: %DataSource{conn_info: %ConnInfo{} = conn_info}} = assigns, socket) do
-    {selected_view_ids, assigns} = assigns |> Map.pop(:selected_view_ids, [])
-
-    selected_views =
-      selected_view_ids
-      |> Enum.map(fn selected_view_id ->
-        Enum.find(socket.assigns.views, fn %{id: id} -> id == selected_view_id end)
-      end)
-
     socket =
       socket
       |> assign(assigns)
@@ -32,13 +25,12 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           {:ok, tableau_views} =
             conn_info
             |> ConnInfo.to_credentials()
-            |> Source.Tableau.list_views()
+            |> Tableau.list_views()
 
           tableau_views
         end,
         __MODULE__
       )
-      |> assign(:selected_views, selected_views)
 
     {:ok, socket}
   end
@@ -46,9 +38,18 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   # update views
   @impl true
   def update(assigns, socket) do
+    {selected_view_ids, assigns} = assigns |> Map.pop(:selected_view_ids, [])
+
+    selected_views =
+      selected_view_ids
+      |> Enum.map(fn selected_view_id ->
+        Enum.find(socket.assigns.views.value, fn %{id: id} -> id == selected_view_id end)
+      end)
+
     socket =
       socket
       |> assign(assigns)
+      |> assign(:selected_views, selected_views)
 
     {:ok, socket}
   end
@@ -87,9 +88,13 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           </div>
         </.card>
         <.card>
-          <div :for={selected_view <- @selected_views}>
-            <%= inspect(selected_view) %>
-          </div>
+          <.live_component
+            :for={%Tableau.View{id: id} = selected_view <- @selected_views}
+            module={TableauView}
+            id={id}
+            data_source={@data_source}
+            view={selected_view}
+          />
         </.card>
       </.card_container>
     </div>

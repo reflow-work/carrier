@@ -1,46 +1,8 @@
 defmodule Carrier.External.TableauAPI do
   require Logger
+  alias Carrier.Data.Source.Tableau.{Pagination, View}
 
   @api_version 3.18
-
-  defmodule Pagination do
-    defstruct [:page, :page_size, :total]
-
-    def new(%{
-          "pageNumber" => page_str,
-          "pageSize" => page_size_str,
-          "totalAvailable" => total_str
-        }) do
-      %__MODULE__{
-        page: String.to_integer(page_str),
-        page_size: String.to_integer(page_size_str),
-        total: String.to_integer(total_str)
-      }
-    end
-  end
-
-  defmodule View do
-    defstruct [:id, :name, :full_name]
-
-    def new(%{
-          "id" => id,
-          "name" => name,
-          "location" => %{"type" => "Project"},
-          "project" => %{"name" => project_name},
-          "workbook" => %{"name" => workbook_name}
-        }) do
-      %__MODULE__{id: id, name: name, full_name: "#{project_name} / #{workbook_name} / #{name}"}
-    end
-
-    def new(%{
-          "id" => id,
-          "name" => name,
-          "location" => %{"type" => "PersonalSpace"},
-          "workbook" => %{"name" => workbook_name}
-        }) do
-      %__MODULE__{id: id, name: name, full_name: "Personal Space / #{workbook_name} / #{name}"}
-    end
-  end
 
   def signin(%{host: host, name: name, password: password, site: site}) do
     body = %{
@@ -127,7 +89,8 @@ defmodule Carrier.External.TableauAPI do
       [
         {Tesla.Middleware.BaseUrl, "#{host}/api/#{@api_version}"},
         {Tesla.Middleware.Headers, [{"Accept", "application/json"}]},
-        Tesla.Middleware.JSON
+        Tesla.Middleware.JSON,
+        {Tesla.Middleware.Timeout, timeout: :timer.seconds(30)}
       ]
       |> then(fn middlewares ->
         case token do

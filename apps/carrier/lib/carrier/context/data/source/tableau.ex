@@ -1,6 +1,45 @@
 defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.TableauAPI
 
+  defmodule Pagination do
+    defstruct [:page, :page_size, :total]
+
+    def new(%{
+          "pageNumber" => page_str,
+          "pageSize" => page_size_str,
+          "totalAvailable" => total_str
+        }) do
+      %__MODULE__{
+        page: String.to_integer(page_str),
+        page_size: String.to_integer(page_size_str),
+        total: String.to_integer(total_str)
+      }
+    end
+  end
+
+  defmodule View do
+    defstruct [:id, :name, :full_name]
+
+    def new(%{
+          "id" => id,
+          "name" => name,
+          "location" => %{"type" => "Project"},
+          "project" => %{"name" => project_name},
+          "workbook" => %{"name" => workbook_name}
+        }) do
+      %__MODULE__{id: id, name: name, full_name: "#{project_name} / #{workbook_name} / #{name}"}
+    end
+
+    def new(%{
+          "id" => id,
+          "name" => name,
+          "location" => %{"type" => "PersonalSpace"},
+          "workbook" => %{"name" => workbook_name}
+        }) do
+      %__MODULE__{id: id, name: name, full_name: "Personal Space / #{workbook_name} / #{name}"}
+    end
+  end
+
   def signin(%{host: host, email: email, password: password, site: site}) do
     TableauAPI.signin(%{host: host, name: email, password: password, site: site})
   end
@@ -31,7 +70,8 @@ defmodule Carrier.Data.Source.Tableau do
         nil
 
       page ->
-        {:ok, %{views: views, pagination: %{page: page, page_size: page_size, total: total}}} =
+        {:ok,
+         %{views: views, pagination: %Pagination{page: page, page_size: page_size, total: total}}} =
           TableauAPI.query_views_for_site(%{
             host: host,
             site_id: site_id,

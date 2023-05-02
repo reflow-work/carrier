@@ -61,7 +61,7 @@ defmodule CarrierWeb.Components.Search do
           >
             <div
               :for={selectable_item <- @selectable_items}
-              class="px-4 py-2"
+              class="px-4 py-2 hover:bg-gray-100"
               phx-target={@myself}
               phx-click={JS.push("select", value: %{value: selectable_item.value})}
             >
@@ -186,7 +186,7 @@ defmodule CarrierWeb.Components.Search do
     items |> Stream.reject(fn item -> item in selected_items end)
   end
 
-  defp handle_multiple(items, true, selected_items) do
+  defp handle_multiple(items, true, _selected_items) do
     items
   end
 
