@@ -15,14 +15,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   # init
   @impl true
   def update(%{data_source: %DataSource{conn_info: %ConnInfo{} = conn_info}} = assigns, socket) do
-    {selected_view_ids, assigns} = assigns |> Map.pop(:selected_view_ids, [])
-
-    selected_views =
-      selected_view_ids
-      |> Enum.map(fn selected_view_id ->
-        Enum.find(socket.assigns.views, fn %{id: id} -> id == selected_view_id end)
-      end)
-
     socket =
       socket
       |> assign(assigns)
@@ -38,7 +30,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
         end,
         __MODULE__
       )
-      |> assign(:selected_views, selected_views)
 
     {:ok, socket}
   end
@@ -46,9 +37,18 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   # update views
   @impl true
   def update(assigns, socket) do
+    {selected_view_ids, assigns} = assigns |> Map.pop(:selected_view_ids, [])
+
+    selected_views =
+      selected_view_ids
+      |> Enum.map(fn selected_view_id ->
+        Enum.find(socket.assigns.views.value, fn %{id: id} -> id == selected_view_id end)
+      end)
+
     socket =
       socket
       |> assign(assigns)
+      |> assign(:selected_views, selected_views)
 
     {:ok, socket}
   end
