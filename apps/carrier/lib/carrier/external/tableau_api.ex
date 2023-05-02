@@ -2,7 +2,6 @@ defmodule Carrier.External.TableauAPI do
   require Logger
   alias Carrier.Data.Source.Tableau.{Pagination, View}
 
-
   @api_version 3.18
 
   def signin(%{host: host, name: name, password: password, site: site}) do
@@ -90,7 +89,8 @@ defmodule Carrier.External.TableauAPI do
       [
         {Tesla.Middleware.BaseUrl, "#{host}/api/#{@api_version}"},
         {Tesla.Middleware.Headers, [{"Accept", "application/json"}]},
-        Tesla.Middleware.JSON
+        Tesla.Middleware.JSON,
+        {Tesla.Middleware.Timeout, timeout: :timer.seconds(30)}
       ]
       |> then(fn middlewares ->
         case token do
