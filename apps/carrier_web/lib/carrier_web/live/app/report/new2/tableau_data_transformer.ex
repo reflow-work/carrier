@@ -92,6 +92,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
             :for={%Tableau.View{id: id} = selected_view <- @selected_views}
             module={TableauView}
             id={id}
+            data_source={@data_source}
             view={selected_view}
           />
         </.card>

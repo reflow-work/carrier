@@ -8,4 +8,7 @@ defmodule Carrier.Core.Nillable do
   def run(target, nil, _fun), do: target
   def run(target, _not_nil, fun) when is_function(fun, 1), do: target |> fun.()
   def run(target, not_nil, fun) when is_function(fun, 2), do: target |> fun.(not_nil)
+
+  def run_until(target, nil, fun) when is_function(fun, 1), do: target |> fun.()
+  def run_until(target, _not_nil, _fun), do: target
 end

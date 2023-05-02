@@ -35,4 +35,14 @@ defmodule Carrier.Core.NillableTest do
       assert Nillable.run(1, 1, &(&1 + &2)) == 2
     end
   end
+
+  describe "run_until/3" do
+    test "with nil" do
+      assert Nillable.run_until(1, nil, &(&1 + 1)) == 2
+    end
+
+    test "with not nil and arity 1 fun" do
+      assert Nillable.run_until(1, 1, &(&1 + 1)) == 1
+    end
+  end
 end
