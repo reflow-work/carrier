@@ -1,5 +1,6 @@
 defmodule LandingFooterComponent do
   use Phoenix.LiveComponent
+  alias Carrier.Const
 
   import CarrierWeb.AnalyticsHelper
 
@@ -29,19 +30,11 @@ defmodule LandingFooterComponent do
             <div>서울시 서초구 반포대로26길 38, 602호</div>
             <div>010-2141-0727</div>
             <div>
-              <a
-                href="https://hklim.notion.site/bd7ce7852010459ca2d53e6fc946105e"
-                target="_blank"
-                class="underline"
-              >
+              <a href={Const.get(:terms_of_service_url)} target="_blank" class="underline">
                 이용약관
               </a>
               |
-              <a
-                href="https://hklim.notion.site/404436bbda554faca25f455e859f71e9"
-                target="_blank"
-                class="underline"
-              >
+              <a href={Const.get(:privacy_policy_url)} target="_blank" class="underline">
                 개인정보 처리방침
               </a>
             </div>
