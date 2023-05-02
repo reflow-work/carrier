@@ -6,10 +6,13 @@ defmodule CarrierWeb.App.SettingsLive do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:selected_menu, :account)
       |> assign(:active_subscription, nil)
       |> assign(:pending_subscription, nil)
+      |> assign(:payments, [])
       |> load_active_subscription()
       |> load_pending_subscription()
+      |> load_payments()
 
     {:ok, socket}
   end
@@ -23,7 +26,12 @@ defmodule CarrierWeb.App.SettingsLive do
     {:noreply, socket}
   end
 
-  def handle_event(_event, _params, socket) do
+  @impl true
+  def handle_event("select_menu", %{"menu" => menu}, socket) do
+    socket =
+      socket
+      |> assign(:selected_menu, String.to_existing_atom(menu))
+
     {:noreply, socket}
   end
 
@@ -44,6 +52,16 @@ defmodule CarrierWeb.App.SettingsLive do
 
       {:error, _} ->
         socket
+    end
+  end
+
+  # TODO: remove connected condition
+  defp load_payments(socket) do
+    with true <- connected?(socket),
+         {:ok, payments} <- Payments.list_confirmed_payments() do
+      socket |> assign(:payments, payments)
+    else
+      _ -> socket
     end
   end
 end
