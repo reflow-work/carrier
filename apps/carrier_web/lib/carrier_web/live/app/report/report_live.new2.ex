@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
   use Carrier.Secrets
   alias __MODULE__.Components
+  alias Carrier.Core.Nillable
 
   on_mount(CarrierWeb.IntegrationHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -18,10 +19,19 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
-  def handle_params(_params, _uri, %{assigns: %{live_action: :new}} = socket) do
+  def handle_params(params, _uri, %{assigns: %{live_action: :new}} = socket) do
+    data_source_id = params["data_source_id"] |> Nillable.map(&Crypto.deobfuscate!/1)
+
     socket =
       socket
       |> assign(:title, "레포트 생성하기")
+      |> Nillable.run(data_source_id, fn socket ->
+        socket
+        |> assign(
+          :selected_data_source,
+          socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
+        )
+      end)
 
     {:noreply, socket}
   end

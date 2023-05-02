@@ -4,28 +4,24 @@ defmodule CarrierWeb.AssignHelper do
 
   def assign_async(socket, key, fun, live_component_module \\ nil)
       when is_atom(key) and (is_function(fun, 0) or is_function(fun, 1)) do
-    case connected?(socket) do
-      true ->
-        pid = self()
+    if connected?(socket) do
+      pid = self()
 
-        Task.start(fn ->
-          result = call_function(socket, fun)
+      Task.start(fn ->
+        result = call_function(socket, fun)
 
-          live_component_info =
-            case live_component_module do
-              nil -> nil
-              live_component_module -> %{module: live_component_module, id: socket.assigns.id}
-            end
+        live_component_info =
+          case live_component_module do
+            nil -> nil
+            live_component_module -> %{module: live_component_module, id: socket.assigns.id}
+          end
 
-          send(pid, {:assign, {key, result, live_component_info}})
-        end)
-
-        socket
-        |> assign(key, %{loading?: true, value: nil})
-
-      false ->
-        socket
+        send(pid, {:assign, {key, result, live_component_info}})
+      end)
     end
+
+    socket
+    |> assign(key, %{loading?: true, value: nil})
   end
 
   def handle_async_assigns({:assign, {key, value, live_component_info}}, socket) do
