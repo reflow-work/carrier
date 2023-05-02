@@ -186,7 +186,7 @@ defmodule CarrierWeb.Components.Search do
     items |> Stream.reject(fn item -> item in selected_items end)
   end
 
-  defp handle_multiple(items, true, selected_items) do
+  defp handle_multiple(items, true, _selected_items) do
     items
   end
 
