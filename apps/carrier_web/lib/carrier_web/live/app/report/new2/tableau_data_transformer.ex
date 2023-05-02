@@ -1,7 +1,8 @@
 defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   use CarrierWeb, :live_component
   use Carrier.Secrets
-  alias Carrier.Data.Source
+  alias CarrierWeb.App.ReportLive.New2.TableauView
+  alias Carrier.Data.Source.Tableau
 
   @impl true
   def mount(socket) do
@@ -24,7 +25,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           {:ok, tableau_views} =
             conn_info
             |> ConnInfo.to_credentials()
-            |> Source.Tableau.list_views()
+            |> Tableau.list_views()
 
           tableau_views
         end,
@@ -87,9 +88,12 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           </div>
         </.card>
         <.card>
-          <div :for={selected_view <- @selected_views}>
-            <%= inspect(selected_view) %>
-          </div>
+          <.live_component
+            :for={%Tableau.View{id: id} = selected_view <- @selected_views}
+            module={TableauView}
+            id={id}
+            view={selected_view}
+          />
         </.card>
       </.card_container>
     </div>
