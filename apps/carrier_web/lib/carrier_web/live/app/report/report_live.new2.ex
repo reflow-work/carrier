@@ -13,7 +13,6 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       socket
       |> assign(:title, nil)
       |> assign(:selected_data_source, nil)
-      |> assign(:data_transformer_onselects, %{})
 
     {:ok, socket}
   end
@@ -69,25 +68,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   defp init_data_source_info(socket) do
-    data_source = socket.assigns.selected_data_source
+    # %DataSource{id: data_source_id, source: source} = socket.assigns.selected_data_source
 
     socket
-    |> do_init_common_data_source_info(data_source)
-    |> do_init_data_source_info(data_source)
-  end
-
-  defp do_init_common_data_source_info(socket, %DataSource{id: data_source_id, source: source}) do
-    socket
-    |> assign(:data_source_info, %{data_source_id: data_source_id, source: source})
-  end
-
-  defp do_init_data_source_info(socket, %DataSource{source: :tableau}) do
-    socket
-  end
-
-  # TODO: implement it
-  defp do_init_data_source_info(socket, %DataSource{}) do
-    socket
+    # |> assign(:data_source_info, %{data_source_id: data_source_id, source: source})
   end
 
   @impl true
