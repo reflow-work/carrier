@@ -20,7 +20,7 @@ defmodule Carrier.TenantFactory do
     |> merge_attributes(attrs)
   end
 
-  def integration_factory(attrs) do
+  def data_target_factory(attrs) do
     {service_name, attrs} = attrs |> Map.pop(:service_name, Enum.random([:slack]))
 
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
@@ -31,7 +31,7 @@ defmodule Carrier.TenantFactory do
         insert(:conn_info, org_id: org_id, source: service_name).id
       end)
 
-    %Integration{
+    %DataTarget{
       org_id: org_id,
       service_name: Enum.random([:slack]),
       conn_info_id: conn_info_id
@@ -94,8 +94,8 @@ defmodule Carrier.TenantFactory do
     {report_info, attrs} =
       attrs |> Map.pop_lazy(:report_info, fn -> insert(:report_info, org_id: org_id) end)
 
-    {integration_id, attrs} =
-      attrs |> Map.pop_lazy(:integration_id, fn -> insert(:integration, org_id: org_id).id end)
+    {data_target_id, attrs} =
+      attrs |> Map.pop_lazy(:data_target_id, fn -> insert(:data_target, org_id: org_id).id end)
 
     {data_source_id, attrs} =
       attrs |> Map.pop_lazy(:data_source_id, fn -> insert(:data_source, org_id: org_id).id end)
@@ -106,8 +106,8 @@ defmodule Carrier.TenantFactory do
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
       timezone: "Asia/Seoul",
-      integration_info: %{
-        integration_id: integration_id,
+      data_target_info: %{
+        data_target_id: data_target_id,
         channel_id: "channel_id"
       },
       data_source_info: %{

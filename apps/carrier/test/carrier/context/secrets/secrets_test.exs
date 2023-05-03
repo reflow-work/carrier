@@ -1,12 +1,12 @@
 defmodule Carrier.SecretsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Secrets
-  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
+  alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
   alias Carrier.ExternalHelper
 
   @moduletag repo: TenantRepo
 
-  describe "create_integration/1" do
+  describe "create_data_target/1" do
     setup do
       org = TenantFactory.insert(:org)
 
@@ -24,9 +24,9 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %Integration{} = integration} = Secrets.create_integration(valid_params)
+      assert {:ok, %DataTarget{} = data_target} = Secrets.create_data_target(valid_params)
 
-      assert same_fields?(integration, valid_params, [:org_id, :service_name])
+      assert same_fields?(data_target, valid_params, [:org_id, :service_name])
     end
   end
 
@@ -120,47 +120,47 @@ defmodule Carrier.SecretsTest do
     end
   end
 
-  describe "list_integrations/0" do
+  describe "list_data_targets/0" do
     setup do
       org = TenantFactory.insert(:org)
 
-      integration = TenantFactory.insert(:integration, org_id: org.org_id)
-      TenantFactory.insert(:integration, org_id: org.org_id, deleted_at: DateTime.utc_now())
+      data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
+      TenantFactory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      TenantRepo.put_org_id(integration.org_id)
+      TenantRepo.put_org_id(data_target.org_id)
 
-      %{integration: integration}
+      %{data_target: data_target}
     end
 
-    test "with valid params", %{integration: integration} do
-      assert [fetched_integration] = Secrets.list_integrations()
-      assert same_records?(fetched_integration, integration)
+    test "with valid params", %{data_target: data_target} do
+      assert [fetched_data_target] = Secrets.list_data_targets()
+      assert same_records?(fetched_data_target, data_target)
     end
   end
 
-  describe "fetch_integration/1" do
+  describe "fetch_data_target/1" do
     setup do
       org = TenantFactory.insert(:org)
 
-      integration = TenantFactory.insert(:integration, org_id: org.org_id)
+      data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
 
-      deleted_integration =
-        TenantFactory.insert(:integration, org_id: org.org_id, deleted_at: DateTime.utc_now())
+      deleted_data_target =
+        TenantFactory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      TenantRepo.put_org_id(integration.org_id)
+      TenantRepo.put_org_id(data_target.org_id)
 
-      %{integration: integration, deleted_integration: deleted_integration}
+      %{data_target: data_target, deleted_data_target: deleted_data_target}
     end
 
-    test "with valid id", %{integration: integration} do
-      assert {:ok, fetched_integration} = Secrets.fetch_integration(integration.id)
-      assert same_records?(fetched_integration, integration)
-      assert %ConnInfo{} = fetched_integration.conn_info
+    test "with valid id", %{data_target: data_target} do
+      assert {:ok, fetched_data_target} = Secrets.fetch_data_target(data_target.id)
+      assert same_records?(fetched_data_target, data_target)
+      assert %ConnInfo{} = fetched_data_target.conn_info
     end
 
-    test "with deleted id", %{deleted_integration: deleted_integration} do
+    test "with deleted id", %{deleted_data_target: deleted_data_target} do
       assert {:error, {:resource_not_found, _}} =
-               Secrets.fetch_integration(deleted_integration.id)
+               Secrets.fetch_data_target(deleted_data_target.id)
     end
   end
 

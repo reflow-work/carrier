@@ -139,15 +139,15 @@ defmodule Carrier.Works.ReportJob do
          report: %Report{
            id: report_id,
            timezone: timezone,
-           integration_info: %{
-             integration_id: integration_id,
+           data_target_info: %{
+             data_target_id: data_target_id,
              channel_id: channel_id
            }
          },
          slack_args: slack_args
        }) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %Integration{} = integration} <- Secrets.fetch_integration(integration_id),
+      with {:ok, %DataTarget{} = data_target} <- Secrets.fetch_data_target(data_target_id),
            {:ok, send_result} <-
              slack_args
              |> Enum.map(fn %{img_url: image_url, title: image_title} ->
@@ -159,7 +159,7 @@ defmodule Carrier.Works.ReportJob do
                Slack.post_message(
                  channel_id,
                  blocks,
-                 integration.conn_info.info["bot_token"]
+                 data_target.conn_info.info["bot_token"]
                )
              end)
              |> Traversable.traverse(),

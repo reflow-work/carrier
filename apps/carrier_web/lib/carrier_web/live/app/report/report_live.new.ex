@@ -11,7 +11,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   alias CarrierWeb.Components.QueryChecker
   alias __MODULE__.{ReportParams, ReportTableau}
 
-  on_mount(CarrierWeb.IntegrationHook)
+  on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.DataSourceHook)
 
   @sample_sql_template """
@@ -49,7 +49,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       |> assign(:data_source, socket.assigns.data_sources |> List.first())
       |> init_common_assigns()
       |> init_assigns_by_data_source()
-      |> init_assigns_by_integration()
+      |> init_assigns_by_data_target()
       |> init_changeset()
 
     {:noreply, socket}
@@ -78,16 +78,16 @@ defmodule CarrierWeb.App.ReportLive.New do
         |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
       )
       |> assign(
-        :integeration,
-        [socket.assigns.integration]
-        |> Enum.find(&(&1.id == report.integration_info.integration_id))
+        :data_target,
+        [socket.assigns.data_target]
+        |> Enum.find(&(&1.id == report.data_target_info.data_target_id))
       )
       |> init_common_assigns()
       |> init_assigns_by_data_source()
-      |> init_assigns_by_integration()
+      |> init_assigns_by_data_target()
       |> assign(:report_name, report.name)
-      |> assign(:channel_id, report.integration_info.channel_id)
-      |> assign(:channel_search_term, report.integration_info.channel_name)
+      |> assign(:channel_id, report.data_target_info.channel_id)
+      |> assign(:channel_search_term, report.data_target_info.channel_name)
 
     hour =
       report.trigger_time
@@ -144,10 +144,10 @@ defmodule CarrierWeb.App.ReportLive.New do
                   hour: hour,
                   trigger_time: report.trigger_time,
                   timezone: socket.assigns.timezone,
-                  integration_info: %{
-                    integration_id: report.integration_info.integration_id,
-                    channel_id: report.integration_info.channel_id,
-                    channel_name: report.integration_info.channel_name
+                  data_target_info: %{
+                    data_target_id: report.data_target_info.data_target_id,
+                    channel_id: report.data_target_info.channel_id,
+                    channel_name: report.data_target_info.channel_name
                   },
                   data_source_info: %{
                     data_source_id: report.data_source_info.data_source_id,
@@ -191,10 +191,10 @@ defmodule CarrierWeb.App.ReportLive.New do
                 hour: hour,
                 trigger_time: report.trigger_time,
                 timezone: socket.assigns.timezone,
-                integration_info: %{
-                  integration_id: report.integration_info.integration_id,
-                  channel_id: report.integration_info.channel_id,
-                  channel_name: report.integration_info.channel_name
+                data_target_info: %{
+                  data_target_id: report.data_target_info.data_target_id,
+                  channel_id: report.data_target_info.channel_id,
+                  channel_name: report.data_target_info.channel_name
                 },
                 data_source_info: %{
                   data_source_id: report.data_source_info.data_source_id,
@@ -449,8 +449,8 @@ defmodule CarrierWeb.App.ReportLive.New do
             ReportParams.init_attrs(%{
               org_id: socket.assigns.org.org_id,
               user_id: socket.assigns.user.id,
-              integration_info: %{
-                integration_id: socket.assigns.integration.id
+              data_target_info: %{
+                data_target_id: socket.assigns.data_target.id
               },
               data_source_info: %{
                 data_source_id: socket.assigns.data_source.id,
@@ -568,7 +568,7 @@ defmodule CarrierWeb.App.ReportLive.New do
         "search_slack_channels",
         %{
           "report" => %{
-            "integration_info" => %{
+            "data_target_info" => %{
               "channel_search_term" => channel_search_term
             }
           }
@@ -625,7 +625,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       |> Params.to_map()
       |> MapHelper.deep_map(fn {k, v} -> {k |> to_string(), v} end)
       |> MapHelper.deep_merge(%{
-        "integration_info" => %{"channel_id" => channel_id}
+        "data_target_info" => %{"channel_id" => channel_id}
       })
 
     report_changeset = validate_report_changeset(socket, report_inputs)
@@ -769,7 +769,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp init_common_assigns(socket) do
-    # data_source and integration should be assigned before this function is called
+    # data_source and data_target should be assigned before this function is called
     socket
     |> assign(:report_name, "")
     |> assign(
@@ -828,11 +828,11 @@ defmodule CarrierWeb.App.ReportLive.New do
     |> assign(:data_loaded, false)
   end
 
-  defp init_assigns_by_integration(socket) do
-    case socket.assigns.integration do
-      %Integration{service_name: :slack} ->
+  defp init_assigns_by_data_target(socket) do
+    case socket.assigns.data_target do
+      %DataTarget{service_name: :slack} ->
         {:ok, channels} =
-          Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
+          Slack.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"])
 
         socket
         |> assign(:channels, channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end))
@@ -936,7 +936,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp load_slack_channels(socket) do
-    case Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"]) do
+    case Slack.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"]) do
       {:ok, channels} ->
         channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
 
@@ -983,7 +983,7 @@ defmodule CarrierWeb.App.ReportLive.New do
              Slack.post_message(
                channel_id,
                blocks,
-               socket.assigns.integration.conn_info.info["bot_token"]
+               socket.assigns.data_target.conn_info.info["bot_token"]
              )
            end)
            |> Traversable.traverse() do
@@ -1008,14 +1008,14 @@ defmodule CarrierWeb.App.ReportLive.New do
            Slack.post_message(
              channel_id,
              blocks,
-             socket.assigns.integration.conn_info.info["bot_token"]
+             socket.assigns.data_target.conn_info.info["bot_token"]
            ) do
       :ok
     end
   end
 
   defp validate_report_changeset(socket, report_inputs) do
-    %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} = report_inputs
+    %{"hour" => hour_str, "data_target_info" => %{"channel_id" => channel_id}} = report_inputs
 
     trigger_time =
       TimeHelper.from!(hour: hour_str |> String.to_integer())
@@ -1034,7 +1034,7 @@ defmodule CarrierWeb.App.ReportLive.New do
           report_inputs
           |> MapHelper.deep_merge(%{
             "trigger_time" => trigger_time,
-            "integration_info" => %{
+            "data_target_info" => %{
               "channel_name" => channel_name,
               "channel_id" => channel_id
             }
@@ -1049,7 +1049,7 @@ defmodule CarrierWeb.App.ReportLive.New do
           report_inputs
           |> MapHelper.deep_merge(%{
             "trigger_time" => trigger_time,
-            "integration_info" => %{
+            "data_target_info" => %{
               "channel_name" => channel_name,
               "channel_id" => channel_id
             }

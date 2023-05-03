@@ -4,7 +4,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   alias __MODULE__.Components
   alias Carrier.Core.Nillable
 
-  on_mount(CarrierWeb.IntegrationHook)
+  on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.DataSourceHook)
 
   @impl true

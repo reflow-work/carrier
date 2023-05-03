@@ -84,9 +84,9 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {_, [integration0, integration1]} =
+  {_, [data_target0, data_target1]} =
     Repo.insert_all(
-      Integration,
+      DataTarget,
       [
         %{
           org_id: org0.org_id,
@@ -142,8 +142,8 @@ Repo.transaction(fn ->
           name: "json is babo",
           trigger_time: ~T[01:00:00],
           timezone: "Asia/Seoul",
-          integration_info: %IntegrationInfo{
-            integration_id: integration0.id,
+          data_target_info: %DataTargetInfo{
+            data_target_id: data_target0.id,
             channel_id: "C03U2QWU7F1",
             channel_name: "message_tests"
           },
@@ -170,8 +170,8 @@ Repo.transaction(fn ->
           name: "wonny is babo",
           trigger_time: ~T[01:00:00],
           timezone: "Asia/Seoul",
-          integration_info: %IntegrationInfo{
-            integration_id: integration1.id,
+          data_target_info: %DataTargetInfo{
+            data_target_id: data_target1.id,
             channel_id: "C03U2QWU7F1",
             channel_name: "message_tests"
           },

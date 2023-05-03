@@ -2,7 +2,7 @@ defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
   alias Carrier.{Accounts, Secrets}
   alias Carrier.Accounts.User
-  alias Carrier.Secrets.Integration
+  alias Carrier.Secrets.DataTarget
 
   plug Ueberauth
 
@@ -78,12 +78,12 @@ defmodule CarrierWeb.AuthController do
 
     org_id = conn |> get_session(:org_id)
 
-    case Secrets.create_integration(%{
+    case Secrets.create_data_target(%{
            org_id: org_id,
            service_name: :slack,
            conn_info: %{team_name: team_name, team_id: team_id, bot_token: bot_token}
          }) do
-      {:ok, %Integration{}} ->
+      {:ok, %DataTarget{}} ->
         conn
         |> redirect(to: ~p"/app/reports")
 

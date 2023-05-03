@@ -1,8 +1,8 @@
-defmodule Carrier.Secrets.Integration do
+defmodule Carrier.Secrets.DataTarget do
   use Carrier.Schema
   alias Carrier.Secrets.ConnInfo
 
-  schema "integrations" do
+  schema "data_targets" do
     belongs_to :conn_info, ConnInfo
 
     field :org_id, :id

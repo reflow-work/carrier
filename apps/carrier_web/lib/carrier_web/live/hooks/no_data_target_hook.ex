@@ -1,9 +1,9 @@
-defmodule CarrierWeb.NoIntegrationHook do
+defmodule CarrierWeb.NoDataTargetHook do
   use CarrierWeb, :live_hook
   alias Carrier.Secrets
 
   def on_mount(:default, _params, _session, socket) do
-    case Secrets.list_integrations() do
+    case Secrets.list_data_targets() do
       [] ->
         {:cont, socket}
 
