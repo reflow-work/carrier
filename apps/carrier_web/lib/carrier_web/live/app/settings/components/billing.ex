@@ -1,8 +1,6 @@
 defmodule CarrierWeb.App.Settings.Components.Billing do
   use CarrierWeb, :live_component
   use Carrier.{Billing, Payments}
-  alias Carrier.Secrets.DataSource
-  alias Carrier.Setting
 
   @impl true
   def mount(socket) do
