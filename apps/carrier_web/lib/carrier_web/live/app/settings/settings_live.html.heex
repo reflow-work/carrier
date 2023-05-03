@@ -23,49 +23,10 @@
       module={CarrierWeb.App.Settings.Components.Billing}
     />
 
-    <.card_container :if={@selected_menu == :data_source} class="space-y-4 flex-1">
-      <.card>
-        <div class="flex justify-between">
-          <.card_title title="데이터 소스 목록" />
-          <.link
-            navigate={~p"/app/data-sources/new"}
-            class={[
-              "btn",
-              "btn-primary",
-              if(@is_disabled_to_create_new_data_source, do: "btn-disabled")
-            ]}
-          >
-            새 데이터 소스 생성
-          </.link>
-
-          <%= if @is_disabled_to_create_new_data_source do %>
-            <div>
-              데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
-            </div>
-          <% end %>
-        </div>
-
-        <section class="mt-6">
-          <div class="overflow-x-auto">
-            <table class="table w-full">
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>소스</th>
-                </tr>
-              </thead>
-              <tbody>
-                <%= for data_source <- @data_sources do %>
-                  <tr class="hover">
-                    <td><%= data_source.name %></td>
-                    <td><%= transl_data_source_source(data_source) %></td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </.card>
-    </.card_container>
+    <.live_component
+      :if={@selected_menu == :data_source}
+      id="settings_data_source"
+      module={CarrierWeb.App.Settings.Components.DataSource}
+    />
   </div>
 </section>
