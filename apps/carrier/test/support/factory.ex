@@ -1,6 +1,6 @@
 defmodule Carrier.Factory do
   use ExMachina.Ecto, repo: Carrier.Repo
-  use Carrier.{Accounts, Secrets, Reports, Setting, Billing}
+  use Carrier.{Accounts, Integrations, Reports, Setting, Billing}
 
   def org_factory() do
     %Org{

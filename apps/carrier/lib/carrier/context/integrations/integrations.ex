@@ -1,13 +1,13 @@
-defmodule Carrier.Secrets do
-  alias Carrier.Secrets.ConnValidator
-  alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
+defmodule Carrier.Integrations do
+  alias Carrier.Integrations.ConnValidator
+  alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
   alias Carrier.TenantRepo
 
   defmacro __using__([]) do
     quote do
-      alias Carrier.Secrets
-      alias Carrier.Secrets.ConnValidator
-      alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
+      alias Carrier.Integrations
+      alias Carrier.Integrations.ConnValidator
+      alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
     end
   end
 

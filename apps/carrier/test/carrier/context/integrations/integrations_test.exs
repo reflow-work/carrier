@@ -1,7 +1,7 @@
-defmodule Carrier.SecretsTest do
+defmodule Carrier.IntegrationsTest do
   use Carrier.DataCase, async: true
-  alias Carrier.Secrets
-  alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
+  alias Carrier.Integrations
+  alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
   alias Carrier.ExternalHelper
 
   @moduletag repo: TenantRepo
@@ -24,7 +24,7 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %DataTarget{} = data_target} = Secrets.create_data_target(valid_params)
+      assert {:ok, %DataTarget{} = data_target} = Integrations.create_data_target(valid_params)
 
       assert same_fields?(data_target, valid_params, [:org_id, :service_name])
     end
@@ -55,7 +55,7 @@ defmodule Carrier.SecretsTest do
 
       params = %{params | source: :postgres, conn_info: conn_info}
 
-      assert {:ok, %DataSource{} = data_source} = Secrets.create_data_source(params)
+      assert {:ok, %DataSource{} = data_source} = Integrations.create_data_source(params)
 
       assert same_fields?(data_source, params, [:org_id, :name, :source])
     end
@@ -73,7 +73,7 @@ defmodule Carrier.SecretsTest do
 
       params = %{params | source: :tableau, conn_info: conn_info}
 
-      assert {:ok, %DataSource{} = data_source} = Secrets.create_data_source(params)
+      assert {:ok, %DataSource{} = data_source} = Integrations.create_data_source(params)
 
       assert same_fields?(data_source, params, [:org_id, :name, :source])
     end
@@ -100,7 +100,7 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %ConnInfo{} = created_conn_info} = Secrets.create_conn_info(valid_params)
+      assert {:ok, %ConnInfo{} = created_conn_info} = Integrations.create_conn_info(valid_params)
 
       assert same_fields?(created_conn_info, valid_params, [:org_id, :name, :source, :info])
     end
@@ -109,14 +109,14 @@ defmodule Carrier.SecretsTest do
       TenantFactory.insert(:conn_info, org_id: org.org_id, name: valid_params.name)
 
       assert_changeset_error(:name, "has already been taken", fn ->
-        Secrets.create_conn_info(valid_params)
+        Integrations.create_conn_info(valid_params)
       end)
     end
 
     test "with invalid info", %{valid_params: valid_params} do
       invalid_params = valid_params |> put_in([:info, :database], "invalid_database")
 
-      assert {:error, :invalid_conn_info} = Secrets.create_conn_info(invalid_params)
+      assert {:error, :invalid_conn_info} = Integrations.create_conn_info(invalid_params)
     end
   end
 
@@ -133,7 +133,7 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{data_target: data_target} do
-      assert [fetched_data_target] = Secrets.list_data_targets()
+      assert [fetched_data_target] = Integrations.list_data_targets()
       assert same_records?(fetched_data_target, data_target)
     end
   end
@@ -153,14 +153,14 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid id", %{data_target: data_target} do
-      assert {:ok, fetched_data_target} = Secrets.fetch_data_target(data_target.id)
+      assert {:ok, fetched_data_target} = Integrations.fetch_data_target(data_target.id)
       assert same_records?(fetched_data_target, data_target)
       assert %ConnInfo{} = fetched_data_target.conn_info
     end
 
     test "with deleted id", %{deleted_data_target: deleted_data_target} do
       assert {:error, {:resource_not_found, _}} =
-               Secrets.fetch_data_target(deleted_data_target.id)
+               Integrations.fetch_data_target(deleted_data_target.id)
     end
   end
 
@@ -176,7 +176,7 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{data_source: data_source} do
-      assert [%DataSource{} = fetched_data_source0] = Secrets.list_data_sources()
+      assert [%DataSource{} = fetched_data_source0] = Integrations.list_data_sources()
 
       assert same_records?(fetched_data_source0, data_source)
       assert %ConnInfo{} = fetched_data_source0.conn_info
@@ -198,7 +198,7 @@ defmodule Carrier.SecretsTest do
 
     test "with valid id", %{data_source: data_source} do
       assert {:ok, %DataSource{} = fetched_data_source} =
-               Secrets.fetch_data_source(data_source.id)
+               Integrations.fetch_data_source(data_source.id)
 
       assert same_records?(fetched_data_source, data_source)
       assert %ConnInfo{} = fetched_data_source.conn_info
@@ -206,7 +206,7 @@ defmodule Carrier.SecretsTest do
 
     test "with deleted id", %{deleted_data_source: deleted_data_source} do
       assert {:error, {:resource_not_found, _}} =
-               Secrets.fetch_data_source(deleted_data_source.id)
+               Integrations.fetch_data_source(deleted_data_source.id)
     end
   end
 end

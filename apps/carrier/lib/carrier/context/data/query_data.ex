@@ -1,6 +1,6 @@
 defmodule Carrier.Data.QueryData do
   require Logger
-  use Carrier.Secrets
+  use Carrier.Integrations
   alias Carrier.Data.Source
   alias Carrier.TenantRepo
 
@@ -32,7 +32,7 @@ defmodule Carrier.Data.QueryData do
 
     with :ok <- is_valid_sql?(sql_template),
          {:ok, %DataSource{} = data_source} <-
-           Secrets.fetch_data_source(data_source_id),
+           Integrations.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, data: data}} <-
            run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(columns, data),
@@ -87,7 +87,7 @@ defmodule Carrier.Data.QueryData do
     TenantRepo.put_org_id(org_id)
 
     with {:ok, %DataSource{source: source} = data_source} <-
-           Secrets.fetch_data_source(data_source_id),
+           Integrations.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          tables_query = source_module.tables_query(),
          {:ok, %{data: data}} <- run_query(data_source, tables_query) do
@@ -115,7 +115,7 @@ defmodule Carrier.Data.QueryData do
     TenantRepo.put_org_id(org_id)
 
     with {:ok, %DataSource{source: source} = data_source} <-
-           Secrets.fetch_data_source(data_source_id),
+           Integrations.fetch_data_source(data_source_id),
          source_module = Source.get_module(source),
          columns_query = source_module.columns_query(),
          {:ok, %{data: data}} <-

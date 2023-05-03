@@ -1,10 +1,10 @@
 defmodule CarrierWeb.DataTargetHook do
   use CarrierWeb, :live_hook
-  alias Carrier.Secrets
-  alias Carrier.Secrets.DataTarget
+  alias Carrier.Integrations
+  alias Carrier.Integrations.DataTarget
 
   def on_mount(:default, _params, _session, socket) do
-    case Secrets.list_data_targets() do
+    case Integrations.list_data_targets() do
       [%DataTarget{} = data_target] ->
         {:cont, socket |> assign(:data_target, data_target)}
 

@@ -1,6 +1,6 @@
-defmodule Carrier.Secrets.ConnInfo.Info do
+defmodule Carrier.Integrations.ConnInfo.Info do
   import Ecto.Changeset, only: [apply_changes: 1]
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Integrations.ConnInfo
 
   @callback changeset(struct :: struct(), attrs :: map()) :: %Ecto.Changeset{}
 

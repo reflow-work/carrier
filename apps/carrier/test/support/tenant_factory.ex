@@ -1,6 +1,6 @@
 defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
-  use Carrier.{Accounts, Secrets, Reports, Setting, Payments, Billing}
+  use Carrier.{Accounts, Integrations, Reports, Setting, Payments, Billing}
   alias Carrier.TenantRepo
   alias Carrier.Core.Crypto
 

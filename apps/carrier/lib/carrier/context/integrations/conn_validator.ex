@@ -1,5 +1,5 @@
-defmodule Carrier.Secrets.ConnValidator do
-  alias Carrier.Secrets.{ConnInfo, DataSource}
+defmodule Carrier.Integrations.ConnValidator do
+  alias Carrier.Integrations.{ConnInfo, DataSource}
   alias Carrier.Data.Source
   alias Carrier.Repo
 

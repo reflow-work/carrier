@@ -1,6 +1,6 @@
-defmodule Carrier.Secrets.DataTarget do
+defmodule Carrier.Integrations.DataTarget do
   use Carrier.Schema
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Integrations.ConnInfo
 
   schema "data_targets" do
     belongs_to :conn_info, ConnInfo

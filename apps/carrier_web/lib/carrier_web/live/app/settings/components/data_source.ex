@@ -1,7 +1,7 @@
 defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
   use CarrierWeb, :live_component
-  alias Carrier.Secrets
-  alias Carrier.Secrets.DataSource
+  alias Carrier.Integrations
+  alias Carrier.Integrations.DataSource
   alias Carrier.Setting
 
   @impl true
@@ -77,7 +77,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
   end
 
   defp load_data_sources(socket) do
-    case Secrets.list_data_sources() do
+    case Integrations.list_data_sources() do
       data_sources ->
         socket |> assign(:data_sources, data_sources)
 
