@@ -10,8 +10,10 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
       socket
       |> assign(:subscription, nil)
       |> assign(:active_trial_subscription, nil)
+      |> assign(:credit_card, nil)
       |> load_subscription(subscription_id)
       |> load_active_trial_subscription()
+      |> load_credit_card()
 
     {:ok, socket}
   end
@@ -39,10 +41,10 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
               <% end %>
             </p>
             <p>
-              결제 예정 금액: <%= format_money(@subscription.payment.amount, @subscription.payment.currency) %> (VAT 10% 포함)
+              결제 예정 금액: <%= format_money(@subscription.plan.price, @subscription.plan.currency) %> (VAT 10% 포함)
             </p>
             <p>
-              결제 수단: <%= CreditCard.format_card_info(@subscription.payment.credit_card) %>
+              결제 수단: <%= CreditCard.format_card_info(@credit_card) %>
             </p>
           </div>
         </.card>
@@ -66,5 +68,16 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
 
     socket
     |> assign(:active_trial_subscription, maybe_active_trial_subscription)
+  end
+
+  defp load_credit_card(socket) do
+    case Payments.fetch_default_credit_card() do
+      {:ok, credit_card} ->
+        socket
+        |> assign(:credit_card, credit_card)
+
+      {:error, _} ->
+        socket
+    end
   end
 end
