@@ -1,5 +1,5 @@
-defmodule Carrier.Secrets.ConnInfo.Tableau do
-  use Carrier.Secrets.ConnInfo.Info
+defmodule Carrier.Integrations.ConnInfo.Tableau do
+  use Carrier.Integrations.ConnInfo.Info
 
   @primary_key false
   embedded_schema do

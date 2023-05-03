@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.DataSourceLive.New do
   use CarrierWeb, :live_view
-  use Carrier.Secrets
+  use Carrier.Integrations
   use Carrier.Setting
   alias CarrierWeb.Components.Icon
   alias __MODULE__.ConnInfoParams
@@ -189,7 +189,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   end
 
   defp do_create_data_source(params) do
-    Secrets.create_data_source(params)
+    Integrations.create_data_source(params)
   end
 
   defp validate_form(socket, data_source_inputs) do

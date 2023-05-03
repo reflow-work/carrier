@@ -1,6 +1,6 @@
-defmodule Carrier.Secrets.ConnValidatorTest do
+defmodule Carrier.Integrations.ConnValidatorTest do
   use ExUnit.Case, async: true
-  alias Carrier.Secrets.ConnValidator
+  alias Carrier.Integrations.ConnValidator
 
   describe "validate/2 (postgres)" do
     @opts [max_restarts: 0, queue_interval: 100]

@@ -4,7 +4,7 @@ defmodule Carrier.Works.ReportJob do
     priority: 2,
     max_attempts: 2
 
-  use Carrier.{Reports, Secrets}
+  use Carrier.{Reports, Integrations}
   require Logger
   alias Carrier.Data.QueryData
   alias Carrier.Data.Source.Tableau
@@ -118,7 +118,7 @@ defmodule Carrier.Works.ReportJob do
          }
        }) do
     with {:ok, %DataSource{} = data_source} <-
-           Secrets.fetch_data_source(data_source_id),
+           Integrations.fetch_data_source(data_source_id),
          {:ok, tableau_image_binary} =
            Tableau.get_view_image_binary(
              view_id,
@@ -147,7 +147,7 @@ defmodule Carrier.Works.ReportJob do
          slack_args: slack_args
        }) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %DataTarget{} = data_target} <- Secrets.fetch_data_target(data_target_id),
+      with {:ok, %DataTarget{} = data_target} <- Integrations.fetch_data_target(data_target_id),
            {:ok, send_result} <-
              slack_args
              |> Enum.map(fn %{img_url: image_url, title: image_title} ->

@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.DataSourceLive.New.Components do
   use CarrierWeb, :component
-  use Carrier.Secrets
+  use Carrier.Integrations
 
   embed_templates "*"
 

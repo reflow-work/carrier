@@ -1,7 +1,7 @@
-defmodule Carrier.Secrets.ConnInfo do
+defmodule Carrier.Integrations.ConnInfo do
   use Carrier.Schema
-  alias Carrier.Secrets.Types
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Integrations.Types
+  alias Carrier.Integrations.ConnInfo
 
   schema "conn_infos" do
     field :org_id, :id

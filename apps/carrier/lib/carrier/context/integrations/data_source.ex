@@ -1,6 +1,6 @@
-defmodule Carrier.Secrets.DataSource do
+defmodule Carrier.Integrations.DataSource do
   use Carrier.Schema
-  alias Carrier.Secrets.ConnInfo
+  alias Carrier.Integrations.ConnInfo
 
   @derive Carrier.Obfuscatable.Protocol
 

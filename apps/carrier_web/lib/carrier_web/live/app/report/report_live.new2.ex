@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
-  use Carrier.Secrets
+  use Carrier.Integrations
   alias __MODULE__.Components
   alias Carrier.Core.Nillable
 

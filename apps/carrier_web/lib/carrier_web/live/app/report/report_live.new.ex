@@ -1,7 +1,7 @@
 defmodule CarrierWeb.App.ReportLive.New do
   use CarrierWeb, :live_view
   use CarrierWeb.Params
-  use Carrier.{Reports, Secrets}
+  use Carrier.{Reports, Integrations}
   alias Carrier.Data.QueryData
   alias Carrier.Data.Source.Tableau
   alias Carrier.External.Slack

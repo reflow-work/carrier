@@ -1,5 +1,5 @@
-defmodule Carrier.Secrets.ConnInfo.Slack do
-  use Carrier.Secrets.ConnInfo.Info
+defmodule Carrier.Integrations.ConnInfo.Slack do
+  use Carrier.Integrations.ConnInfo.Info
 
   @primary_key false
   embedded_schema do

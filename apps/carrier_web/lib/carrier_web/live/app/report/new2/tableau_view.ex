@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2.TableauView do
   use CarrierWeb, :live_component
-  use Carrier.Secrets
+  use Carrier.Integrations
   alias Carrier.Data.Source.Tableau
   alias Carrier.Core.Nillable
 

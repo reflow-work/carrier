@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-use Carrier.{Accounts, Secrets, Reports, Setting, Billing, Roles}
+use Carrier.{Accounts, Integrations, Reports, Setting, Billing, Roles}
 alias Carrier.Repo
 
 now = DateTime.utc_now()

@@ -1,5 +1,5 @@
 defmodule Carrier.Ops do
-  use Carrier.{Accounts, Secrets, Reports, Billing, Payments}
+  use Carrier.{Accounts, Integrations, Reports, Billing, Payments}
   import Ecto.Query, only: [from: 2]
   alias Carrier.{Repo, TenantRepo}
 

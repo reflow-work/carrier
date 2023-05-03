@@ -1,5 +1,5 @@
-defmodule Carrier.Secrets.ConnInfo.MySQL do
-  use Carrier.Secrets.ConnInfo.Info
+defmodule Carrier.Integrations.ConnInfo.MySQL do
+  use Carrier.Integrations.ConnInfo.Info
 
   @primary_key false
   embedded_schema do
