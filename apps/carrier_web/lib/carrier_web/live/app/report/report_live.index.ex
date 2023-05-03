@@ -49,7 +49,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
           socket
 
         :delete ->
-          report_id = params["id"] |> Crypto.deobfuscate!()
+          report_id = params["id"] |> Obfuscatable.deobfuscate!()
 
           socket
           |> assign(:report_id, report_id)

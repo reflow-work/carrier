@@ -78,7 +78,7 @@ defmodule CarrierWeb do
       use Phoenix.LiveView, layout: {CarrierWeb.Layouts, :live}
       require Logger
       import CarrierWeb.{AssignHelper, AnalyticsHelper}
-      alias Carrier.Core.Crypto
+      alias Carrier.Obfuscatable
 
       # TODO: remove
       import CarrierWeb.LiveHelpers

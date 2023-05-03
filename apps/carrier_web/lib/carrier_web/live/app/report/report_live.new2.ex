@@ -19,7 +19,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_params(params, _uri, %{assigns: %{live_action: :new}} = socket) do
-    data_source_id = params["data_source_id"] |> Nillable.map(&Crypto.deobfuscate!/1)
+    data_source_id = params["data_source_id"] |> Nillable.map(&Obfuscatable.deobfuscate!/1)
 
     socket =
       socket

@@ -3,6 +3,8 @@ defmodule Carrier.Billing.Subscription do
   alias Carrier.Billing.Plan
   alias Carrier.Payments.Payment
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "subscriptions" do
     belongs_to :plan, Plan
     belongs_to :payment, Payment

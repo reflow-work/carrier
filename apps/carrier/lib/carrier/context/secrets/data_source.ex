@@ -2,6 +2,8 @@ defmodule Carrier.Secrets.DataSource do
   use Carrier.Schema
   alias Carrier.Secrets.ConnInfo
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "data_sources" do
     belongs_to :conn_info, ConnInfo
 
