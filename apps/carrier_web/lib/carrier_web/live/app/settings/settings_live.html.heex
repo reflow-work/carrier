@@ -10,17 +10,12 @@
       </div>
     </.card_container>
 
-    <.card_container :if={@selected_menu == :account} class="space-y-4 flex-1">
-      <.card>
-        <.card_title title="계정 정보" />
-        <p><%= @user.email %></p>
-      </.card>
-      <.card>
-        <.link href={~p"/logout"} phx-click="smartlook_anonymize" class="btn">
-          로그아웃
-        </.link>
-      </.card>
-    </.card_container>
+    <.live_component
+      :if={@selected_menu == :account}
+      id="settings_account"
+      module={CarrierWeb.App.Settings.Components.Account}
+      user={@user}
+    />
 
     <.card_container :if={@selected_menu == :billing} class="space-y-4 flex-1">
       <.card>
