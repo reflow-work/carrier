@@ -139,7 +139,7 @@ defmodule Carrier.Works.ReportJob do
          report: %Report{
            id: report_id,
            timezone: timezone,
-           integration_info: %{
+           data_target_info: %{
              integration_id: integration_id,
              channel_id: channel_id
            }

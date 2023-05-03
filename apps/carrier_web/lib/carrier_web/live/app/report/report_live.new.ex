@@ -76,14 +76,14 @@ defmodule CarrierWeb.App.ReportLive.New do
       |> assign(
         :integeration,
         [socket.assigns.integration]
-        |> Enum.find(&(&1.id == report.integration_info.integration_id))
+        |> Enum.find(&(&1.id == report.data_target_info.integration_id))
       )
       |> init_common_assigns()
       |> init_assigns_by_data_source()
       |> init_assigns_by_integration()
       |> assign(:report_name, report.name)
-      |> assign(:channel_id, report.integration_info.channel_id)
-      |> assign(:channel_search_term, report.integration_info.channel_name)
+      |> assign(:channel_id, report.data_target_info.channel_id)
+      |> assign(:channel_search_term, report.data_target_info.channel_name)
 
     hour =
       report.trigger_time
@@ -140,10 +140,10 @@ defmodule CarrierWeb.App.ReportLive.New do
                   hour: hour,
                   trigger_time: report.trigger_time,
                   timezone: socket.assigns.timezone,
-                  integration_info: %{
-                    integration_id: report.integration_info.integration_id,
-                    channel_id: report.integration_info.channel_id,
-                    channel_name: report.integration_info.channel_name
+                  data_target_info: %{
+                    integration_id: report.data_target_info.integration_id,
+                    channel_id: report.data_target_info.channel_id,
+                    channel_name: report.data_target_info.channel_name
                   },
                   data_source_info: %{
                     data_source_id: report.data_source_info.data_source_id,
@@ -187,10 +187,10 @@ defmodule CarrierWeb.App.ReportLive.New do
                 hour: hour,
                 trigger_time: report.trigger_time,
                 timezone: socket.assigns.timezone,
-                integration_info: %{
-                  integration_id: report.integration_info.integration_id,
-                  channel_id: report.integration_info.channel_id,
-                  channel_name: report.integration_info.channel_name
+                data_target_info: %{
+                  integration_id: report.data_target_info.integration_id,
+                  channel_id: report.data_target_info.channel_id,
+                  channel_name: report.data_target_info.channel_name
                 },
                 data_source_info: %{
                   data_source_id: report.data_source_info.data_source_id,
@@ -445,7 +445,7 @@ defmodule CarrierWeb.App.ReportLive.New do
             ReportParams.init_attrs(%{
               org_id: socket.assigns.org.org_id,
               user_id: socket.assigns.user.id,
-              integration_info: %{
+              data_target_info: %{
                 integration_id: socket.assigns.integration.id
               },
               data_source_info: %{
@@ -564,7 +564,7 @@ defmodule CarrierWeb.App.ReportLive.New do
         "search_slack_channels",
         %{
           "report" => %{
-            "integration_info" => %{
+            "data_target_info" => %{
               "channel_search_term" => channel_search_term
             }
           }
@@ -621,7 +621,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       |> Params.to_map()
       |> MapHelper.deep_map(fn {k, v} -> {k |> to_string(), v} end)
       |> MapHelper.deep_merge(%{
-        "integration_info" => %{"channel_id" => channel_id}
+        "data_target_info" => %{"channel_id" => channel_id}
       })
 
     report_changeset = validate_report_changeset(socket, report_inputs)
@@ -1011,7 +1011,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp validate_report_changeset(socket, report_inputs) do
-    %{"hour" => hour_str, "integration_info" => %{"channel_id" => channel_id}} = report_inputs
+    %{"hour" => hour_str, "data_target_info" => %{"channel_id" => channel_id}} = report_inputs
 
     trigger_time =
       TimeHelper.from!(hour: hour_str |> String.to_integer())
@@ -1030,7 +1030,7 @@ defmodule CarrierWeb.App.ReportLive.New do
           report_inputs
           |> MapHelper.deep_merge(%{
             "trigger_time" => trigger_time,
-            "integration_info" => %{
+            "data_target_info" => %{
               "channel_name" => channel_name,
               "channel_id" => channel_id
             }
@@ -1045,7 +1045,7 @@ defmodule CarrierWeb.App.ReportLive.New do
           report_inputs
           |> MapHelper.deep_merge(%{
             "trigger_time" => trigger_time,
-            "integration_info" => %{
+            "data_target_info" => %{
               "channel_name" => channel_name,
               "channel_id" => channel_id
             }

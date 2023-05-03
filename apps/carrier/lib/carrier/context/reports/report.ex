@@ -11,7 +11,7 @@ defmodule Carrier.Reports.Report do
     field :trigger_time, :time
     field :timezone, :string
 
-    embeds_one :integration_info, DataTargetInfo, on_replace: :delete
+    embeds_one :data_target_info, DataTargetInfo, on_replace: :delete
     field :data_source_info, :map
 
     field :deleted_at, :utc_datetime_usec
@@ -32,7 +32,7 @@ defmodule Carrier.Reports.Report do
     struct
     |> cast(attrs, @required_for_create)
     |> validate_required(@required_for_create)
-    |> cast_embed(:integration_info,
+    |> cast_embed(:data_target_info,
       required: true,
       with: &DataTargetInfo.changeset_for_create/2
     )
@@ -64,7 +64,7 @@ defmodule Carrier.Reports.Report do
         name: name,
         trigger_time: trigger_time,
         timezone: timezone,
-        integration_info: integration_info,
+        data_target_info: data_target_info,
         data_source_info: data_source_info
       }) do
     %__MODULE__{}
@@ -75,7 +75,7 @@ defmodule Carrier.Reports.Report do
       name: name,
       trigger_time: trigger_time,
       timezone: timezone,
-      integration_info: integration_info,
+      data_target_info: data_target_info,
       data_source_info: data_source_info
     })
   end

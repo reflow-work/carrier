@@ -53,7 +53,7 @@ defmodule Carrier.ReportsTest do
         name: "Daily Report",
         trigger_time: ~T[10:00:00],
         timezone: "Asia/Seoul",
-        integration_info: %{
+        data_target_info: %{
           integration_id: data_target.id,
           channel_id: "channel_id",
           channel_name: "channel_name"

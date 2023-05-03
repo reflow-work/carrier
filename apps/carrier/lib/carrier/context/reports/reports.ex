@@ -41,7 +41,7 @@ defmodule Carrier.Reports do
         name: name,
         trigger_time: trigger_time,
         timezone: timezone,
-        integration_info: integration_info,
+        data_target_info: data_target_info,
         data_source_info: data_source_info
       }) do
     TenantRepo.wrap_transaction(fn ->
@@ -55,7 +55,7 @@ defmodule Carrier.Reports do
                name: name,
                trigger_time: trigger_time,
                timezone: timezone,
-               integration_info: integration_info,
+               data_target_info: data_target_info,
                data_source_info: data_source_info
              })
              |> TenantRepo.insert(),
@@ -90,7 +90,7 @@ defmodule Carrier.Reports do
         name: name,
         trigger_time: trigger_time,
         timezone: timezone,
-        integration_info: integration_info,
+        data_target_info: data_target_info,
         data_source_info: data_source_info
       }) do
     TenantRepo.wrap_transaction(fn ->
@@ -103,7 +103,7 @@ defmodule Carrier.Reports do
                name: name,
                trigger_time: trigger_time,
                timezone: timezone,
-               integration_info: integration_info,
+               data_target_info: data_target_info,
                data_source_info: data_source_info
              })
              |> TenantRepo.insert(),
