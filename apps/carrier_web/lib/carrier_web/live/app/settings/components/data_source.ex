@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.Settings.Components.DataSource do
+defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
   use CarrierWeb, :live_component
   alias Carrier.Secrets
   alias Carrier.Secrets.DataSource

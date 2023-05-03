@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.Settings.Components.Billing do
+defmodule CarrierWeb.App.SettingsLive.Components.Billing do
   use CarrierWeb, :live_component
   use Carrier.{Billing, Payments}
 

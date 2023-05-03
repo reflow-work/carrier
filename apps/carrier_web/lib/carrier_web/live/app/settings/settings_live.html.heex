@@ -4,29 +4,14 @@
   <div class="flex gap-4">
     <.card_container class="w-52">
       <div class="card p-4 space-y-1">
-        <.menu menu={:account} selected?={menu == @selected_menu} />
-        <.menu menu={:billing} selected?={menu == @selected_menu} />
-        <.menu menu={:data_source} selected?={menu == @selected_menu} />
+        <.menu :for={menu <- @menus} menu={menu} selected?={menu == @selected_menu} />
       </div>
     </.card_container>
 
     <.live_component
-      :if={@selected_menu == :account}
-      id="settings_account"
-      module={CarrierWeb.App.Settings.Components.Account}
+      id={"settings_#{@selected_menu}"}
+      module={get_menu_module(@selected_menu)}
       user={@user}
-    />
-
-    <.live_component
-      :if={@selected_menu == :billing}
-      id="settings_billing"
-      module={CarrierWeb.App.Settings.Components.Billing}
-    />
-
-    <.live_component
-      :if={@selected_menu == :data_source}
-      id="settings_data_source"
-      module={CarrierWeb.App.Settings.Components.DataSource}
     />
   </div>
 </section>

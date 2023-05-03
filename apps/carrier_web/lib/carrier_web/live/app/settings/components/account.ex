@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.Settings.Components.Account do
+defmodule CarrierWeb.App.SettingsLive.Components.Account do
   use CarrierWeb, :live_component
 
   @impl true
