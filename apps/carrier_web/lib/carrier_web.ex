@@ -121,6 +121,9 @@ defmodule CarrierWeb do
       use Phoenix.LiveComponent
       import CarrierWeb.AssignHelper
 
+      # TODO: remove
+      import CarrierWeb.LiveHelpers
+
       unquote(html_helpers())
     end
   end

@@ -84,7 +84,6 @@ defmodule CarrierWeb.Router do
       live "/subscriptions/new", SubscriptionLive.New
       live "/subscriptions/done", SubscriptionLive.Done
       live "/integrations/new", IntegrationLive.New, :new
-      live "/data-sources", DataSourceLive.Index, :index
       live "/data-sources/new", DataSourceLive.New, :new
       live "/reports", ReportLive.Index, :index
       live "/reports/:id/delete", ReportLive.Index, :delete
@@ -92,7 +91,6 @@ defmodule CarrierWeb.Router do
       live "/reports/new2", ReportLive.New2, :new
       live "/reports/:id/edit", ReportLive.New, :edit
       live "/report_logs", ReportLogLive.Index, :index
-      live "/billing", BillingLive
       live "/settings", SettingsLive, :index
     end
 

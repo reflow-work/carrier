@@ -1,0 +1,32 @@
+<section class="page-container">
+  <.page_header icon="⚙️" title="설정" />
+
+  <div class="flex gap-4">
+    <.card_container class="w-52">
+      <div class="card p-4 space-y-1">
+        <.menu menu={:account} selected_menu={@selected_menu} />
+        <.menu menu={:billing} selected_menu={@selected_menu} />
+        <.menu menu={:data_source} selected_menu={@selected_menu} />
+      </div>
+    </.card_container>
+
+    <.live_component
+      :if={@selected_menu == :account}
+      id="settings_account"
+      module={CarrierWeb.App.Settings.Components.Account}
+      user={@user}
+    />
+
+    <.live_component
+      :if={@selected_menu == :billing}
+      id="settings_billing"
+      module={CarrierWeb.App.Settings.Components.Billing}
+    />
+
+    <.live_component
+      :if={@selected_menu == :data_source}
+      id="settings_data_source"
+      module={CarrierWeb.App.Settings.Components.DataSource}
+    />
+  </div>
+</section>
