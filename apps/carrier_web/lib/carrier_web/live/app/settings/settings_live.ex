@@ -38,14 +38,14 @@ defmodule CarrierWeb.App.SettingsLive do
   end
 
   attr :menu, :atom, required: true
-  attr :selected_menu, :atom, required: true
+  attr :selected?, :boolean, required: true
 
   defp menu(assigns) do
     ~H"""
     <.link patch={~p"/app/settings?selected_menu=#{@menu}"}>
       <div class={[
         "rounded-md p-2 cursor-pointer hover:bg-gray-100",
-        @selected_menu == @menu && "!bg-gray-200"
+        @selected? && "!bg-gray-200"
       ]}>
         <%= @menu |> to_string() |> String.capitalize() |> String.replace("_", " ") %>
       </div>
