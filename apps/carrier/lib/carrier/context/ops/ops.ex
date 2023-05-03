@@ -27,7 +27,7 @@ defmodule Carrier.Ops do
           Report,
           ReportInfo,
           DataSource,
-          Integration,
+          DataTarget,
           ConnInfo,
           User,
           Org
@@ -59,7 +59,7 @@ defmodule Carrier.Ops do
                TenantRepo.delete_all(Report)
                TenantRepo.delete_all(ReportInfo)
                TenantRepo.delete_all(DataSource)
-               TenantRepo.delete_all(Integration)
+               TenantRepo.delete_all(DataTarget)
                TenantRepo.delete_all(ConnInfo)
                TenantRepo.delete_all(User)
                TenantRepo.delete_all(Org)

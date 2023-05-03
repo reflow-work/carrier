@@ -31,7 +31,7 @@ defmodule Carrier.TenantFactory do
         insert(:conn_info, org_id: org_id, source: service_name).id
       end)
 
-    %Integration{
+    %DataTarget{
       org_id: org_id,
       service_name: Enum.random([:slack]),
       conn_info_id: conn_info_id

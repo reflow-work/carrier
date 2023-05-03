@@ -1,4 +1,4 @@
-defmodule Carrier.Secrets.Integration do
+defmodule Carrier.Secrets.DataTarget do
   use Carrier.Schema
   alias Carrier.Secrets.ConnInfo
 

@@ -86,7 +86,7 @@ Repo.transaction(fn ->
 
   {_, [integration0, integration1]} =
     Repo.insert_all(
-      Integration,
+      DataTarget,
       [
         %{
           org_id: org0.org_id,

@@ -826,7 +826,7 @@ defmodule CarrierWeb.App.ReportLive.New do
 
   defp init_assigns_by_integration(socket) do
     case socket.assigns.integration do
-      %Integration{service_name: :slack} ->
+      %DataTarget{service_name: :slack} ->
         {:ok, channels} =
           Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
 

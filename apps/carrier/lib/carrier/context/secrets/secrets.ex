@@ -1,13 +1,13 @@
 defmodule Carrier.Secrets do
   alias Carrier.Secrets.ConnValidator
-  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
+  alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
   alias Carrier.TenantRepo
 
   defmacro __using__([]) do
     quote do
       alias Carrier.Secrets
       alias Carrier.Secrets.ConnValidator
-      alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
+      alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
     end
   end
 
@@ -25,8 +25,8 @@ defmodule Carrier.Secrets do
 
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params),
-           {:ok, %Integration{} = integration} <-
-             Integration.create(%{
+           {:ok, %DataTarget{} = integration} <-
+             DataTarget.create(%{
                org_id: org_id,
                service_name: service_name,
                conn_info_id: conn_info_id
@@ -66,23 +66,23 @@ defmodule Carrier.Secrets do
   end
 
   def list_integrations() do
-    Integration.list()
+    DataTarget.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
   end
 
   def fetch_integration(integration_id) do
-    Integration.fetch(integration_id)
+    DataTarget.fetch(integration_id)
     |> DataSource.preload_conn_info()
     |> TenantRepo.one()
     |> case do
-      %Integration{} = integration ->
+      %DataTarget{} = integration ->
         {:ok, integration}
 
       nil ->
         {:error,
          {:resource_not_found,
-          %{target: Integration, conditions: %{integration_id: integration_id}}}}
+          %{target: DataTarget, conditions: %{integration_id: integration_id}}}}
     end
   end
 

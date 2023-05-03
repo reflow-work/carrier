@@ -1,7 +1,7 @@
 defmodule Carrier.SecretsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Secrets
-  alias Carrier.Secrets.{Integration, DataSource, ConnInfo}
+  alias Carrier.Secrets.{DataTarget, DataSource, ConnInfo}
   alias Carrier.ExternalHelper
 
   @moduletag repo: TenantRepo
@@ -24,7 +24,7 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %Integration{} = integration} = Secrets.create_integration(valid_params)
+      assert {:ok, %DataTarget{} = integration} = Secrets.create_integration(valid_params)
 
       assert same_fields?(integration, valid_params, [:org_id, :service_name])
     end
