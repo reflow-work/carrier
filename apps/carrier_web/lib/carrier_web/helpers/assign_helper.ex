@@ -45,23 +45,25 @@ defmodule CarrierWeb.AssignHelper do
     end
   end
 
-  def assign_concurrent(socket, key_fun_map, context_fun \\ nil) when is_map(key_fun_map) do
-    key_fun_map
-    |> Enum.map(fn {key, fun} ->
-      {key,
-       Task.async(fn ->
-         call_function(socket, context_fun)
-         call_function(socket, fun)
-       end)}
-    end)
-    |> Enum.reduce(socket, fn {key, task}, socket ->
-      case Task.await(task) do
-        {:ok, result} ->
-          socket |> assign(key, result)
+  @dictionary_keys [Carrier.TenantRepo.tenant_key(), Carrier.Core.TimezoneHelper.timezone_key()]
+  def assign_concurrent(socket, key_fun_map) when is_map(key_fun_map) do
+    dictionary =
+      @dictionary_keys
+      |> Enum.map(&{&1, Process.get(&1)})
 
-        {:error, _} ->
-          socket
-      end
+    key_fun_map
+    |> Task.async_stream(fn {key, fun} ->
+      dictionary
+      |> Enum.each(fn {key, value} -> Process.put(key, value) end)
+
+      {key, call_function(socket, fun)}
+    end)
+    |> Enum.reduce(socket, fn
+      {:ok, {key, {:ok, result}}}, socket ->
+        socket |> assign(key, result)
+
+      _, socket ->
+        socket
     end)
   end
 

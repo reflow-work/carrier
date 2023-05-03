@@ -2,11 +2,11 @@ defmodule Carrier.Core.TimezoneHelper do
   @default_timzone "Etc/UTC"
 
   def put_timezone(timezone) when is_binary(timezone) do
-    Process.put({__MODULE__, :timezone}, timezone)
+    Process.put(timezone_key(), timezone)
   end
 
   def apply_timezone(%DateTime{} = datetime) do
-    timezone = Process.get({__MODULE__, :timezone})
+    timezone = Process.get(timezone_key())
 
     valid_timezone = safe_timezone(timezone)
 
@@ -27,5 +27,9 @@ defmodule Carrier.Core.TimezoneHelper do
     timezone_info = Timex.Timezone.get(timezone)
 
     timezone_info.offset_utc
+  end
+
+  def timezone_key() do
+    {__MODULE__, :timezone}
   end
 end
