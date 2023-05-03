@@ -76,7 +76,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       |> assign(
         :integeration,
         [socket.assigns.integration]
-        |> Enum.find(&(&1.id == report.data_target_info.integration_id))
+        |> Enum.find(&(&1.id == report.data_target_info.data_target_id))
       )
       |> init_common_assigns()
       |> init_assigns_by_data_source()
@@ -141,7 +141,7 @@ defmodule CarrierWeb.App.ReportLive.New do
                   trigger_time: report.trigger_time,
                   timezone: socket.assigns.timezone,
                   data_target_info: %{
-                    integration_id: report.data_target_info.integration_id,
+                    data_target_id: report.data_target_info.data_target_id,
                     channel_id: report.data_target_info.channel_id,
                     channel_name: report.data_target_info.channel_name
                   },
@@ -188,7 +188,7 @@ defmodule CarrierWeb.App.ReportLive.New do
                 trigger_time: report.trigger_time,
                 timezone: socket.assigns.timezone,
                 data_target_info: %{
-                  integration_id: report.data_target_info.integration_id,
+                  data_target_id: report.data_target_info.data_target_id,
                   channel_id: report.data_target_info.channel_id,
                   channel_name: report.data_target_info.channel_name
                 },
@@ -446,7 +446,7 @@ defmodule CarrierWeb.App.ReportLive.New do
               org_id: socket.assigns.org.org_id,
               user_id: socket.assigns.user.id,
               data_target_info: %{
-                integration_id: socket.assigns.integration.id
+                data_target_id: socket.assigns.integration.id
               },
               data_source_info: %{
                 data_source_id: socket.assigns.data_source.id,

@@ -391,7 +391,7 @@
                   </div>
 
                   <%= inputs_for f, :data_target_info, fn fii -> %>
-                    <%= hidden_input(fii, :integration_id, value: @integration.id) %>
+                    <%= hidden_input(fii, :data_target_id, value: @integration.id) %>
                     <%= hidden_input(fii, :channel_id, value: @channel_id) %>
 
                     <div id="data_target_info" class="flex items-center gap-x-2">
@@ -516,7 +516,7 @@
               </div>
 
               <%= inputs_for f, :data_target_info, fn fii -> %>
-                <%= hidden_input(fii, :integration_id, value: @integration.id) %>
+                <%= hidden_input(fii, :data_target_id, value: @integration.id) %>
                 <%= hidden_input(fii, :channel_id, value: @channel_id) %>
 
                 <div id="data_target_info" class="flex items-center gap-x-2">
