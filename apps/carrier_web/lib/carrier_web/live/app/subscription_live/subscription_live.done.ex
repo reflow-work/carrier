@@ -11,9 +11,16 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
       |> assign(:subscription, nil)
       |> assign(:active_trial_subscription, nil)
       |> assign(:credit_card, nil)
-      |> load_subscription(subscription_id)
-      |> load_active_trial_subscription()
-      |> load_credit_card()
+      |> assign_concurrent(
+        %{
+          subscription: fn -> load_subscription(subscription_id) end,
+          active_trial_subscription: fn -> load_active_trial_subscription() end,
+          credit_card: fn -> load_credit_card() end
+        },
+        fn socket ->
+          Carrier.TenantRepo.put_org_id(socket.org.org_id)
+        end
+      )
 
     {:ok, socket}
   end
@@ -53,31 +60,15 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
     """
   end
 
-  defp load_subscription(socket, subscription_id) do
-    case Billing.fetch_subscription(subscription_id) do
-      {:ok, subscription} ->
-        socket |> assign(:subscription, subscription)
-
-      {:error, _} ->
-        socket
-    end
+  defp load_subscription(subscription_id) do
+    Billing.fetch_subscription(subscription_id)
   end
 
-  defp load_active_trial_subscription(socket) do
-    maybe_active_trial_subscription = Billing.get_active_trial_subscription()
-
-    socket
-    |> assign(:active_trial_subscription, maybe_active_trial_subscription)
+  defp load_active_trial_subscription() do
+    {:ok, Billing.get_active_trial_subscription()}
   end
 
-  defp load_credit_card(socket) do
-    case Payments.fetch_default_credit_card() do
-      {:ok, credit_card} ->
-        socket
-        |> assign(:credit_card, credit_card)
-
-      {:error, _} ->
-        socket
-    end
+  defp load_credit_card() do
+    Payments.fetch_default_credit_card()
   end
 end
