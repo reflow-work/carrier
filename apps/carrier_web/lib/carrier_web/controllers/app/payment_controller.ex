@@ -16,14 +16,14 @@ defmodule CarrierWeb.App.PaymentController do
              customer_key: customer_key,
              auth_key: auth_key
            }),
-         {:ok, %Subscription{}} <-
+         {:ok, %Subscription{} = subscription} <-
            Billing.start_subscription(%{
              org_id: org_id,
              plan_id: plan_id,
              start_on: DateTime.utc_now()
            }) do
       conn
-      |> redirect(to: ~p"/app/subscriptions/done")
+      |> redirect(to: ~p"/app/subscriptions/done?subscription_id=#{subscription}")
     else
       {:error, reason} ->
         Logger.error("Failed to pay with toss payments: org_id: #{org_id}, #{inspect(reason)}")
