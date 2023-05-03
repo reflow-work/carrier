@@ -5,8 +5,8 @@ defmodule CarrierWeb.IntegrationHook do
 
   def on_mount(:default, _params, _session, socket) do
     case Secrets.list_integrations() do
-      [%DataTarget{} = integration] ->
-        {:cont, socket |> assign(:integration, integration)}
+      [%DataTarget{} = data_target] ->
+        {:cont, socket |> assign(:integration, data_target)}
 
       _ ->
         socket = socket |> push_navigate(to: ~p"/app/integrations/new")

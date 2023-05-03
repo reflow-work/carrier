@@ -18,7 +18,7 @@ defmodule Carrier.Factory do
     |> merge_attributes(attrs)
   end
 
-  def integration_factory(attrs) do
+  def data_target_factory(attrs) do
     {service_name, attrs} = attrs |> Map.pop(:service_name, Enum.random([:slack]))
 
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
@@ -93,7 +93,7 @@ defmodule Carrier.Factory do
       attrs |> Map.pop_lazy(:report_info, fn -> insert(:report_info, org_id: org_id) end)
 
     {integration_id, attrs} =
-      attrs |> Map.pop_lazy(:integration_id, fn -> insert(:integration, org_id: org_id).id end)
+      attrs |> Map.pop_lazy(:integration_id, fn -> insert(:data_target, org_id: org_id).id end)
 
     {data_source_id, attrs} =
       attrs |> Map.pop_lazy(:data_source_id, fn -> insert(:data_source, org_id: org_id).id end)

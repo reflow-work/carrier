@@ -35,16 +35,16 @@ defmodule Carrier.ReportsTest do
     setup do
       org = TenantFactory.insert(:org)
       user = TenantFactory.insert(:user, org: org)
-      integration = TenantFactory.insert(:integration, org_id: org.org_id)
+      data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
       data_source = TenantFactory.insert(:data_source, org_id: org.org_id, source: :postgres)
 
-      %{org: org, user: user, integration: integration, data_source: data_source}
+      %{org: org, user: user, data_target: data_target, data_source: data_source}
     end
 
     test "with valid attrs", %{
       org: org,
       user: user,
-      integration: integration,
+      data_target: data_target,
       data_source: data_source
     } do
       params = %{
@@ -54,7 +54,7 @@ defmodule Carrier.ReportsTest do
         trigger_time: ~T[10:00:00],
         timezone: "Asia/Seoul",
         integration_info: %{
-          integration_id: integration.id,
+          integration_id: data_target.id,
           channel_id: "channel_id",
           channel_name: "channel_name"
         },

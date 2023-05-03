@@ -25,14 +25,14 @@ defmodule Carrier.Secrets do
 
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params),
-           {:ok, %DataTarget{} = integration} <-
+           {:ok, %DataTarget{} = data_target} <-
              DataTarget.create(%{
                org_id: org_id,
                service_name: service_name,
                conn_info_id: conn_info_id
              })
              |> TenantRepo.insert() do
-        {:ok, integration}
+        {:ok, data_target}
       end
     end)
   end
@@ -76,8 +76,8 @@ defmodule Carrier.Secrets do
     |> DataSource.preload_conn_info()
     |> TenantRepo.one()
     |> case do
-      %DataTarget{} = integration ->
-        {:ok, integration}
+      %DataTarget{} = data_target ->
+        {:ok, data_target}
 
       nil ->
         {:error,
