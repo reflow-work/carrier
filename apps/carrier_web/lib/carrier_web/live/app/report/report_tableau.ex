@@ -10,7 +10,7 @@ defmodule CarrierWeb.App.ReportLive.New.ReportTableau do
     field :trigger_time, :time
     field :timezone, :string
 
-    embeds_one :integration_info, IntegrationInfo, primary_key: false, on_replace: :delete do
+    embeds_one :integration_info, DataTargetInfo, primary_key: false, on_replace: :delete do
       field :integration_id, :id
       field :channel_id, :string
       field :channel_name, :string
@@ -38,7 +38,7 @@ defmodule CarrierWeb.App.ReportLive.New.ReportTableau do
   end
 
   @required_integration_info [:integration_id, :channel_id, :channel_name]
-  defp changeset_interation_info(%__MODULE__.IntegrationInfo{} = struct, attrs) do
+  defp changeset_interation_info(%__MODULE__.DataTargetInfo{} = struct, attrs) do
     struct
     |> cast(attrs, @required_integration_info)
     |> validate_required(@required_integration_info)

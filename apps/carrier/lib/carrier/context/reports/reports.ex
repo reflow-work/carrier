@@ -15,7 +15,7 @@ defmodule Carrier.Reports do
         ReportLog,
         ReportJob,
         DataSourceInfo,
-        IntegrationInfo,
+        DataTargetInfo,
         ImageGenerator
       }
     end

@@ -1,4 +1,4 @@
-defmodule Carrier.Reports.IntegrationInfo do
+defmodule Carrier.Reports.DataTargetInfo do
   use Carrier.Schema
 
   @derive Jason.Encoder

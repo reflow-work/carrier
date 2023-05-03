@@ -1,6 +1,6 @@
 defmodule Carrier.Reports.Report do
   use Carrier.Schema
-  alias Carrier.Reports.{ReportInfo, IntegrationInfo, DataSourceInfo}
+  alias Carrier.Reports.{ReportInfo, DataTargetInfo, DataSourceInfo}
 
   schema "reports" do
     belongs_to :report_info, ReportInfo
@@ -11,7 +11,7 @@ defmodule Carrier.Reports.Report do
     field :trigger_time, :time
     field :timezone, :string
 
-    embeds_one :integration_info, IntegrationInfo, on_replace: :delete
+    embeds_one :integration_info, DataTargetInfo, on_replace: :delete
     field :data_source_info, :map
 
     field :deleted_at, :utc_datetime_usec
@@ -34,7 +34,7 @@ defmodule Carrier.Reports.Report do
     |> validate_required(@required_for_create)
     |> cast_embed(:integration_info,
       required: true,
-      with: &IntegrationInfo.changeset_for_create/2
+      with: &DataTargetInfo.changeset_for_create/2
     )
     |> validate_data_source_info()
   end
