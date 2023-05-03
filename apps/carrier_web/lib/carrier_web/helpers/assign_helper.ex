@@ -45,6 +45,28 @@ defmodule CarrierWeb.AssignHelper do
     end
   end
 
+  def assign_concurrent(socket, key_fun_map, context_fun \\ nil) when is_map(key_fun_map) do
+    key_fun_map
+    |> Enum.map(fn {key, fun} ->
+      {key,
+       Task.async(fn ->
+         call_function(socket, context_fun)
+         call_function(socket, fun)
+       end)}
+    end)
+    |> Enum.reduce(socket, fn {key, task}, socket ->
+      case Task.await(task) do
+        {:ok, result} ->
+          socket |> assign(key, result)
+
+        {:error, _} ->
+          socket
+      end
+    end)
+  end
+
+  defp call_function(_socket, nil), do: nil
+
   defp call_function(_socket, fun) when is_function(fun, 0) do
     fun.()
   end
