@@ -6,7 +6,7 @@ defmodule Carrier.SecretsTest do
 
   @moduletag repo: TenantRepo
 
-  describe "create_integration/1" do
+  describe "create_data_target/1" do
     setup do
       org = TenantFactory.insert(:org)
 
@@ -24,7 +24,7 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %DataTarget{} = data_target} = Secrets.create_integration(valid_params)
+      assert {:ok, %DataTarget{} = data_target} = Secrets.create_data_target(valid_params)
 
       assert same_fields?(data_target, valid_params, [:org_id, :service_name])
     end
@@ -120,7 +120,7 @@ defmodule Carrier.SecretsTest do
     end
   end
 
-  describe "list_integrations/0" do
+  describe "list_data_targets/0" do
     setup do
       org = TenantFactory.insert(:org)
 
@@ -133,12 +133,12 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid params", %{data_target: data_target} do
-      assert [fetched_integration] = Secrets.list_integrations()
-      assert same_records?(fetched_integration, data_target)
+      assert [fetched_data_target] = Secrets.list_data_targets()
+      assert same_records?(fetched_data_target, data_target)
     end
   end
 
-  describe "fetch_integration/1" do
+  describe "fetch_data_target/1" do
     setup do
       org = TenantFactory.insert(:org)
 
@@ -153,14 +153,14 @@ defmodule Carrier.SecretsTest do
     end
 
     test "with valid id", %{data_target: data_target} do
-      assert {:ok, fetched_integration} = Secrets.fetch_integration(data_target.id)
-      assert same_records?(fetched_integration, data_target)
-      assert %ConnInfo{} = fetched_integration.conn_info
+      assert {:ok, fetched_data_target} = Secrets.fetch_data_target(data_target.id)
+      assert same_records?(fetched_data_target, data_target)
+      assert %ConnInfo{} = fetched_data_target.conn_info
     end
 
     test "with deleted id", %{deleted_data_target: deleted_data_target} do
       assert {:error, {:resource_not_found, _}} =
-               Secrets.fetch_integration(deleted_data_target.id)
+               Secrets.fetch_data_target(deleted_data_target.id)
     end
   end
 

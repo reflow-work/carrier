@@ -11,7 +11,7 @@ defmodule Carrier.Secrets do
     end
   end
 
-  def create_integration(%{
+  def create_data_target(%{
         org_id: org_id,
         service_name: service_name,
         conn_info: conn_info_params
@@ -65,14 +65,14 @@ defmodule Carrier.Secrets do
     end)
   end
 
-  def list_integrations() do
+  def list_data_targets() do
     DataTarget.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
   end
 
-  def fetch_integration(integration_id) do
-    DataTarget.fetch(integration_id)
+  def fetch_data_target(data_target_id) do
+    DataTarget.fetch(data_target_id)
     |> DataSource.preload_conn_info()
     |> TenantRepo.one()
     |> case do
@@ -82,7 +82,7 @@ defmodule Carrier.Secrets do
       nil ->
         {:error,
          {:resource_not_found,
-          %{target: DataTarget, conditions: %{integration_id: integration_id}}}}
+          %{target: DataTarget, conditions: %{data_target_id: data_target_id}}}}
     end
   end
 

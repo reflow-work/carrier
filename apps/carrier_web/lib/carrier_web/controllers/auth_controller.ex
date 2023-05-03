@@ -78,7 +78,7 @@ defmodule CarrierWeb.AuthController do
 
     org_id = conn |> get_session(:org_id)
 
-    case Secrets.create_integration(%{
+    case Secrets.create_data_target(%{
            org_id: org_id,
            service_name: :slack,
            conn_info: %{team_name: team_name, team_id: team_id, bot_token: bot_token}

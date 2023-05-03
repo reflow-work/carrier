@@ -147,7 +147,7 @@ defmodule Carrier.Works.ReportJob do
          slack_args: slack_args
        }) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %DataTarget{} = data_target} <- Secrets.fetch_integration(integration_id),
+      with {:ok, %DataTarget{} = data_target} <- Secrets.fetch_data_target(integration_id),
            {:ok, send_result} <-
              slack_args
              |> Enum.map(fn %{img_url: image_url, title: image_title} ->
