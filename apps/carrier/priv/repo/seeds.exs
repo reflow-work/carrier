@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-use Carrier.{Accounts, Secrets, Reports, Setting, Billing}
+use Carrier.{Accounts, Secrets, Reports, Setting, Billing, Roles}
 alias Carrier.Repo
 
 now = DateTime.utc_now()
@@ -263,6 +263,36 @@ Repo.transaction(fn ->
       ],
       returning: true
     )
+
+  Repo.insert_all(
+    Role,
+    [
+      %{
+        name: "Admin",
+        permissions: [
+          "member.access_setting",
+          "member.read",
+          "member.invite",
+          "member.update",
+          "member.delete",
+          "billing.access_setting",
+          "billing.subscription.read",
+          "billing.subscription.manage",
+          "billing.credit_card.manage"
+        ]
+      },
+      %{
+        name: "Member",
+        permissions: [
+          "member.access_setting",
+          "member.read",
+          "member.invite",
+          "billing.access_setting",
+          "billing.subscription.read"
+        ]
+      }
+    ]
+  )
 
   # {_, _} =
   #   Repo.insert_all(Subscription, [
