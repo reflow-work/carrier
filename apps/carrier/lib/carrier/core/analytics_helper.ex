@@ -12,8 +12,8 @@ defmodule Carrier.Core.AnalyticsHelper do
       "/onboarding" ->
         "onboarding"
 
-      "/integrations/new" ->
-        "slack_integration"
+      "/data-targets/new" ->
+        "data_target_new"
 
       "/data-sources" ->
         "data_source"

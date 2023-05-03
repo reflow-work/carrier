@@ -3,7 +3,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Reports
   alias Carrier.Core.TimeHelper
 
-  on_mount(CarrierWeb.IntegrationHook)
+  on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.SubscriptionHook)
 
   @impl true

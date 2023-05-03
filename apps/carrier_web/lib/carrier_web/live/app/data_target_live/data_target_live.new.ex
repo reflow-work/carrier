@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.IntegrationLive.New do
+defmodule CarrierWeb.App.DataTargetLive.New do
   use CarrierWeb, :live_view
   alias CarrierWeb.Components.Slack
 

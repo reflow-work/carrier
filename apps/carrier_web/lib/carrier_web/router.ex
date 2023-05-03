@@ -83,7 +83,7 @@ defmodule CarrierWeb.Router do
       live "/onboarding", OnboardingLive.Index, :index
       live "/subscriptions/new", SubscriptionLive.New
       live "/subscriptions/done", SubscriptionLive.Done
-      live "/integrations/new", IntegrationLive.New, :new
+      live "/data-targets/new", DataTargetLive.New, :new
       live "/data-sources/new", DataSourceLive.New, :new
       live "/reports", ReportLive.Index, :index
       live "/reports/:id/delete", ReportLive.Index, :delete

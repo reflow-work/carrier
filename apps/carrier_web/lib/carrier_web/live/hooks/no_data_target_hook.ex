@@ -1,4 +1,4 @@
-defmodule CarrierWeb.NoIntegrationHook do
+defmodule CarrierWeb.NoDataTargetHook do
   use CarrierWeb, :live_hook
   alias Carrier.Secrets
 

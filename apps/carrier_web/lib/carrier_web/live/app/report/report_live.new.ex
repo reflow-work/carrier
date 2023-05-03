@@ -11,7 +11,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   alias CarrierWeb.Components.QueryChecker
   alias __MODULE__.{ReportParams, ReportTableau}
 
-  on_mount(CarrierWeb.IntegrationHook)
+  on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.DataSourceHook)
 
   @sample_sql_template """
@@ -49,7 +49,7 @@ defmodule CarrierWeb.App.ReportLive.New do
       |> assign(:data_source, socket.assigns.data_sources |> List.first())
       |> init_common_assigns()
       |> init_assigns_by_data_source()
-      |> init_assigns_by_integration()
+      |> init_assigns_by_data_target()
       |> init_changeset()
 
     {:noreply, socket}
@@ -74,13 +74,13 @@ defmodule CarrierWeb.App.ReportLive.New do
         |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
       )
       |> assign(
-        :integeration,
-        [socket.assigns.integration]
+        :data_target,
+        [socket.assigns.data_target]
         |> Enum.find(&(&1.id == report.data_target_info.data_target_id))
       )
       |> init_common_assigns()
       |> init_assigns_by_data_source()
-      |> init_assigns_by_integration()
+      |> init_assigns_by_data_target()
       |> assign(:report_name, report.name)
       |> assign(:channel_id, report.data_target_info.channel_id)
       |> assign(:channel_search_term, report.data_target_info.channel_name)
@@ -446,7 +446,7 @@ defmodule CarrierWeb.App.ReportLive.New do
               org_id: socket.assigns.org.org_id,
               user_id: socket.assigns.user.id,
               data_target_info: %{
-                data_target_id: socket.assigns.integration.id
+                data_target_id: socket.assigns.data_target.id
               },
               data_source_info: %{
                 data_source_id: socket.assigns.data_source.id,
@@ -765,7 +765,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp init_common_assigns(socket) do
-    # data_source and integration should be assigned before this function is called
+    # data_source and data_target should be assigned before this function is called
     socket
     |> assign(:report_name, "")
     |> assign(
@@ -824,11 +824,11 @@ defmodule CarrierWeb.App.ReportLive.New do
     |> assign(:data_loaded, false)
   end
 
-  defp init_assigns_by_integration(socket) do
-    case socket.assigns.integration do
+  defp init_assigns_by_data_target(socket) do
+    case socket.assigns.data_target do
       %DataTarget{service_name: :slack} ->
         {:ok, channels} =
-          Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"])
+          Slack.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"])
 
         socket
         |> assign(:channels, channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end))
@@ -932,7 +932,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp load_slack_channels(socket) do
-    case Slack.list_conversations(socket.assigns.integration.conn_info.info["bot_token"]) do
+    case Slack.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"]) do
       {:ok, channels} ->
         channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
 
@@ -979,7 +979,7 @@ defmodule CarrierWeb.App.ReportLive.New do
              Slack.post_message(
                channel_id,
                blocks,
-               socket.assigns.integration.conn_info.info["bot_token"]
+               socket.assigns.data_target.conn_info.info["bot_token"]
              )
            end)
            |> Traversable.traverse() do
@@ -1004,7 +1004,7 @@ defmodule CarrierWeb.App.ReportLive.New do
            Slack.post_message(
              channel_id,
              blocks,
-             socket.assigns.integration.conn_info.info["bot_token"]
+             socket.assigns.data_target.conn_info.info["bot_token"]
            ) do
       :ok
     end
