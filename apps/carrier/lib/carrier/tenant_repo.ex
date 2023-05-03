@@ -33,17 +33,19 @@ defmodule Carrier.TenantRepo do
     [org_id: get_org_id()]
   end
 
-  @tenant_key {__MODULE__, :org_id}
-
   def put_org_id(org_id) do
-    Process.put(@tenant_key, org_id)
+    Process.put(tenant_key(), org_id)
   end
 
   def get_org_id() do
-    Process.get(@tenant_key)
+    Process.get(tenant_key())
   end
 
   def set_skip_org_id() do
-    Process.put(@tenant_key, :skip)
+    Process.put(tenant_key(), :skip)
+  end
+
+  def tenant_key() do
+    {__MODULE__, :org_id}
   end
 end
