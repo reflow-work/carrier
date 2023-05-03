@@ -38,4 +38,19 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
         """
     end
   end
+
+  attr :data_target, :any
+
+  def data_target_configurer(assigns) do
+    case assigns.data_target do
+      %DataTarget{service_name: :slack} ->
+        ~H"""
+        <.live_component
+          module={CarrierWeb.App.ReportLive.New2.SlackConfigurer}
+          id="slack_configurer"
+          data_target={@data_target}
+        />
+        """
+    end
+  end
 end
