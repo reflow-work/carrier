@@ -2,6 +2,8 @@ defmodule Carrier.Reports.Report do
   use Carrier.Schema
   alias Carrier.Reports.{ReportInfo, IntegrationInfo, DataSourceInfo}
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "reports" do
     belongs_to :report_info, ReportInfo
 
