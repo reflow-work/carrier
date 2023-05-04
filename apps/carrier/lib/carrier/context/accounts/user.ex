@@ -5,6 +5,8 @@ defmodule Carrier.Accounts.User do
   schema "users" do
     belongs_to :org, Org, references: :org_id
 
+    field :role_id, :id
+
     field :email, :string
     field :position, :string
 
