@@ -4,7 +4,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   use Carrier.{Reports, Integrations}
   alias Carrier.Data.QueryData
   alias Carrier.Data.Source.Tableau
-  alias Carrier.External.Slack
+  alias Carrier.External.SlackAPI
   alias Carrier.Core.{TimeHelper, Traversable, MapHelper, DateHelper, Nillable, MapHelper}
   alias CarrierWeb.Components.Empty
   alias CarrierWeb.Components.SlackImgMetaData
@@ -832,7 +832,7 @@ defmodule CarrierWeb.App.ReportLive.New do
     case socket.assigns.data_target do
       %DataTarget{service_name: :slack} ->
         {:ok, channels} =
-          Slack.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"])
+          SlackAPI.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"])
 
         socket
         |> assign(:channels, channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end))
@@ -936,7 +936,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp load_slack_channels(socket) do
-    case Slack.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"]) do
+    case SlackAPI.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"]) do
       {:ok, channels} ->
         channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
 
@@ -976,11 +976,11 @@ defmodule CarrierWeb.App.ReportLive.New do
              image_url = Map.get(img_urls, k)
 
              blocks = [
-               Slack.Block.build_text_block(report_title(socket.assigns.timezone, title)),
-               Slack.Block.build_image_block(image_url, title, title)
+               SlackAPI.Block.build_text_block(report_title(socket.assigns.timezone, title)),
+               SlackAPI.Block.build_image_block(image_url, title, title)
              ]
 
-             Slack.post_message(
+             SlackAPI.post_message(
                channel_id,
                blocks,
                socket.assigns.data_target.conn_info.info["bot_token"]
@@ -1001,11 +1001,11 @@ defmodule CarrierWeb.App.ReportLive.New do
          title = socket.assigns.tableau_selected_view.full_name,
          image_url = url,
          blocks = [
-           Slack.Block.build_text_block(report_title(socket.assigns.timezone, title)),
-           Slack.Block.build_image_block(image_url, title, title)
+           SlackAPI.Block.build_text_block(report_title(socket.assigns.timezone, title)),
+           SlackAPI.Block.build_image_block(image_url, title, title)
          ],
          :ok <-
-           Slack.post_message(
+           SlackAPI.post_message(
              channel_id,
              blocks,
              socket.assigns.data_target.conn_info.info["bot_token"]

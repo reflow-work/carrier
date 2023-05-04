@@ -1,4 +1,4 @@
-defmodule Carrier.External.Slack do
+defmodule Carrier.External.SlackAPI do
   require Logger
 
   @host "https://slack.com/api"

@@ -9,7 +9,7 @@ defmodule Carrier.Works.ReportJob do
   alias Carrier.Data.QueryData
   alias Carrier.Data.Source.Tableau
   alias Carrier.TenantRepo
-  alias Carrier.External.Slack
+  alias Carrier.External.SlackAPI
   alias Carrier.Core.{DateHelper, Traversable}
 
   @query_date_length 28 + 7 + 28 + 1
@@ -100,7 +100,7 @@ defmodule Carrier.Works.ReportJob do
              report_id: report_id,
              data: parsed_data
            }),
-         slack_args = Slack.build_post_message_args(parsed_data, image_urls) do
+         slack_args = SlackAPI.build_post_message_args(parsed_data, image_urls) do
       {:ok, slack_args}
     end
   end
@@ -152,11 +152,11 @@ defmodule Carrier.Works.ReportJob do
              slack_args
              |> Enum.map(fn %{img_url: image_url, title: image_title} ->
                blocks = [
-                 Slack.Block.build_text_block(report_title(timezone, image_title)),
-                 Slack.Block.build_image_block(image_url, image_title, image_title)
+                 SlackAPI.Block.build_text_block(report_title(timezone, image_title)),
+                 SlackAPI.Block.build_image_block(image_url, image_title, image_title)
                ]
 
-               Slack.post_message(
+               SlackAPI.post_message(
                  channel_id,
                  blocks,
                  data_target.conn_info.info["bot_token"]

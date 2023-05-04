@@ -1,4 +1,4 @@
-defmodule Carrier.External.Slack.Oauth do
+defmodule Carrier.External.SlackAPI.Oauth do
   use Tesla
 
   @host "https://slack.com/api"
