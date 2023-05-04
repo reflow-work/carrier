@@ -12,7 +12,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:position, :bottom)
       |> assign(:label, nil)
       |> assign(:label_align, nil)
-      |> assign(:multiple, false)
+      |> assign(:duplicatable, false)
 
     {:ok, socket}
   end
@@ -171,7 +171,7 @@ defmodule CarrierWeb.Components.Search do
 
         selectable_items =
           socket.assigns.items
-          |> handle_multiple(socket.assigns.multiple, socket.assigns.selected_items)
+          |> handle_duplicated(socket.assigns.duplicatable, socket.assigns.selected_items)
           |> Stream.filter(fn item -> item.label =~ regex end)
           |> Stream.take(socket.assigns.max_search)
           |> Enum.to_list()
@@ -182,11 +182,11 @@ defmodule CarrierWeb.Components.Search do
     end
   end
 
-  defp handle_multiple(items, false, selected_items) do
+  defp handle_duplicated(items, false, selected_items) do
     items |> Stream.reject(fn item -> item in selected_items end)
   end
 
-  defp handle_multiple(items, true, _selected_items) do
+  defp handle_duplicated(items, true, _selected_items) do
     items
   end
 
