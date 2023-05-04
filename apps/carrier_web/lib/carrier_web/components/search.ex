@@ -13,6 +13,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:multiple, false)
       |> assign(:max_select, nil)
       |> assign(:duplicatable, false)
+      |> assign(:placeholder, nil)
       # internal
       |> assign(:keyword, "")
       |> assign(:show_selectable_items, false)
@@ -45,6 +46,7 @@ defmodule CarrierWeb.Components.Search do
             name="keyword"
             label={@label}
             label_align={@label_align}
+            placeholder={@placeholder}
             value={@keyword}
             phx-target={@myself}
             phx-change="search"
