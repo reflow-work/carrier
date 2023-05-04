@@ -175,7 +175,7 @@ defmodule CarrierWeb.CoreComponents do
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
   attr :errors, :any, default: []
 
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
 
   attr :rest, :global,
     include: ~w(autocomplete name rel action enctype method novalidate target),
@@ -211,7 +211,7 @@ defmodule CarrierWeb.CoreComponents do
       <.button phx-click="go" class="ml-2">Send!</.button>
   """
   attr :type, :string, default: nil
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
@@ -265,7 +265,7 @@ defmodule CarrierWeb.CoreComponents do
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
 
   attr :label_align, :atom, default: :top, values: ~w(top left)a
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
 
   attr :rest, :global,
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
@@ -446,7 +446,7 @@ defmodule CarrierWeb.CoreComponents do
   """
   attr :for, :string, default: nil
   attr :align, :atom, default: :top, values: [:top, :left]
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
 
   slot :inner_block, required: true
 
@@ -482,7 +482,7 @@ defmodule CarrierWeb.CoreComponents do
   @doc """
   Renders a header with title.
   """
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
 
   slot :inner_block, required: true
   slot :subtitle
@@ -650,7 +650,7 @@ defmodule CarrierWeb.CoreComponents do
       <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
   """
   attr :name, :string, required: true
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
   attr :rest, :global
 
   def icon(%{name: "hero-" <> _} = assigns) do
