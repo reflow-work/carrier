@@ -631,6 +631,15 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
+  attr :class, :any, default: nil
+  attr :rest, :global
+
+  def loading(assigns) do
+    ~H"""
+    <.icon name="hero-arrow-path" class={["mt-4 w-6 h-6 animate-spin", ["wow"], @class]} {@rest} />
+    """
+  end
+
   @doc """
   Renders a [Hero Icon](https://heroicons.com).
 

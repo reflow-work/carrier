@@ -66,7 +66,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           </div>
 
           <div class="max-w-md">
-            <.icon :if={@views.loading?} name="hero-arrow-path" class="mt-4 w-6 h-6 animate-spin" />
+            <.loading :if={@views.loading?} />
             <.live_component
               :if={!@views.loading?}
               module={Search}

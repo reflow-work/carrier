@@ -52,7 +52,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
     ~H"""
     <div>
       <p><%= @view.name %></p>
-      <.icon :if={@image_binary.loading?} name="hero-arrow-path" class="mt-4 w-6 h-6 animate-spin" />
+      <.loading :if={@image_binary.loading?} />
       <img
         :if={!@image_binary.loading?}
         src={"data:image/png;base64,#{@image_binary.value |> Base.encode64()}"}
