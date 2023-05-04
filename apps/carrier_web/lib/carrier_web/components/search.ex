@@ -5,14 +5,17 @@ defmodule CarrierWeb.Components.Search do
   def mount(socket) do
     socket =
       socket
-      |> assign(:keyword, "")
-      |> assign(:show_selectable_items, false)
-      |> assign(:max_search, 5)
-      |> assign(:max_select, nil)
-      |> assign(:position, :bottom)
+      # external
       |> assign(:label, nil)
       |> assign(:label_align, nil)
+      |> assign(:position, :bottom)
+      |> assign(:max_search, 5)
+      |> assign(:multiple, false)
+      |> assign(:max_select, nil)
       |> assign(:duplicatable, false)
+      # internal
+      |> assign(:keyword, "")
+      |> assign(:show_selectable_items, false)
 
     {:ok, socket}
   end
@@ -32,7 +35,7 @@ defmodule CarrierWeb.Components.Search do
   end
 
   @impl true
-  def render(assigns) do
+  def render(%{multiple: true} = assigns) do
     ~H"""
     <div>
       <.simple_form for={%{}}>
@@ -90,6 +93,14 @@ defmodule CarrierWeb.Components.Search do
           /><%= selected_item.label %>
         </div>
       </div>
+    </div>
+    """
+  end
+
+  @impl true
+  def render(%{multiple: false} = assigns) do
+    ~H"""
+    <div>
     </div>
     """
   end
