@@ -831,7 +831,7 @@ defmodule CarrierWeb.App.ReportLive.New do
   defp init_assigns_by_data_target(socket) do
     case socket.assigns.data_target do
       %DataTarget{service_name: :slack} ->
-        {:ok, channels} =
+        {:ok, %{channels: channels}} =
           SlackAPI.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"])
 
         socket
@@ -937,7 +937,7 @@ defmodule CarrierWeb.App.ReportLive.New do
 
   defp load_slack_channels(socket) do
     case SlackAPI.list_conversations(socket.assigns.data_target.conn_info.info["bot_token"]) do
-      {:ok, channels} ->
+      {:ok, %{channels: channels}} ->
         channel_options = channels |> Enum.map(fn %{id: id, name: name} -> {name, id} end)
 
         socket

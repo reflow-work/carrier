@@ -116,6 +116,7 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :tzdata, :autoupdate, :disabled
 
 config :carrier, :slack,
+  base_url: "https://slack.com/api",
   client_id: "3700242262145.3907206908336",
   client_secret: "ea1926306433ead67eea5f55a6855f67"
 

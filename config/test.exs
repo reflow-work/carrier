@@ -58,4 +58,6 @@ config :carrier, :toss_payments,
   client_key: "client_key",
   secret_key: "secret_key"
 
+config :carrier, :slack, base_url: "http://localhost:4103/api"
+
 config :carrier, Carrier.Core.Cache, force_ttl: 0
