@@ -14,7 +14,7 @@ defmodule Carrier.Accounts.Super do
 
         TenantRepo.wrap_transaction(fn ->
           with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
-               {:ok, %Role{id: role_id}} <- Super.fetch_role_with_name("Admin"),
+               {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Admin"),
                {:ok, %User{} = user} <- signup(%{org_id: org_id, email: email, role_id: role_id}) do
             {:ok, {:signed_up, user}}
           end

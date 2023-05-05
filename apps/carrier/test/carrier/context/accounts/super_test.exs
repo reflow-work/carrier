@@ -7,9 +7,9 @@ defmodule Carrier.Accounts.SuperTest do
 
   describe "auth/1" do
     setup do
-      role = TenantFactory.insert(:role, name: "Admin")
+      TenantFactory.insert(:role, name: "Admin")
 
-      %{role: role}
+      :ok
     end
 
     test "with already signed up user" do
@@ -81,7 +81,7 @@ defmodule Carrier.Accounts.SuperTest do
       }
 
       assert {:ok, %User{} = created_user} = Accounts.Super.signup(params)
-      assert same_fields?(created_user, params, [:org_id, :email])
+      assert same_fields?(created_user, params, [:org_id, :email, :role_id])
     end
 
     test "with duplicated email", %{org: org, role: role} do
