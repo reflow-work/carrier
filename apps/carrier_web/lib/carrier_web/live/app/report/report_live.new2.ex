@@ -47,6 +47,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       />
       <Components.data_transformer data_source={@selected_data_source} />
       <Components.data_target_configurer data_target={@data_target} />
+      <Components.report_configurer />
     </section>
     """
   end
