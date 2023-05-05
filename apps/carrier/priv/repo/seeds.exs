@@ -26,10 +26,42 @@ Repo.transaction(fn ->
       returning: true
     )
 
+  {_, [admin_role, _]} =
+    Repo.insert_all(
+      Role,
+      [
+        %{
+          name: "Admin",
+          permissions: [
+            "member.access_setting",
+            "member.read",
+            "member.invite",
+            "member.update",
+            "member.delete",
+            "billing.access_setting",
+            "billing.subscription.read",
+            "billing.subscription.manage",
+            "billing.credit_card.manage"
+          ]
+        },
+        %{
+          name: "Member",
+          permissions: [
+            "member.access_setting",
+            "member.read",
+            "member.invite",
+            "billing.access_setting",
+            "billing.subscription.read"
+          ]
+        }
+      ],
+      returning: true
+    )
+
   {_, _} =
     Repo.insert_all(User, [
-      %{org_id: org0.org_id, email: "nallwhy@gmail.com"},
-      %{org_id: org1.org_id, email: "wonny727@gmail.com"}
+      %{org_id: org0.org_id, email: "nallwhy@gmail.com", role_id: admin_role.id},
+      %{org_id: org1.org_id, email: "wonny727@gmail.com", role_id: admin_role.id}
     ])
 
   {_, [conn_info0, conn_info1, conn_info2, conn_info3]} =
@@ -263,36 +295,6 @@ Repo.transaction(fn ->
       ],
       returning: true
     )
-
-  Repo.insert_all(
-    Role,
-    [
-      %{
-        name: "Admin",
-        permissions: [
-          "member.access_setting",
-          "member.read",
-          "member.invite",
-          "member.update",
-          "member.delete",
-          "billing.access_setting",
-          "billing.subscription.read",
-          "billing.subscription.manage",
-          "billing.credit_card.manage"
-        ]
-      },
-      %{
-        name: "Member",
-        permissions: [
-          "member.access_setting",
-          "member.read",
-          "member.invite",
-          "billing.access_setting",
-          "billing.subscription.read"
-        ]
-      }
-    ]
-  )
 
   # {_, _} =
   #   Repo.insert_all(Subscription, [
