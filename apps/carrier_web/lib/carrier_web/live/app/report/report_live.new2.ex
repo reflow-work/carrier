@@ -76,6 +76,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
+  def handle_event("validate_report_form", %{"report_form" => report_input}, socket) do
+    report_form = validate_report_form(socket, report_input)
+
+    socket =
+      socket
+      |> assign(:report_form, report_form)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(message, socket) do
     case handle_async_assigns(message, socket) do
       {:ok, socket} ->
@@ -84,5 +95,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       _ ->
         {:noreply, socket}
     end
+  end
+
+  defp validate_report_form(socket, report_input) do
+    report_input =
+      %{
+        "org_id" => socket.assigns.org.org_id,
+        "user_id" => socket.assigns.user.id,
+        "timezone" => socket.assigns.timezone
+      }
+      |> Map.merge(report_input)
+
+    Params.to_form(%ReportParams{}, report_input, as: :report_form)
   end
 end

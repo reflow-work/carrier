@@ -63,7 +63,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
         <.card>
           <.card_title title="리포트 설정하기" />
           <div class="max-w-md">
-            <.simple_form for={@report_form}>
+            <.simple_form for={@report_form} phx-change="validate_report_form">
               <.input
                 type="text"
                 field={@report_form[:name]}
