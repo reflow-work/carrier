@@ -54,6 +54,9 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     end
   end
 
+  attr :report_form, :any, required: true
+  attr :valid?, :boolean, required: true
+
   def report_configurer(assigns) do
     ~H"""
     <div>
@@ -61,28 +64,34 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
         <.card>
           <.card_title title="리포트 설정하기" />
           <div class="max-w-md">
-            <.simple_form for={%{}}>
+            <.simple_form for={@report_form} phx-change="validate_report_form">
               <.input
                 type="text"
-                name="name"
+                field={@report_form[:name]}
                 label="리포트 이름"
                 label_align={:left}
                 placeholder="데일리 유저 지표"
-                value=""
               />
               <.input
                 type="select"
-                name="interval"
+                field={@report_form[:interval]}
                 label="발송 주기"
                 label_align={:left}
                 options={interval_options()}
                 value={:daily}
               />
-              <.input type="time" name="time" label="발송 시간" label_align={:left} value="" />
+              <.input
+                type="time"
+                field={@report_form[:trigger_time]}
+                label="발송 시간"
+                label_align={:left}
+              />
 
               <:actions>
-                <.button style={:outline}>테스트 발송</.button>
-                <.button type="submit" phx-disable-with="생성 중">리포트 생성</.button>
+                <.button style={:outline} disabled={!@valid?}>테스트 발송</.button>
+                <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
+                  리포트 생성
+                </.button>
               </:actions>
             </.simple_form>
           </div>

@@ -2,7 +2,9 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
   use Carrier.Integrations
   alias __MODULE__.Components
+  alias __MODULE__.ReportParams
   alias Carrier.Core.Nillable
+  alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -13,6 +15,9 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       socket
       |> assign(:title, nil)
       |> assign(:selected_data_source, nil)
+      |> assign(:data_source_info_form, nil)
+      |> assign(:data_targte_info_form, nil)
+      |> assign(:valid?, false)
 
     {:ok, socket}
   end
@@ -20,6 +25,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   @impl true
   def handle_params(params, _uri, %{assigns: %{live_action: :new}} = socket) do
     data_source_id = params["data_source_id"] |> Nillable.map(&Obfuscatable.deobfuscate!/1)
+
+    report_form =
+      %ReportParams{}
+      |> Params.to_form(%{}, as: :report_form, validate: false)
 
     socket =
       socket
@@ -31,6 +40,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
         )
       end)
+      |> assign(:report_form, report_form)
 
     {:noreply, socket}
   end
@@ -47,7 +57,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       />
       <Components.data_transformer data_source={@selected_data_source} />
       <Components.data_target_configurer data_target={@data_target} />
-      <Components.report_configurer />
+      <Components.report_configurer report_form={@report_form} valid?={@valid?} />
     </section>
     """
   end
@@ -64,16 +74,38 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         :selected_data_source,
         socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
       )
-      |> init_data_source_info()
 
     {:noreply, socket}
   end
 
-  defp init_data_source_info(socket) do
-    # %DataSource{id: data_source_id, source: source} = socket.assigns.selected_data_source
+  @impl true
+  def handle_event("validate_report_form", %{"report_form" => report_input}, socket) do
+    socket =
+      socket
+      |> update_report_form(report_input)
+      |> update_valid()
 
-    socket
-    # |> assign(:data_source_info, %{data_source_id: data_source_id, source: source})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:update, {:data_source_info_form, data_source_info_form}}, socket) do
+    socket =
+      socket
+      |> assign(:data_source_info_form, data_source_info_form)
+      |> update_valid()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:update, {:data_target_info_form, data_target_info_form}}, socket) do
+    socket =
+      socket
+      |> assign(:data_target_info_form, data_target_info_form)
+      |> update_valid()
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -86,4 +118,35 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         {:noreply, socket}
     end
   end
+
+  defp update_report_form(socket, report_input) do
+    report_input =
+      %{
+        "org_id" => socket.assigns.org.org_id,
+        "user_id" => socket.assigns.user.id,
+        "timezone" => socket.assigns.timezone
+      }
+      |> Map.merge(report_input)
+
+    report_form = Params.to_form(%ReportParams{}, report_input, as: :report_form)
+
+    socket
+    |> assign(:report_form, report_form)
+  end
+
+  defp update_valid(socket) do
+    valid? =
+      [
+        socket.assigns.data_source_info_form,
+        socket.assigns.data_target_info_form,
+        socket.assigns.report_form
+      ]
+      |> Enum.all?(&valid?/1)
+
+    socket
+    |> assign(:valid?, valid?)
+  end
+
+  defp valid?(%Phoenix.HTML.Form{source: source}), do: source.valid?
+  defp valid?(_), do: false
 end

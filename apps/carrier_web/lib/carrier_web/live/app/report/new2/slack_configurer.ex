@@ -1,13 +1,21 @@
 defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   use CarrierWeb, :live_component
   use Carrier.Integrations
+  alias CarrierWeb.App.ReportLive.New2.DataTargetInfoParams
   alias Carrier.Data.Target.Slack
+  alias Carrier.Core.Nillable
+  alias Doumi.Phoenix.Params
 
   @impl true
   def mount(socket) do
+    socket =
+      socket
+      |> assign(:selected_channel, nil)
+
     {:ok, socket}
   end
 
+  # init
   @impl true
   def update(%{data_target: %DataTarget{conn_info: %ConnInfo{} = conn_info}} = assigns, socket) do
     socket =
@@ -26,14 +34,29 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         __MODULE__
       )
 
+    validate_and_send_data_target_info_form(socket)
+
     {:ok, socket}
   end
 
+  # update
   @impl true
   def update(assigns, socket) do
+    {selected_channel_id, assigns} = assigns |> Map.pop(:selected_channel_id)
+
+    selected_channel =
+      socket.assigns.channels.value
+      |> Nillable.map(fn channels ->
+        channels
+        |> Enum.find(&(&1.id == selected_channel_id))
+      end)
+
     socket =
       socket
       |> assign(assigns)
+      |> assign(:selected_channel, selected_channel)
+
+    validate_and_send_data_target_info_form(socket)
 
     {:ok, socket}
   end
@@ -43,7 +66,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
     ~H"""
     <div>
       <.card_container>
-        <.card>
+        <.card class="z-10">
           <div>
             <.card_title title="Slack 발송 설정하기" />
           </div>
@@ -71,5 +94,25 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
       </.card_container>
     </div>
     """
+  end
+
+  defp validate_and_send_data_target_info_form(socket) do
+    data_target_info_input = %{
+      data_target_id: socket.assigns.data_target.id,
+      target: :slack,
+      details:
+        socket.assigns.selected_channel
+        |> Nillable.map(fn %{id: id, name: name} ->
+          %{
+            channel_id: id,
+            channel_name: name
+          }
+        end)
+    }
+
+    data_target_info_form =
+      Params.to_form(%DataTargetInfoParams{}, data_target_info_input, as: :data_target_info)
+
+    send(self(), {:update, {:data_target_info_form, data_target_info_form}})
   end
 end
