@@ -25,7 +25,7 @@ defmodule Carrier.External.TableauAPITest do
         :post,
         "/api/3.18/auth/signin",
         {:json, @success_resp},
-        validate: fn _params, body ->
+        validate: fn _conn, body ->
           assert body == %{
                    "credentials" => %{
                      "name" => params[:name],
@@ -56,7 +56,7 @@ defmodule Carrier.External.TableauAPITest do
         :post,
         "/api/3.18/auth/signin",
         {:json, @success_resp},
-        validate: fn _params, body ->
+        validate: fn _conn, body ->
           assert body == %{
                    "credentials" => %{
                      "personalAccessTokenName" => params[:pat_name],

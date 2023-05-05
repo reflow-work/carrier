@@ -5,7 +5,7 @@ defmodule Carrier.ExternalHelper do
   def expect(bypass, method, path, {:json, body}, opts \\ [])
       when is_atom(method) and is_binary(path) and (is_map(body) or is_list(body)) do
     status = opts |> Keyword.get(:status, 200)
-    validate = opts |> Keyword.get(:validate, fn _params, _body -> true end)
+    validate = opts |> Keyword.get(:validate, fn _conn, _body -> true end)
     once = opts |> Keyword.get(:once, false)
 
     expect_fun =
@@ -16,7 +16,14 @@ defmodule Carrier.ExternalHelper do
 
     expect_fun.(bypass, convert_method(method), path, fn conn ->
       {:ok, req_body, conn} = Plug.Conn.read_body(conn)
-      validate.(conn.params, Jason.decode!(req_body))
+
+      req_body_json =
+        case Jason.decode(req_body) do
+          {:ok, req_body_json} -> req_body_json
+          _ -> nil
+        end
+
+      validate.(conn, req_body_json)
 
       conn
       |> Plug.Conn.put_resp_header("content-type", "application/json")
@@ -44,7 +51,7 @@ defmodule Carrier.ExternalHelper do
         :post,
         "/v1/billing/authorizations/issue",
         {:json, success_resp},
-        validate: fn _params, body ->
+        validate: fn _conn, body ->
           assert body == %{"authKey" => auth_key, "customerKey" => customer_key}
         end
       )
@@ -76,7 +83,7 @@ defmodule Carrier.ExternalHelper do
         :post,
         "/v1/billing/#{billing_key}",
         {:json, resp},
-        validate: fn _params, body ->
+        validate: fn _conn, body ->
           assert %{
                    "amount" => body_amount,
                    "orderName" => ^order_name,

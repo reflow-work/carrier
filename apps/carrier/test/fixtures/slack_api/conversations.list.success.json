@@ -1,0 +1,90 @@
+{
+  "ok": true,
+  "channels": [
+    {
+      "id": "C03KTBEU3ST",
+      "name": "1-제품개발",
+      "is_channel": true,
+      "is_group": false,
+      "is_im": false,
+      "is_mpim": false,
+      "is_private": false,
+      "created": 1655557178,
+      "is_archived": false,
+      "is_general": false,
+      "unlinked": 0,
+      "name_normalized": "1-제품개발",
+      "is_shared": false,
+      "is_org_shared": false,
+      "is_pending_ext_shared": false,
+      "pending_shared": [],
+      "context_team_id": "T03LL747Q49",
+      "updated": 1681749855809,
+      "parent_conversation": null,
+      "creator": "U03LX9TD2CQ",
+      "is_ext_shared": false,
+      "shared_team_ids": [
+        "T03LL747Q49"
+      ],
+      "pending_connected_team_ids": [],
+      "is_member": false,
+      "topic": {
+        "value": "",
+        "creator": "",
+        "last_set": 0
+      },
+      "purpose": {
+        "value": "이 *channel*은(는) 프로젝트에서 작업하기 위한 것입니다. 미팅을 열고, 문서를 공유하고, 고객님의 팀과 함께 결정하세요.",
+        "creator": "U03LX9TD2CQ",
+        "last_set": 1655557178
+      },
+      "previous_names": [
+        "동그라미프로젝트",
+        "동그라미"
+      ],
+      "num_members": 6
+    },
+    {
+      "id": "C056VFU2CE4",
+      "name": "private",
+      "is_channel": true,
+      "is_group": false,
+      "is_im": false,
+      "is_mpim": false,
+      "is_private": true,
+      "created": 1683168530,
+      "is_archived": false,
+      "is_general": false,
+      "unlinked": 0,
+      "name_normalized": "private",
+      "is_shared": false,
+      "is_org_shared": false,
+      "is_pending_ext_shared": false,
+      "pending_shared": [],
+      "context_team_id": "T03LL747Q49",
+      "updated": 1683168530893,
+      "parent_conversation": null,
+      "creator": "U03L800NA3C",
+      "is_ext_shared": false,
+      "shared_team_ids": [
+        "T03LL747Q49"
+      ],
+      "pending_connected_team_ids": [],
+      "is_member": true,
+      "topic": {
+        "value": "",
+        "creator": "",
+        "last_set": 0
+      },
+      "purpose": {
+        "value": "",
+        "creator": "",
+        "last_set": 0
+      },
+      "num_members": 2
+    }
+  ],
+  "response_metadata": {
+    "next_cursor": "dGVhbTpDMDNMMFVMRlVEVQ=="
+  }
+}

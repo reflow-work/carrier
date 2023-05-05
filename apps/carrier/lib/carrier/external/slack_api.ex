@@ -1,7 +1,6 @@
-defmodule Carrier.External.Slack do
+defmodule Carrier.External.SlackAPI do
   require Logger
-
-  @host "https://slack.com/api"
+  alias Carrier.Data.Target.Slack.{Channel, Pagination}
 
   def post_message(channel_id, message, token) when is_binary(message) do
     query = [channel: channel_id, text: message]
@@ -35,15 +34,25 @@ defmodule Carrier.External.Slack do
     end
   end
 
-  def list_conversations(token) do
-    query = %{exclude_archived: true, limit: 1000}
+  def list_conversations(params \\ nil, token) do
+    query =
+      %{
+        "types" => "public_channel,private_channel",
+        "exclude_archived" => true,
+        "limit" => params[:limit] || 1000,
+        "cursor" => params[:cursor]
+      }
+      |> Map.reject(fn {_key, value} -> is_nil(value) end)
 
     Tesla.get(client(token), "/conversations.list", query: query)
     |> handle_response()
     |> case do
-      {:ok, %{"channels" => raw_channels}} ->
-        channels = raw_channels |> Enum.map(&parse_channel/1)
-        {:ok, channels}
+      {:ok, %{"channels" => channels, "response_metadata" => response_metadata}} ->
+        {:ok,
+         %{
+           channels: channels |> Enum.map(&Channel.new/1),
+           pagination: Pagination.new(response_metadata)
+         }}
 
       {:error, reason} ->
         Logger.error(reason)
@@ -55,13 +64,6 @@ defmodule Carrier.External.Slack do
   def get_conversation(channel_id, token) do
     Tesla.get(client(token), "/conversations.info", query: %{channel: channel_id})
     |> handle_response()
-  end
-
-  defp parse_channel(%{"id" => id, "name" => name}) do
-    %{
-      id: id,
-      name: name
-    }
   end
 
   # data :: %{ dynamic_column_name: %{ data: list(), meta: map() }, ... }
@@ -94,7 +96,7 @@ defmodule Carrier.External.Slack do
 
   defp client(token) do
     Tesla.client([
-      {Tesla.Middleware.BaseUrl, @host},
+      {Tesla.Middleware.BaseUrl, base_url()},
       {Tesla.Middleware.BearerAuth, token: token},
       {Tesla.Middleware.Retry,
        delay: 500,
@@ -107,5 +109,9 @@ defmodule Carrier.External.Slack do
       {Tesla.Middleware.JSON, encode_content_type: "application/json; charset=utf-8"},
       {Tesla.Middleware.Timeout, timeout: :timer.seconds(10)}
     ])
+  end
+
+  defp base_url() do
+    Application.get_env(:carrier, :slack)[:base_url]
   end
 end

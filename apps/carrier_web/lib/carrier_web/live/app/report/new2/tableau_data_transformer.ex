@@ -73,10 +73,12 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
               id="tableau_view_selector"
               label="View 이름"
               label_align={:left}
+              placeholder="View 이름으로 검색해주세요."
               position={:top}
               items={
                 @views.value |> Enum.map(fn %{id: id, full_name: full_name} -> {full_name, id} end)
               }
+              multiple={true}
               max_search={7}
               max_select={3}
               onchange={

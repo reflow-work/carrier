@@ -24,7 +24,7 @@ defmodule Carrier.External.TossPaymentsTest do
         :post,
         "/v1/billing/authorizations/issue",
         {:json, @success_resp},
-        validate: fn _params, body ->
+        validate: fn _conn, body ->
           assert body == %{"authKey" => "auth_key", "customerKey" => "678wBmAE"}
         end
       )
@@ -80,7 +80,7 @@ defmodule Carrier.External.TossPaymentsTest do
         :post,
         "/v1/billing/#{params.billing_key}",
         {:json, @success_resp},
-        validate: fn _params, body ->
+        validate: fn _conn, body ->
           assert body == %{
                    "amount" => 100_000,
                    "customerKey" => "678wBmAE",
