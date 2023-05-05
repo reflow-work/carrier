@@ -10,10 +10,12 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
       |> assign(:pending_subscription, nil)
       |> assign(:credit_card, nil)
       |> assign(:payments, [])
-      |> load_active_subscription()
-      |> load_pending_subscription()
-      |> load_credit_card()
-      |> load_payments()
+      |> assign_concurrent(%{
+        active_subscription: &load_active_subscription/0,
+        pending_subscription: &load_pending_subscription/0,
+        credit_card: &load_credit_card/0,
+        payments: &load_payments/0
+      })
 
     {:ok, socket}
   end
@@ -96,43 +98,19 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
     """
   end
 
-  defp load_active_subscription(socket) do
-    case Billing.fetch_active_subscription() do
-      {:ok, subscription} ->
-        socket |> assign(:active_subscription, subscription)
-
-      {:error, _} ->
-        socket
-    end
+  defp load_active_subscription() do
+    Billing.fetch_active_subscription()
   end
 
-  defp load_pending_subscription(socket) do
-    case Billing.fetch_pending_subscription() do
-      {:ok, subscription} ->
-        socket |> assign(:pending_subscription, subscription)
-
-      {:error, _} ->
-        socket
-    end
+  defp load_pending_subscription() do
+    Billing.fetch_pending_subscription()
   end
 
-  # TODO: remove connected condition
-  defp load_payments(socket) do
-    with true <- connected?(socket),
-         {:ok, payments} <- Payments.list_confirmed_payments() do
-      socket |> assign(:payments, payments)
-    else
-      _ -> socket
-    end
+  defp load_payments() do
+    Payments.list_confirmed_payments()
   end
 
-  defp load_credit_card(socket) do
-    case Payments.fetch_default_credit_card() do
-      {:ok, credit_card} ->
-        socket |> assign(:credit_card, credit_card)
-
-      _ ->
-        socket
-    end
+  defp load_credit_card() do
+    Payments.fetch_default_credit_card()
   end
 end
