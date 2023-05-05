@@ -2,7 +2,9 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
   use Carrier.Integrations
   alias __MODULE__.Components
+  alias __MODULE__.ReportParams
   alias Carrier.Core.Nillable
+  alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.DataSourceHook)
@@ -21,6 +23,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def handle_params(params, _uri, %{assigns: %{live_action: :new}} = socket) do
     data_source_id = params["data_source_id"] |> Nillable.map(&Obfuscatable.deobfuscate!/1)
 
+    report_form =
+      %ReportParams{}
+      |> Params.to_form(%{}, as: :report_form, validate: false)
+
     socket =
       socket
       |> assign(:title, "레포트 생성하기")
@@ -31,6 +37,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
         )
       end)
+      |> assign(:report_form, report_form)
 
     {:noreply, socket}
   end
@@ -47,7 +54,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       />
       <Components.data_transformer data_source={@selected_data_source} />
       <Components.data_target_configurer data_target={@data_target} />
-      <Components.report_configurer />
+      <Components.report_configurer report_form={@report_form} />
     </section>
     """
   end
