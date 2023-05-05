@@ -71,16 +71,8 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         :selected_data_source,
         socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
       )
-      |> init_data_source_info()
 
     {:noreply, socket}
-  end
-
-  defp init_data_source_info(socket) do
-    # %DataSource{id: data_source_id, source: source} = socket.assigns.selected_data_source
-
-    socket
-    # |> assign(:data_source_info, %{data_source_id: data_source_id, source: source})
   end
 
   @impl true
