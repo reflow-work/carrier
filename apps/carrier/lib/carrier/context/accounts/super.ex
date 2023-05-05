@@ -1,5 +1,7 @@
 defmodule Carrier.Accounts.Super do
   alias Carrier.Accounts.{Org, User}
+  alias Carrier.Roles.Role
+  alias Carrier.Roles.Super
   alias Carrier.TenantRepo
 
   def auth(email) do
@@ -12,7 +14,8 @@ defmodule Carrier.Accounts.Super do
 
         TenantRepo.wrap_transaction(fn ->
           with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
-               {:ok, %User{} = user} <- signup(%{org_id: org_id, email: email}) do
+               {:ok, %Role{id: role_id}} <- Super.fetch_role_with_name("Admin"),
+               {:ok, %User{} = user} <- signup(%{org_id: org_id, email: email, role_id: role_id}) do
             {:ok, {:signed_up, user}}
           end
         end)
@@ -35,14 +38,16 @@ defmodule Carrier.Accounts.Super do
 
   def signup(%{
         org_id: org_id,
-        email: email
+        email: email,
+        role_id: role_id
       }) do
     now = DateTime.utc_now()
 
     User.create(%{
       org_id: org_id,
       email: email,
-      signed_at: now
+      signed_at: now,
+      role_id: role_id
     })
     |> TenantRepo.insert()
   end
