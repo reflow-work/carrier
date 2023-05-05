@@ -194,7 +194,7 @@ defmodule CarrierWeb.CoreComponents do
       <div class={["mt-5 space-y-5 bg-white", @class]}>
         <%= render_slot(@inner_block, f) %>
         <.error :for={error <- @errors}><%= inspect(error) %></.error>
-        <div :for={action <- @actions} class="!mt-10 flex items-center justify-between gap-6">
+        <div :for={action <- @actions} class="!mt-10 flex items-center gap-6">
           <%= render_slot(action, f) %>
         </div>
       </div>
@@ -212,6 +212,7 @@ defmodule CarrierWeb.CoreComponents do
   """
   attr :type, :string, default: nil
   attr :class, :any, default: nil
+  attr :style, :atom, values: ~w(primary outline)a, default: :primary
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
@@ -221,9 +222,13 @@ defmodule CarrierWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-3 px-4",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
-        "disabled:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-75",
+        "phx-submit-loading:opacity-75 rounded-lg py-3 px-4",
+        "text-sm font-semibold leading-6",
+        "disabled:cursor-not-allowed disabled:opacity-75",
+        @style == :primary &&
+          "bg-zinc-900 hover:bg-zinc-700 text-white active:text-white/80 disabled:bg-zinc-700",
+        @style == :outline &&
+          "bg-white text-zinc-900 border border-zinc-700 hover:bg-zinc-700 hover:text-white disabled:bg-zinc-300 disabled:text-zinc-500 disabled:border-0",
         @class
       ]}
       {@rest}
@@ -418,7 +423,7 @@ defmodule CarrierWeb.CoreComponents do
         @label_align == :top && "mt-1 w-full",
         @label_align == :left && "flex-1"
       ]}>
-        <div class="absolute top-2 right-2 w-6 h-6">
+        <div :if={slot_exist?(@icon)} class="absolute top-2 right-2 w-6 h-6">
           <%= render_slot(@icon) %>
         </div>
         <input
