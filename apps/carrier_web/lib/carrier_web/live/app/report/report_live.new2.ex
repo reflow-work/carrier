@@ -17,6 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:selected_data_source, nil)
       |> assign(:data_source_info_form, nil)
       |> assign(:data_targte_info_form, nil)
+      |> assign(:valid?, false)
 
     {:ok, socket}
   end
@@ -56,7 +57,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       />
       <Components.data_transformer data_source={@selected_data_source} />
       <Components.data_target_configurer data_target={@data_target} />
-      <Components.report_configurer report_form={@report_form} />
+      <Components.report_configurer report_form={@report_form} valid?={@valid?} />
     </section>
     """
   end
@@ -79,11 +80,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_event("validate_report_form", %{"report_form" => report_input}, socket) do
-    report_form = validate_report_form(socket, report_input)
-
     socket =
       socket
-      |> assign(:report_form, report_form)
+      |> update_report_form(report_input)
+      |> update_valid()
 
     {:noreply, socket}
   end
@@ -93,6 +93,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket =
       socket
       |> assign(:data_source_info_form, data_source_info_form)
+      |> update_valid()
 
     {:noreply, socket}
   end
@@ -102,6 +103,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket =
       socket
       |> assign(:data_target_info_form, data_target_info_form)
+      |> update_valid()
 
     {:noreply, socket}
   end
@@ -117,7 +119,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     end
   end
 
-  defp validate_report_form(socket, report_input) do
+  defp update_report_form(socket, report_input) do
     report_input =
       %{
         "org_id" => socket.assigns.org.org_id,
@@ -126,6 +128,25 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       }
       |> Map.merge(report_input)
 
-    Params.to_form(%ReportParams{}, report_input, as: :report_form)
+    report_form = Params.to_form(%ReportParams{}, report_input, as: :report_form)
+
+    socket
+    |> assign(:report_form, report_form)
   end
+
+  defp update_valid(socket) do
+    valid? =
+      [
+        socket.assigns.data_source_info_form,
+        socket.assigns.data_target_info_form,
+        socket.assigns.report_form
+      ]
+      |> Enum.all?(&valid?/1)
+
+    socket
+    |> assign(:valid?, valid?)
+  end
+
+  defp valid?(%Phoenix.HTML.Form{source: source}), do: source.valid?
+  defp valid?(_), do: false
 end

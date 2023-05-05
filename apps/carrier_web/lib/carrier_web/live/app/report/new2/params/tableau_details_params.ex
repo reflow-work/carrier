@@ -14,6 +14,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDetailsParams do
     struct
     |> cast(attrs, @required)
     |> cast_embed(:views, required: true, with: &changeset_view/2)
+    |> validate_length(:views, min: 1)
   end
 
   @required_view [:id, :full_name]

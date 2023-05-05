@@ -55,6 +55,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   end
 
   attr :report_form, :any, required: true
+  attr :valid?, :boolean, required: true
 
   def report_configurer(assigns) do
     ~H"""
@@ -87,12 +88,8 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
               />
 
               <:actions>
-                <.button style={:outline}>테스트 발송</.button>
-                <.button
-                  type="submit"
-                  disabled={!@report_form.source.valid?}
-                  phx-disable-with="생성 중"
-                >
+                <.button style={:outline} disabled={!@valid?}>테스트 발송</.button>
+                <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
                   리포트 생성
                 </.button>
               </:actions>

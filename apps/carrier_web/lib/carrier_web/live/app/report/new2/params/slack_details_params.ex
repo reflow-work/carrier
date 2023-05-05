@@ -11,5 +11,6 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackDetailsParams do
   def changeset(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required)
+    |> validate_required(@required)
   end
 end

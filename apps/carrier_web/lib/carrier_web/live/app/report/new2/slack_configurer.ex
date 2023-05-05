@@ -3,14 +3,14 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   use Carrier.Integrations
   alias CarrierWeb.App.ReportLive.New2.DataTargetInfoParams
   alias Carrier.Data.Target.Slack
+  alias Carrier.Core.Nillable
   alias Doumi.Phoenix.Params
 
   @impl true
   def mount(socket) do
     socket =
       socket
-      |> assign(:channel_id, nil)
-      |> assign(:channel_name, nil)
+      |> assign(:selected_channel, nil)
 
     {:ok, socket}
   end
@@ -42,9 +42,19 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   # update
   @impl true
   def update(assigns, socket) do
+    {selected_channel_id, assigns} = assigns |> Map.pop(:selected_channel_id)
+
+    selected_channel =
+      socket.assigns.channels.value
+      |> Nillable.map(fn channels ->
+        channels
+        |> Enum.find(&(&1.id == selected_channel_id))
+      end)
+
     socket =
       socket
       |> assign(assigns)
+      |> assign(:selected_channel, selected_channel)
 
     validate_and_send_data_target_info_form(socket)
 
@@ -89,11 +99,15 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   defp validate_and_send_data_target_info_form(socket) do
     data_target_info_input = %{
       data_target_id: socket.assigns.data_target.id,
-      source: :slack,
-      details: %{
-        channel_id: socket.assigns.channel_id,
-        channel_name: socket.assigns.channel_name
-      }
+      target: :slack,
+      details:
+        socket.assigns.selected_channel
+        |> Nillable.map(fn %{id: id, name: name} ->
+          %{
+            channel_id: id,
+            channel_name: name
+          }
+        end)
     }
 
     data_target_info_form =
