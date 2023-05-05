@@ -1,5 +1,5 @@
 defmodule Carrier.Roles.Role do
-  use Ecto.Schema
+  use Carrier.Schema
 
   schema "roles" do
     field :name, :string
