@@ -9,4 +9,10 @@ defmodule Carrier.Roles.Role do
 
     timestamps()
   end
+
+  def fetch_with_name(role_name) do
+    __MODULE__
+    |> where([r], r.name == ^role_name)
+    |> where([p], is_nil(p.deleted_at))
+  end
 end
