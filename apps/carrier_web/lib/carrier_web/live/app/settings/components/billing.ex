@@ -8,9 +8,11 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
       socket
       |> assign(:active_subscription, nil)
       |> assign(:pending_subscription, nil)
+      |> assign(:credit_card, nil)
       |> assign(:payments, [])
       |> load_active_subscription()
       |> load_pending_subscription()
+      |> load_credit_card()
       |> load_payments()
 
     {:ok, socket}
@@ -53,8 +55,8 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
                 @pending_subscription.payment.currency
               ) %> (VAT 10% 포함)
             </p>
-            <p :if={@pending_subscription.payment.credit_card}>
-              결제 수단: <%= CreditCard.format_card_info(@pending_subscription.payment.credit_card) %>
+            <p :if={@credit_card}>
+              결제 수단: <%= CreditCard.format_card_info(@credit_card) %>
             </p>
             <br />
             <p>
@@ -121,6 +123,16 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
       socket |> assign(:payments, payments)
     else
       _ -> socket
+    end
+  end
+
+  defp load_credit_card(socket) do
+    case Payments.fetch_default_credit_card() do
+      {:ok, credit_card} ->
+        socket |> assign(:credit_card, credit_card)
+
+      _ ->
+        socket
     end
   end
 end
