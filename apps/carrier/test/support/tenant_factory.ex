@@ -1,6 +1,6 @@
 defmodule Carrier.TenantFactory do
   use ExMachina.Ecto, repo: Carrier.TenantRepo
-  use Carrier.{Accounts, Integrations, Reports, Setting, Payments, Billing}
+  use Carrier.{Accounts, Integrations, Reports, Setting, Payments, Billing, Roles}
   alias Carrier.TenantRepo
   alias Carrier.Core.Crypto
 
@@ -244,6 +244,14 @@ defmodule Carrier.TenantFactory do
       currency: :KRW
     }
     |> apply_status(status)
+    |> merge_attributes(attrs)
+  end
+
+  def role_factory(attrs) do
+    %Role{
+      name: seq(:role_name),
+      permissions: [seq(:role_permission), seq(:role_permission)]
+    }
     |> merge_attributes(attrs)
   end
 

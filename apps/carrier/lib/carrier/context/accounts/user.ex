@@ -20,7 +20,8 @@ defmodule Carrier.Accounts.User do
   @required_for_create [
     :org_id,
     :email,
-    :signed_at
+    :signed_at,
+    :role_id
   ]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
@@ -43,13 +44,15 @@ defmodule Carrier.Accounts.User do
   def create(%{
         org_id: org_id,
         email: email,
-        signed_at: signed_at
+        signed_at: signed_at,
+        role_id: role_id
       }) do
     %__MODULE__{}
     |> changeset_for_create(%{
       org_id: org_id,
       email: email,
-      signed_at: signed_at
+      signed_at: signed_at,
+      role_id: role_id
     })
   end
 

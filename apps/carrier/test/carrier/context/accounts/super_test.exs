@@ -6,6 +6,12 @@ defmodule Carrier.Accounts.SuperTest do
   @moduletag repo: TenantRepo
 
   describe "auth/1" do
+    setup do
+      TenantFactory.insert(:role, name: "Admin")
+
+      :ok
+    end
+
     test "with already signed up user" do
       user = TenantFactory.insert(:user)
 
@@ -62,28 +68,31 @@ defmodule Carrier.Accounts.SuperTest do
   describe "sign_up/1" do
     setup do
       org = TenantFactory.insert(:org)
+      role = TenantFactory.insert(:role)
 
-      %{org: org}
+      %{org: org, role: role}
     end
 
-    test "with valid attrs", %{org: org} do
+    test "with valid attrs", %{org: org, role: role} do
       params = %{
         org_id: org.org_id,
-        email: "json@reflow.work"
+        email: "json@reflow.work",
+        role_id: role.id
       }
 
       assert {:ok, %User{} = created_user} = Accounts.Super.signup(params)
-      assert same_fields?(created_user, params, [:org_id, :email])
+      assert same_fields?(created_user, params, [:org_id, :email, :role_id])
     end
 
-    test "with duplicated email", %{org: org} do
+    test "with duplicated email", %{org: org, role: role} do
       email = "json@reflow.work"
 
-      TenantFactory.insert(:user, org: org, email: email)
+      TenantFactory.insert(:user, org: org, email: email, role_id: role.id)
 
       params = %{
         org_id: org.org_id,
-        email: email
+        email: email,
+        role_id: role.id
       }
 
       assert {:error, _} = Accounts.Super.signup(params)
