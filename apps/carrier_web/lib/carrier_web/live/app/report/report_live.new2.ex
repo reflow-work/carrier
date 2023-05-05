@@ -15,6 +15,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       socket
       |> assign(:title, nil)
       |> assign(:selected_data_source, nil)
+      |> assign(:data_source_info_form, nil)
 
     {:ok, socket}
   end
@@ -82,6 +83,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket =
       socket
       |> assign(:report_form, report_form)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:update, {:data_source_info_form, data_source_info_form}}, socket) do
+    socket =
+      socket
+      |> assign(:data_source_info_form, data_source_info_form)
 
     {:noreply, socket}
   end

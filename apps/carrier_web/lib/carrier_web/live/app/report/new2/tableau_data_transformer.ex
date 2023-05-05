@@ -2,7 +2,9 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   use CarrierWeb, :live_component
   use Carrier.Integrations
   alias CarrierWeb.App.ReportLive.New2.TableauView
+  alias CarrierWeb.App.ReportLive.New2.DataSourceInfoParams
   alias Carrier.Data.Source.Tableau
+  alias Doumi.Phoenix.Params
 
   @impl true
   def mount(socket) do
@@ -32,6 +34,8 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
         __MODULE__
       )
 
+    validate_and_send_data_source_info_form(socket)
+
     {:ok, socket}
   end
 
@@ -50,6 +54,8 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       socket
       |> assign(assigns)
       |> assign(:selected_views, selected_views)
+
+    validate_and_send_data_source_info_form(socket)
 
     {:ok, socket}
   end
@@ -102,5 +108,24 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       </.card_container>
     </div>
     """
+  end
+
+  defp validate_and_send_data_source_info_form(socket) do
+    data_source_info_input = %{
+      data_source_id: socket.assigns.data_source.id,
+      source: :tableau,
+      details: %{
+        views:
+          socket.assigns.selected_views
+          |> Enum.map(fn %Tableau.View{id: id, full_name: full_name} ->
+            %{id: id, full_name: full_name}
+          end)
+      }
+    }
+
+    data_source_info_form =
+      Params.to_form(%DataSourceInfoParams{}, data_source_info_input, as: :data_source_info)
+
+    send(self(), {:update, {:data_source_info_form, data_source_info_form}})
   end
 end
