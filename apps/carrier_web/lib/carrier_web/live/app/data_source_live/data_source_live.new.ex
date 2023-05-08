@@ -15,7 +15,6 @@ defmodule CarrierWeb.App.DataSourceLive.New do
       |> assign(:step, "step-1")
       |> assign(:source, nil)
       |> assign(:data_source_module, nil)
-      |> assign(:changeset, nil)
       |> assign(:error, nil)
       |> assign(:file_name, nil)
       |> allow_upload(:credentials,
