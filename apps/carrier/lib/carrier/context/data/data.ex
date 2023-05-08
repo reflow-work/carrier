@@ -1,7 +1,7 @@
 defmodule Carrier.Data do
   use Carrier.Integrations
 
-  def load_raw_data(%DataSource{} = _data_source, _opts) do
+  def load_raw_data(%DataSource{} = _data_source, params) do
     {:ok, []}
   end
 

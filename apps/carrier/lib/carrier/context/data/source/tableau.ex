@@ -1,5 +1,37 @@
 defmodule Carrier.Data.Source.Tableau do
+  @behaviour Carrier.Data.Source
+
+  use Carrier.Integrations
   alias Carrier.External.TableauAPI
+
+  ### behaviors
+
+  @impl true
+  def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = _conn_info}, _params) do
+    {:ok, []}
+  end
+
+  # TODO: implement it
+  @impl true
+  def transform_data(%DataSource{source: :tableau}, raw_data) do
+    data =
+      raw_data
+      |> Enum.map(& &1)
+
+    {:ok, data}
+  end
+
+  # TODO: implement it
+  @impl true
+  def data_to_blocks(%DataSource{source: :tableau}, data) do
+    blocks =
+      data
+      |> Enum.map(& &1)
+
+    {:ok, blocks}
+  end
+
+  ### raw functions
 
   defmodule Pagination do
     defstruct [:page, :page_size, :total]

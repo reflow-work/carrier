@@ -3,7 +3,7 @@ defmodule Carrier.Data.Source do
   alias Carrier.Data.Source
   alias Carrier.Core.DataHelper
 
-  @callback load_raw_data(data_source :: map(), opts :: map()) :: {:ok, list()}
+  @callback load_raw_data(data_source :: map(), params :: map()) :: {:ok, list()}
   @callback transform_data(data_source :: map(), raw_data :: list()) :: {:ok, list()}
   @callback data_to_blocks(data_source :: map(), data :: list()) :: {:ok, list()}
 
