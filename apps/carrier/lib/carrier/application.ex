@@ -15,7 +15,8 @@ defmodule Carrier.Application do
       {Oban, Application.fetch_env!(:carrier, Oban)},
       Carrier.Vault,
       {Finch, name: Carrier.Finch, pools: %{default: [size: 100]}},
-      {DynamicSupervisor, strategy: :one_for_one, name: Carrier.GothSupervisor}
+      {DynamicSupervisor, strategy: :one_for_one, name: Carrier.GothSupervisor},
+      {Task.Supervisor, name: Carrier.TaskSupervisor}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Carrier.Supervisor)
