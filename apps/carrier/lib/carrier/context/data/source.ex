@@ -4,6 +4,7 @@ defmodule Carrier.Data.Source do
   @callback data_to_blocks(data_source :: map(), data :: list()) :: {:ok, list()}
 
   use Carrier.Integrations
+  alias __MODULE__.Tableau
 
   defmacro __using__([]) do
     quote do
@@ -12,8 +13,10 @@ defmodule Carrier.Data.Source do
     end
   end
 
-  def load_raw_data(%DataSource{} = _data_source, _params) do
-    {:ok, []}
+  def load_raw_data(%DataSource{} = data_source, params) do
+    source_module = data_source_to_module(data_source)
+
+    source_module.load_raw_data(data_source, params)
   end
 
   def transform_data(%DataSource{} = _data_source, raw_data) do
@@ -30,6 +33,12 @@ defmodule Carrier.Data.Source do
       |> Enum.map(& &1)
 
     {:ok, blocks}
+  end
+
+  defp data_source_to_module(%DataSource{source: source}) do
+    case source do
+      :tableau -> Tableau
+    end
   end
 
   # TODO: move to Data.Source.RDS
