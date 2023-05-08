@@ -10,6 +10,22 @@ defmodule Carrier.Roles.Role do
     timestamps()
   end
 
+  def default_roles() do
+    [
+      %{
+        name: "Admin",
+        permissions: [
+          "member.manage",
+          "billing.manage"
+        ]
+      },
+      %{
+        name: "Member",
+        permissions: []
+      }
+    ]
+  end
+
   def fetch_by_name(role_name) do
     __MODULE__
     |> where([r], r.name == ^role_name)
