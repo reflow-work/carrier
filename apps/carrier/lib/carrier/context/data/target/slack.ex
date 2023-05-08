@@ -1,5 +1,37 @@
 defmodule Carrier.Data.Target.Slack do
+  @behaviour Carrier.Data.Target
+
+  use Carrier.Integrations
   alias Carrier.External.SlackAPI
+
+  @impl true
+  def threads_to_report_messages(%DataTarget{service_name: :slack}, threads) do
+    threads
+    |> Enum.map(fn blocks ->
+      blocks |> Enum.map(&block_to_report_message/1)
+    end)
+  end
+
+  defp block_to_report_message(%{type: :text, text: text, style: style}) do
+    text =
+      case style do
+        :normal -> text
+        :bold -> "*#{text}*"
+      end
+
+    SlackAPI.Block.build_text_block(text)
+  end
+
+  defp block_to_report_message(%{
+         type: :image,
+         title: title,
+         image_url: image_url,
+         alt_text: alt_text
+       }) do
+    SlackAPI.Block.build_image_block(image_url, title, alt_text)
+  end
+
+  ### raw functions
 
   defmodule Channel do
     defstruct [:id, :name, :is_private]
