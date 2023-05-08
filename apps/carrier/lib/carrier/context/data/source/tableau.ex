@@ -7,8 +7,10 @@ defmodule Carrier.Data.Source.Tableau do
   ### behaviors
 
   @impl true
-  def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = _conn_info}, _params) do
-    {:ok, []}
+  def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = conn_info}, _params) do
+    with {:ok, views} <- conn_info |> ConnInfo.to_credentials() |> list_views() do
+      {:ok, views}
+    end
   end
 
   # TODO: implement it
