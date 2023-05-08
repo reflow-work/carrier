@@ -11,9 +11,18 @@ defmodule Carrier.Data.Source.Tableau do
   def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = conn_info}, %{
         views: views
       }) do
-    views
-    |> Enum.map(& &1.id)
-    |> list_view_image_binary_async(ConnInfo.to_credentials(conn_info))
+    with {:ok, view_image_binaries} <-
+           views
+           |> Enum.map(& &1.id)
+           |> list_view_image_binary_async(ConnInfo.to_credentials(conn_info)) do
+      raw_data =
+        Enum.zip_with(views, view_image_binaries, fn %{id: id, full_name: full_name},
+                                                     view_image_binary ->
+          %{id: id, full_name: full_name, image_binary: view_image_binary}
+        end)
+
+      {:ok, raw_data}
+    end
   end
 
   # TODO: implement it
