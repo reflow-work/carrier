@@ -83,4 +83,22 @@ defmodule Carrier.Core.CryptoTest do
       assert Crypto.deobfuscate!(obfuscated_value) == value
     end
   end
+
+  describe "hash/2" do
+    test "with md5" do
+      data = "hello"
+      hash = Crypto.hash(data, :md5)
+
+      assert hash == <<93, 65, 64, 42, 188, 75, 42, 118, 185, 113, 157, 145, 16, 23, 197, 146>>
+    end
+  end
+
+  describe "hash_to_url64" do
+    test "with md5" do
+      data = "hello"
+      url64_hash = Crypto.hash_to_url64(data, :md5)
+
+      assert url64_hash == "XUFAKrxLKna5cZ2REBfFkg=="
+    end
+  end
 end
