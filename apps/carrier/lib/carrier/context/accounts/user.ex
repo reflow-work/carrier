@@ -1,11 +1,11 @@
 defmodule Carrier.Accounts.User do
   use Carrier.Schema
   alias Carrier.Accounts.Org
+  alias Carrier.Roles.Role
 
   schema "users" do
     belongs_to :org, Org, references: :org_id
-
-    field :role_id, :id
+    belongs_to :role, Role
 
     field :email, :string
     field :position, :string
@@ -81,6 +81,10 @@ defmodule Carrier.Accounts.User do
 
   def preload_org(query) do
     query |> preload([:org])
+  end
+
+  def preload_role(query) do
+    query |> preload([:role])
   end
 
   def positions do

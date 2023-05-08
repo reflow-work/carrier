@@ -30,8 +30,12 @@ defmodule Carrier.Accounts do
     |> User.preload_org()
     |> TenantRepo.one()
     |> case do
-      %User{} = user -> {:ok, user}
-      nil -> {:error, {:resource_not_found, %{target: User, conditions: %{user_id: user_id}}}}
+      %User{} = user ->
+        user_with_role = user |> postload_role()
+        {:ok, user_with_role}
+
+      nil ->
+        {:error, {:resource_not_found, %{target: User, conditions: %{user_id: user_id}}}}
     end
   end
 
@@ -52,5 +56,10 @@ defmodule Carrier.Accounts do
          {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
       {:ok, updated_user}
     end
+  end
+
+  def postload_role(%User{} = user) do
+    user
+    |> TenantRepo.preload(:role, skip_org_id: true)
   end
 end
