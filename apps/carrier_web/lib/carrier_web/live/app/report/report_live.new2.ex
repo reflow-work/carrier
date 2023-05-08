@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
-  use Carrier.Integrations
+  use Carrier.{Integrations, Data}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
   alias Carrier.Core.Nillable
@@ -90,6 +90,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_event("send_test_report", _params, socket) do
+    views = socket.assigns.data_source_info_form.source.params["details"][:views]
+
+    Source.load_raw_data(socket.assigns.selected_data_source, %{views: views})
+
     {:noreply, socket}
   end
 

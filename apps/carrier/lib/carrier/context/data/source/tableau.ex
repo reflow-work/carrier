@@ -3,14 +3,17 @@ defmodule Carrier.Data.Source.Tableau do
 
   use Carrier.Integrations
   alias Carrier.External.TableauAPI
+  alias Carrier.Core.{Async, Traversable, OkTuple}
 
   ### behaviors
 
   @impl true
-  def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = conn_info}, _params) do
-    with {:ok, views} <- conn_info |> ConnInfo.to_credentials() |> list_views() do
-      {:ok, views}
-    end
+  def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = conn_info}, %{
+        views: views
+      }) do
+    views
+    |> Enum.map(& &1.id)
+    |> list_view_image_binary_async(ConnInfo.to_credentials(conn_info))
   end
 
   # TODO: implement it
@@ -85,17 +88,34 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
+  def list_view_image_binary_async(view_ids, %{host: host} = conn_info) do
+    with {:ok, %{token: token, site_id: site_id}} <- signin(conn_info),
+         {:ok, results} <-
+           view_ids
+           |> Async.map(fn view_id ->
+             do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token})
+           end)
+           |> Traversable.traverse_all()
+           |> OkTuple.map(&Traversable.traverse_all/1) do
+      {:ok, results}
+    end
+  end
+
   def get_view_image_binary(view_id, %{host: host} = conn_info) do
     with {:ok, %{token: token, site_id: site_id}} <- signin(conn_info),
          {:ok, view_image_binary} <-
-           TableauAPI.query_view_image(%{
-             host: host,
-             site_id: site_id,
-             view_id: view_id,
-             token: token
-           }) do
+           do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
       {:ok, view_image_binary}
     end
+  end
+
+  defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
+    TableauAPI.query_view_image(%{
+      host: host,
+      site_id: site_id,
+      view_id: view_id,
+      token: token
+    })
   end
 
   defp do_list_views(%{host: host, site_id: site_id, token: token}) do
