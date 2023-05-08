@@ -12,9 +12,11 @@ defmodule Carrier.TenantFactory do
 
   def user_factory(attrs) do
     {org, attrs} = attrs |> Map.pop_lazy(:org, fn -> insert(:org) end)
+    {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> insert(:role) end)
 
     %User{
       org: org,
+      role_id: role.id,
       email: seq(:user_email, &"user-#{&1}@email.com")
     }
     |> merge_attributes(attrs)
