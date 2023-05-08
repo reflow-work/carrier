@@ -19,12 +19,10 @@ defmodule Carrier.Data.Source do
     source_module.load_raw_data(data_source, params)
   end
 
-  def transform_data(%DataSource{} = _data_source, raw_data) do
-    data =
-      raw_data
-      |> Enum.map(& &1)
+  def transform_data(%DataSource{} = data_source, raw_data) do
+    source_module = data_source_to_module(data_source)
 
-    {:ok, data}
+    source_module.transform_data(data_source, raw_data)
   end
 
   def data_to_blocks(%DataSource{} = _data_source, data) do

@@ -1,7 +1,8 @@
 defmodule Carrier.Data.Source.Tableau do
   @behaviour Carrier.Data.Source
 
-  use Carrier.Integrations
+  use Carrier.{Integrations, Reports}
+  alias Carrier.Reports.ImageGenerator
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Traversable, OkTuple}
 
@@ -16,23 +17,30 @@ defmodule Carrier.Data.Source.Tableau do
            |> Enum.map(& &1.id)
            |> list_view_image_binary_async(ConnInfo.to_credentials(conn_info)) do
       raw_data =
-        Enum.zip_with(views, view_image_binaries, fn %{id: id, full_name: full_name},
-                                                     view_image_binary ->
-          %{id: id, full_name: full_name, image_binary: view_image_binary}
+        Enum.zip_with(views, view_image_binaries, fn view, view_image_binary ->
+          view |> Map.put(:image_binary, view_image_binary)
         end)
 
       {:ok, raw_data}
     end
   end
 
-  # TODO: implement it
   @impl true
-  def transform_data(%DataSource{source: :tableau}, raw_data) do
-    data =
-      raw_data
-      |> Enum.map(& &1)
+  def transform_data(%DataSource{source: :tableau, org_id: org_id}, views) do
+    with {:ok, view_image_urls} <-
+           views
+           |> Async.map(fn %{image_binary: image_binary} ->
+             ImageGenerator.upload_image(%{org_id: org_id, binary: image_binary, format: :png})
+           end)
+           |> Traversable.traverse_all()
+           |> OkTuple.map(&Traversable.traverse_all/1) do
+      transformed_data =
+        Enum.zip_with(views, view_image_urls, fn view, view_image_url ->
+          view |> Map.put(:image_url, view_image_url)
+        end)
 
-    {:ok, data}
+      {:ok, transformed_data}
+    end
   end
 
   # TODO: implement it
