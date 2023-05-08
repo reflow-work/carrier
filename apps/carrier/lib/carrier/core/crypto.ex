@@ -1,4 +1,6 @@
 defmodule Carrier.Core.Crypto do
+  ### Random Generator
+
   @letters [?a..?z, ?A..?Z, ?0..?9] |> Enum.flat_map(& &1)
 
   def random_string(length) do
@@ -12,6 +14,8 @@ defmodule Carrier.Core.Crypto do
   def random_float(max \\ 1, min \\ 0) do
     :rand.uniform() * (max - min) + min
   end
+
+  ### Obfuscation
 
   def obfuscate(coder \\ default_coder(), values)
 
@@ -36,5 +40,16 @@ defmodule Carrier.Core.Crypto do
     salt = Application.get_env(:carrier, :hashids_salt)
 
     Hashids.new(salt: salt, min_len: 8)
+  end
+
+  ### Hash
+
+  def hash(data, type) when is_binary(data) do
+    :crypto.hash(type, data)
+  end
+
+  def hash_to_url64(data, type) do
+    hash(data, type)
+    |> Base.url_encode64()
   end
 end
