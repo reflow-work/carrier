@@ -1,5 +1,5 @@
 defmodule Carrier.Accounts do
-  alias Carrier.Accounts.{Org, User}
+  alias Carrier.Accounts.{Org, User, Super}
   alias Carrier.TenantRepo
 
   defmacro __using__([]) do
@@ -31,7 +31,7 @@ defmodule Carrier.Accounts do
     |> TenantRepo.one()
     |> case do
       %User{} = user ->
-        user_with_role = user |> postload_role()
+        user_with_role = user |> Super.postload_role()
         {:ok, user_with_role}
 
       nil ->
@@ -56,10 +56,5 @@ defmodule Carrier.Accounts do
          {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
       {:ok, updated_user}
     end
-  end
-
-  def postload_role(%User{} = user) do
-    user
-    |> TenantRepo.preload(:role, skip_org_id: true)
   end
 end

@@ -51,4 +51,9 @@ defmodule Carrier.Accounts.Super do
     })
     |> TenantRepo.insert()
   end
+
+  def postload_role(%User{} = user) do
+    user
+    |> TenantRepo.preload(:role, skip_org_id: true)
+  end
 end

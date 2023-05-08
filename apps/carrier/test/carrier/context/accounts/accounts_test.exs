@@ -5,23 +5,6 @@ defmodule Carrier.AccountsTest do
 
   @moduletag repo: TenantRepo
 
-  describe "postload_role/1" do
-    setup do
-      role = TenantFactory.insert(:role)
-      user = TenantFactory.insert(:user, role_id: role.id)
-
-      TenantRepo.put_org_id(user.org_id)
-
-      %{user: user, role: role}
-    end
-
-    test "test", %{user: user, role: role} do
-      user_with_role = user |> Accounts.postload_role()
-
-      assert same_records?(user_with_role.role, role)
-    end
-  end
-
   describe "fetch_user/1" do
     setup do
       role = TenantFactory.insert(:role)

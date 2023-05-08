@@ -83,10 +83,6 @@ defmodule Carrier.Accounts.User do
     query |> preload([:org])
   end
 
-  def preload_role(query) do
-    query |> preload([:role])
-  end
-
   def positions do
     [
       "CEO/대표",

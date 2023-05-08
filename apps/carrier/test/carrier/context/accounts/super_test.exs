@@ -2,6 +2,7 @@ defmodule Carrier.Accounts.SuperTest do
   use Carrier.DataCase, async: true
   alias Carrier.Accounts
   alias Carrier.Accounts.{Org, User}
+  alias Carrier.Roles
 
   @moduletag repo: TenantRepo
 
@@ -87,7 +88,7 @@ defmodule Carrier.Accounts.SuperTest do
     test "with duplicated email", %{org: org, role: role} do
       email = "json@reflow.work"
 
-      TenantFactory.insert(:user, org: org, email: email, role_id: role.id)
+      TenantFactory.insert(:user, org: org, email: email, role: role)
 
       params = %{
         org_id: org.org_id,
@@ -96,6 +97,23 @@ defmodule Carrier.Accounts.SuperTest do
       }
 
       assert {:error, _} = Accounts.Super.signup(params)
+    end
+  end
+
+  describe "postload_role/1" do
+    setup do
+      user = TenantFactory.insert(:user)
+
+      TenantRepo.put_org_id(user.org_id)
+
+      %{user: user}
+    end
+
+    test "test", %{user: user} do
+      user_without_role = reload!(user, TenantRepo)
+      user_with_role = user_without_role |> Accounts.Super.postload_role()
+
+      assert same_records?(user_with_role.role, user.role)
     end
   end
 end
