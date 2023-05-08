@@ -1,11 +1,42 @@
 defmodule Carrier.Data.Source do
-  require Logger
-  alias Carrier.Data.Source
-  alias Carrier.Core.DataHelper
-
   @callback load_raw_data(data_source :: map(), params :: map()) :: {:ok, list()}
   @callback transform_data(data_source :: map(), raw_data :: list()) :: {:ok, list()}
   @callback data_to_blocks(data_source :: map(), data :: list()) :: {:ok, list()}
+
+  use Carrier.Integrations
+
+  defmacro __using__([]) do
+    quote do
+      alias unquote(__MODULE__)
+      alias unquote(__MODULE__).Tableau
+    end
+  end
+
+  def load_raw_data(%DataSource{} = _data_source, _params) do
+    {:ok, []}
+  end
+
+  def transform_data(%DataSource{} = _data_source, raw_data) do
+    data =
+      raw_data
+      |> Enum.map(& &1)
+
+    {:ok, data}
+  end
+
+  def data_to_blocks(%DataSource{} = _data_source, data) do
+    blocks =
+      data
+      |> Enum.map(& &1)
+
+    {:ok, blocks}
+  end
+
+  # TODO: move to Data.Source.RDS
+
+  require Logger
+  alias Carrier.Data.Source
+  alias Carrier.Core.DataHelper
 
   def get_module(source) do
     case source do
