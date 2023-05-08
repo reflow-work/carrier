@@ -44,12 +44,12 @@ defmodule Carrier.Core.Crypto do
 
   ### Hash
 
-  def hash(data, type) when is_binary(data) do
+  def hash(data, type) when is_bitstring(data) do
     :crypto.hash(type, data)
   end
 
-  def hash_to_url64(data, type) do
+  def hash_to_url64(data, type, opts \\ []) do
     hash(data, type)
-    |> Base.url_encode64()
+    |> Base.url_encode64(opts)
   end
 end
