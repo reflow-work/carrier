@@ -25,4 +25,14 @@ defmodule Carrier.Core.OkTupleTest do
       end
     end
   end
+
+  describe "map/2" do
+    test "with ok" do
+      assert OkTuple.map({:ok, 1}, &(&1 + 1)) == 2
+    end
+
+    test "with error" do
+      assert OkTuple.map({:error, "reason"}, &(&1 + 1)) == {:error, "reason"}
+    end
+  end
 end
