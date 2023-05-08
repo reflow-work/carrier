@@ -33,26 +33,13 @@ Repo.transaction(fn ->
         %{
           name: "Admin",
           permissions: [
-            "member.access_setting",
-            "member.read",
-            "member.invite",
-            "member.update",
-            "member.delete",
-            "billing.access_setting",
-            "billing.subscription.read",
-            "billing.subscription.manage",
-            "billing.credit_card.manage"
+            "member.manage",
+            "billing.manage"
           ]
         },
         %{
           name: "Member",
-          permissions: [
-            "member.access_setting",
-            "member.read",
-            "member.invite",
-            "billing.access_setting",
-            "billing.subscription.read"
-          ]
+          permissions: []
         }
       ],
       returning: true

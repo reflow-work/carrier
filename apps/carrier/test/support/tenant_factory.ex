@@ -16,7 +16,7 @@ defmodule Carrier.TenantFactory do
 
     %User{
       org: org,
-      role_id: role.id,
+      role: role,
       email: seq(:user_email, &"user-#{&1}@email.com")
     }
     |> merge_attributes(attrs)

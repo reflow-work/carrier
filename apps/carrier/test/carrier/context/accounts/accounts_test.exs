@@ -7,18 +7,20 @@ defmodule Carrier.AccountsTest do
 
   describe "fetch_user/1" do
     setup do
-      user = TenantFactory.insert(:user)
+      role = TenantFactory.insert(:role)
+      user = TenantFactory.insert(:user, role: role)
 
       TenantRepo.put_org_id(user.org_id)
 
-      %{user: user}
+      %{user: user, role: role}
     end
 
-    test "with valid user_id", %{user: user} do
+    test "with valid user_id", %{user: user, role: role} do
       assert {:ok, %User{} = fetched_user} = Accounts.fetch_user(user.id)
 
       assert same_records?(fetched_user, user)
       assert same_records?(fetched_user.org, user.org)
+      assert same_records?(fetched_user.role, role)
     end
 
     test "with deleted user_id", %{user: user} do

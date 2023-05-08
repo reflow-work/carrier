@@ -1,11 +1,11 @@
 defmodule Carrier.Accounts.User do
   use Carrier.Schema
   alias Carrier.Accounts.Org
+  alias Carrier.Roles.Role
 
   schema "users" do
     belongs_to :org, Org, references: :org_id
-
-    field :role_id, :id
+    belongs_to :role, Role
 
     field :email, :string
     field :position, :string
