@@ -88,7 +88,12 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
               />
 
               <:actions>
-                <.button style={:outline} disabled={!@valid?} phx-click="send_test_report">
+                <.button
+                  type="button"
+                  style={:outline}
+                  disabled={!@valid?}
+                  phx-click="send_test_report"
+                >
                   테스트 발송
                 </.button>
                 <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
