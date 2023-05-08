@@ -89,6 +89,11 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
+  def handle_event("send_test_report", _params, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:update, {:data_source_info_form, data_source_info_form}}, socket) do
     socket =
       socket
