@@ -2,6 +2,7 @@ defmodule Carrier.Data.Source.Tableau do
   @behaviour Carrier.Data.Source
 
   use Carrier.{Integrations, Reports}
+  alias Carrier.Data.Block
   alias Carrier.Reports.ImageGenerator
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Traversable, OkTuple}
@@ -43,14 +44,18 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  # TODO: implement it
   @impl true
-  def data_to_blocks(%DataSource{source: :tableau}, data) do
-    blocks =
-      data
-      |> Enum.map(& &1)
+  def data_to_threads(%DataSource{source: :tableau}, views) do
+    threads =
+      views
+      |> Enum.map(fn %{full_name: full_name, image_url: image_url} ->
+        [
+          Block.text(full_name, :bold),
+          Block.image(full_name, image_url, full_name)
+        ]
+      end)
 
-    {:ok, blocks}
+    {:ok, threads}
   end
 
   ### raw functions

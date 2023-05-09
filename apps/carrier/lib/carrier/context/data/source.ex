@@ -3,7 +3,7 @@ defmodule Carrier.Data.Source do
               {:ok, list()} | {:error, any()}
   @callback transform_data(data_source :: map(), raw_data :: list()) ::
               {:ok, list()} | {:error, any()}
-  @callback data_to_blocks(data_source :: map(), data :: list()) ::
+  @callback data_to_threads(data_source :: map(), data :: list()) ::
               {:ok, list()} | {:error, any()}
 
   use Carrier.Integrations
@@ -28,12 +28,10 @@ defmodule Carrier.Data.Source do
     source_module.transform_data(data_source, raw_data)
   end
 
-  def data_to_blocks(%DataSource{} = _data_source, data) do
-    blocks =
-      data
-      |> Enum.map(& &1)
+  def data_to_threads(%DataSource{} = data_source, data) do
+    source_module = data_source_to_module(data_source)
 
-    {:ok, blocks}
+    source_module.data_to_threads(data_source, data)
   end
 
   defp data_source_to_module(%DataSource{source: source}) do
