@@ -93,7 +93,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source = socket.assigns.selected_data_source
     data_target = socket.assigns.data_target
     views = socket.assigns.data_source_info_form.source.params["params"][:views]
-    channel = socket.assigns.data_target_info_form.source.params["details"]
+    channel = socket.assigns.data_target_info_form.source.params["params"]
 
     Task.Supervisor.start_child(Carrier.TaskSupervisor, fn ->
       with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),

@@ -100,7 +100,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
     data_target_info_input = %{
       data_target_id: socket.assigns.data_target.id,
       target: :slack,
-      details:
+      params:
         socket.assigns.selected_channel
         |> Nillable.map(fn %{id: id, name: name} ->
           %{
