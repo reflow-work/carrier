@@ -6,7 +6,7 @@ defmodule Carrier.Data.Target.Slack do
   alias Carrier.External.SlackAPI
 
   @impl true
-  def threads_to_report_messages(%DataTarget{service_name: :slack}, threads) do
+  def threads_to_messages(%DataTarget{service_name: :slack}, threads) do
     report_messages =
       threads
       |> Enum.map(fn blocks ->
@@ -17,7 +17,7 @@ defmodule Carrier.Data.Target.Slack do
   end
 
   @impl true
-  def send_report_messages(
+  def send_messages(
         %DataTarget{service_name: :slack, conn_info: %ConnInfo{} = conn_info},
         report_messages,
         %{channel_id: channel_id}
