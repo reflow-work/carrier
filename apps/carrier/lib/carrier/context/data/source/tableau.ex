@@ -3,9 +3,9 @@ defmodule Carrier.Data.Source.Tableau do
 
   use Carrier.{Integrations, Reports}
   alias Carrier.Data.Block
-  alias Carrier.Reports.ImageGenerator
   alias Carrier.External.TableauAPI
-  alias Carrier.Core.Async
+  alias Carrier.Core.{Async, Traversable}
+  alias Carrier.Uploader
 
   ### behaviors
 
@@ -30,15 +30,19 @@ defmodule Carrier.Data.Source.Tableau do
 
   @impl true
   def transform_data(%DataSource{source: :tableau, org_id: org_id}, views) do
-    with {:ok, view_image_urls} <-
+    with {:ok, view_files} <-
            views
-           |> Async.map(fn %{image_binary: image_binary} ->
-             ImageGenerator.upload_image(%{org_id: org_id, binary: image_binary, format: :png})
+           |> Async.map(fn %{image_binary: image_binary, pdf_binary: pdf_binary} ->
+             [
+               Uploader.upload(:report_storage, org_id, image_binary, :png),
+               Uploader.upload(:report_storage, org_id, pdf_binary, :pdf)
+             ]
+             |> Traversable.traverse()
            end)
            |> Async.unwrap_map_ok_results() do
       transformed_data =
-        Enum.zip_with(views, view_image_urls, fn view, view_image_url ->
-          view |> Map.put(:image_url, view_image_url)
+        Enum.zip_with(views, view_files, fn view, [view_image_url, view_pdf_url] ->
+          view |> Map.merge(%{image_url: view_image_url, pdf_url: view_pdf_url})
         end)
 
       {:ok, transformed_data}

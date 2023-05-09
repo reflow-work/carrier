@@ -16,9 +16,9 @@ defmodule Carrier.Const do
 
                  _ ->
                    %{
-                     report_image_storage: %{
+                     report_storage: %{
                        region: "ap-northeast-2",
-                       bucket: "carrier-report-image-test"
+                       bucket: "carrier-report-test"
                      }
                    }
                end)
