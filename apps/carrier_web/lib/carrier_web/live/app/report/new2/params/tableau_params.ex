@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.ReportLive.New2.TableauDetailsParams do
+defmodule CarrierWeb.App.ReportLive.New2.TableauParams do
   use Ecto.Schema
   import Ecto.Changeset
 

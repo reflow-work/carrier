@@ -114,7 +114,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
     data_source_info_input = %{
       data_source_id: socket.assigns.data_source.id,
       source: :tableau,
-      details: %{
+      params: %{
         views:
           socket.assigns.selected_views
           |> Enum.map(fn %Tableau.View{id: id, full_name: full_name} ->

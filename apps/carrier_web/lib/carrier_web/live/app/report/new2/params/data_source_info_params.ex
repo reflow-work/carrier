@@ -1,39 +1,39 @@
 defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CarrierWeb.App.ReportLive.New2.TableauDetailsParams
+  alias CarrierWeb.App.ReportLive.New2.TableauParams
 
   @primary_key false
   embedded_schema do
     field :data_source_id, :id
     field :source, Ecto.Enum, values: [:tableau]
-    field :details, :map
+    field :params, :map
   end
 
-  @required [:data_source_id, :source, :details]
+  @required [:data_source_id, :source, :params]
   def changeset(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required)
     |> validate_required(@required)
-    |> validate_details()
+    |> validate_params()
   end
 
-  defp validate_details(%Ecto.Changeset{changes: %{source: source}, valid?: true} = changeset) do
+  defp validate_params(%Ecto.Changeset{changes: %{source: source}, valid?: true} = changeset) do
     changeset
-    |> validate_change(:details, fn :details, details ->
-      details_module =
+    |> validate_change(:params, fn :params, params ->
+      params_module =
         case source do
-          :tableau -> TableauDetailsParams
+          :tableau -> TableauParams
         end
 
-      details_changeset = details_module.changeset(struct(details_module), details)
+      params_changeset = params_module.changeset(struct(params_module), params)
 
-      case details_changeset.valid? do
+      case params_changeset.valid? do
         true -> []
-        false -> details_changeset.errors
+        false -> params_changeset.errors
       end
     end)
   end
 
-  defp validate_details(changeset), do: changeset
+  defp validate_params(changeset), do: changeset
 end

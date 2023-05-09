@@ -92,7 +92,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def handle_event("send_test_report", _params, socket) do
     data_source = socket.assigns.selected_data_source
     data_target = socket.assigns.data_target
-    views = socket.assigns.data_source_info_form.source.params["details"][:views]
+    views = socket.assigns.data_source_info_form.source.params["params"][:views]
     channel = socket.assigns.data_target_info_form.source.params["details"]
 
     Task.Supervisor.start_child(Carrier.TaskSupervisor, fn ->
