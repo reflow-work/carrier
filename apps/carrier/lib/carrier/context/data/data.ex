@@ -18,10 +18,15 @@ defmodule Carrier.Data do
     end
   end
 
-  def send_threads(threads, %{data_target_id: data_target_id, params: params}) do
+  def send_messages(
+        %{name: _name} = header,
+        threads,
+        %{data_target_id: data_target_id, params: params}
+      ) do
     with {:ok, %DataTarget{} = data_target} <- Integrations.fetch_data_target(data_target_id),
+         {:ok, header_messages} <- Target.header_to_messages(data_target, header),
          {:ok, messages} <- Target.threads_to_messages(data_target, threads),
-         :ok <- Target.send_messages(data_target, messages, params) do
+         :ok <- Target.send_messages(data_target, header_messages, messages, params) do
       :ok
     end
   end

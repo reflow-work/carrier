@@ -6,33 +6,49 @@ defmodule Carrier.Data.Target.Slack do
   alias Carrier.External.SlackAPI
 
   @impl true
+  def header_to_messages(%DataTarget{service_name: :slack}, header) do
+    messages = header |> header_to_message()
+
+    {:ok, messages}
+  end
+
+  @impl true
   def threads_to_messages(%DataTarget{service_name: :slack}, threads) do
-    report_messages =
+    messages =
       threads
       |> Enum.map(fn blocks ->
-        blocks |> Enum.map(&block_to_report_message/1)
+        blocks |> Enum.map(&block_to_message/1)
       end)
 
-    {:ok, report_messages}
+    {:ok, messages}
   end
 
   @impl true
   def send_messages(
         %DataTarget{service_name: :slack, conn_info: %ConnInfo{} = conn_info},
-        report_messages,
+        header_messages,
+        messages,
         %{channel_id: channel_id}
       ) do
     credentials = conn_info |> ConnInfo.to_credentials()
 
     with {:ok, _} <-
-           report_messages
+           (header_messages ++ messages)
            |> Enum.map(&post_message(channel_id, &1, credentials))
            |> Traversable.traverse() do
       :ok
     end
   end
 
-  defp block_to_report_message(%{type: :text, text: text, style: style}) do
+  defp header_to_message(%{name: name}) do
+    [
+      [
+        SlackAPI.Block.build_text_block("*#{name}*")
+      ]
+    ]
+  end
+
+  defp block_to_message(%{type: :text, text: text, style: style}) do
     text =
       case style do
         :normal -> text
@@ -42,7 +58,7 @@ defmodule Carrier.Data.Target.Slack do
     SlackAPI.Block.build_text_block(text)
   end
 
-  defp block_to_report_message(%{
+  defp block_to_message(%{
          type: :image,
          title: title,
          image_url: image_url,
@@ -51,7 +67,7 @@ defmodule Carrier.Data.Target.Slack do
     SlackAPI.Block.build_image_block(image_url, title, alt_text)
   end
 
-  defp block_to_report_message(%{type: :button, text: text, url: url}) do
+  defp block_to_message(%{type: :button, text: text, url: url}) do
     SlackAPI.Block.build_button_block(text, url)
   end
 
