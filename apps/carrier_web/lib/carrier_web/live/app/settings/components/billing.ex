@@ -131,6 +131,6 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
   end
 
   defp has_billing_payment_permission(user) do
-    user.role.permissions |> Enum.member?("billing.payment.manage")
+    "billing.payment.manage" in user.role.permissions
   end
 end
