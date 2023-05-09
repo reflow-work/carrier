@@ -93,13 +93,29 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source = socket.assigns.selected_data_source
     data_target = socket.assigns.data_target
     views = socket.assigns.data_source_info_form.source.params["details"][:views]
+    channel = socket.assigns.data_target_info_form.source.params["details"]
 
-    with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),
-         {:ok, transformed_data} <- Source.transform_data(data_source, raw_data),
-         {:ok, threads} <- Source.data_to_threads(data_source, transformed_data),
-         {:ok, report_messages} <- Target.threads_to_report_messages(data_target, threads) do
-      {:ok, report_messages}
-    end
+    Task.Supervisor.start_child(Carrier.TaskSupervisor, fn ->
+      with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),
+           {:ok, transformed_data} <- Source.transform_data(data_source, raw_data),
+           {:ok, threads} <- Source.data_to_threads(data_source, transformed_data),
+           {:ok, report_messages} <- Target.threads_to_report_messages(data_target, threads),
+           :ok <- Target.send_report_messages(data_target, report_messages, channel) do
+        :ok
+      else
+        {:error, error} ->
+          Logger.error("Failed to send test report: #{inspect(error)}")
+
+          {:error, error}
+      end
+    end)
+
+    socket =
+      socket
+      |> log_event("send_test_report", %{
+        page_name: "report_new"
+      })
+      |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
 
     {:noreply, socket}
   end
