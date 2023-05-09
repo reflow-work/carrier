@@ -38,7 +38,7 @@ defmodule CarrierWeb.MainComponents do
 
   def card(assigns) do
     ~H"""
-    <div class={["card", @class]}>
+    <div class={["card !rounded-md", @class]}>
       <div class="card-body">
         <%= render_slot(@inner_block) %>
       </div>
@@ -46,11 +46,12 @@ defmodule CarrierWeb.MainComponents do
     """
   end
 
+  attr :class, :any, default: nil
   attr :title, :string, required: true
 
   def card_title(assigns) do
     ~H"""
-    <h2 class="card-title mb-2"><%= @title %></h2>
+    <h2 class={["card-title mb-2 text-base text-black", @class]}><%= @title %></h2>
     """
   end
 end
