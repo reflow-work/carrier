@@ -3,7 +3,7 @@
 
   <div class="flex gap-4">
     <.card_container class="w-52">
-      <div class="card p-4 space-y-1">
+      <div class="card p-4 space-y-1 !rounded-md">
         <.menu :for={menu <- @menus} menu={menu} selected?={menu == @selected_menu} />
       </div>
     </.card_container>
