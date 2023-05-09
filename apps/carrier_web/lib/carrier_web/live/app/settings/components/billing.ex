@@ -41,8 +41,8 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             </div>
           </div>
 
-          <.card_title title="예정된 플랜" class="mt-6" />
           <div :if={@pending_subscription} class="border p-4 rounded-md">
+            <.card_title title="예정된 플랜" class="mt-6" />
             <p class="text-xl font-bold">
               <%= Plan.get_full_name(@pending_subscription.plan) %>
             </p>
@@ -50,7 +50,11 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
               <div class="w-32 space-y-2 text-description">
                 <div>결제 예정일</div>
                 <div>구독 기간</div>
-                <div :if={@credit_card}>결제 수단</div>
+                <div :if={
+                  @credit_card && @user.role.permissions |> Enum.member?("billing.payment.manage")
+                }>
+                  결제 수단
+                </div>
                 <div :if={@pending_subscription.payment}>결제 예정 금액</div>
               </div>
               <div class="space-y-2">
@@ -66,7 +70,12 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
                     @pending_subscription.payment.currency
                   ) %> (VAT 10% 포함)
                 </div>
-                <div :if={@credit_card} class="flex items-center">
+                <div
+                  :if={
+                    @credit_card && @user.role.permissions |> Enum.member?("billing.payment.manage")
+                  }
+                  class="flex items-center"
+                >
                   <.icon name="hero-credit-card" class="mt-0.5 h-5 w-5 flex-none mr-1.5" /> <%= CreditCard.format_card_info(
                     @credit_card
                   ) %>
@@ -78,11 +87,11 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             </div>
           </div>
 
-          <%= if !@active_subscription and !@pending_subscription do %>
+          <%= if !@active_subscription and !@pending_subscription and @user.role.permissions |> Enum.member?("billing.payment.manage") do %>
             <.link navigate={~p"/app/subscriptions/new"} class="btn btn-primary">구독하러 가기</.link>
           <% end %>
         </.card>
-        <.card>
+        <.card :if={@user.role.permissions |> Enum.member?("billing.payment.manage")}>
           <.card_title title="결제 목록" />
           <.table id="payments" rows={@payments}>
             <:col :let={payment} label="결제일"><%= format_date(payment.confirmed_at) %></:col>
