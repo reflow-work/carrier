@@ -53,10 +53,11 @@ defmodule Carrier.Data.Source.Tableau do
   def data_to_threads(%DataSource{source: :tableau}, views) do
     threads =
       views
-      |> Enum.map(fn %{full_name: full_name, image_url: image_url} ->
+      |> Enum.map(fn %{full_name: full_name, image_url: image_url, pdf_url: pdf_url} ->
         [
           Block.text(full_name, :bold),
-          Block.image(full_name, image_url, full_name)
+          Block.image(full_name, image_url, full_name),
+          Block.button("Open PDF", pdf_url)
         ]
       end)
 
