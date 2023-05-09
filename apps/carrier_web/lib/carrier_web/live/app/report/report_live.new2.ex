@@ -90,17 +90,12 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_event("send_test_report", _params, socket) do
-    data_source = socket.assigns.selected_data_source
-    data_target = socket.assigns.data_target
-    views = socket.assigns.data_source_info_form.source.params["params"][:views]
-    channel = socket.assigns.data_target_info_form.source.params["params"]
+    data_source_info = socket.assigns.data_source_info_form |> Params.to_map()
+    data_target_info = socket.assigns.data_target_info_form |> Params.to_map()
 
     Async.run(fn ->
-      with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),
-           {:ok, transformed_data} <- Source.transform_data(data_source, raw_data),
-           {:ok, threads} <- Source.data_to_threads(data_source, transformed_data),
-           {:ok, report_messages} <- Target.threads_to_messages(data_target, threads),
-           :ok <- Target.send_messages(data_target, report_messages, channel) do
+      with {:ok, threads} <- Data.prepare_threads(data_source_info),
+           :ok <- Data.send_threads(threads, data_target_info) do
         :ok
       else
         {:error, error} ->
