@@ -3,7 +3,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use Carrier.{Integrations, Data}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
-  alias Carrier.Core.Nillable
+  alias Carrier.Core.{Nillable, Async}
   alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
@@ -95,7 +95,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     views = socket.assigns.data_source_info_form.source.params["params"][:views]
     channel = socket.assigns.data_target_info_form.source.params["params"]
 
-    Task.Supervisor.start_child(Carrier.TaskSupervisor, fn ->
+    Async.run(fn ->
       with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),
            {:ok, transformed_data} <- Source.transform_data(data_source, raw_data),
            {:ok, threads} <- Source.data_to_threads(data_source, transformed_data),
