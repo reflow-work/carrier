@@ -175,25 +175,25 @@ defmodule CarrierWeb.Components.Search do
   end
 
   defp assign_show_selectable_items(socket, show) do
-    case socket.assigns.keyword |> String.trim() do
-      "" ->
+    case Blankable.blank?(socket.assigns.keyword) do
+      true ->
         socket
         |> assign(:show_selectable_items, false)
 
-      _ ->
+      false ->
         socket
         |> assign(:show_selectable_items, show)
     end
   end
 
   defp assign_selectable_items(socket) do
-    case socket.assigns.keyword |> String.trim() do
-      "" ->
+    case Blankable.blank?(socket.assigns.keyword) do
+      true ->
         socket
         |> assign(:selectable_items, [])
 
-      trimmed_keyword ->
-        regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
+      false ->
+        regex = socket.assigns.keyword |> String.trim() |> Regex.escape() |> Regex.compile!("i")
 
         selectable_items =
           socket.assigns.items
