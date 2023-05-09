@@ -87,8 +87,17 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             </div>
           </div>
 
-          <%= if !@active_subscription and !@pending_subscription and @user.role.permissions |> Enum.member?("billing.payment.manage") do %>
-            <.link navigate={~p"/app/subscriptions/new"} class="btn btn-primary">구독하러 가기</.link>
+          <%= if !@active_subscription and !@pending_subscription do %>
+            <div class="text-sm">
+              <div>현재 구독 중인 플랜이 없습니다.</div>
+              <.link
+                :if={@user.role.permissions |> Enum.member?("billing.payment.manage")}
+                navigate={~p"/app/subscriptions/new"}
+                class="text-primary-red font-bold mt-6 w-full flex items-center"
+              >
+                구독하러 가기 <.icon name="hero-arrow-small-right-mini" class="w-6 h-6" />
+              </.link>
+            </div>
           <% end %>
         </.card>
         <.card :if={@user.role.permissions |> Enum.member?("billing.payment.manage")}>
