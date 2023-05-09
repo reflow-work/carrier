@@ -41,8 +41,8 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             </div>
           </div>
 
+          <.card_title :if={@pending_subscription} title="예정된 플랜" class="mt-6" />
           <div :if={@pending_subscription} class="border p-4 rounded-md">
-            <.card_title title="예정된 플랜" class="mt-6" />
             <p class="text-xl font-bold">
               <%= Plan.get_full_name(@pending_subscription.plan) %>
             </p>
@@ -50,9 +50,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
               <div class="w-32 space-y-2 text-description">
                 <div>결제 예정일</div>
                 <div>구독 기간</div>
-                <div :if={
-                  @credit_card && @user.role.permissions |> Enum.member?("billing.payment.manage")
-                }>
+                <div :if={@credit_card && has_billing_payment_permission(@user)}>
                   결제 수단
                 </div>
                 <div :if={@pending_subscription.payment}>결제 예정 금액</div>
@@ -71,9 +69,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
                   ) %> (VAT 10% 포함)
                 </div>
                 <div
-                  :if={
-                    @credit_card && @user.role.permissions |> Enum.member?("billing.payment.manage")
-                  }
+                  :if={@credit_card && has_billing_payment_permission(@user)}
                   class="flex items-center"
                 >
                   <.icon name="hero-credit-card" class="mt-0.5 h-5 w-5 flex-none mr-1.5" /> <%= CreditCard.format_card_info(
@@ -91,7 +87,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             <div class="text-sm">
               <div>현재 구독 중인 플랜이 없습니다.</div>
               <.link
-                :if={@user.role.permissions |> Enum.member?("billing.payment.manage")}
+                :if={has_billing_payment_permission(@user)}
                 navigate={~p"/app/subscriptions/new"}
                 class="text-primary-red font-bold mt-6 w-full flex items-center"
               >
@@ -100,7 +96,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             </div>
           <% end %>
         </.card>
-        <.card :if={@user.role.permissions |> Enum.member?("billing.payment.manage")}>
+        <.card :if={has_billing_payment_permission(@user)}>
           <.card_title title="결제 목록" />
           <.table id="payments" rows={@payments}>
             <:col :let={payment} label="결제일"><%= format_date(payment.confirmed_at) %></:col>
@@ -110,7 +106,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
             <:col :let={payment} label="플랜"><%= payment.item %></:col>
           </.table>
         </.card>
-        <div class="text-right text-sm text-description">
+        <div :if={has_billing_payment_permission(@user)} class="text-right text-sm text-description">
           <.link href="https://reflow-work.channel.io/" target="_blank" class="link">환불문의</.link>
         </div>
       </.card_container>
@@ -132,5 +128,9 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
 
   defp load_credit_card() do
     Payments.fetch_default_credit_card()
+  end
+
+  defp has_billing_payment_permission(user) do
+    user.role.permissions |> Enum.member?("billing.payment.manage")
   end
 end
