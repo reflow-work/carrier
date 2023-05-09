@@ -90,9 +90,13 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_event("send_test_report", _params, socket) do
+    data_source = socket.assigns.selected_data_source
     views = socket.assigns.data_source_info_form.source.params["details"][:views]
 
-    Source.load_raw_data(socket.assigns.selected_data_source, %{views: views})
+    with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),
+         {:ok, transformed_data} <- Source.transform_data(data_source, raw_data) do
+      {:ok, transformed_data}
+    end
 
     {:noreply, socket}
   end

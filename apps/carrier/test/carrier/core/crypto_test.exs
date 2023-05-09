@@ -86,19 +86,20 @@ defmodule Carrier.Core.CryptoTest do
 
   describe "hash/2" do
     test "with md5" do
-      data = "hello"
+      data = <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13>>
       hash = Crypto.hash(data, :md5)
 
-      assert hash == <<93, 65, 64, 42, 188, 75, 42, 118, 185, 113, 157, 145, 16, 23, 197, 146>>
+      assert hash ==
+               <<205, 251, 151, 248, 251, 252, 87, 81, 187, 59, 51, 234, 252, 166, 244, 251>>
     end
   end
 
   describe "hash_to_url64" do
     test "with md5" do
-      data = "hello"
+      data = <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13>>
       url64_hash = Crypto.hash_to_url64(data, :md5)
 
-      assert url64_hash == "XUFAKrxLKna5cZ2REBfFkg=="
+      assert url64_hash == "zfuX-Pv8V1G7OzPq_Kb0-w=="
     end
   end
 end
