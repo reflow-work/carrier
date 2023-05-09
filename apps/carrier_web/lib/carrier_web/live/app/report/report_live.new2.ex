@@ -110,6 +110,13 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       end
     end)
 
+    socket =
+      socket
+      |> log_event("send_test_report", %{
+        page_name: "report_new"
+      })
+      |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
+
     {:noreply, socket}
   end
 
