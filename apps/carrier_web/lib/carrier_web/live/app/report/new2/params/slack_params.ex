@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.ReportLive.New2.SlackDetailsParams do
+defmodule CarrierWeb.App.ReportLive.New2.SlackParams do
   use Ecto.Schema
   import Ecto.Changeset
 

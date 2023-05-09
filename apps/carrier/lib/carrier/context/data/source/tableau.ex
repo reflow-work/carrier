@@ -5,7 +5,7 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.Data.Block
   alias Carrier.Reports.ImageGenerator
   alias Carrier.External.TableauAPI
-  alias Carrier.Core.{Async, Traversable, OkTuple}
+  alias Carrier.Core.Async
 
   ### behaviors
 
@@ -33,8 +33,7 @@ defmodule Carrier.Data.Source.Tableau do
            |> Async.map(fn %{image_binary: image_binary} ->
              ImageGenerator.upload_image(%{org_id: org_id, binary: image_binary, format: :png})
            end)
-           |> Traversable.traverse_all()
-           |> OkTuple.map(&Traversable.traverse_all/1) do
+           |> Async.unwrap_map_ok_results() do
       transformed_data =
         Enum.zip_with(views, view_image_urls, fn view, view_image_url ->
           view |> Map.put(:image_url, view_image_url)
@@ -117,8 +116,7 @@ defmodule Carrier.Data.Source.Tableau do
            |> Async.map(fn view_id ->
              do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token})
            end)
-           |> Traversable.traverse_all()
-           |> OkTuple.map(&Traversable.traverse_all/1) do
+           |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
   end
