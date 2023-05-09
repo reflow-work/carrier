@@ -46,7 +46,7 @@ defmodule CarrierWeb.MainComponents do
     """
   end
 
-  attr :class, :string, default: nil
+  attr :class, :any, default: nil
   attr :title, :string, required: true
 
   def card_title(assigns) do
