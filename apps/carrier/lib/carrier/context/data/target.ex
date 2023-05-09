@@ -1,7 +1,8 @@
 defmodule Carrier.Data.Target do
-  @callback threads_to_report_messages(data_target :: map(), threads :: list()) :: {:ok, list()}
-  @callback send_report_message(data_target :: map(), report_message :: map() | list()) ::
-              {:ok, any()}
+  @callback threads_to_report_messages(data_target :: map(), threads :: list()) ::
+              {:ok, list()} | {:error, any()}
+  @callback send_report_messages(data_target :: map(), report_messages :: list(), params :: map()) ::
+              :ok | {:error, any()}
 
   use Carrier.Integrations
   alias __MODULE__.Slack
@@ -18,8 +19,10 @@ defmodule Carrier.Data.Target do
     target_module.threads_to_report_messages(data_target, blocks)
   end
 
-  def send_report_message(%DataTarget{} = _data_target, _report_message) do
-    {:ok, nil}
+  def send_report_messages(%DataTarget{} = data_target, report_message, params) do
+    target_module = data_target_to_module(data_target)
+
+    target_module.send_report_messages(data_target, report_message, params)
   end
 
   def data_target_to_module(%DataTarget{service_name: service_name}) do

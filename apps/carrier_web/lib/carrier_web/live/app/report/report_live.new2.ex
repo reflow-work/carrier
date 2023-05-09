@@ -93,12 +93,14 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source = socket.assigns.selected_data_source
     data_target = socket.assigns.data_target
     views = socket.assigns.data_source_info_form.source.params["details"][:views]
+    channel = socket.assigns.data_target_info_form.source.params["details"]
 
     with {:ok, raw_data} <- Source.load_raw_data(data_source, %{views: views}),
          {:ok, transformed_data} <- Source.transform_data(data_source, raw_data),
          {:ok, threads} <- Source.data_to_threads(data_source, transformed_data),
-         {:ok, report_messages} <- Target.threads_to_report_messages(data_target, threads) do
-      {:ok, report_messages}
+         {:ok, report_messages} <- Target.threads_to_report_messages(data_target, threads),
+         :ok <- Target.send_report_messages(data_target, report_messages, channel) do
+      :ok
     end
 
     {:noreply, socket}

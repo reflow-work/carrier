@@ -2,14 +2,34 @@ defmodule Carrier.Data.Target.Slack do
   @behaviour Carrier.Data.Target
 
   use Carrier.Integrations
+  alias Carrier.Core.Traversable
   alias Carrier.External.SlackAPI
 
   @impl true
   def threads_to_report_messages(%DataTarget{service_name: :slack}, threads) do
-    threads
-    |> Enum.map(fn blocks ->
-      blocks |> Enum.map(&block_to_report_message/1)
-    end)
+    report_messages =
+      threads
+      |> Enum.map(fn blocks ->
+        blocks |> Enum.map(&block_to_report_message/1)
+      end)
+
+    {:ok, report_messages}
+  end
+
+  @impl true
+  def send_report_messages(
+        %DataTarget{service_name: :slack, conn_info: %ConnInfo{} = conn_info},
+        report_messages,
+        %{channel_id: channel_id}
+      ) do
+    credentials = conn_info |> ConnInfo.to_credentials()
+
+    with {:ok, _} <-
+           report_messages
+           |> Enum.map(&post_message(channel_id, &1, credentials))
+           |> Traversable.traverse() do
+      :ok
+    end
   end
 
   defp block_to_report_message(%{type: :text, text: text, style: style}) do
@@ -57,6 +77,10 @@ defmodule Carrier.Data.Target.Slack do
 
   def list_channels(credentials) do
     do_list_channels(credentials)
+  end
+
+  def post_message(channel_id, blocks, %{bot_token: bot_token}) do
+    SlackAPI.post_message(channel_id, blocks, bot_token)
   end
 
   defp do_list_channels(%{bot_token: bot_token}) do
