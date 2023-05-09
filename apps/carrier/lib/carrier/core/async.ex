@@ -1,5 +1,6 @@
 defmodule Carrier.Core.Async do
   alias Carrier.TaskSupervisor
+  alias Carrier.Core.{Traversable, OkTuple}
 
   @default_dictionary_keys [
     Carrier.TenantRepo.tenant_key(),
@@ -26,6 +27,17 @@ defmodule Carrier.Core.Async do
       {:ok, result} -> {:ok, result}
       {:exit, reason} -> {:error, reason}
     end)
+  end
+
+  def unwrap_map_results(results) do
+    results
+    |> Traversable.traverse_all()
+  end
+
+  def unwrap_map_ok_results(results) do
+    results
+    |> Traversable.traverse_all()
+    |> OkTuple.map(&Traversable.traverse_all/1)
   end
 
   def run(fun, opts \\ []) when is_function(fun, 0) do
