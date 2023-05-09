@@ -73,8 +73,15 @@ defmodule CarrierWeb.Components.Search do
               <%= selectable_item.label %>
             </div>
 
-            <div :if={@selectable_items |> Enum.empty?()} class="px-4 py-2">
-              검색 결과가 없습니다.
+            <div :if={Blankable.blank?(@keyword)} class="px-4 py-2">
+              검색어를 입력해주세요
+            </div>
+
+            <div
+              :if={!Blankable.blank?(@keyword) && @selectable_items |> Enum.empty?()}
+              class="px-4 py-2"
+            >
+              검색 결과가 없습니다
             </div>
           </div>
         </div>
@@ -105,7 +112,7 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> assign(:keyword, keyword)
       |> assign_selectable_items()
-      |> assign_show_selectable_items(true)
+      |> assign(:show_selectable_items, true)
 
     {:noreply, socket}
   end
@@ -121,7 +128,7 @@ defmodule CarrierWeb.Components.Search do
       |> select_item(selected_item)
       |> assign_keyword_unless_multiple(selected_item.label)
       |> assign_selectable_items()
-      |> assign_show_selectable_items(socket.assigns.multiple)
+      |> assign(:show_selectable_items, socket.assigns.multiple)
       |> run_onchange()
 
     {:noreply, socket}
@@ -133,7 +140,7 @@ defmodule CarrierWeb.Components.Search do
       socket
       |> update(:selected_items, &(&1 |> List.delete_at(index)))
       |> assign_selectable_items()
-      |> assign_show_selectable_items(false)
+      |> assign(:show_selectable_items, false)
       |> run_onchange()
 
     {:noreply, socket}
@@ -143,7 +150,7 @@ defmodule CarrierWeb.Components.Search do
   def handle_event("show_selectable_items", _params, socket) do
     socket =
       socket
-      |> assign_show_selectable_items(true)
+      |> assign(:show_selectable_items, true)
 
     {:noreply, socket}
   end
@@ -152,7 +159,7 @@ defmodule CarrierWeb.Components.Search do
   def handle_event("hide_selectable_items", _params, socket) do
     socket =
       socket
-      |> assign_show_selectable_items(false)
+      |> assign(:show_selectable_items, false)
 
     {:noreply, socket}
   end
@@ -174,26 +181,14 @@ defmodule CarrierWeb.Components.Search do
     end
   end
 
-  defp assign_show_selectable_items(socket, show) do
-    case socket.assigns.keyword |> String.trim() do
-      "" ->
-        socket
-        |> assign(:show_selectable_items, false)
-
-      _ ->
-        socket
-        |> assign(:show_selectable_items, show)
-    end
-  end
-
   defp assign_selectable_items(socket) do
-    case socket.assigns.keyword |> String.trim() do
-      "" ->
+    case Blankable.blank?(socket.assigns.keyword) do
+      true ->
         socket
         |> assign(:selectable_items, [])
 
-      trimmed_keyword ->
-        regex = trimmed_keyword |> Regex.escape() |> Regex.compile!("i")
+      false ->
+        regex = socket.assigns.keyword |> String.trim() |> Regex.escape() |> Regex.compile!("i")
 
         selectable_items =
           socket.assigns.items
