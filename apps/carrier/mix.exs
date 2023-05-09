@@ -69,7 +69,8 @@ defmodule Carrier.MixProject do
       {:decorator, "~> 1.4"},
       {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false},
       {:bypass, "~> 2.1", only: :test},
-      {:decimal, "~> 2.0"}
+      {:decimal, "~> 2.0"},
+      {:blankable, "~> 1.0"}
     ]
   end
 
