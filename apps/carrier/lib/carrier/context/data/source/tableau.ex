@@ -99,43 +99,34 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   def signin(%{host: host, email: email, password: password, site: site}) do
-    TableauAPI.signin(%{host: host, name: email, password: password, site: site})
+    with {:ok, %{token: token, site_id: site_id}} <-
+           TableauAPI.signin(%{host: host, name: email, password: password, site: site}) do
+      {:ok, %{host: host, token: token, site_id: site_id}}
+    end
   end
 
-  def list_views(%{host: host} = conn_info) do
-    with {:ok, %{token: token, site_id: site_id}} <- signin(conn_info),
-         {:ok, views} <- do_list_views(%{host: host, site_id: site_id, token: token}) do
+  def list_views(credentials) do
+    with {:ok, auth} <- signin(credentials),
+         {:ok, views} <- do_list_views(auth) do
       {:ok, views}
     end
   end
 
-  def list_view_image_binary_async(view_ids, %{host: host} = conn_info) do
-    with {:ok, %{token: token, site_id: site_id}} <- signin(conn_info),
+  def list_view_image_binary_async(view_ids, credentials) do
+    with {:ok, auth} <- signin(credentials),
          {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id ->
-             do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token})
-           end)
+           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, auth) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
   end
 
-  def get_view_image_binary(view_id, %{host: host} = conn_info) do
-    with {:ok, %{token: token, site_id: site_id}} <- signin(conn_info),
-         {:ok, view_image_binary} <-
-           do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
+  def get_view_image_binary(view_id, credentials) do
+    with {:ok, auth} <- signin(credentials),
+         {:ok, view_image_binary} <- do_get_view_image_binary(view_id, auth) do
       {:ok, view_image_binary}
     end
-  end
-
-  defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
-    TableauAPI.query_view_image(%{
-      host: host,
-      site_id: site_id,
-      view_id: view_id,
-      token: token
-    })
   end
 
   defp do_list_views(%{host: host, site_id: site_id, token: token}) do
@@ -163,5 +154,14 @@ defmodule Carrier.Data.Source.Tableau do
     |> Enum.to_list()
     |> List.flatten()
     |> then(&{:ok, &1})
+  end
+
+  defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
+    TableauAPI.query_view_image(%{
+      host: host,
+      site_id: site_id,
+      view_id: view_id,
+      token: token
+    })
   end
 end
