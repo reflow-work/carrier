@@ -42,4 +42,10 @@ defmodule Carrier.External.SlackAPI.Block do
       ]
     }
   end
+
+  def build_divider_block() do
+    %{
+      "type" => "divider"
+    }
+  end
 end

@@ -2,7 +2,6 @@ defmodule Carrier.Data.Target.Slack do
   @behaviour Carrier.Data.Target
 
   use Carrier.Integrations
-  alias Carrier.Core.Traversable
   alias Carrier.External.SlackAPI
 
   @impl true
@@ -19,6 +18,9 @@ defmodule Carrier.Data.Target.Slack do
       |> Enum.map(fn blocks ->
         blocks |> Enum.map(&block_to_message/1)
       end)
+      |> Enum.intersperse(SlackAPI.Block.build_divider_block())
+      |> List.flatten()
+      |> List.wrap()
 
     {:ok, messages}
   end
@@ -32,10 +34,10 @@ defmodule Carrier.Data.Target.Slack do
       ) do
     credentials = conn_info |> ConnInfo.to_credentials()
 
-    with {:ok, _} <-
+    with :ok <-
            (header_messages ++ messages)
-           |> Enum.map(&post_message(channel_id, &1, credentials))
-           |> Traversable.traverse() do
+           |> List.flatten()
+           |> then(&post_message(channel_id, &1, credentials)) do
       :ok
     end
   end
