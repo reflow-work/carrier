@@ -8,7 +8,9 @@ defmodule Carrier.Uploader do
     %{region: region, bucket: bucket} = Const.get(storage)
     %{ext: ext, content_type: content_type} = format_info(format)
 
-    key = "#{org_id}/#{Crypto.hash_to_url64(binary, :md5, padding: false)}.#{ext}"
+    key =
+      "#{Crypto.obfuscate(org_id)}/#{Crypto.hash_to_url64(binary, :md5, padding: false)}.#{ext}"
+
     upload_url = "https://#{bucket}.s3.#{region}.amazonaws.com/#{key}"
 
     Aws.create_internal_client()
