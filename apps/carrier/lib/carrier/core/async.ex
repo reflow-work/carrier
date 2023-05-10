@@ -11,7 +11,8 @@ defmodule Carrier.Core.Async do
     {dictionary_keys, opts} = opts |> Keyword.pop(:dictionary_keys, @default_dictionary_keys)
     dictionary_for_copy = get_dictionary(dictionary_keys)
 
-    async_stream_opts = [on_timeout: :kill_task] |> Keyword.merge(opts)
+    async_stream_opts =
+      [timeout: :timer.seconds(10), on_timeout: :kill_task] |> Keyword.merge(opts)
 
     Task.Supervisor.async_stream(
       TaskSupervisor,

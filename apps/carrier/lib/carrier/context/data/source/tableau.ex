@@ -32,13 +32,16 @@ defmodule Carrier.Data.Source.Tableau do
   def transform_data(%DataSource{source: :tableau, org_id: org_id}, views) do
     with {:ok, view_files} <-
            views
-           |> Async.map(fn %{image_binary: image_binary, pdf_binary: pdf_binary} ->
-             [
-               Uploader.upload(:report_storage, org_id, image_binary, :png),
-               Uploader.upload(:report_storage, org_id, pdf_binary, :pdf)
-             ]
-             |> Traversable.traverse()
-           end)
+           |> Async.map(
+             fn %{image_binary: image_binary, pdf_binary: pdf_binary} ->
+               [
+                 Uploader.upload(:report_storage, org_id, image_binary, :png),
+                 Uploader.upload(:report_storage, org_id, pdf_binary, :pdf)
+               ]
+               |> Traversable.traverse()
+             end,
+             timeout: :timer.seconds(30)
+           )
            |> Async.unwrap_map_ok_results() do
       transformed_data =
         Enum.zip_with(views, view_files, fn view, [view_image_url, view_pdf_url] ->
@@ -169,7 +172,9 @@ defmodule Carrier.Data.Source.Tableau do
   defp do_list_view_image_binaries_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, auth) end)
+           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, auth) end,
+             timeout: :timer.seconds(30)
+           )
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
@@ -178,7 +183,9 @@ defmodule Carrier.Data.Source.Tableau do
   defp do_list_view_pdf_binaries_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view_pdf_binary(view_id, auth) end)
+           |> Async.map(fn view_id -> do_get_view_pdf_binary(view_id, auth) end,
+             timeout: :timer.seconds(30)
+           )
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
