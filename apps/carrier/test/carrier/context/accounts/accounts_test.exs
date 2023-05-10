@@ -30,20 +30,22 @@ defmodule Carrier.AccountsTest do
     end
   end
 
-  describe "fetch_billing_user/0" do
+  describe "fetch_billing_user/1" do
     setup do
-      user = TenantFactory.insert(:user)
+      admin_role = TenantFactory.insert(:role, name: "Admin")
+      admin_user = TenantFactory.insert(:user, role: admin_role)
+      _another_user_of_same_org = TenantFactory.insert(:user, org: admin_user.org)
       _user_of_another_org = TenantFactory.insert(:user)
 
-      TenantRepo.put_org_id(user.org_id)
+      TenantRepo.put_org_id(admin_user.org_id)
 
-      %{user: user}
+      %{admin_user: admin_user}
     end
 
-    test "test", %{user: user} do
+    test "test", %{admin_user: admin_user} do
       assert {:ok, %User{} = fetched_billing_user} = Accounts.fetch_billing_user()
 
-      assert same_records?(fetched_billing_user, user)
+      assert same_records?(fetched_billing_user, admin_user)
     end
   end
 

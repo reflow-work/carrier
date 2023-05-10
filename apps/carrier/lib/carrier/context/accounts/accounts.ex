@@ -1,5 +1,6 @@
 defmodule Carrier.Accounts do
   alias Carrier.Accounts.{Org, User, Super}
+  alias Carrier.Roles.Super, as: RolesSuper
   alias Carrier.TenantRepo
 
   defmacro __using__([]) do
@@ -40,9 +41,11 @@ defmodule Carrier.Accounts do
   end
 
   # TODO: it should returns billing user account
-  # Assumption: There is only one billing user per Org.
+  # Assumption: There is only one admin user per Org, and that admin user bills.
   def fetch_billing_user() do
-    User.fetch_billing()
+    {:ok, admin_role} = RolesSuper.fetch_role_by_name("Admin")
+
+    User.fetch_billing(admin_role.id)
     |> User.preload_org()
     |> TenantRepo.one()
     |> case do
