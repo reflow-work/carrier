@@ -60,7 +60,7 @@ defmodule CarrierWeb.Components.Search do
           <div
             :if={@show_selectable_items && @max_select > @selected_items |> Enum.count()}
             class={[
-              "absolute w-full bg-white rounded-md shadow cursor-pointer divide-y z-50",
+              "absolute w-full max-h-96 overflow-y-auto bg-white rounded-md shadow cursor-pointer divide-y z-50",
               @position == :top && "bottom-12"
             ]}
           >
