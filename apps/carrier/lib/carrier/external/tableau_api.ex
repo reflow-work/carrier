@@ -4,7 +4,7 @@ defmodule Carrier.External.TableauAPI do
 
   @api_version 3.18
 
-  def signin(%{host: host, name: name, password: password, site: site}) do
+  def signin(%{type: :user, host: host, name: name, password: password, site: site}) do
     body = %{
       "credentials" => %{
         "name" => name,
@@ -18,7 +18,7 @@ defmodule Carrier.External.TableauAPI do
     do_signin(host, body)
   end
 
-  def signin(%{host: host, pat_name: pat_name, pat_secret: pat_secret, site: site}) do
+  def signin(%{type: :pat, host: host, pat_name: pat_name, pat_secret: pat_secret, site: site}) do
     body = %{
       "credentials" => %{
         "personalAccessTokenName" => pat_name,

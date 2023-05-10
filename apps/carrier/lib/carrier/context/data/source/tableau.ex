@@ -105,9 +105,8 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def signin(%{host: host, email: email, password: password, site: site}) do
-    with {:ok, %{token: token, site_id: site_id}} <-
-           TableauAPI.signin(%{host: host, name: email, password: password, site: site}) do
+  def signin(%{host: host} = credentials) do
+    with {:ok, %{token: token, site_id: site_id}} <- do_signin(credentials) do
       {:ok, %{host: host, token: token, site_id: site_id}}
     end
   end
@@ -124,6 +123,20 @@ defmodule Carrier.Data.Source.Tableau do
          {:ok, view_image_binary} <- do_get_view_image_binary(view_id, auth) do
       {:ok, view_image_binary}
     end
+  end
+
+  defp do_signin(%{type: :user, host: host, email: email, password: password, site: site}) do
+    TableauAPI.signin(%{type: :user, host: host, name: email, password: password, site: site})
+  end
+
+  defp do_signin(%{type: :pat, host: host, pat_name: pat_name, pat_secret: pat_secret, site: site}) do
+    TableauAPI.signin(%{
+      type: :pat,
+      host: host,
+      pat_name: pat_name,
+      pat_secret: pat_secret,
+      site: site
+    })
   end
 
   defp do_list_views(%{host: host, site_id: site_id, token: token}) do
