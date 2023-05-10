@@ -69,8 +69,9 @@ defmodule Carrier.Accounts.User do
   end
 
   # TODO: it should returns billing user account
-  def fetch_billing() do
+  def fetch_billing(admin_role_id) do
     __MODULE__
+    |> where([u], u.role_id == ^admin_role_id)
     |> where([u], is_nil(u.deleted_at))
   end
 
