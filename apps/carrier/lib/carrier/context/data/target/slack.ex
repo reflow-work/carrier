@@ -51,6 +51,10 @@ defmodule Carrier.Data.Target.Slack do
     SlackAPI.Block.build_image_block(image_url, title, alt_text)
   end
 
+  defp block_to_report_message(%{type: :button, text: text, url: url}) do
+    SlackAPI.Block.build_button_block(text, url)
+  end
+
   ### raw functions
 
   defmodule Channel do

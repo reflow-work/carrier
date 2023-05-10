@@ -68,6 +68,11 @@ defmodule Carrier.External.TableauAPI do
     |> handle_response()
   end
 
+  def query_view_pdf(%{host: host, site_id: site_id, view_id: view_id, token: token}) do
+    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/pdf")
+    |> handle_response()
+  end
+
   defp handle_response({:ok, %Tesla.Env{status: 200, body: body}}) do
     {:ok, body}
   end

@@ -15,4 +15,12 @@ defmodule Carrier.Data.Block do
       alt_text: alt_text
     }
   end
+
+  def button(text, url) do
+    %{
+      type: :button,
+      text: text,
+      url: url
+    }
+  end
 end
