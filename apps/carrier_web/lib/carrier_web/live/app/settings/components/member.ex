@@ -75,11 +75,11 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
             초대하기
           </:title>
           <div>
-            <input id="invite-link" class="hidden" type="text" value={@invite_link} />초대 링크 👇
+            초대 링크 👇
             <div
               id="invite-link-container"
               class="flex items-center mt-1"
-              data-to="#invite-link"
+              data-text={@invite_link}
               phx-click={JS.show(to: "#copied")}
               phx-hook="ClipboardCopy"
             >
