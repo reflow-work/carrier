@@ -74,24 +74,22 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
           <:title>
             초대하기
           </:title>
-          <:inner_block>
-            <div>
-              <input id="invite-link" class="hidden" type="text" value={@invite_link} />초대 링크 👇
-              <div
-                id="invite-link-container"
-                class="flex items-center mt-1"
-                data-to="#invite-link"
-                phx-click={JS.show(to: "#copied")}
-                phx-hook="ClipboardCopy"
-              >
-                <div class="cursor-pointer underline text-blue-500">
-                  <%= @invite_link %>
-                </div>
-                <.icon name="hero-link" class="ml-1 cursor-pointer text-blue-500" />
-                <div id="copied" class="hidden ml-1 text-sm text-description">- 복사 완료! 📑</div>
+          <div>
+            <input id="invite-link" class="hidden" type="text" value={@invite_link} />초대 링크 👇
+            <div
+              id="invite-link-container"
+              class="flex items-center mt-1"
+              data-to="#invite-link"
+              phx-click={JS.show(to: "#copied")}
+              phx-hook="ClipboardCopy"
+            >
+              <div class="cursor-pointer underline text-blue-500">
+                <%= @invite_link %>
               </div>
+              <.icon name="hero-link" class="ml-1 cursor-pointer text-blue-500" />
+              <div id="copied" class="hidden ml-1 text-sm text-description">- 복사 완료! 📑</div>
             </div>
-          </:inner_block>
+          </div>
           <:actions>
             <a class="btn btn-primary btn-sm" phx-click="toggle_modal" phx-target={@myself}>닫기</a>
           </:actions>
@@ -118,7 +116,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
   end
 
   defp load_invite_link(socket, org_id) do
-    socket = socket |> assign(:invite_link, generate_invite_link(org_id))
+    socket |> assign(:invite_link, generate_invite_link(org_id))
   end
 
   defp generate_invite_link(org_id) do
