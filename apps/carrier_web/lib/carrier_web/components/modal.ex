@@ -9,6 +9,9 @@ defmodule CarrierWeb.Components.Modal do
           <h3 class="font-bold text-lg">
             <%= render_slot(@title) %>
           </h3>
+          <div :if={@inner_block} class="modal-body mt-4">
+            <%= render_slot(@inner_block) %>
+          </div>
           <div class="modal-action">
             <%= render_slot(@actions) %>
           </div>
