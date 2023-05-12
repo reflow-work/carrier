@@ -25,6 +25,12 @@ defmodule CarrierWeb.AuthController do
     |> redirect(to: ~p"/login")
   end
 
+  # TODO: implement it
+  def invite(conn, _params) do
+    conn
+    |> redirect(to: ~p"/")
+  end
+
   def callback(
         %{assigns: %{ueberauth_auth: %Ueberauth.Auth{provider: provider} = auth}} = conn,
         _params

@@ -1,8 +1,6 @@
 defmodule CarrierWeb.App.SettingsLive.Components.Member do
   use CarrierWeb, :live_component
   alias Carrier.Accounts
-  alias Carrier.Accounts.User
-  alias Carrier.Core.Crypto
 
   @impl true
   def mount(socket) do
@@ -17,11 +15,11 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
   end
 
   @impl true
-  def update(%{user: %User{org_id: org_id}} = assigns, socket) do
+  def update(assigns, socket) do
     socket =
       socket
       |> assign(assigns)
-      |> load_invite_link(org_id)
+      |> load_invite_link(assigns.user.org)
 
     {:ok, socket}
   end
@@ -115,13 +113,8 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
     end
   end
 
-  defp load_invite_link(socket, org_id) do
-    socket |> assign(:invite_link, generate_invite_link(org_id))
-  end
-
-  defp generate_invite_link(org_id) do
-    obfuscated_org_id = Crypto.obfuscate(org_id)
-
-    "https://reflow.work/invite?token=#{obfuscated_org_id}"
+  defp load_invite_link(socket, org) do
+    socket
+    |> assign(:invite_link, url(~p"/invite?token=#{org}"))
   end
 end
