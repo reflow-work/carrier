@@ -33,7 +33,6 @@ Repo.transaction(fn ->
         %{
           name: "Admin",
           permissions: [
-            "member.manage",
             "billing.payment.manage"
           ]
         },

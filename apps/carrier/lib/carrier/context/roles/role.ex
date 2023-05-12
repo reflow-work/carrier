@@ -15,7 +15,6 @@ defmodule Carrier.Roles.Role do
       %{
         name: "Admin",
         permissions: [
-          "member.manage",
           "billing.payment.manage"
         ]
       },
