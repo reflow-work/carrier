@@ -60,4 +60,10 @@ defmodule Carrier.Accounts do
       {:ok, updated_user}
     end
   end
+
+  def list_users() do
+    User.list()
+    |> TenantRepo.all()
+    |> then(&{:ok, &1})
+  end
 end

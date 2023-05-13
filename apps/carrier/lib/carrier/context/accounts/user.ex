@@ -97,4 +97,9 @@ defmodule Carrier.Accounts.User do
       "컨설턴트"
     ]
   end
+
+  def list() do
+    __MODULE__
+    |> where([u], is_nil(u.deleted_at))
+  end
 end

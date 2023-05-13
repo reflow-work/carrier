@@ -61,6 +61,7 @@ defmodule CarrierWeb.Router do
 
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
+    get "/invite", AuthController, :invite
 
     scope "/auth" do
       get "/:provider", AuthController, :request

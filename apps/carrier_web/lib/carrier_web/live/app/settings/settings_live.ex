@@ -4,7 +4,8 @@ defmodule CarrierWeb.App.SettingsLive do
   @menu_components [
     {:account, __MODULE__.Components.Account},
     {:billing, __MODULE__.Components.Billing},
-    {:data_source, __MODULE__.Components.DataSource}
+    {:data_source, __MODULE__.Components.DataSource},
+    {:member, __MODULE__.Components.Member}
   ]
 
   @menus @menu_components |> Enum.map(fn {menu, _} -> menu end)
@@ -53,7 +54,7 @@ defmodule CarrierWeb.App.SettingsLive do
     ~H"""
     <.link patch={~p"/app/settings?selected_menu=#{@menu}"}>
       <div class={[
-        "rounded-md p-2 cursor-pointer hover:bg-gray-100",
+        "rounded-md px-2 py-1 cursor-pointer hover:bg-gray-100",
         @selected? && "!bg-gray-200"
       ]}>
         <%= @menu |> to_string() |> String.capitalize() |> String.replace("_", " ") %>

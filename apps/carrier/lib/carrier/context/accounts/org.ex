@@ -1,6 +1,8 @@
 defmodule Carrier.Accounts.Org do
   use Carrier.Schema
 
+  @derive {Carrier.Obfuscatable.Protocol, key: :org_id}
+
   @primary_key {:org_id, :id, autogenerate: true}
   schema "orgs" do
     field :name, :string
