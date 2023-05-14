@@ -1,7 +1,8 @@
 defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
   alias Carrier.{Accounts, Integrations}
-  alias Carrier.Accounts.User
+  alias Carrier.Accounts.{User}
+  alias Carrier.Obfuscatable
   alias Carrier.Integrations.DataTarget
 
   plug Ueberauth
@@ -25,10 +26,18 @@ defmodule CarrierWeb.AuthController do
     |> redirect(to: ~p"/login")
   end
 
-  # TODO: implement it
-  def invite(conn, _params) do
-    conn
-    |> redirect(to: ~p"/")
+  def invite(conn, %{"token" => token}) do
+    org_id = token |> Obfuscatable.deobfuscate!()
+
+    case Accounts.Super.get_org(org_id) do
+      {:ok, org} ->
+        conn
+        |> render(:invite, org: org)
+
+      _ ->
+        conn
+        |> render(:invite, org: nil)
+    end
   end
 
   def callback(
