@@ -1,7 +1,7 @@
 defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
   alias Carrier.{Accounts, Integrations}
-  alias Carrier.Accounts.{User}
+  alias Carrier.Accounts.{User, Org}
   alias Carrier.Obfuscatable
   alias Carrier.Integrations.DataTarget
 
@@ -27,7 +27,7 @@ defmodule CarrierWeb.AuthController do
   end
 
   def invite(conn, %{"token" => token}) do
-    org_id = token |> Obfuscatable.deobfuscate!()
+    org_id = token |> Obfuscatable.deobfuscate!(Org)
 
     case Accounts.Super.get_org(org_id) do
       {:ok, org} ->
