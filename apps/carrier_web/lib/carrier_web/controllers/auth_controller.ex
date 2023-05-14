@@ -32,6 +32,7 @@ defmodule CarrierWeb.AuthController do
     case Accounts.Super.get_org(org_id) do
       {:ok, org} ->
         conn
+        |> put_session(:org_id, org_id)
         |> render(:invite, org: org)
 
       _ ->
@@ -65,7 +66,9 @@ defmodule CarrierWeb.AuthController do
       }
     } = auth
 
-    case Accounts.Super.auth(email) do
+    org_id = conn |> get_session(:org_id)
+
+    case Accounts.Super.auth(email, org_id) do
       {:ok, {_, %User{id: user_id, org_id: org_id}}} ->
         conn
         |> put_session(:user_id, user_id)

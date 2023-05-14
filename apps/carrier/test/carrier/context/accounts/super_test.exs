@@ -5,26 +5,37 @@ defmodule Carrier.Accounts.SuperTest do
 
   @moduletag repo: TenantRepo
 
-  describe "auth/1" do
+  describe "auth/2" do
     setup do
-      TenantFactory.insert(:role, name: "Admin")
+      admin_role = TenantFactory.insert(:role, name: "Admin")
+      member_role = TenantFactory.insert(:role, name: "Member")
 
-      :ok
+      %{admin_role: admin_role, member_role: member_role}
     end
 
     test "with already signed up user" do
       user = TenantFactory.insert(:user)
 
-      assert {:ok, {:signed_in, signed_in_user}} = Accounts.Super.auth(user.email)
+      assert {:ok, {:signed_in, signed_in_user}} = Accounts.Super.auth(user.email, nil)
       assert same_records?(signed_in_user, user)
     end
 
-    test "with not signed up user" do
+    test "with not signed up user, without org_id", %{admin_role: admin_role} do
       email = "json@reflow.work"
 
-      assert {:ok, {:signed_up, signed_up_user}} = Accounts.Super.auth(email)
+      assert {:ok, {:signed_up, signed_up_user}} = Accounts.Super.auth(email, nil)
       assert signed_up_user.email == email
       assert signed_up_user.org_id != nil
+      assert signed_up_user.role_id == admin_role.id
+    end
+
+    test "with not signed up user, with org_id", %{member_role: member_role} do
+      org = TenantFactory.insert(:org)
+      email = "json@reflow.work"
+
+      assert {:ok, {:signed_up, signed_up_user}} = Accounts.Super.auth(email, org.org_id)
+      assert signed_up_user.org_id == org.org_id
+      assert signed_up_user.role_id == member_role.id
     end
   end
 
