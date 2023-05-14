@@ -4,21 +4,34 @@ defmodule Carrier.Accounts.Super do
   alias Carrier.Roles.Super
   alias Carrier.TenantRepo
 
-  def auth(email) do
+  def auth(email, org_id) do
     case fetch_user_by_email(email) do
       {:ok, %User{} = user} ->
         {:ok, {:signed_in, user}}
 
       _ ->
-        org_name = "organization"
+        case org_id do
+          nil ->
+            org_name = "organization"
 
-        TenantRepo.wrap_transaction(fn ->
-          with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
-               {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Admin"),
-               {:ok, %User{} = user} <- signup(%{org_id: org_id, email: email, role_id: role_id}) do
-            {:ok, {:signed_up, user}}
-          end
-        end)
+            TenantRepo.wrap_transaction(fn ->
+              with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
+                   {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Admin"),
+                   {:ok, %User{} = user} <-
+                     signup(%{org_id: org_id, email: email, role_id: role_id}) do
+                {:ok, {:signed_up, user}}
+              end
+            end)
+
+          _ ->
+            TenantRepo.wrap_transaction(fn ->
+              with {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Member"),
+                   {:ok, %User{} = user} <-
+                     signup(%{org_id: org_id, email: email, role_id: role_id}) do
+                {:ok, {:signed_up, user}}
+              end
+            end)
+        end
     end
   end
 
@@ -55,5 +68,14 @@ defmodule Carrier.Accounts.Super do
   def postload_role(%User{} = user) do
     user
     |> TenantRepo.preload(:role, skip_org_id: true)
+  end
+
+  def get_org(org_id) do
+    Org.get(org_id)
+    |> TenantRepo.one(skip_org_id: true)
+    |> case do
+      %Org{} = org -> {:ok, org}
+      nil -> {:error, {:resource_not_found, %{target: Org, conditions: %{org_id: org_id}}}}
+    end
   end
 end
