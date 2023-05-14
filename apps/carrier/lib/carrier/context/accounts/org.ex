@@ -39,6 +39,12 @@ defmodule Carrier.Accounts.Org do
     |> changeset_for_update(attrs)
   end
 
+  def get(org_id) do
+    __MODULE__
+    |> where([u], u.org_id == ^org_id)
+    |> where([u], is_nil(u.deleted_at))
+  end
+
   def industries do
     [
       "IT 서비스",

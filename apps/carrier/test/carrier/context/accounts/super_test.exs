@@ -2,7 +2,6 @@ defmodule Carrier.Accounts.SuperTest do
   use Carrier.DataCase, async: true
   alias Carrier.Accounts
   alias Carrier.Accounts.{Org, User}
-  alias Carrier.Roles
 
   @moduletag repo: TenantRepo
 
@@ -114,6 +113,20 @@ defmodule Carrier.Accounts.SuperTest do
       user_with_role = user_without_role |> Accounts.Super.postload_role()
 
       assert same_records?(user_with_role.role, user.role)
+    end
+  end
+
+  describe "get_org/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      %{org: org}
+    end
+
+    test "test", %{org: org} do
+      {:ok, fetched_org} = org.org_id |> Accounts.Super.get_org()
+
+      assert same_records?(fetched_org, org)
     end
   end
 end

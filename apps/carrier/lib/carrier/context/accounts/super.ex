@@ -56,4 +56,13 @@ defmodule Carrier.Accounts.Super do
     user
     |> TenantRepo.preload(:role, skip_org_id: true)
   end
+
+  def get_org(org_id) do
+    Org.get(org_id)
+    |> TenantRepo.one(skip_org_id: true)
+    |> case do
+      %Org{} = org -> {:ok, org}
+      nil -> {:error, {:resource_not_found, %{target: Org, conditions: %{org_id: org_id}}}}
+    end
+  end
 end
