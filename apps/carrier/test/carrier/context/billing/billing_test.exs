@@ -10,10 +10,11 @@ defmodule Carrier.BillingTest do
   describe "start_subscription/1" do
     setup do
       org = TenantFactory.insert(:org)
+      admin_role = TenantFactory.insert(:role, name: "Admin")
 
       TenantRepo.put_org_id(org.org_id)
 
-      billing_user = TenantFactory.insert(:user, org: org)
+      billing_user = TenantFactory.insert(:user, org: org, role: admin_role)
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
 
       trial_plan = TenantFactory.insert(:plan, type: :trial)
@@ -318,10 +319,11 @@ defmodule Carrier.BillingTest do
   describe "expire_subscription/1" do
     setup do
       org = TenantFactory.insert(:org)
+      admin_role = TenantFactory.insert(:role, name: "Admin")
 
       TenantRepo.put_org_id(org.org_id)
 
-      billing_user = TenantFactory.insert(:user, org: org)
+      billing_user = TenantFactory.insert(:user, org: org, role: admin_role)
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
 
       %{org: org, billing_user: billing_user, credit_card: credit_card}
