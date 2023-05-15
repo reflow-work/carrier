@@ -21,6 +21,26 @@ defmodule Carrier.Roles.Role do
       %{
         name: "Member",
         permissions: []
+      },
+      %{
+        name: "Trial Plan",
+        permissions: [
+          "data-source.tableau",
+          "reports.max-count.infinite"
+        ]
+      },
+      %{
+        name: "Basic Plan",
+        permissions: [
+          "reports.max-count.50"
+        ]
+      },
+      %{
+        name: "Pro Plan",
+        permissions: [
+          "data-source.tableau",
+          "reports.max-count.infinite"
+        ]
       }
     ]
   end

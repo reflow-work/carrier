@@ -26,7 +26,7 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {_, [admin_role, _]} =
+  {_, [admin_role | _]} =
     Repo.insert_all(
       Role,
       [
@@ -39,6 +39,26 @@ Repo.transaction(fn ->
         %{
           name: "Member",
           permissions: []
+        },
+        %{
+          name: "Trial Plan",
+          permissions: [
+            "data-source.tableau",
+            "reports.max-count.infinite"
+          ]
+        },
+        %{
+          name: "Basic Plan",
+          permissions: [
+            "reports.max-count.50"
+          ]
+        },
+        %{
+          name: "Pro Plan",
+          permissions: [
+            "data-source.tableau",
+            "reports.max-count.infinite"
+          ]
         }
       ],
       returning: true
