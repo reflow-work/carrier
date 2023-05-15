@@ -1,8 +1,11 @@
 defmodule Carrier.Billing.Plan do
   use Carrier.Schema
   alias Carrier.Core.DateTimeHelper
+  alias Carrier.Roles.Role
 
   schema "plans" do
+    belongs_to :role, Role
+
     field :billing_cycle, Ecto.Enum, values: [:none, :monthly, :yearly]
     field :name, :string
     field :type, Ecto.Enum, values: [:trial, :basic, :pro]
