@@ -31,6 +31,10 @@ defmodule Carrier.Data.Source.RDB do
   alias Carrier.Data.Source
   alias Carrier.Core.DataHelper
 
+  def sources() do
+    [:postgres, :mysql, :bigquery, :athena]
+  end
+
   def get_module(source) do
     case source do
       :postgres -> Source.Postgres
