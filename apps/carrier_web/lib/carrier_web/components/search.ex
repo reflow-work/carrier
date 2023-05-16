@@ -188,6 +188,7 @@ defmodule CarrierWeb.Components.Search do
         |> assign(:selectable_items, [])
 
       false ->
+        # TODO: can be harmful if keyword is not escaped properly
         regex = socket.assigns.keyword |> String.trim() |> Regex.escape() |> Regex.compile!("i")
 
         selectable_items =
