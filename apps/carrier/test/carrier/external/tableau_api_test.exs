@@ -14,6 +14,7 @@ defmodule Carrier.External.TableauAPITest do
 
     test "with valid params (user)", %{bypass: bypass} do
       params = %{
+        type: :user,
         host: "http://localhost:4102",
         site: "reflow",
         name: "tableau@reflow.work",
@@ -45,6 +46,7 @@ defmodule Carrier.External.TableauAPITest do
 
     test "with valid params (pat)", %{bypass: bypass} do
       params = %{
+        type: :pat,
         host: "http://localhost:4102",
         site: "reflow",
         pat_name: "reflow",
@@ -76,6 +78,7 @@ defmodule Carrier.External.TableauAPITest do
 
     test "with invalid params", %{bypass: bypass} do
       params = %{
+        type: :user,
         host: "http://localhost:4102",
         site: "reflow",
         name: "invalid",
