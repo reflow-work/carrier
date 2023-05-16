@@ -28,7 +28,6 @@ defmodule Carrier.Data.Source.RDB do
   ]
 
   require Logger
-  alias Carrier.Data.Source
   alias Carrier.Core.DataHelper
 
   def sources() do
@@ -37,10 +36,10 @@ defmodule Carrier.Data.Source.RDB do
 
   def get_module(source) do
     case source do
-      :postgres -> Source.Postgres
-      :mysql -> Source.MySQL
-      :bigquery -> Source.BigQuery
-      :athena -> Source.Athena
+      :postgres -> __MODULE__.Postgres
+      :mysql -> __MODULE__.MySQL
+      :bigquery -> __MODULE__.BigQuery
+      :athena -> __MODULE__.Athena
     end
   end
 

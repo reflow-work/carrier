@@ -1,4 +1,4 @@
-defmodule Carrier.Data.Source.Postgres do
+defmodule Carrier.Data.Source.RDB.Postgres do
   @behaviour Carrier.Data.Source.RDB
 
   alias Carrier.Dynamic.PostgresRepo

@@ -1,4 +1,4 @@
-defmodule Carrier.Data.Source.BigQuery do
+defmodule Carrier.Data.Source.RDB.BigQuery do
   @behaviour Carrier.Data.Source.RDB
 
   require Logger

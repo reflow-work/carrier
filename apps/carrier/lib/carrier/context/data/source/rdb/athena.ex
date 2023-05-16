@@ -1,4 +1,4 @@
-defmodule Carrier.Data.Source.Athena do
+defmodule Carrier.Data.Source.RDB.Athena do
   @behaviour Carrier.Data.Source.RDB
 
   require Logger

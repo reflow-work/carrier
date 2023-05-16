@@ -1,4 +1,4 @@
-defmodule Carrier.Data.Source.MySQL do
+defmodule Carrier.Data.Source.RDB.MySQL do
   @behaviour Carrier.Data.Source.RDB
 
   alias Carrier.Dynamic.MySQLRepo
