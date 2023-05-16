@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-use Carrier.{Accounts, Integrations, Reports, Setting, Billing, Roles}
+use Carrier.{Accounts, Integrations, Reports, Setting, Billing, Payments, Roles}
 alias Carrier.Repo
 
 now = DateTime.utc_now()
@@ -281,6 +281,28 @@ Repo.transaction(fn ->
       ],
       returning: true
     )
+
+  Repo.insert_all(
+    CreditCard,
+    [
+      %{
+        org_id: org0.org_id,
+        provider: :toss_payments,
+        billing_key: "c0c1Z3PWQC3brMKcwvl7Q7Nw1IOzoWk2OnhaoeNVE-I=",
+        customer_key: CreditCard.gen_customer_key(org0.org_id),
+        card_company: "현대",
+        card_number: "413526******000"
+      },
+      %{
+        org_id: org1.org_id,
+        provider: :toss_payments,
+        billing_key: "c0c1Z3PWQC3brMKcwvl7Q7Nw1IOzoWk2OnhaoeNVE-I=",
+        customer_key: CreditCard.gen_customer_key(org1.org_id),
+        card_company: "현대",
+        card_number: "413526******000"
+      }
+    ]
+  )
 
   # {_, _} =
   #   Repo.insert_all(Subscription, [
