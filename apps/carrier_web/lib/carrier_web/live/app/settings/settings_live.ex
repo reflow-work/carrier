@@ -28,7 +28,7 @@ defmodule CarrierWeb.App.SettingsLive do
           default_menu = @menus |> List.first()
 
           socket
-          |> push_patch(to: ~p"/app/settings?selected_menu=#{default_menu}")
+          |> push_patch(to: ~p"/app/settings?selected_menu=#{default_menu}", replace: true)
 
         selected_menu_str ->
           socket
