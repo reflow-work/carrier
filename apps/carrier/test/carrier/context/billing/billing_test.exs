@@ -517,6 +517,13 @@ defmodule Carrier.BillingTest do
       assert %Payment{} = fetched_subscription.payment
       assert %CreditCard{} = fetched_subscription.payment.credit_card
     end
+
+    test "with deleted subscription", %{subscription: subscription} do
+      subscription |> soft_delete!()
+
+      assert {:error, {:resource_not_found, %{target: Subscription}}} =
+               Billing.fetch_subscription(subscription.id)
+    end
   end
 
   describe "fetch_active_subscription/0" do
@@ -530,7 +537,7 @@ defmodule Carrier.BillingTest do
       %{org: org, plan: plan}
     end
 
-    test "test", %{org: org, plan: plan} do
+    test "with valid subscription", %{org: org, plan: plan} do
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
       payment = TenantFactory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
 
@@ -548,6 +555,19 @@ defmodule Carrier.BillingTest do
       assert same_records?(fetched_subscription.plan, plan)
       assert same_records?(fetched_subscription.payment, payment)
       assert same_records?(fetched_subscription.payment.credit_card, credit_card)
+    end
+
+    test "with deleted subscription", %{org: org, plan: plan} do
+      subscription =
+        TenantFactory.insert(:subscription,
+          status: :active,
+          org_id: org.org_id,
+          plan: plan,
+          deleted_at: DateTime.utc_now()
+        )
+
+      assert {:error, {:resource_not_found, %{target: Subscription}}} =
+               Billing.fetch_subscription(subscription.id)
     end
 
     test "without payment", %{org: org, plan: plan} do
@@ -575,7 +595,7 @@ defmodule Carrier.BillingTest do
       %{org: org, plan: plan}
     end
 
-    test "test", %{org: org, plan: plan} do
+    test "with valid subscription", %{org: org, plan: plan} do
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
       payment = TenantFactory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
 
@@ -593,6 +613,19 @@ defmodule Carrier.BillingTest do
       assert same_records?(fetched_subscription.plan, plan)
       assert same_records?(fetched_subscription.payment, payment)
       assert same_records?(fetched_subscription.payment.credit_card, credit_card)
+    end
+
+    test "with deleted subscription", %{org: org, plan: plan} do
+      subscription =
+        TenantFactory.insert(:subscription,
+          status: :pending,
+          org_id: org.org_id,
+          plan: plan,
+          deleted_at: DateTime.utc_now()
+        )
+
+      assert {:error, {:resource_not_found, %{target: Subscription}}} =
+               Billing.fetch_subscription(subscription.id)
     end
 
     test "without payment", %{org: org, plan: plan} do
@@ -621,11 +654,22 @@ defmodule Carrier.BillingTest do
     end
 
     test "with active trial subscription", %{org: org, trial_plan: trial_plan} do
-      active_trial_subscription =
+      subscription =
         TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
 
       assert %Subscription{} = fetched_subscription = Billing.get_active_trial_subscription()
-      assert same_records?(fetched_subscription, active_trial_subscription)
+      assert same_records?(fetched_subscription, subscription)
+    end
+
+    test "with deleted subscription", %{org: org, trial_plan: trial_plan} do
+      TenantFactory.insert(:subscription,
+        org_id: org.org_id,
+        plan: trial_plan,
+        status: :active,
+        deleted_at: DateTime.utc_now()
+      )
+
+      assert Billing.get_active_trial_subscription() == nil
     end
 
     test "without active trial subscription", %{org: org, trial_plan: trial_plan} do

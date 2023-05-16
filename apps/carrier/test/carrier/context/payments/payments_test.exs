@@ -178,7 +178,7 @@ defmodule Carrier.PaymentsTest do
           org_id: org.org_id,
           credit_card: credit_card,
           status: :confirmed,
-          confirmed_at: now |> Timex.shift(days: -2)
+          confirmed_at: now |> Timex.shift(days: -3)
         )
 
       confirmed_payment1 =
@@ -186,7 +186,16 @@ defmodule Carrier.PaymentsTest do
           org_id: org.org_id,
           credit_card: credit_card,
           status: :confirmed,
-          confirmed_at: now |> Timex.shift(days: -1)
+          confirmed_at: now |> Timex.shift(days: -2)
+        )
+
+      _deleted_payment =
+        TenantFactory.insert(:payment,
+          org_id: org.org_id,
+          credit_card: credit_card,
+          status: :confirmed,
+          confirmed_at: now |> Timex.shift(days: -1),
+          deleted_at: now
         )
 
       _failed_payment =

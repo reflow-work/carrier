@@ -65,23 +65,27 @@ defmodule Carrier.Billing.Subscription do
   def fetch(subscription_id) do
     __MODULE__
     |> where([s], s.id == ^subscription_id)
+    |> where_not_deleted()
   end
 
   def fetch_with_state(subscription_id, state) do
     __MODULE__
     |> where([s], s.id == ^subscription_id)
     |> where([s], s.status == ^state)
+    |> where_not_deleted()
   end
 
   # Assumtion: there is only one active subscription per org
   def fetch_active() do
     __MODULE__
     |> where([s], s.status == :active)
+    |> where_not_deleted()
   end
 
   def fetch_pending() do
     __MODULE__
     |> where([s], s.status == :pending)
+    |> where_not_deleted()
   end
 
   def fetch_active_trial() do
@@ -89,6 +93,7 @@ defmodule Carrier.Billing.Subscription do
     |> join(:inner, [s], p in assoc(s, :plan))
     |> where([s], s.status == :active)
     |> where([s, p], p.type == :trial)
+    |> where_not_deleted()
   end
 
   def activate(%__MODULE__{status: :pending} = struct, params) do

@@ -46,6 +46,7 @@ defmodule Carrier.Payments.Payment do
   def list_confirmed() do
     __MODULE__
     |> where([p], p.status == :confirmed)
+    |> where_not_deleted()
     |> order_by([p], desc: p.confirmed_at)
   end
 
