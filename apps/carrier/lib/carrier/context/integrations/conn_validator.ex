@@ -13,9 +13,9 @@ defmodule Carrier.Integrations.ConnValidator do
   def do_validate(source, credentials, opts \\ [])
 
   def do_validate(source, credentials, opts) when is_rdb_source(source) do
-    query = Source.get_module(source).validation_query()
+    query = Source.RDB.get_module(source).validation_query()
 
-    case Source.run_query(source, credentials, query, [], opts) do
+    case Source.RDB.run_query(source, credentials, query, [], opts) do
       {:ok, _} -> :ok
       {:error, {:db_invalid_credential, message}} -> {:error, {:invalid_conn_info, message}}
       {:error, _} -> {:error, :invalid_conn_info}

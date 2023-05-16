@@ -88,7 +88,7 @@ defmodule Carrier.Data.QueryData do
 
     with {:ok, %DataSource{source: source} = data_source} <-
            Integrations.fetch_data_source(data_source_id),
-         source_module = Source.get_module(source),
+         source_module = Source.RDB.get_module(source),
          tables_query = source_module.tables_query(),
          {:ok, %{data: data}} <- run_query(data_source, tables_query) do
       table_names =
@@ -116,7 +116,7 @@ defmodule Carrier.Data.QueryData do
 
     with {:ok, %DataSource{source: source} = data_source} <-
            Integrations.fetch_data_source(data_source_id),
-         source_module = Source.get_module(source),
+         source_module = Source.RDB.get_module(source),
          columns_query = source_module.columns_query(),
          {:ok, %{data: data}} <-
            run_query(data_source, columns_query, %{"table_name" => table_name}) do
@@ -327,7 +327,7 @@ defmodule Carrier.Data.QueryData do
        ) do
     credentials = ConnInfo.to_credentials(conn_info)
 
-    Source.run_query(source, credentials, sql, query_params)
+    Source.RDB.run_query(source, credentials, sql, query_params)
   end
 
   defp validate_query_result(_columns, []), do: :ok
