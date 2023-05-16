@@ -1,7 +1,7 @@
 defmodule CarrierWeb.TossPaymentsHelper do
   use CarrierWeb, :verified_routes
+  use Carrier.Payments
   import Phoenix.LiveView, only: [push_event: 3]
-  alias Carrier.Core.Crypto
 
   def init(socket) do
     socket
@@ -11,7 +11,7 @@ defmodule CarrierWeb.TossPaymentsHelper do
   end
 
   def issue_billing_key(socket, plan_id) do
-    customer_key = Crypto.obfuscate(socket.assigns.org.org_id)
+    customer_key = CreditCard.gen_customer_key(socket.assigns.org.org_id)
 
     socket
     |> push_event("toss-payments-request", %{

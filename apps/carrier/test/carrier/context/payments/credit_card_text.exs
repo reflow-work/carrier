@@ -2,6 +2,12 @@ defmodule Carrier.Payments.CreditCardTest do
   use Carrier.DataCase, async: true
   alias Carrier.Payments.CreditCard
 
+  describe "gen_customer_key/1" do
+    test "test" do
+      assert CreditCard.gen_customer_key(1) == "678wBmAE"
+    end
+  end
+
   describe "format_card_info/1" do
     test "test" do
       credit_card =

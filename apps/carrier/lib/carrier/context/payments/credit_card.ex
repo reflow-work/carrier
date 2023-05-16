@@ -1,5 +1,6 @@
 defmodule Carrier.Payments.CreditCard do
   use Carrier.Schema
+  alias Carrier.Core.Crypto
 
   schema "credit_cards" do
     field :org_id, :id
@@ -29,6 +30,10 @@ defmodule Carrier.Payments.CreditCard do
   def fetch_default() do
     __MODULE__
     |> where_not_deleted()
+  end
+
+  def gen_customer_key(org_id) do
+    Crypto.obfuscate(org_id)
   end
 
   def format_card_info(%__MODULE__{card_company: card_company, card_number: card_number}) do
