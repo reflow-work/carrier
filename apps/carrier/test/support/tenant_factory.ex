@@ -11,8 +11,8 @@ defmodule Carrier.TenantFactory do
   end
 
   def user_factory(attrs) do
-    {org, attrs} = attrs |> Map.pop_lazy(:org, fn -> insert(:org) end)
-    {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> insert(:role) end)
+    {org, attrs} = attrs |> Map.pop_lazy(:org, fn -> build(:org) end)
+    {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> build(:role) end)
 
     %User{
       org: org,
@@ -27,16 +27,16 @@ defmodule Carrier.TenantFactory do
 
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
-    {conn_info_id, attrs} =
+    {conn_info, attrs} =
       attrs
-      |> Map.pop_lazy(:conn_info_id, fn ->
-        insert(:conn_info, org_id: org_id, source: service_name).id
+      |> Map.pop_lazy(:conn_info, fn ->
+        build(:conn_info, org_id: org_id, source: service_name)
       end)
 
     %DataTarget{
       org_id: org_id,
       service_name: Enum.random([:slack]),
-      conn_info_id: conn_info_id
+      conn_info: conn_info
     }
     |> merge_attributes(attrs)
   end
@@ -48,9 +48,7 @@ defmodule Carrier.TenantFactory do
 
     {conn_info, attrs} =
       attrs
-      |> Map.pop_lazy(:conn_info, fn ->
-        insert(:conn_info, org_id: org_id, source: source)
-      end)
+      |> Map.pop_lazy(:conn_info, fn -> build(:conn_info, org_id: org_id, source: source) end)
 
     %DataSource{
       org_id: org_id,
@@ -94,7 +92,7 @@ defmodule Carrier.TenantFactory do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
     {report_info, attrs} =
-      attrs |> Map.pop_lazy(:report_info, fn -> insert(:report_info, org_id: org_id) end)
+      attrs |> Map.pop_lazy(:report_info, fn -> build(:report_info, org_id: org_id) end)
 
     {data_target_id, attrs} =
       attrs |> Map.pop_lazy(:data_target_id, fn -> insert(:data_target, org_id: org_id).id end)
@@ -128,7 +126,7 @@ defmodule Carrier.TenantFactory do
 
   def report_log_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
-    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> insert(:report, org_id: org_id) end)
+    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> build(:report, org_id: org_id) end)
     {status, attrs} = attrs |> Map.pop(:status, :scheduled)
 
     %ReportLog{
@@ -168,7 +166,7 @@ defmodule Carrier.TenantFactory do
 
   def subscription_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
-    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> insert(:plan) end)
+    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> build(:plan) end)
     {start_on, attrs} = attrs |> Map.pop(:start_on, DateTime.utc_now())
     end_on = Plan.calc_end_on(plan, start_on, 0)
     {status, attrs} = attrs |> Map.pop(:status, :pending)
@@ -200,7 +198,7 @@ defmodule Carrier.TenantFactory do
 
   def feature_flag_value_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
-    {feature_flag, attrs} = attrs |> Map.pop_lazy(:feature_flag, fn -> insert(:feature_flag) end)
+    {feature_flag, attrs} = attrs |> Map.pop_lazy(:feature_flag, fn -> build(:feature_flag) end)
 
     %FeatureFlagValue{
       org_id: org_id,
@@ -232,7 +230,7 @@ defmodule Carrier.TenantFactory do
       attrs
       |> Map.pop_lazy(:credit_card, fn ->
         case TenantRepo.get_by(CreditCard, org_id: org_id) do
-          nil -> insert(:credit_card, org_id: org_id)
+          nil -> build(:credit_card, org_id: org_id)
           credit_card -> credit_card
         end
       end)
@@ -298,7 +296,7 @@ defmodule Carrier.TenantFactory do
       |> Map.get_lazy(:payment, fn ->
         case subscription.plan.type do
           :trial -> nil
-          _ -> insert(:payment, org_id: subscription.org_id)
+          _ -> build(:payment, org_id: subscription.org_id)
         end
       end)
 
