@@ -1,4 +1,5 @@
 defmodule Carrier.Integrations.ConnValidator do
+  import Carrier.Data.Source.RDB.Guard
   alias Carrier.Integrations.{ConnInfo, DataSource}
   alias Carrier.Data.Source
   alias Carrier.Repo
@@ -11,8 +12,7 @@ defmodule Carrier.Integrations.ConnValidator do
 
   def do_validate(source, credentials, opts \\ [])
 
-  def do_validate(source, credentials, opts)
-      when source in [:mysql, :postgres, :bigquery, :athena] do
+  def do_validate(source, credentials, opts) when is_rdb_source(source) do
     query = Source.get_module(source).validation_query()
 
     case Source.run_query(source, credentials, query, [], opts) do

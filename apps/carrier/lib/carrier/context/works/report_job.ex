@@ -4,10 +4,9 @@ defmodule Carrier.Works.ReportJob do
     priority: 2,
     max_attempts: 2
 
-  use Carrier.{Reports, Integrations}
+  use Carrier.{Reports, Integrations, Data}
+  import Carrier.Data.Source.RDB.Guard
   require Logger
-  alias Carrier.Data.QueryData
-  alias Carrier.Data.Source.Tableau
   alias Carrier.TenantRepo
   alias Carrier.External.SlackAPI
   alias Carrier.Core.{DateHelper, Traversable}
@@ -71,9 +70,9 @@ defmodule Carrier.Works.ReportJob do
          },
          datetime: datetime
        })
-       when source in [:postgres, :mysql, :bigquery, :athena] do
+       when is_rdb_source(source) do
     with {:ok, %{columns: columns, data: data}} <-
-           QueryData.query(%{
+           Data.QueryData.query(%{
              org_id: org_id,
              data_source_id: data_source_id,
              sql_template: sql_template,
@@ -82,14 +81,14 @@ defmodule Carrier.Works.ReportJob do
              query_date_length: @query_date_length
            }),
          {:ok, analyzed_data} <-
-           QueryData.analyze(data, %{
+           Data.QueryData.analyze(data, %{
              columns: columns,
              period: period,
              window_size: window_size,
              comparing_period: comparing_period
            }),
          parsed_data =
-           QueryData.refine_data_based_on_columns(
+           Data.QueryData.refine_data_based_on_columns(
              %{columns: columns, data: analyzed_data},
              value_columns,
              window_size
@@ -120,7 +119,7 @@ defmodule Carrier.Works.ReportJob do
     with {:ok, %DataSource{} = data_source} <-
            Integrations.fetch_data_source(data_source_id),
          {:ok, tableau_image_binary} =
-           Tableau.get_view_image_binary(
+           Source.Tableau.get_view_image_binary(
              view_id,
              ConnInfo.to_credentials(data_source.conn_info)
            ),
