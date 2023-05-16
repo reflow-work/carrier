@@ -17,6 +17,8 @@ defmodule Carrier.Payments.Payment do
     field :item, :string
     field :payload, :map
 
+    field :deleted_at, :utc_datetime_usec
+
     timestamps()
   end
 

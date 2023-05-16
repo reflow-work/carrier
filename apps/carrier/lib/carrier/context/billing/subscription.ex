@@ -18,6 +18,8 @@ defmodule Carrier.Billing.Subscription do
 
     field :activated_at, :utc_datetime_usec
     field :expired_at, :utc_datetime_usec
+    field :cancelled_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
 
     timestamps()
   end
