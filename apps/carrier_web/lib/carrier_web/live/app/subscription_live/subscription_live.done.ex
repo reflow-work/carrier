@@ -4,7 +4,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
 
   @impl true
   def mount(%{"subscription_id" => obfuscated_subscription_id}, _session, socket) do
-    subscription_id = Obfuscatable.deobfuscate!(obfuscated_subscription_id)
+    subscription_id = Obfuscatable.deobfuscate!(obfuscated_subscription_id, Subscription)
 
     socket =
       socket

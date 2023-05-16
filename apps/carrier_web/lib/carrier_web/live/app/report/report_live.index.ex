@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
-  alias Carrier.Reports
+  use Carrier.Reports
   alias Carrier.Core.TimeHelper
 
   on_mount(CarrierWeb.DataTargetHook)
@@ -49,7 +49,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
           socket
 
         :delete ->
-          report_id = params["id"] |> Obfuscatable.deobfuscate!()
+          report_id = params["id"] |> Obfuscatable.deobfuscate!(Report)
 
           socket
           |> assign(:report_id, report_id)

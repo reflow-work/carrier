@@ -1,8 +1,10 @@
 defmodule Carrier.Obfuscatable do
   defdelegate obfuscate(data), to: Carrier.Obfuscatable.Protocol
 
-  def deobfuscate!(obfuscated_key) when is_binary(obfuscated_key) do
-    [key, _module_key] = Carrier.Core.Crypto.deobfuscate!(obfuscated_key)
+  def deobfuscate!(obfuscated_key, module) when is_binary(obfuscated_key) do
+    [key, module_key] = Carrier.Core.Crypto.deobfuscate!(obfuscated_key)
+
+    ^module_key = hash_module(module)
 
     key
   rescue

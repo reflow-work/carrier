@@ -61,7 +61,7 @@ defmodule CarrierWeb.App.ReportLive.New do
         _uri,
         %{assigns: %{live_action: :edit}} = socket
       ) do
-    report_id = obfuscated_report_id |> Obfuscatable.deobfuscate!()
+    report_id = obfuscated_report_id |> Obfuscatable.deobfuscate!(Report)
 
     socket =
       socket
