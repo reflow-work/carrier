@@ -59,20 +59,20 @@ defmodule Carrier.Accounts.User do
   def get(user_id) do
     __MODULE__
     |> where([u], u.id == ^user_id)
-    |> where([u], is_nil(u.deleted_at))
+    |> where_not_deleted()
   end
 
   def get_by_email(email) do
     __MODULE__
     |> where([u], u.email == ^email)
-    |> where([u], is_nil(u.deleted_at))
+    |> where_not_deleted()
   end
 
   # TODO: it should returns billing user account
   def fetch_billing(admin_role_id) do
     __MODULE__
     |> where([u], u.role_id == ^admin_role_id)
-    |> where([u], is_nil(u.deleted_at))
+    |> where_not_deleted()
   end
 
   def update(%__MODULE__{} = struct, attrs \\ %{}) do
@@ -100,6 +100,6 @@ defmodule Carrier.Accounts.User do
 
   def list() do
     __MODULE__
-    |> where([u], is_nil(u.deleted_at))
+    |> where_not_deleted()
   end
 end

@@ -42,7 +42,7 @@ defmodule Carrier.Accounts.Org do
   def get(org_id) do
     __MODULE__
     |> where([u], u.org_id == ^org_id)
-    |> where([u], is_nil(u.deleted_at))
+    |> where_not_deleted()
   end
 
   def industries do

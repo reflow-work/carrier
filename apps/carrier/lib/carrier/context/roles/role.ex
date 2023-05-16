@@ -28,6 +28,6 @@ defmodule Carrier.Roles.Role do
   def fetch_by_name(role_name) do
     __MODULE__
     |> where([r], r.name == ^role_name)
-    |> where([p], is_nil(p.deleted_at))
+    |> where_not_deleted()
   end
 end

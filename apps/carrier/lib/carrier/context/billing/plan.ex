@@ -20,19 +20,19 @@ defmodule Carrier.Billing.Plan do
   def list_subscribable() do
     __MODULE__
     |> where([p], p.subscribable == true)
-    |> where([p], is_nil(p.deleted_at))
+    |> where_not_deleted()
   end
 
   def fetch(plan_id) do
     __MODULE__
     |> where([p], p.id == ^plan_id)
-    |> where([p], is_nil(p.deleted_at))
+    |> where_not_deleted()
   end
 
   def fetch_trial() do
     __MODULE__
     |> where([p], p.type == :trial)
-    |> where([p], is_nil(p.deleted_at))
+    |> where_not_deleted()
   end
 
   def month_price(%__MODULE__{billing_cycle: billing_cycle, price: price}) do

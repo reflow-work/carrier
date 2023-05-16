@@ -34,13 +34,13 @@ defmodule Carrier.Integrations.DataTarget do
 
   def list() do
     __MODULE__
-    |> where([i], is_nil(i.deleted_at))
+    |> where_not_deleted()
   end
 
   def fetch(id) do
     __MODULE__
     |> where([i], i.id == ^id)
-    |> where([i], is_nil(i.deleted_at))
+    |> where_not_deleted()
   end
 
   def preload_conn_info(query) do

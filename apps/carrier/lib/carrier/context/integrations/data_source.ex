@@ -38,13 +38,13 @@ defmodule Carrier.Integrations.DataSource do
 
   def list() do
     __MODULE__
-    |> where([ds], is_nil(ds.deleted_at))
+    |> where_not_deleted()
   end
 
   def fetch(id) do
     __MODULE__
     |> where([ds], ds.id == ^id)
-    |> where([ds], is_nil(ds.deleted_at))
+    |> where_not_deleted()
   end
 
   def preload_conn_info(query) do

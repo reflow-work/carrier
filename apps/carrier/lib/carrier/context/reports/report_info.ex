@@ -31,7 +31,7 @@ defmodule Carrier.Reports.ReportInfo do
   def fetch(report_info_id) do
     __MODULE__
     |> where([ri], ri.id == ^report_info_id)
-    |> where([ri], is_nil(ri.deleted_at))
+    |> where_not_deleted()
   end
 
   def delete(%__MODULE__{} = struct, %DateTime{} = deleted_at) do

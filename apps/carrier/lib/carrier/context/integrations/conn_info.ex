@@ -41,13 +41,13 @@ defmodule Carrier.Integrations.ConnInfo do
 
   def list() do
     __MODULE__
-    |> where([ci], is_nil(ci.deleted_at))
+    |> where_not_deleted()
   end
 
   def fetch(id) do
     __MODULE__
     |> where([ci], ci.id == ^id)
-    |> where([ci], is_nil(ci.deleted_at))
+    |> where_not_deleted()
   end
 
   def to_credentials(%__MODULE__{source: source, info: info}) do

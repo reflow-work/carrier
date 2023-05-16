@@ -28,7 +28,7 @@ defmodule Carrier.Payments.CreditCard do
 
   def fetch_default() do
     __MODULE__
-    |> where([cc], is_nil(cc.deleted_at))
+    |> where_not_deleted()
   end
 
   def format_card_info(%__MODULE__{card_company: card_company, card_number: card_number}) do
