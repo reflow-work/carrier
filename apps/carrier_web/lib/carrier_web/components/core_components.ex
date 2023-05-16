@@ -342,21 +342,24 @@ defmodule CarrierWeb.CoreComponents do
       <% else %>
         <.label for={@id} align={@label_align}><%= @label %></.label>
       <% end %>
-      <select
-        id={@id}
-        name={@name}
-        class={[
-          "select block rounded-md border border-gray-300 bg-white shadow-sm",
-          "focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6",
-          @label_align == :top && "mt-1 w-full",
-          @label_align == :left && "flex-1"
-        ]}
-        multiple={@multiple}
-        {@rest}
-      >
-        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
-      </select>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <div class={[
+        @label_align == :top && "mt-1 w-full",
+        @label_align == :left && "flex-1"
+      ]}>
+        <select
+          id={@id}
+          name={@name}
+          class={[
+            "select w-full block rounded-md border border-gray-300 bg-white shadow-sm",
+            "focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6"
+          ]}
+          multiple={@multiple}
+          {@rest}
+        >
+          <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+        </select>
+        <.error :for={msg <- @errors}><%= msg %></.error>
+      </div>
     </div>
     """
   end
@@ -432,7 +435,7 @@ defmodule CarrierWeb.CoreComponents do
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            "block rounded-lg w-full text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+            "block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
             "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
             "border-zinc-300 focus:border-zinc-400",
             @errors != [] && "border-rose-400 focus:border-rose-400",
@@ -440,8 +443,8 @@ defmodule CarrierWeb.CoreComponents do
           ]}
           {@rest}
         />
+        <.error :for={msg <- @errors}><%= msg %></.error>
       </div>
-      <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
   end
