@@ -69,7 +69,11 @@ defmodule Carrier.External.TableauAPI do
   end
 
   def query_view_pdf(%{host: host, site_id: site_id, view_id: view_id, token: token}) do
-    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/pdf")
+    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/pdf",
+      query: [
+        {"vizWidth", 2500}
+      ]
+    )
     |> handle_response()
   end
 
