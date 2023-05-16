@@ -49,7 +49,7 @@ defmodule Carrier.PaymentsTest do
     test "with duplicated org_id but deleted", %{params: params} do
       {:ok, %CreditCard{} = credit_card} = Payments.create_credit_card(:toss_payments, params)
 
-      credit_card |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
+      credit_card |> soft_delete!()
 
       assert {:ok, %CreditCard{}} = Payments.create_credit_card(:toss_payments, params)
     end
@@ -72,7 +72,7 @@ defmodule Carrier.PaymentsTest do
     end
 
     test "with deleted credit_card", %{credit_card: credit_card} do
-      credit_card |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
+      credit_card |> soft_delete!()
 
       assert {:error, {:resource_not_found, %{target: CreditCard}}} =
                Payments.fetch_default_credit_card()

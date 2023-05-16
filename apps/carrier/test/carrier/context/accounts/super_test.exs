@@ -69,7 +69,7 @@ defmodule Carrier.Accounts.SuperTest do
     end
 
     test "with deleted user email", %{user: user} do
-      user |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
+      user |> soft_delete!()
 
       assert {:error, {:resource_not_found, %{target: User}}} =
                Accounts.Super.fetch_user_by_email("invalid_email")

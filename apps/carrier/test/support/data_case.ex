@@ -15,6 +15,7 @@ defmodule Carrier.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Carrier.TenantRepo
   alias Carrier.Core.Nillable
 
   using do
@@ -24,7 +25,7 @@ defmodule Carrier.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Carrier.DataCase
+      import unquote(__MODULE__)
       import Doumi.CaseHelper
       import Doumi.EctoCaseHelper
 
@@ -65,5 +66,11 @@ defmodule Carrier.DataCase do
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
+  end
+
+  def soft_delete!(struct, repo \\ TenantRepo) do
+    struct
+    |> Ecto.Changeset.change(deleted_at: DateTime.utc_now())
+    |> repo.update!()
   end
 end

@@ -24,7 +24,7 @@ defmodule Carrier.AccountsTest do
     end
 
     test "with deleted user_id", %{user: user} do
-      user |> Ecto.Changeset.change(deleted_at: DateTime.utc_now()) |> TenantRepo.update!()
+      user |> soft_delete!()
 
       assert {:error, {:resource_not_found, _}} = Accounts.fetch_user(user.id)
     end

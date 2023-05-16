@@ -39,7 +39,7 @@ defmodule Carrier.Billing.SuperTest do
     end
 
     test "with deleted_ plan_id", %{plan: plan} do
-      plan |> Ecto.Changeset.change(%{deleted_at: DateTime.utc_now()}) |> TenantRepo.update!()
+      plan |> soft_delete!()
 
       assert {:error, {:resource_not_found, %{target: Plan}}} = Billing.Super.fetch_plan(0)
     end

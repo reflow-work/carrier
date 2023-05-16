@@ -22,7 +22,7 @@ defmodule Carrier.Roles.SuperTest do
     end
 
     test "with deleted role_name", %{role: role} do
-      role |> Ecto.Changeset.change(%{deleted_at: DateTime.utc_now()}) |> TenantRepo.update!()
+      role |> soft_delete!()
 
       assert {:error, {:resource_not_found, %{target: Role}}} =
                Roles.Super.fetch_role_by_name(role.name)
