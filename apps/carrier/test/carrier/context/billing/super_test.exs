@@ -58,4 +58,21 @@ defmodule Carrier.Billing.SuperTest do
       assert same_records?(fetched_plan, trial_plan)
     end
   end
+
+  describe "postload_role/1" do
+    setup do
+      plan = TenantFactory.insert(:plan)
+
+      %{plan: plan}
+    end
+
+    test "test", %{plan: plan} do
+      TenantRepo.set_skip_org_id()
+
+      plan_without_role = reload!(plan, TenantRepo)
+      plan_with_role = plan_without_role |> Billing.Super.postload_role()
+
+      assert same_records?(plan_with_role.role, plan.role)
+    end
+  end
 end
