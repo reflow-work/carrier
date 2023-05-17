@@ -37,7 +37,8 @@ defmodule Carrier.External.SlackAPI do
   def list_conversations(params \\ nil, token) do
     query =
       %{
-        "types" => "public_channel,private_channel",
+        # TODO: change to "public_channel,private_channel"
+        "types" => "public_channel",
         "exclude_archived" => true,
         "limit" => params[:limit] || 1000,
         "cursor" => params[:cursor]
