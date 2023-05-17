@@ -35,12 +35,12 @@ defmodule Carrier.Data.Target.Slack do
 
   @impl true
   def send_messages(
-        %DataTarget{service_name: :slack, conn_info: %ConnInfo{} = conn_info},
+        %DataTarget{service_name: :slack} = data_target,
         header_messages,
         messages,
         %{channel_id: channel_id}
       ) do
-    credentials = conn_info |> ConnInfo.to_credentials()
+    credentials = data_target |> DataTarget.to_credentials()
 
     with :ok <-
            (header_messages ++ messages)

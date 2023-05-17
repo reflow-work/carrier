@@ -121,7 +121,7 @@ defmodule Carrier.Works.ReportJob do
          {:ok, tableau_image_binary} =
            Source.Tableau.get_view_image_binary(
              view_id,
-             ConnInfo.to_credentials(data_source.conn_info)
+             DataSource.to_credentials(data_source)
            ),
          {:ok, url} <-
            ImageGenerator.upload_chart_image(%{
