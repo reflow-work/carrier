@@ -3,8 +3,18 @@
     <.link navigate={~p"/app/report_logs"} class="btn btn-outline">
       레포트 발송 기록
     </.link>
-    <.link navigate={~p"/app/reports/new"} class="btn btn-primary">
+    <.link
+      navigate={~p"/app/reports/new"}
+      class={[
+        "btn btn-primary",
+        @active_subscription.plan.role |> disabled_new_report_button(@reports) &&
+          "!btn-disabled"
+      ]}
+    >
       새 레포트 생성
+      <span :if={@active_subscription.plan.role |> disabled_new_report_button(@reports)}>
+        (최대 개수 초과)
+      </span>
     </.link>
   </.page_header>
 
