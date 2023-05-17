@@ -141,6 +141,7 @@ defmodule Carrier.TenantFactory do
   end
 
   def plan_factory(attrs) do
+    {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> build(:role) end)
     {type, attrs} = attrs |> Map.pop(:type, Enum.random([:basic, :pro]))
 
     {billing_cycle, subscribable} =
@@ -158,7 +159,8 @@ defmodule Carrier.TenantFactory do
       price: Enum.random(0..10_000_000) |> Decimal.new(),
       currency: :KRW,
       description: [seq(:plan_description), seq(:plan_description)],
-      subscribable: subscribable
+      subscribable: subscribable,
+      role: role
     }
     |> apply_status(status)
     |> merge_attributes(attrs)

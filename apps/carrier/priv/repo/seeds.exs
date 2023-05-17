@@ -26,21 +26,10 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {_, [admin_role, _]} =
+  {_, [admin_role | _]} =
     Repo.insert_all(
       Role,
-      [
-        %{
-          name: "Admin",
-          permissions: [
-            "billing.payment.manage"
-          ]
-        },
-        %{
-          name: "Member",
-          permissions: []
-        }
-      ],
+      Role.default_roles(),
       returning: true
     )
 
