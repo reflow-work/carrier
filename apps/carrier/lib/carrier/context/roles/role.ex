@@ -2,10 +2,10 @@ defmodule Carrier.Roles.Role do
   use Carrier.Schema
 
   schema "roles" do
-    field :name, :string
-    field :permissions, {:array, :string}
+    field(:name, :string)
+    field(:permissions, {:array, :string})
 
-    field :deleted_at, :utc_datetime_usec
+    field(:deleted_at, :utc_datetime_usec)
 
     timestamps()
   end
@@ -26,7 +26,7 @@ defmodule Carrier.Roles.Role do
         name: "Trial Plan",
         permissions: [
           "data-source.tableau",
-          "reports.max-count.infinite"
+          "reports.max-count.infinity"
         ]
       },
       %{
@@ -39,7 +39,7 @@ defmodule Carrier.Roles.Role do
         name: "Pro Plan",
         permissions: [
           "data-source.tableau",
-          "reports.max-count.infinite"
+          "reports.max-count.infinity"
         ]
       }
     ]
@@ -66,8 +66,8 @@ defmodule Carrier.Roles.Role do
           |> List.last()
 
         case max_count do
-          "infinite" ->
-            nil
+          "infinity" ->
+            :infinity
 
           _ ->
             max_count

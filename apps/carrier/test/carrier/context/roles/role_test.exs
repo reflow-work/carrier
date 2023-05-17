@@ -5,12 +5,12 @@ defmodule Carrier.Roles.RoleTest do
   @moduletag repo: TenantRepo
 
   describe "report_max_count/1" do
-    test "with infinite permission" do
-      role = TenantFactory.insert(:role, permissions: ["reports.max-count.infinite"])
+    test "with infinity permission" do
+      role = TenantFactory.insert(:role, permissions: ["reports.max-count.infinity"])
 
       actual = role |> Role.report_max_count()
 
-      assert actual == nil
+      assert actual == :infinity
     end
 
     test "with count permission" do
