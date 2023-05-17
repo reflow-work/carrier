@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
   use CarrierWeb, :live_component
   use Carrier.{Integrations, Data}
   alias CarrierWeb.App.ReportLive.New2.DataSourceInfoParams
+  alias CarrierWeb.Components.QueryChecker
   alias Doumi.Phoenix.Params
   alias Carrier.Core.TimezoneHelper
 
@@ -12,6 +13,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
       |> assign(:sql_template, "")
       |> assign(:query_errors, [])
       |> assign(:query_result, nil)
+      |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:timezone, TimezoneHelper.get_timezone())
 
     {:ok, socket}
@@ -43,16 +45,53 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
             <.simple_form
               for={%{}}
               phx-target={@myself}
-              phx-change="update_query"
+              phx-change="validate_query"
               phx-submit="run_query"
             >
-              <.input
-                type="textarea"
-                name="sql_template"
-                value={@sql_template}
-                errors={@query_errors}
-              />
-              <.button class="mt-2">쿼리 실행</.button>
+              <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
+                <div class="sm:col-span-4">
+                  <.input
+                    type="textarea"
+                    name="sql_template"
+                    class="h-full"
+                    input_class="mt-0"
+                    value={@sql_template}
+                    errors={@query_errors}
+                  />
+                </div>
+                <div class="w-full px-2 sm:col-span-3 text-sm">
+                  <QueryChecker.checker checked={@query_validations.contains_start}>
+                    <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
+                  </QueryChecker.checker>
+
+                  <QueryChecker.checker class="mt-2" checked={@query_validations.contains_end}>
+                    <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
+                  </QueryChecker.checker>
+
+                  <div class="bg-yellow-50 rounded p-3 mt-3">
+                    <b>📌 Check point</b>
+
+                    <p class="mt-2">
+                      - SELECT문의 첫 번째 컬럼에 <b>DATE 타입</b>의 기준이 되는 날짜 컬럼을 넣어주세요.
+                    </p>
+
+                    <p class="mt-2">
+                      - SELECT문의 두 번째 컬럼부터는 <b>지표 컬럼</b>을 넣어주세요.
+                    </p>
+
+                    <p class="mt-2">
+                      - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
+                    </p>
+
+                    <p class="mt-2">
+                      - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <.button class="mt-2" disabled={run_query_disabled?(@sql_template, @query_validations)}>
+                쿼리 실행
+              </.button>
             </.simple_form>
           </div>
           <div class="mt-6">
@@ -71,8 +110,14 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
   end
 
   @impl true
-  def handle_event("update_query", %{"sql_template" => sql_template}, socket) do
-    socket = socket |> assign(:sql_template, sql_template)
+  def handle_event("validate_query", %{"sql_template" => sql_template}, socket) do
+    socket =
+      socket
+      |> assign(:sql_template, sql_template)
+      |> assign(:query_validations, %{
+        contains_start: sql_template |> String.contains?("{{start}}"),
+        contains_end: sql_template |> String.contains?("{{end}}")
+      })
 
     {:noreply, socket}
   end
@@ -114,5 +159,10 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
       Params.to_form(%DataSourceInfoParams{}, data_source_info_input, as: :data_source_info)
 
     send(self(), {:update, {:data_source_info_form, data_source_info_form}})
+  end
+
+  defp run_query_disabled?(sql_template, query_validations) do
+    sql_template |> Blankable.blank?() |> IO.inspect() ||
+      query_validations |> Map.values() |> Enum.all?(&(!&1))
   end
 end
