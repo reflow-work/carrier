@@ -17,7 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
 
   # init
   @impl true
-  def update(%{data_source: %DataSource{conn_info: %ConnInfo{} = conn_info}} = assigns, socket) do
+  def update(%{data_source: %DataSource{} = data_source} = assigns, socket) do
     socket =
       socket
       |> assign(assigns)
@@ -25,8 +25,8 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
         :views,
         fn ->
           {:ok, tableau_views} =
-            conn_info
-            |> ConnInfo.to_credentials()
+            data_source
+            |> DataSource.to_credentials()
             |> Tableau.list_views()
 
           tableau_views

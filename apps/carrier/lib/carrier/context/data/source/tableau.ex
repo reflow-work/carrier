@@ -10,10 +10,16 @@ defmodule Carrier.Data.Source.Tableau do
   ### behaviors
 
   @impl true
-  def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = conn_info}, %{
-        views: views
-      }) do
-    with credentials = ConnInfo.to_credentials(conn_info),
+  def validate_conn(:tableau, credentials, _opts) do
+    case signin(credentials) do
+      {:ok, _} -> :ok
+      {:error, _} -> {:error, :invalid_conn_info}
+    end
+  end
+
+  @impl true
+  def load_raw_data(%DataSource{source: :tableau} = data_source, %{views: views}) do
+    with credentials = DataSource.to_credentials(data_source),
          {:ok, auth} <- signin(credentials),
          view_ids = views |> Enum.map(& &1.id),
          {:ok, view_image_binaries} <- view_ids |> do_list_view_image_binaries_async(auth),

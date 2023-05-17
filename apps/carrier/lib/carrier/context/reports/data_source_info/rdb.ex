@@ -1,11 +1,12 @@
 defmodule Carrier.Reports.DataSourceInfo.RDB do
   use Carrier.Schema
+  use Carrier.Data
 
   @derive Jason.Encoder
   @primary_key false
   embedded_schema do
     field :data_source_id, :id
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
+    field :source, Ecto.Enum, values: Source.RDB.sources()
     field :sql_template, :string
     field :period, :integer
     field :window_size, :integer

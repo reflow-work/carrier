@@ -24,7 +24,7 @@ defmodule Carrier.Integrations do
     }
 
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params),
+      with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params, :target),
            {:ok, %DataTarget{} = data_target} <-
              DataTarget.create(%{
                org_id: org_id,
@@ -51,7 +51,7 @@ defmodule Carrier.Integrations do
     }
 
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params),
+      with {:ok, %ConnInfo{id: conn_info_id}} <- create_conn_info(conn_info_params, :source),
            {:ok, %DataSource{} = data_source} <-
              DataSource.create(%{
                org_id: org_id,
@@ -107,8 +107,8 @@ defmodule Carrier.Integrations do
     end
   end
 
-  def create_conn_info(%{org_id: org_id, name: name, source: source, info: info}) do
-    with :ok <- ConnValidator.validate(source, info),
+  def create_conn_info(%{org_id: org_id, name: name, source: source, info: info}, type) do
+    with :ok <- ConnValidator.validate(source, info, type),
          {:ok, %ConnInfo{} = conn_info} <-
            ConnInfo.create(%{org_id: org_id, name: name, source: source, info: info})
            |> TenantRepo.insert() do

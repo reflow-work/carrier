@@ -1,6 +1,7 @@
 defmodule CarrierWeb.App.ReportLive.New2.Components do
   use CarrierWeb, :component
   use Carrier.Integrations
+  import Carrier.Data.Source.RDB.Guard
   alias Carrier.Core.Nillable
 
   embed_templates "*"
@@ -23,13 +24,19 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
       nil ->
         empty_data_transformer(assigns)
 
-      %DataSource{source: :tableau} ->
+      %DataSource{source: source} ->
+        module =
+          case source do
+            source when is_rdb_source(source) -> CarrierWeb.App.ReportLive.New2.RDBDataTransformer
+            :tableau -> CarrierWeb.App.ReportLive.New2.TableauDataTransformer
+          end
+
+        assigns =
+          assigns
+          |> assign(:module, module)
+
         ~H"""
-        <.live_component
-          module={CarrierWeb.App.ReportLive.New2.TableauDataTransformer}
-          id="tableau_data_transformer"
-          data_source={@data_source}
-        />
+        <.live_component module={@module} id="data_transformer" data_source={@data_source} />
         """
 
       _ ->

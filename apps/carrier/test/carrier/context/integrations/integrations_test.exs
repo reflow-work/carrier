@@ -24,6 +24,8 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
+      ExternalHelper.SlackAPI.prepare_list_conversations()
+
       assert {:ok, %DataTarget{} = data_target} = Integrations.create_data_target(valid_params)
 
       assert same_fields?(data_target, valid_params, [:org_id, :service_name])
@@ -100,7 +102,8 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      assert {:ok, %ConnInfo{} = created_conn_info} = Integrations.create_conn_info(valid_params)
+      assert {:ok, %ConnInfo{} = created_conn_info} =
+               Integrations.create_conn_info(valid_params, :source)
 
       assert same_fields?(created_conn_info, valid_params, [:org_id, :name, :source, :info])
     end
@@ -109,14 +112,14 @@ defmodule Carrier.IntegrationsTest do
       TenantFactory.insert(:conn_info, org_id: org.org_id, name: valid_params.name)
 
       assert_changeset_error(:name, "has already been taken", fn ->
-        Integrations.create_conn_info(valid_params)
+        Integrations.create_conn_info(valid_params, :source)
       end)
     end
 
     test "with invalid info", %{valid_params: valid_params} do
       invalid_params = valid_params |> put_in([:info, :database], "invalid_database")
 
-      assert {:error, :invalid_conn_info} = Integrations.create_conn_info(invalid_params)
+      assert {:error, :invalid_conn_info} = Integrations.create_conn_info(invalid_params, :source)
     end
   end
 
