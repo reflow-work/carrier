@@ -1,7 +1,8 @@
 defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CarrierWeb.App.ReportLive.New2.TableauParams
+  import Carrier.Data.Source.RDB.Guard
+  alias CarrierWeb.App.ReportLive.New2.{RDBParams, TableauParams}
 
   @primary_key false
   embedded_schema do
@@ -23,6 +24,7 @@ defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
     |> validate_change(:params, fn :params, params ->
       params_module =
         case source do
+          source when is_rdb_source(source) -> RDBParams
           :tableau -> TableauParams
         end
 

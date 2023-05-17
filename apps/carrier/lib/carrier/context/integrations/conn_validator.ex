@@ -1,36 +1,12 @@
 defmodule Carrier.Integrations.ConnValidator do
   alias Carrier.Integrations.{ConnInfo, DataSource}
-  alias Carrier.Data.Source
+  alias Carrier.Data
   alias Carrier.Repo
 
-  def validate(source, info, opts \\ []) do
+  def validate(source, info, type, opts \\ []) do
     credentials = ConnInfo.Info.to_credentials(source, info)
 
-    do_validate(source, credentials, opts)
-  end
-
-  def do_validate(source, credentials, opts \\ [])
-
-  def do_validate(source, credentials, opts)
-      when source in [:mysql, :postgres, :bigquery, :athena] do
-    query = Source.get_module(source).validation_query()
-
-    case Source.run_query(source, credentials, query, [], opts) do
-      {:ok, _} -> :ok
-      {:error, {:db_invalid_credential, message}} -> {:error, {:invalid_conn_info, message}}
-      {:error, _} -> {:error, :invalid_conn_info}
-    end
-  end
-
-  def do_validate(:tableau, credentials, _opts) do
-    case Source.Tableau.signin(credentials) do
-      {:ok, _} -> :ok
-      {:error, _} -> {:error, :invalid_conn_info}
-    end
-  end
-
-  def do_validate(_, _, _) do
-    :ok
+    Data.validate_conn(source, credentials, type, opts)
   end
 
   def validate_data_sources() do
@@ -42,7 +18,7 @@ defmodule Carrier.Integrations.ConnValidator do
                      conn_info: %ConnInfo{source: source, info: info}
                    } ->
       try do
-        {data_source_id, validate(source, info)}
+        {data_source_id, validate(source, info, :source)}
       rescue
         e ->
           {data_source_id, {:error, inspect(e)}}

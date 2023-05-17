@@ -17,7 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
 
   # init
   @impl true
-  def update(%{data_target: %DataTarget{conn_info: %ConnInfo{} = conn_info}} = assigns, socket) do
+  def update(%{data_target: %DataTarget{} = data_target} = assigns, socket) do
     socket =
       socket
       |> assign(assigns)
@@ -25,8 +25,8 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         :channels,
         fn ->
           {:ok, channels} =
-            conn_info
-            |> ConnInfo.to_credentials()
+            data_target
+            |> DataTarget.to_credentials()
             |> Slack.list_channels()
 
           channels

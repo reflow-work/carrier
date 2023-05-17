@@ -1,4 +1,7 @@
 defmodule Carrier.Data.Target do
+  @callback validate_conn(source :: atom(), credentials :: map(), opts :: keyword()) ::
+              :ok | {:error, any()}
+
   @callback header_to_messages(data_target :: map(), header :: map()) ::
               {:ok, list()} | {:error, any()}
   @callback threads_to_messages(data_target :: map(), threads :: list()) ::
@@ -20,6 +23,12 @@ defmodule Carrier.Data.Target do
     end
   end
 
+  def validate_conn(source, credentials, opts) do
+    source_module = source_to_module(source)
+
+    source_module.validate_conn(source, credentials, opts)
+  end
+
   def header_to_messages(%DataTarget{} = data_target, header) do
     target_module = data_target_to_module(data_target)
 
@@ -39,7 +48,11 @@ defmodule Carrier.Data.Target do
   end
 
   def data_target_to_module(%DataTarget{service_name: service_name}) do
-    case service_name do
+    source_to_module(service_name)
+  end
+
+  def source_to_module(source) do
+    case source do
       :slack -> Slack
     end
   end

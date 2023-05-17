@@ -19,17 +19,22 @@ defmodule Carrier.Integrations.ConnValidatorTest do
     end
 
     test "postgres valid", %{info: info} do
-      assert :ok = ConnValidator.validate(:postgres, info, @opts)
+      assert :ok = ConnValidator.validate(:postgres, info, :source, @opts)
     end
 
     test "postgres invalid info", %{info: info} do
       assert {:error, :invalid_conn_info} =
-               ConnValidator.validate(:postgres, %{info | port: 48000}, @opts)
+               ConnValidator.validate(:postgres, %{info | port: 48000}, :source, @opts)
     end
 
     test "postgres invalid credentials", %{info: info} do
       assert {:error, :invalid_conn_info} =
-               ConnValidator.validate(:postgres, %{info | password: "invalid password"}, @opts)
+               ConnValidator.validate(
+                 :postgres,
+                 %{info | password: "invalid password"},
+                 :source,
+                 @opts
+               )
     end
   end
 
@@ -50,17 +55,22 @@ defmodule Carrier.Integrations.ConnValidatorTest do
     end
 
     test "mysql valid", %{info: info} do
-      assert :ok = ConnValidator.validate(:mysql, info, @opts)
+      assert :ok = ConnValidator.validate(:mysql, info, :source, @opts)
     end
 
     test "mysql invalid info", %{info: info} do
       assert {:error, :invalid_conn_info} =
-               ConnValidator.validate(:mysql, %{info | port: 48000}, @opts)
+               ConnValidator.validate(:mysql, %{info | port: 48000}, :source, @opts)
     end
 
     test "mysql invalid credentials", %{info: info} do
       assert {:error, :invalid_conn_info} =
-               ConnValidator.validate(:mysql, %{info | password: "invalid password"}, @opts)
+               ConnValidator.validate(
+                 :mysql,
+                 %{info | password: "invalid password"},
+                 :source,
+                 @opts
+               )
     end
   end
 end

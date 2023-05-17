@@ -46,4 +46,8 @@ defmodule Carrier.Integrations.DataTarget do
   def preload_conn_info(query) do
     query |> preload([:conn_info])
   end
+
+  def to_credentials(%__MODULE__{conn_info: %ConnInfo{} = conn_info}) do
+    ConnInfo.to_credentials(conn_info)
+  end
 end
