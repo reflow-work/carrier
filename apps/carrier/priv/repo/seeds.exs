@@ -26,7 +26,7 @@ Repo.transaction(fn ->
       returning: true
     )
 
-  {_, [admin_role | _]} =
+  {_, [admin_role, _, trial_plan_role, basic_plan_role, pro_plan_role]} =
     Repo.insert_all(
       Role,
       Role.default_roles(),
@@ -227,7 +227,8 @@ Repo.transaction(fn ->
           price: 0,
           currency: :KRW,
           description: ["모든 기능 사용 가능"],
-          subscribable: false
+          subscribable: false,
+          role_id: trial_plan_role.id
         },
         %{
           billing_cycle: :monthly,
@@ -236,7 +237,8 @@ Repo.transaction(fn ->
           price: 48000,
           currency: :KRW,
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"],
-          subscribable: true
+          subscribable: true,
+          role_id: basic_plan_role.id
         },
         %{
           billing_cycle: :monthly,
@@ -245,7 +247,8 @@ Repo.transaction(fn ->
           price: 150_000,
           currency: :KRW,
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
-          subscribable: true
+          subscribable: true,
+          role_id: pro_plan_role.id
         },
         %{
           billing_cycle: :yearly,
@@ -255,7 +258,8 @@ Repo.transaction(fn ->
           price: 480_000,
           currency: :KRW,
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"],
-          subscribable: true
+          subscribable: true,
+          role_id: basic_plan_role.id
         },
         %{
           billing_cycle: :yearly,
@@ -265,7 +269,8 @@ Repo.transaction(fn ->
           price: 1_500_000,
           currency: :KRW,
           description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
-          subscribable: true
+          subscribable: true,
+          role_id: pro_plan_role.id
         }
       ],
       returning: true
