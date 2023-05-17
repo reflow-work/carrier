@@ -553,6 +553,7 @@ defmodule Carrier.BillingTest do
 
       assert same_records?(fetched_subscription, subscription)
       assert same_records?(fetched_subscription.plan, plan)
+      assert same_records?(fetched_subscription.plan.role, plan.role)
       assert same_records?(fetched_subscription.payment, payment)
       assert same_records?(fetched_subscription.payment.credit_card, credit_card)
     end

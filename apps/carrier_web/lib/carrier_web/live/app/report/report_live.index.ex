@@ -1,6 +1,7 @@
 defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
+  alias Carrier.Billing
   alias Carrier.Core.TimeHelper
 
   on_mount(CarrierWeb.DataTargetHook)
@@ -8,6 +9,9 @@ defmodule CarrierWeb.App.ReportLive.Index do
 
   @impl true
   def mount(params, session, socket) do
+    subscription = Billing.fetch_active_subscription()
+    subscription |> IO.inspect()
+
     socket =
       socket
       |> assign(:reports, [])
