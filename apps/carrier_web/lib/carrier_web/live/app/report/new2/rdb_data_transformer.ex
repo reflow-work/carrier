@@ -31,10 +31,21 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
             <.card_title title="쿼리 입력하기" />
             <p class="mt-2">☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.</p>
           </div>
+          <div>
+            <.simple_form for={%{}} phx-target={@myself} phx-submit="run_query">
+              <.input type="textarea" name="query" value="" />
+              <.button class="mt-2">쿼리 실행</.button>
+            </.simple_form>
+          </div>
         </.card>
       </.card_container>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("run_query", %{"query" => _query}, socket) do
+    {:noreply, socket}
   end
 
   defp validate_and_send_data_source_info_form(socket) do
