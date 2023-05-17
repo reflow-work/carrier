@@ -1,17 +1,17 @@
 defmodule Carrier.Core.TimezoneHelper do
   @default_timzone "Etc/UTC"
 
+  def get_timezone() do
+    Process.get(timezone_key()) || @default_timzone
+  end
+
   def put_timezone(timezone) when is_binary(timezone) do
-    Process.put(timezone_key(), timezone)
+    Process.put(timezone_key(), safe_timezone(timezone))
   end
 
   def apply_timezone(%DateTime{} = datetime) do
-    timezone = Process.get(timezone_key())
-
-    valid_timezone = safe_timezone(timezone)
-
     datetime
-    |> DateTime.shift_zone!(valid_timezone)
+    |> DateTime.shift_zone!(get_timezone())
   end
 
   def safe_timezone(timezone) do

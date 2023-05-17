@@ -29,6 +29,8 @@ defmodule Carrier.Data.Source.RDB do
 
   @behaviour Carrier.Data.Source
 
+  use Carrier.Integrations
+
   @impl true
   def validate_conn(source, credentials, opts) do
     query = get_module(source).validation_query()
@@ -37,6 +39,150 @@ defmodule Carrier.Data.Source.RDB do
       {:ok, _} -> :ok
       {:error, _} -> {:error, :invalid_conn_info}
     end
+  end
+
+  @start_template_key "start"
+  @end_template_key "end"
+  @start_template "{{#{@start_template_key}}}"
+  @end_template "{{#{@end_template_key}}}"
+
+  @impl true
+  def load_raw_data(
+        %DataSource{source: source} = data_source,
+        %{sql_template: sql_template} = params
+      ) do
+    {query_start_date, query_end_date} = calc_query_start_end_date(params)
+    query_params = %{"start" => query_start_date, "end" => query_end_date}
+
+    credentials = DataSource.to_credentials(data_source)
+
+    with :ok <- is_valid_sql?(sql_template),
+         {:ok, %{columns: columns, data: data} = query_result} <-
+           run_query(source, credentials, sql_template, query_params),
+         :ok <- validate_query_result(query_result) do
+      data =
+        data
+        |> normalize_data()
+        |> fill_missing_dates(columns, query_start_date, query_end_date)
+
+      {:ok, %{columns: columns, data: data}}
+    end
+  end
+
+  defp calc_query_start_end_date(%{
+         datetime: utc_datetime,
+         timezone: timezone,
+         period_days: period_days,
+         over_days: over_days,
+         window_days: window_days
+       }) do
+    query_end_date =
+      utc_datetime
+      |> DateTime.shift_zone!(timezone)
+      |> DateTime.to_date()
+
+    query_start_date = query_end_date |> Date.add(-(period_days + over_days + window_days + 1))
+
+    {query_start_date, query_end_date}
+  end
+
+  defp is_valid_sql?(sql_template) do
+    with :ok <- is_select_query?(sql_template),
+         :ok <- is_contains_required_templates?(sql_template) do
+      :ok
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp is_select_query?(sql_template) do
+    case Regex.match?(~r/^\s*select\s*/i, sql_template) do
+      true -> :ok
+      false -> {:error, :sql_not_a_select_query}
+    end
+  end
+
+  defp is_contains_required_templates?(sql_template) do
+    case sql_template |> String.contains?([@start_template, @end_template]) do
+      true -> :ok
+      false -> {:error, :sql_missing_template_keys}
+    end
+  end
+
+  defp validate_query_result(%{columns: columns, data: [first_datum | _]}) do
+    with :ok <- is_temporal_type_at_first_column(columns, first_datum),
+         :ok <- is_number_type_after_first_column(columns, first_datum) do
+      :ok
+    end
+  end
+
+  defp validate_query_result(%{data: []}) do
+    {:error, :no_data}
+  end
+
+  # TODO: change DateTime to :ok
+  defp is_temporal_type_at_first_column([first_column | _], datum) do
+    case datum |> Map.get(first_column) do
+      %Date{} -> :ok
+      _ -> {:error, :first_column_is_not_date_type}
+    end
+  end
+
+  defp is_number_type_after_first_column([_ | rest_columns], datum) do
+    rest_columns
+    |> Enum.map(&Map.get(datum, &1))
+    |> Enum.all?(fn
+      value when is_number(value) -> true
+      %Decimal{} -> true
+      _ -> false
+    end)
+    |> case do
+      true -> :ok
+      false -> {:error, :not_number_type_after_first_column}
+    end
+  end
+
+  defp normalize_data(data) do
+    data
+    |> Enum.map(fn datum ->
+      datum
+      |> Map.new(fn
+        {key, %Decimal{} = value} -> {key, Decimal.to_float(value)}
+        {key, nil} -> {key, 0}
+        pair -> pair
+      end)
+    end)
+  end
+
+  defp fill_missing_dates(
+         data,
+         [date_column | value_columns],
+         %Date{} = start_date,
+         %Date{} = end_date
+       ) do
+    date_range = Date.range(start_date, end_date |> Date.add(-1))
+
+    date_datum_map =
+      data
+      |> Enum.map(fn datum -> {datum[date_column], datum} end)
+      |> Map.new()
+
+    _filled_data =
+      date_range
+      |> Enum.reduce([], fn date, acc ->
+        case Map.get(date_datum_map, date) do
+          nil -> [empty_datum(date, date_column, value_columns) | acc]
+          datum -> [datum | acc]
+        end
+      end)
+      |> Enum.reverse()
+  end
+
+  defp empty_datum(%Date{} = date, date_column, value_columns) do
+    value_columns
+    |> Enum.reduce(%{date_column => date}, fn value_column, datum ->
+      datum |> Map.put(value_column, 0)
+    end)
   end
 
   require Logger
