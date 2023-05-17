@@ -29,38 +29,7 @@ Repo.transaction(fn ->
   {_, [admin_role | _]} =
     Repo.insert_all(
       Role,
-      [
-        %{
-          name: "Admin",
-          permissions: [
-            "billing.payment.manage"
-          ]
-        },
-        %{
-          name: "Member",
-          permissions: []
-        },
-        %{
-          name: "Trial Plan",
-          permissions: [
-            "data-source.tableau",
-            "reports.max-count.infinite"
-          ]
-        },
-        %{
-          name: "Basic Plan",
-          permissions: [
-            "reports.max-count.50"
-          ]
-        },
-        %{
-          name: "Pro Plan",
-          permissions: [
-            "data-source.tableau",
-            "reports.max-count.infinite"
-          ]
-        }
-      ],
+      Role.default_roles(),
       returning: true
     )
 
