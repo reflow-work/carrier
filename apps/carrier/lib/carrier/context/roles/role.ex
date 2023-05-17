@@ -50,4 +50,29 @@ defmodule Carrier.Roles.Role do
     |> where([r], r.name == ^role_name)
     |> where_not_deleted()
   end
+
+  def report_max_count(role) do
+    report_max_count_permission =
+      role.permissions |> Enum.find(fn x -> x |> String.contains?("reports.max-count") end)
+
+    case report_max_count_permission do
+      nil ->
+        0
+
+      _ ->
+        max_count =
+          report_max_count_permission
+          |> String.split(".")
+          |> List.last()
+
+        case max_count do
+          "infinite" ->
+            nil
+
+          _ ->
+            max_count
+            |> String.to_integer()
+        end
+    end
+  end
 end

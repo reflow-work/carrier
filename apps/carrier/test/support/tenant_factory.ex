@@ -4,6 +4,10 @@ defmodule Carrier.TenantFactory do
   alias Carrier.TenantRepo
   alias Carrier.Core.Crypto
 
+  def integer_factory(_attrs) do
+    Enum.random(0..10_000_000)
+  end
+
   def org_factory() do
     %Org{
       name: seq(:org_name)
