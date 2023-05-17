@@ -10,6 +10,14 @@ defmodule Carrier.Data.Source.Tableau do
   ### behaviors
 
   @impl true
+  def validate_conn(:tableau, credentials, _opts) do
+    case signin(credentials) do
+      {:ok, _} -> :ok
+      {:error, _} -> {:error, :invalid_conn_info}
+    end
+  end
+
+  @impl true
   def load_raw_data(%DataSource{source: :tableau, conn_info: %ConnInfo{} = conn_info}, %{
         views: views
       }) do

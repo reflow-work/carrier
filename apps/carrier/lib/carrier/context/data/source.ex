@@ -1,4 +1,7 @@
 defmodule Carrier.Data.Source do
+  @callback validate_conn(source :: atom(), credentials :: map(), opts :: keyword()) ::
+              :ok | {:error, any()}
+
   @callback load_raw_data(data_source :: map(), params :: map()) ::
               {:ok, list()} | {:error, any()}
   @callback transform_data(data_source :: map(), raw_data :: list()) ::
@@ -7,13 +10,20 @@ defmodule Carrier.Data.Source do
               {:ok, list()} | {:error, any()}
 
   use Carrier.Integrations
-  alias __MODULE__.Tableau
+  import Carrier.Data.Source.RDB.Guard
+  alias __MODULE__.{RDB, Tableau}
 
   defmacro __using__([]) do
     quote do
       alias unquote(__MODULE__)
-      alias unquote(__MODULE__).Tableau
+      alias unquote(__MODULE__).{RDB, Tableau}
     end
+  end
+
+  def validate_conn(source, credentials, opts) do
+    source_module = source_to_module(source)
+
+    source_module.validate_conn(source, credentials, opts)
   end
 
   def load_raw_data(%DataSource{} = data_source, params) do
@@ -35,7 +45,12 @@ defmodule Carrier.Data.Source do
   end
 
   defp data_source_to_module(%DataSource{source: source}) do
+    source_to_module(source)
+  end
+
+  defp source_to_module(source) do
     case source do
+      source when is_rdb_source(source) -> RDB
       :tableau -> Tableau
     end
   end

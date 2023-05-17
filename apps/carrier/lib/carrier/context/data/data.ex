@@ -9,6 +9,13 @@ defmodule Carrier.Data do
     end
   end
 
+  def validate_conn(source, credentials, type, opts \\ []) do
+    case type do
+      :source -> Source.validate_conn(source, credentials, opts)
+      :target -> Target.validate_conn(source, credentials, opts)
+    end
+  end
+
   def prepare_threads(%{data_source_id: data_source_id, params: params}) do
     with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
          {:ok, raw_data} <- Source.load_raw_data(data_source, params),

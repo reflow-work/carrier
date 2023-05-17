@@ -27,6 +27,18 @@ defmodule Carrier.Data.Source.RDB do
     is_date_type?: 1
   ]
 
+  @behaviour Carrier.Data.Source
+
+  @impl true
+  def validate_conn(source, credentials, opts) do
+    query = get_module(source).validation_query()
+
+    case run_query(source, credentials, query, [], opts) do
+      {:ok, _} -> :ok
+      {:error, _} -> {:error, :invalid_conn_info}
+    end
+  end
+
   require Logger
   alias Carrier.Core.DataHelper
 
