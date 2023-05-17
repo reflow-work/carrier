@@ -13,6 +13,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
       |> assign(:sql_template, "")
       |> assign(:query_errors, [])
       |> assign(:query_result, nil)
+      |> assign(:show_all_query_result, false)
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:timezone, TimezoneHelper.get_timezone())
 
@@ -97,11 +98,18 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
           <div class="mt-6">
             <.card_title title="쿼리 결과 데이터" />
             <p :if={!@query_result} class="mt-2">쿼리를 실행해주세요.</p>
-            <.table :if={@query_result} id="query_result" rows={@query_result.data |> Enum.reverse()}>
+            <.table
+              :if={@query_result}
+              id="query_result"
+              rows={query_result_data(@query_result, @show_all_query_result)}
+            >
               <:col :let={row} :for={column <- @query_result.columns} label={column}>
                 <%= row[column] %>
               </:col>
             </.table>
+            <.button type="button" phx-target={@myself} phx-click="toggle_show_all_query_result">
+              <%= if @show_all_query_result, do: "숨기기", else: "더보기" %>
+            </.button>
           </div>
         </.card>
       </.card_container>
@@ -146,6 +154,15 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("toggle_show_all_query_result", _, socket) do
+    socket =
+      socket
+      |> update(:show_all_query_result, &(!&1))
+
+    {:noreply, socket}
+  end
+
   defp validate_and_send_data_source_info_form(socket) do
     %DataSource{id: data_source_id, source: source} = socket.assigns.data_source
 
@@ -162,7 +179,17 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
   end
 
   defp run_query_disabled?(sql_template, query_validations) do
-    sql_template |> Blankable.blank?() |> IO.inspect() ||
-      query_validations |> Map.values() |> Enum.all?(&(!&1))
+    sql_template |> Blankable.blank?() || query_validations |> Map.values() |> Enum.all?(&(!&1))
+  end
+
+  defp query_result_data(query_result, show_all_query_result) do
+    query_result.data
+    |> Enum.reverse()
+    |> then(
+      &case show_all_query_result do
+        true -> &1
+        false -> &1 |> Enum.take(5)
+      end
+    )
   end
 end
