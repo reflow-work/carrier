@@ -271,6 +271,7 @@ defmodule CarrierWeb.CoreComponents do
 
   attr :label_align, :atom, default: :top, values: ~w(top left)a
   attr :class, :any, default: nil
+  attr :input_class, :any, default: nil
 
   attr :rest, :global,
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
@@ -376,10 +377,12 @@ defmodule CarrierWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "mt-2 block w-full h-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           "min-h-[6rem] border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          "resize-none",
+          @errors != [] && "border-rose-400 focus:border-rose-400",
+          @input_class
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
