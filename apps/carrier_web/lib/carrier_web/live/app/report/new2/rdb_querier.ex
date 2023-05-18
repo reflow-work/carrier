@@ -4,6 +4,10 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   alias CarrierWeb.Components.QueryChecker
   alias Carrier.Core.TimezoneHelper
 
+  @max_period_days 365
+  @max_over_days 28
+  @max_window_days 7
+
   @impl true
   def mount(socket) do
     socket =
@@ -124,9 +128,9 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
         sql_template: sql_template,
         datetime: DateTime.utc_now(),
         timezone: socket.assigns.timezone,
-        period_days: 28,
-        over_days: 7,
-        window_days: 7
+        period_days: @max_period_days,
+        over_days: @max_over_days,
+        window_days: @max_window_days
       })
       |> case do
         {:ok, query_result} ->
