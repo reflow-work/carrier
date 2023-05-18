@@ -1,7 +1,9 @@
 defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
+  alias Carrier.Billing
   alias Carrier.Core.TimeHelper
+  alias Carrier.Roles.Role
 
   on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.SubscriptionHook)
@@ -11,11 +13,15 @@ defmodule CarrierWeb.App.ReportLive.Index do
     socket =
       socket
       |> assign(:reports, [])
+      |> assign(:active_subscription, nil)
+      |> load_active_subscription()
 
     socket =
       case connected?(socket) do
         true ->
-          socket = socket |> load_reports()
+          socket =
+            socket
+            |> load_reports()
 
           case length(socket.assigns.reports) < 1 do
             true -> socket |> push_navigate(to: ~p"/app/reports/new")
@@ -90,5 +96,19 @@ defmodule CarrierWeb.App.ReportLive.Index do
   defp format_trigger_time(trigger_time, timezone) do
     TimeHelper.from_utc_time(trigger_time, timezone)
     |> Timex.format!("매일 {_h24}시")
+  end
+
+  defp load_active_subscription(socket) do
+    case Billing.fetch_active_subscription() do
+      {:ok, subscription} ->
+        socket |> assign(:active_subscription, subscription)
+    end
+  end
+
+  defp disabled_new_report_button(role, reports) do
+    case role |> Role.report_max_count() do
+      nil -> false
+      _ -> role |> Role.report_max_count() <= reports |> length()
+    end
   end
 end

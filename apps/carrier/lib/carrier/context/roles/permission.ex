@@ -4,7 +4,7 @@ defmodule Carrier.Role.Permission do
       "billing.payment.manage",
       "data-source.tableau",
       "reports.max-count.50",
-      "reports.max-count.infinite"
+      "reports.max-count.infinity"
     ]
   end
 end

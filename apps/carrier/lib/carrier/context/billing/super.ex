@@ -27,7 +27,7 @@ defmodule Carrier.Billing.Super do
 
   def postload_plan(%Subscription{} = subscription) do
     subscription
-    |> TenantRepo.preload(:plan, skip_org_id: true)
+    |> TenantRepo.preload([plan: :role], skip_org_id: true)
   end
 
   def postload_role(%Plan{} = plan) do
