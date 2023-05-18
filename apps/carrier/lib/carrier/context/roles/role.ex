@@ -59,19 +59,10 @@ defmodule Carrier.Roles.Role do
       nil ->
         0
 
-      _ ->
-        max_count =
-          report_max_count_permission
-          |> String.split(".")
-          |> List.last()
-
-        case max_count do
-          "infinity" ->
-            :infinity
-
-          _ ->
-            max_count
-            |> String.to_integer()
+      "reports.max-count." <> max_count_str ->
+        case max_count_str do
+          "infinity" -> :infinity
+          _ -> max_count_str |> String.to_integer()
         end
     end
   end
