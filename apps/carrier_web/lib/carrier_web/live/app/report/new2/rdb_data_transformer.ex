@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
   use CarrierWeb, :live_component
   use Carrier.{Integrations, Data}
   alias CarrierWeb.App.ReportLive.New2.DataSourceInfoParams
+  alias CarrierWeb.App.ReportLive.New2.RDBQuerier
   alias Doumi.Phoenix.Params
 
   @impl true
@@ -31,7 +32,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
     ~H"""
     <div>
       <.live_component
-        module={CarrierWeb.App.ReportLive.New2.RDBQuerier}
+        module={RDBQuerier}
         id="rdb_querier"
         data_source={@data_source}
         onchange={
