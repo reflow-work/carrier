@@ -1,5 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
   use Ecto.Schema
+  use Doumi.Phoenix.Params, as: :data_source_info
   import Ecto.Changeset
   import Carrier.Data.Source.RDB.Guard
   alias CarrierWeb.App.ReportLive.New2.{RDBParams, TableauParams}

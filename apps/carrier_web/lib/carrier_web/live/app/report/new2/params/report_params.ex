@@ -1,5 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2.ReportParams do
   use Ecto.Schema
+  use Doumi.Phoenix.Params, as: :report
   import Ecto.Changeset
 
   embedded_schema do

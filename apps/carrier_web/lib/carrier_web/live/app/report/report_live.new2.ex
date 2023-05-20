@@ -27,9 +27,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_id =
       params["data_source_id"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, DataSource))
 
-    report_form =
-      %ReportParams{}
-      |> Params.to_form(%{}, as: :report_form, validate: false)
+    report_form = ReportParams.to_form(%{}, validate: false)
 
     socket =
       socket
@@ -80,7 +78,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
-  def handle_event("validate_report_form", %{"report_form" => report_input}, socket) do
+  def handle_event("validate_report_form", %{"report" => report_input}, socket) do
     socket =
       socket
       |> update_report_form(report_input)
@@ -157,7 +155,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       }
       |> Map.merge(report_input)
 
-    report_form = Params.to_form(%ReportParams{}, report_input, as: :report_form)
+    report_form = ReportParams.to_form(report_input)
 
     socket
     |> assign(:report_form, report_form)

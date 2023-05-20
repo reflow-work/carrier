@@ -123,8 +123,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       }
     }
 
-    data_source_info_form =
-      Params.to_form(%DataSourceInfoParams{}, data_source_info_input, as: :data_source_info)
+    data_source_info_form = DataSourceInfoParams.to_form(data_source_info_input)
 
     send(self(), {:update, {:data_source_info_form, data_source_info_form}})
   end

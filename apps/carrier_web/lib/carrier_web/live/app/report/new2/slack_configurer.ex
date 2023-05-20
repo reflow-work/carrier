@@ -110,8 +110,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         end)
     }
 
-    data_target_info_form =
-      Params.to_form(%DataTargetInfoParams{}, data_target_info_input, as: :data_target_info)
+    data_target_info_form = DataTargetInfoParams.to_form(data_target_info_input)
 
     send(self(), {:update, {:data_target_info_form, data_target_info_form}})
   end

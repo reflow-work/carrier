@@ -1,5 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2.DataTargetInfoParams do
   use Ecto.Schema
+  use Doumi.Phoenix.Params, as: :data_target_info
   import Ecto.Changeset
   alias CarrierWeb.App.ReportLive.New2.SlackParams
 
