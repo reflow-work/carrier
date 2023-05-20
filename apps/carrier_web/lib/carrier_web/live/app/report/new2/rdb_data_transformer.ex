@@ -48,6 +48,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
           <div>
             <.simple_form for={@rdb_form} phx-target={@myself} phx-change="validate_rdb">
               <.inputs_for :let={chart} field={@rdb_form[:charts]}>
+                <.field_adder_hidden for={chart} name="rdb[chart_order][]" />
                 <div class="flex space-x-8">
                   <div class="flex-1 max-w-md">
                     <.input
@@ -56,12 +57,14 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
                       label="차트 이름"
                       label_align={:left}
                     />
+                    <.field_remover for={chart} name="rdb[chart_delete][]" label="차트 제거" />
                   </div>
                   <div class="flex-1">
                     미리보기
                   </div>
                 </div>
               </.inputs_for>
+              <.field_adder name="rdb[chart_order][]" label="차트 추가" />
             </.simple_form>
           </div>
         </.card>
@@ -71,7 +74,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
   end
 
   @impl true
-  def handle_event("validate_rdb", params, socket) do
+  def handle_event("validate_rdb", %{"rdb" => params}, socket) do
     rdb_form = validate_rdb(params, socket)
 
     socket =
@@ -83,11 +86,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
 
   defp validate_rdb(params, socket) do
     params =
-      socket.assigns.rdb_form
-      |> Params.to_params(
-        params
-        |> Map.merge(%{"sql_template" => socket.assigns.sql_template, "unit" => "day"})
-      )
+      params
+      |> Map.merge(%{"sql_template" => socket.assigns.sql_template, "unit" => "day"})
 
     RDBParams.to_form(params)
   end

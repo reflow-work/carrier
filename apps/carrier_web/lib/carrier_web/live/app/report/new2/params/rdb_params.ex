@@ -24,7 +24,12 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBParams do
   def changeset(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required)
-    |> cast_embed(:charts, with: &chart_changeset/2, required: true)
+    |> cast_embed(:charts,
+      with: &chart_changeset/2,
+      sort_param: :chart_order,
+      drop_param: :chart_delete,
+      required: true
+    )
   end
 
   @chart_required [:name, :period_value]
