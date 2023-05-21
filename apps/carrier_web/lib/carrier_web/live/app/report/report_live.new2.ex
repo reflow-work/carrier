@@ -16,7 +16,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:title, nil)
       |> assign(:selected_data_source, nil)
       |> assign(:data_source_info_form, nil)
-      |> assign(:data_targte_info_form, nil)
+      |> assign(:data_target_info_form, nil)
       |> assign(:valid?, false)
 
     {:ok, socket}
@@ -66,13 +66,12 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   @impl true
   def handle_event("select_data_source", %{"id" => data_source_id_str}, socket) do
     data_source_id = data_source_id_str |> String.to_integer()
+    data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
 
     socket =
       socket
-      |> assign(
-        :selected_data_source,
-        socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
-      )
+      |> assign(:selected_data_source, data_source)
+      |> push_patch(to: ~p"/app/reports/new2?data_source_id=#{data_source}", replace: true)
 
     {:noreply, socket}
   end
