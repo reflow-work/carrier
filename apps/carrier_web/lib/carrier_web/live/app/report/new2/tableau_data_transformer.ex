@@ -4,7 +4,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   alias CarrierWeb.App.ReportLive.New2.TableauView
   alias CarrierWeb.App.ReportLive.New2.DataSourceInfoParams
   alias Carrier.Data.Source.Tableau
-  alias Doumi.Phoenix.Params
 
   @impl true
   def mount(socket) do
