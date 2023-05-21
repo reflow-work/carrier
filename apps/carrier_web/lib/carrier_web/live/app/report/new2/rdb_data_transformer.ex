@@ -57,6 +57,14 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
                       label="차트 이름"
                       label_align={:left}
                     />
+                    <.input
+                      type="text"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      field={chart[:period_value]}
+                      label="차트 기간"
+                      label_align={:left}
+                    />
                     <.field_remover for={chart} name="rdb[chart_delete][]" label="차트 제거" />
                   </div>
                   <div class="flex-1">
