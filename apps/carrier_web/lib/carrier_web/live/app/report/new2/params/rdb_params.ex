@@ -37,7 +37,12 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBParams do
     struct
     |> cast(attrs, @chart_required)
     |> validate_required(@chart_required)
-    |> cast_embed(:metrics, with: &metric_changeset/2, required: true)
+    |> cast_embed(:metrics,
+      with: &metric_changeset/2,
+      sort_param: :metric_order,
+      drop_param: :metric_delete,
+      required: true
+    )
   end
 
   @metric_required [:name, :column, :window_size]
