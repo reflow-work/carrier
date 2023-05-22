@@ -22,6 +22,7 @@ defmodule Carrier.Data.Source.Tableau do
     with credentials = DataSource.to_credentials(data_source),
          {:ok, auth} <- signin(credentials),
          view_ids = views |> Enum.map(& &1.id),
+         {:ok, views} <- view_ids |> do_list_views_async(auth),
          {:ok, view_image_binaries} <- view_ids |> do_list_view_image_binaries_async(auth),
          {:ok, view_pdf_binaries} <- view_ids |> do_list_view_pdf_binaries_async(auth) do
       raw_data =
@@ -183,6 +184,17 @@ defmodule Carrier.Data.Source.Tableau do
     |> then(&{:ok, &1})
   end
 
+  defp do_list_views_async(view_ids, auth) do
+    with {:ok, results} <-
+           view_ids
+           |> Async.map(fn view_id -> do_get_view(view_id, auth) end,
+             timeout: :timer.seconds(30)
+           )
+           |> Async.unwrap_map_ok_results() do
+      {:ok, results}
+    end
+  end
+
   defp do_list_view_image_binaries_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
@@ -203,6 +215,10 @@ defmodule Carrier.Data.Source.Tableau do
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
+  end
+
+  defp do_get_view(view_id, %{host: host, site_id: site_id, token: token}) do
+    TableauAPI.get_view(%{host: host, site_id: site_id, view_id: view_id, token: token})
   end
 
   defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
