@@ -16,7 +16,8 @@ defmodule Carrier.Application do
       Carrier.Vault,
       {Finch, name: Carrier.Finch, pools: %{default: [size: 100]}},
       {DynamicSupervisor, strategy: :one_for_one, name: Carrier.GothSupervisor},
-      {Task.Supervisor, name: Carrier.TaskSupervisor}
+      {Task.Supervisor, name: Carrier.TaskSupervisor},
+      Carrier.PythonPool
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Carrier.Supervisor)
