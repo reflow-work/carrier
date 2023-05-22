@@ -7,6 +7,14 @@ defmodule Carrier.Data.Block do
     }
   end
 
+  def link(text, url) do
+    %{
+      type: :link,
+      text: text,
+      url: url
+    }
+  end
+
   def image(title, image_url, alt_text) do
     %{
       type: :image,

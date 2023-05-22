@@ -68,6 +68,10 @@ defmodule Carrier.Data.Target.Slack do
     SlackAPI.Block.build_text_block(text)
   end
 
+  defp block_to_message(%{type: :link, text: text, url: url}) do
+    SlackAPI.Block.build_link_block(text, url)
+  end
+
   defp block_to_message(%{
          type: :image,
          title: title,

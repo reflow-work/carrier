@@ -9,6 +9,10 @@ defmodule Carrier.External.SlackAPI.Block do
     }
   end
 
+  def build_link_block(text, url) do
+    build_text_block("<#{url}|#{text}>")
+  end
+
   def build_image_block(url, title, alt_text) do
     encoded_url = url |> URI.encode()
 
