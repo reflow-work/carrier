@@ -16,8 +16,8 @@ defmodule CarrierWeb.CoreComponents do
   """
   use Phoenix.Component
 
-  # alias Phoenix.LiveView.JS
   import CarrierWeb.Gettext
+  alias Phoenix.LiveView.JS
 
   # @doc """
   # Renders a modal.
@@ -449,6 +449,53 @@ defmodule CarrierWeb.CoreComponents do
         <.error :for={msg <- @errors}><%= msg %></.error>
       </div>
     </div>
+    """
+  end
+
+  attr :name, :string, required: true
+  attr :label, :string, default: nil
+
+  def field_adder(assigns) do
+    ~H"""
+    <label class="block cursor-pointer">
+      <input type="checkbox" name={@name} class="hidden" />
+      <.icon name="hero-plus-circle" /><%= @label %>
+    </label>
+    """
+  end
+
+  attr :for, :any, required: true
+  attr :name, :string, required: true
+
+  def field_adder_hidden(assigns) do
+    ~H"""
+    <input type="hidden" name={@name} value={@for.index} />
+    """
+  end
+
+  attr :for, :any, required: true
+  attr :name, :string, required: true
+  attr :label, :string, default: nil
+
+  def field_remover(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:id, fn %{for: for} -> "#{for.id}-delete" end)
+
+    ~H"""
+    <input
+      id={@id}
+      type="hidden"
+      name={@name}
+      data-delete={
+        JS.set_attribute({"value", @for.index})
+        |> JS.dispatch("input")
+        |> JS.remove_attribute("value")
+      }
+    />
+    <button type="button" phx-click={JS.exec("data-delete", to: "##{@id}")}>
+      <.icon name="hero-x-mark" /><%= @label %>
+    </button>
     """
   end
 
