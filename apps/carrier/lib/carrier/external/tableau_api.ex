@@ -44,6 +44,22 @@ defmodule Carrier.External.TableauAPI do
     end
   end
 
+  def get_view(%{view_id: view_id, host: host, site_id: site_id, token: token}) do
+    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}",
+      query: [
+        {"fields", "_default_,project.name,workbook.name"}
+      ]
+    )
+    |> handle_response()
+    |> case do
+      {:ok, %{"view" => view}} ->
+        {:ok, View.new(view)}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def query_views_for_site(%{host: host, site_id: site_id, page: page, token: token}) do
     Tesla.get(client(host, token), "/sites/#{site_id}/views",
       query: [
