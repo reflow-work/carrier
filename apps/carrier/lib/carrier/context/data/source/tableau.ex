@@ -4,8 +4,8 @@ defmodule Carrier.Data.Source.Tableau do
   use Carrier.{Integrations, Reports}
   alias Carrier.Data.Block
   alias Carrier.External.TableauAPI
-  alias Carrier.Core.{Async, Traversable}
-  alias Carrier.Uploader
+  alias Carrier.Core.{Async, Tmp}
+  alias Carrier.{Uploader, PDF}
 
   ### behaviors
 
@@ -36,39 +36,47 @@ defmodule Carrier.Data.Source.Tableau do
 
   @impl true
   def transform_data(%DataSource{source: :tableau, org_id: org_id}, views) do
-    with {:ok, view_files} <-
+    [views, pdf_binaries] =
+      views
+      |> Enum.map(fn view ->
+        {pdf_binary, view} = view |> Map.pop(:pdf_binary)
+
+        [view, pdf_binary]
+      end)
+      |> Enum.zip_with(& &1)
+
+    with {:ok, view_image_urls} <-
            views
            |> Async.map(
-             fn %{image_binary: image_binary, pdf_binary: pdf_binary} ->
-               [
-                 Uploader.upload(:report_storage, org_id, image_binary, :png),
-                 Uploader.upload(:report_storage, org_id, pdf_binary, :pdf)
-               ]
-               |> Traversable.traverse()
+             fn %{image_binary: image_binary} ->
+               Uploader.upload(:report_storage, org_id, image_binary, :png)
              end,
              timeout: :timer.seconds(30)
            )
-           |> Async.unwrap_map_ok_results() do
-      transformed_data =
-        Enum.zip_with(views, view_files, fn view, [view_image_url, view_pdf_url] ->
-          view |> Map.merge(%{image_url: view_image_url, pdf_url: view_pdf_url})
+           |> Async.unwrap_map_ok_results(),
+         merged_pdf_binary = merge_pdf_binaries(pdf_binaries),
+         {:ok, pdf_url} <- Uploader.upload(:report_storage, org_id, merged_pdf_binary, :pdf) do
+      views =
+        Enum.zip_with(views, view_image_urls, fn view, view_image_url ->
+          view |> Map.put(:image_url, view_image_url)
         end)
 
-      {:ok, transformed_data}
+      {:ok, %{views: views, pdf_url: pdf_url}}
     end
   end
 
   @impl true
-  def data_to_threads(%DataSource{source: :tableau}, views) do
+  def data_to_threads(%DataSource{source: :tableau}, %{views: views, pdf_url: pdf_url}) do
     threads =
       views
-      |> Enum.map(fn %{full_name: full_name, image_url: image_url, pdf_url: pdf_url} ->
+      |> Enum.map(fn %{full_name: full_name, image_url: image_url} ->
         [
           Block.text(full_name, :bold),
-          Block.image(full_name, image_url, full_name),
-          Block.button("Open PDF", pdf_url)
+          Block.image(full_name, image_url, full_name)
         ]
       end)
+
+    threads = threads ++ [[Block.button("Open PDF", pdf_url)]]
 
     {:ok, threads}
   end
@@ -213,5 +221,19 @@ defmodule Carrier.Data.Source.Tableau do
       view_id: view_id,
       token: token
     })
+  end
+
+  defp merge_pdf_binaries(pdf_binaries) do
+    pdf_file_paths =
+      pdf_binaries
+      |> Enum.map(fn pdf_binary ->
+        file_path = Tmp.tmp_path(".pdf")
+        :ok = File.write!(file_path, pdf_binary)
+        file_path
+      end)
+
+    merged_pdf_file_path = PDF.merge(pdf_file_paths)
+
+    File.read!(merged_pdf_file_path)
   end
 end
