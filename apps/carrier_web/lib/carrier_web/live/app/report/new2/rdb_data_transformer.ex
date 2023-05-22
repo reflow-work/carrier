@@ -11,7 +11,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
       socket
       |> assign(:sql_template, "")
       |> assign(:query_result, nil)
-      |> assign(:rdb_form, RDBParams.to_form(%{charts: [%{}]}))
+      |> assign(:rdb_form, RDBParams.to_form(%{charts: [%{metrics: [%{}]}]}))
 
     {:ok, socket}
   end
@@ -56,6 +56,42 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
                       field={chart[:name]}
                       label="차트 이름"
                       label_align={:left}
+                    />
+                    <.input
+                      type="text"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      field={chart[:period_value]}
+                      label="차트 기간"
+                      label_align={:left}
+                    />
+                    <.inputs_for :let={metric} field={chart[:metrics]}>
+                      <.field_adder_hidden
+                        for={metric}
+                        name={"rdb[charts][#{chart.index}][metric_order][]"}
+                      />
+                      <.input
+                        type="text"
+                        field={metric[:name]}
+                        label="지표 이름"
+                        label_align={:left}
+                      />
+                      <.input
+                        type="select"
+                        field={metric[:column]}
+                        options={metric_columns(@query_result)}
+                        label="지표"
+                        label_align={:left}
+                      />
+                      <.field_remover
+                        for={metric}
+                        name={"rdb[charts][#{chart.index}][metric_delete][]"}
+                        label="지표 제거"
+                      />
+                    </.inputs_for>
+                    <.field_adder
+                      name={"rdb[charts][#{chart.index}][metric_order][]"}
+                      label="지표 추가"
                     />
                     <.field_remover for={chart} name="rdb[chart_delete][]" label="차트 제거" />
                   </div>
@@ -106,5 +142,9 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformer do
     data_source_info_form = DataSourceInfoParams.to_form(data_source_info_input)
 
     send(self(), {:update, {:data_source_info_form, data_source_info_form}})
+  end
+
+  defp metric_columns(%{columns: [_date_column | metric_columns]} = _query_results) do
+    metric_columns
   end
 end

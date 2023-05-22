@@ -4,7 +4,6 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   alias CarrierWeb.App.ReportLive.New2.DataTargetInfoParams
   alias Carrier.Data.Target.Slack
   alias Carrier.Core.Nillable
-  alias Doumi.Phoenix.Params
 
   @impl true
   def mount(socket) do
