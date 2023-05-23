@@ -25,22 +25,23 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
+  # https://help.tableau.com/current/pro/desktop/en-us/embed_structure.htm
   defmodule View do
-    defstruct [:id, :name, :full_name, :view_url_name]
+    defstruct [:id, :name, :full_name, :view_path]
 
     def new(%{
           "id" => id,
           "name" => name,
           "location" => %{"type" => "Project"},
           "project" => %{"name" => project_name},
-          "workbook" => %{"name" => workbook_name},
-          "viewUrlName" => view_url_name
+          "workbook" => %{"name" => workbook_name, "contentUrl" => workbook_content_url},
+          "viewUrlName" => viewUrlName
         }) do
       %__MODULE__{
         id: id,
         name: name,
         full_name: "#{project_name} / #{workbook_name} / #{name}",
-        view_url_name: view_url_name
+        view_path: "#{workbook_content_url}/#{viewUrlName}"
       }
     end
 
@@ -48,19 +49,19 @@ defmodule Carrier.Data.Source.Tableau do
           "id" => id,
           "name" => name,
           "location" => %{"type" => "PersonalSpace"},
-          "workbook" => %{"name" => workbook_name},
-          "viewUrlName" => view_url_name
+          "workbook" => %{"name" => workbook_name, "contentUrl" => workbook_content_url},
+          "viewUrlName" => viewUrlName
         }) do
       %__MODULE__{
         id: id,
         name: name,
         full_name: "Personal Space / #{workbook_name} / #{name}",
-        view_url_name: view_url_name
+        view_path: "#{workbook_content_url}/#{viewUrlName}"
       }
     end
 
-    def view_url(%__MODULE__{view_url_name: view_url_name}, host, site) do
-      "#{host}/#/site/#{site}/views/#{view_url_name}"
+    def view_url(%__MODULE__{view_path: view_path}, host, site) do
+      "#{host}/#/site/#{site}/views/#{view_path}"
     end
   end
 
