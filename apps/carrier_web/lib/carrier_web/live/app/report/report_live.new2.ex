@@ -68,10 +68,18 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_id = data_source_id_str |> String.to_integer()
     data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
 
+    # TODO : remove it
     socket =
-      socket
-      |> assign(:selected_data_source, data_source)
-      |> push_patch(to: ~p"/app/reports/new2?data_source_id=#{data_source}", replace: true)
+      case data_source.source do
+        :tableau ->
+          socket
+          |> assign(:selected_data_source, data_source)
+          |> push_patch(to: ~p"/app/reports/new2?data_source_id=#{data_source}", replace: true)
+
+        _ ->
+          socket
+          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{data_source}")
+      end
 
     {:noreply, socket}
   end

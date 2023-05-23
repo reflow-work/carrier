@@ -223,11 +223,19 @@ defmodule CarrierWeb.App.ReportLive.New do
       socket.assigns.data_sources
       |> Enum.find(&(&1.id == data_source_id))
 
+    # TODO: remove it
     socket =
-      socket
-      |> assign(:data_source, data_source)
-      |> init_assigns_by_data_source()
-      |> init_changeset()
+      case data_source.source do
+        :tableau ->
+          socket
+          |> push_navigate(to: ~p"/app/reports/new2?data_source_id=#{data_source}")
+
+        _ ->
+          socket
+          |> assign(:data_source, data_source)
+          |> init_assigns_by_data_source()
+          |> init_changeset()
+      end
 
     {:noreply, socket}
   end
