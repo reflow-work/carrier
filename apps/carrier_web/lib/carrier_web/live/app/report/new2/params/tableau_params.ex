@@ -5,7 +5,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauParams do
   embedded_schema do
     embeds_many :views, View, primary_key: false, on_replace: :delete do
       field :id, :string
-      field :full_name, :string
     end
   end
 
@@ -17,7 +16,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauParams do
     |> validate_length(:views, min: 1)
   end
 
-  @required_view [:id, :full_name]
+  @required_view [:id]
   defp changeset_view(%__MODULE__.View{} = struct, attrs) do
     struct
     |> cast(attrs, @required_view)

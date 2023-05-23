@@ -7,6 +7,64 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.Core.{Async, Tmp}
   alias Carrier.{Uploader, PDF}
 
+  ### models
+
+  defmodule Pagination do
+    defstruct [:page, :page_size, :total]
+
+    def new(%{
+          "pageNumber" => page_str,
+          "pageSize" => page_size_str,
+          "totalAvailable" => total_str
+        }) do
+      %__MODULE__{
+        page: String.to_integer(page_str),
+        page_size: String.to_integer(page_size_str),
+        total: String.to_integer(total_str)
+      }
+    end
+  end
+
+  # https://help.tableau.com/current/pro/desktop/en-us/embed_structure.htm
+  defmodule View do
+    defstruct [:id, :name, :full_name, :view_path]
+
+    def new(%{
+          "id" => id,
+          "name" => name,
+          "location" => %{"type" => "Project"},
+          "project" => %{"name" => project_name},
+          "workbook" => %{"name" => workbook_name, "contentUrl" => workbook_content_url},
+          "viewUrlName" => viewUrlName
+        }) do
+      %__MODULE__{
+        id: id,
+        name: name,
+        full_name: "#{project_name} / #{workbook_name} / #{name}",
+        view_path: "#{workbook_content_url}/#{viewUrlName}"
+      }
+    end
+
+    def new(%{
+          "id" => id,
+          "name" => name,
+          "location" => %{"type" => "PersonalSpace"},
+          "workbook" => %{"name" => workbook_name, "contentUrl" => workbook_content_url},
+          "viewUrlName" => viewUrlName
+        }) do
+      %__MODULE__{
+        id: id,
+        name: name,
+        full_name: "Personal Space / #{workbook_name} / #{name}",
+        view_path: "#{workbook_content_url}/#{viewUrlName}"
+      }
+    end
+
+    def view_url(%__MODULE__{view_path: view_path}, host, site) do
+      "#{host}/#/site/#{site}/views/#{view_path}"
+    end
+  end
+
   ### behaviors
 
   @impl true
@@ -19,23 +77,29 @@ defmodule Carrier.Data.Source.Tableau do
 
   @impl true
   def load_raw_data(%DataSource{source: :tableau} = data_source, %{views: views}) do
-    with credentials = DataSource.to_credentials(data_source),
+    with %{host: host, site: site} = credentials = DataSource.to_credentials(data_source),
          {:ok, auth} <- signin(credentials),
          view_ids = views |> Enum.map(& &1.id),
+         {:ok, views} <- view_ids |> do_list_views_async(auth),
          {:ok, view_image_binaries} <- view_ids |> do_list_view_image_binaries_async(auth),
          {:ok, view_pdf_binaries} <- view_ids |> do_list_view_pdf_binaries_async(auth) do
-      raw_data =
+      views =
         [views, view_image_binaries, view_pdf_binaries]
         |> Enum.zip_with(fn [view, view_image_binary, view_pdf_binary] ->
-          view |> Map.merge(%{image_binary: view_image_binary, pdf_binary: view_pdf_binary})
+          view
+          |> Map.merge(%{
+            view_url: View.view_url(view, host, site),
+            image_binary: view_image_binary,
+            pdf_binary: view_pdf_binary
+          })
         end)
 
-      {:ok, raw_data}
+      {:ok, %{views: views}}
     end
   end
 
   @impl true
-  def transform_data(%DataSource{source: :tableau, org_id: org_id}, views) do
+  def transform_data(%DataSource{source: :tableau, org_id: org_id}, %{views: views}) do
     [views, pdf_binaries] =
       views
       |> Enum.map(fn view ->
@@ -69,9 +133,13 @@ defmodule Carrier.Data.Source.Tableau do
   def data_to_threads(%DataSource{source: :tableau}, %{views: views, pdf_url: pdf_url}) do
     threads =
       views
-      |> Enum.map(fn %{full_name: full_name, image_url: image_url} ->
+      |> Enum.map(fn %{
+                       full_name: full_name,
+                       view_url: view_url,
+                       image_url: image_url
+                     } ->
         [
-          Block.text(full_name, :bold),
+          Block.link(full_name, view_url),
           Block.image(full_name, image_url, full_name)
         ]
       end)
@@ -82,45 +150,6 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   ### raw functions
-
-  defmodule Pagination do
-    defstruct [:page, :page_size, :total]
-
-    def new(%{
-          "pageNumber" => page_str,
-          "pageSize" => page_size_str,
-          "totalAvailable" => total_str
-        }) do
-      %__MODULE__{
-        page: String.to_integer(page_str),
-        page_size: String.to_integer(page_size_str),
-        total: String.to_integer(total_str)
-      }
-    end
-  end
-
-  defmodule View do
-    defstruct [:id, :name, :full_name]
-
-    def new(%{
-          "id" => id,
-          "name" => name,
-          "location" => %{"type" => "Project"},
-          "project" => %{"name" => project_name},
-          "workbook" => %{"name" => workbook_name}
-        }) do
-      %__MODULE__{id: id, name: name, full_name: "#{project_name} / #{workbook_name} / #{name}"}
-    end
-
-    def new(%{
-          "id" => id,
-          "name" => name,
-          "location" => %{"type" => "PersonalSpace"},
-          "workbook" => %{"name" => workbook_name}
-        }) do
-      %__MODULE__{id: id, name: name, full_name: "Personal Space / #{workbook_name} / #{name}"}
-    end
-  end
 
   def signin(%{host: host} = credentials) do
     with {:ok, %{token: token, site_id: site_id}} <- do_signin(credentials) do
@@ -183,6 +212,17 @@ defmodule Carrier.Data.Source.Tableau do
     |> then(&{:ok, &1})
   end
 
+  defp do_list_views_async(view_ids, auth) do
+    with {:ok, results} <-
+           view_ids
+           |> Async.map(fn view_id -> do_get_view(view_id, auth) end,
+             timeout: :timer.seconds(30)
+           )
+           |> Async.unwrap_map_ok_results() do
+      {:ok, results}
+    end
+  end
+
   defp do_list_view_image_binaries_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
@@ -203,6 +243,10 @@ defmodule Carrier.Data.Source.Tableau do
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
+  end
+
+  defp do_get_view(view_id, %{host: host, site_id: site_id, token: token}) do
+    TableauAPI.get_view(%{host: host, site_id: site_id, view_id: view_id, token: token})
   end
 
   defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
