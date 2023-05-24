@@ -146,8 +146,11 @@ defmodule CarrierWeb.App.ReportLive.New do
                   timezone: socket.assigns.timezone,
                   data_target_info: %{
                     data_target_id: report.data_target_info.data_target_id,
-                    channel_id: report.data_target_info.channel_id,
-                    channel_name: report.data_target_info.channel_name
+                    target: :slack,
+                    params: %{
+                      channel_id: report.data_target_info.params.channel_id,
+                      channel_name: report.data_target_info.channel_name
+                    }
                   },
                   data_source_info: %{
                     data_source_id: report.data_source_info.data_source_id,
@@ -1015,7 +1018,8 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   defp validate_report_changeset(socket, report_inputs) do
-    %{"hour" => hour_str, "data_target_info" => %{"channel_id" => channel_id}} = report_inputs
+    %{"hour" => hour_str, "data_target_info" => %{"params" => %{"channel_id" => channel_id}}} =
+      report_inputs
 
     trigger_time =
       TimeHelper.from!(hour: hour_str |> String.to_integer())
@@ -1035,8 +1039,11 @@ defmodule CarrierWeb.App.ReportLive.New do
           |> MapHelper.deep_merge(%{
             "trigger_time" => trigger_time,
             "data_target_info" => %{
-              "channel_name" => channel_name,
-              "channel_id" => channel_id
+              "target" => "slack",
+              "params" => %{
+                "channel_name" => channel_name,
+                "channel_id" => channel_id
+              }
             }
           })
 
@@ -1050,8 +1057,11 @@ defmodule CarrierWeb.App.ReportLive.New do
           |> MapHelper.deep_merge(%{
             "trigger_time" => trigger_time,
             "data_target_info" => %{
-              "channel_name" => channel_name,
-              "channel_id" => channel_id
+              "target" => "slack",
+              "params" => %{
+                "channel_name" => channel_name,
+                "channel_id" => channel_id
+              }
             }
           })
 

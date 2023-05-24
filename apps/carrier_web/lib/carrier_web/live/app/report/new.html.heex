@@ -392,7 +392,9 @@
 
                   <%= inputs_for f, :data_target_info, fn fii -> %>
                     <%= hidden_input(fii, :data_target_id, value: @data_target.id) %>
-                    <%= hidden_input(fii, :channel_id, value: @channel_id) %>
+                    <%= inputs_for fii, :params, fn fiip -> %>
+                      <%= hidden_input(fiip, :channel_id, value: @channel_id) %>
+                    <% end %>
 
                     <div id="data_target_info" class="flex items-center gap-x-2">
                       <%= label(fii, :channel_search_term, "레포트 발송 채널",

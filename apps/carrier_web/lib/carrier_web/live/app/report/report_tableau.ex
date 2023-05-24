@@ -12,8 +12,8 @@ defmodule CarrierWeb.App.ReportLive.New.ReportTableau do
 
     embeds_one :data_target_info, DataTargetInfo, primary_key: false, on_replace: :delete do
       field :data_target_id, :id
-      field :channel_id, :string
-      field :channel_name, :string
+      field :target, Ecto.Enum, values: [:slack], default: :slack
+      field :params, :map
     end
 
     embeds_one :data_source_info, DataSourceInfo, primary_key: false, on_replace: :delete do
@@ -37,7 +37,7 @@ defmodule CarrierWeb.App.ReportLive.New.ReportTableau do
     attrs
   end
 
-  @required_data_target_info [:data_target_id, :channel_id, :channel_name]
+  @required_data_target_info [:data_target_id, :target, :params]
   defp changeset_interation_info(%__MODULE__.DataTargetInfo{} = struct, attrs) do
     struct
     |> cast(attrs, @required_data_target_info)
