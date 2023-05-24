@@ -10,6 +10,7 @@ defmodule Carrier.Reports.Report do
     field :org_id, :id
     field :user_id, :id
     field :name, :string
+    field :interval, Ecto.Enum, values: [:daily]
     field :trigger_time, :time
     field :timezone, :string
 
