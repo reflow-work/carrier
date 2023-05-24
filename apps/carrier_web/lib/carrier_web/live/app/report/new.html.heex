@@ -168,6 +168,7 @@
         >
           <%= hidden_input(f, :org_id, value: @org.org_id) %>
           <%= hidden_input(f, :user_id, value: @user.id) %>
+          <%= hidden_input(f, :interval, value: :daily) %>
           <%= hidden_input(f, :timezone, value: @timezone) %>
 
           <div class="space-y-6">
@@ -486,6 +487,7 @@
           >
             <%= hidden_input(f, :org_id, value: @org.org_id) %>
             <%= hidden_input(f, :user_id, value: @user.id) %>
+            <%= hidden_input(f, :interval, value: :daily) %>
             <%= hidden_input(f, :timezone, value: @timezone) %>
 
             <%= inputs_for f, :data_source_info, fn fdsi -> %>

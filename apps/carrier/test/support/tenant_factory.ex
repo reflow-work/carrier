@@ -95,6 +95,13 @@ defmodule Carrier.TenantFactory do
   def report_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
+    {user, attrs} =
+      attrs
+      |> Map.pop_lazy(:user_id, fn ->
+        org = TenantRepo.get_by(Org, %{org_id: org_id}, skip_org_id: true)
+        insert(:user, org: org)
+      end)
+
     {report_info, attrs} =
       attrs |> Map.pop_lazy(:report_info, fn -> build(:report_info, org_id: org_id) end)
 
@@ -106,6 +113,7 @@ defmodule Carrier.TenantFactory do
 
     %Report{
       org_id: org_id,
+      user_id: user.id,
       report_info: report_info,
       name: seq(:report_name),
       trigger_time: Time.utc_now(),
@@ -119,7 +127,7 @@ defmodule Carrier.TenantFactory do
         }
       },
       data_source_info: %{
-        data_source_info: data_source_id,
+        data_source_id: data_source_id,
         source: :postgres,
         sql_template: @sql_template,
         timezone: "Asia/Seoul",

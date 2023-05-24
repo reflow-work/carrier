@@ -199,6 +199,54 @@ defmodule Carrier.ReportsTest do
     end
   end
 
+  describe "update_report/2" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      report = TenantFactory.insert(:report, org_id: org.org_id)
+
+      %{report: report}
+    end
+
+    test "with valid params", %{report: report} do
+      params = %{
+        org_id: report.org_id,
+        user_id: report.user_id,
+        name: "Updated Daily Report",
+        interval: :daily,
+        trigger_time: ~T[10:00:00],
+        timezone: "Asia/Seoul",
+        data_target_info: %{
+          data_target_id: report.data_target_info.data_target_id,
+          target: :slack,
+          params: %{
+            channel_id: "channel_id",
+            channel_name: "channel_name"
+          }
+        },
+        data_source_info: %{
+          data_source_id: report.data_source_info.data_source_id,
+          source: :postgres,
+          sql_template: "sql",
+          timezone: "Asia/Seoul",
+          period: 28,
+          window_size: 7,
+          comparing_period: 7,
+          columns: ["total_revenue"]
+        }
+      }
+
+      assert {:ok, updated_report} = Reports.update_report(report.id, params)
+      assert updated_report.report_info_id == report.report_info_id
+      assert updated_report.name == "Updated Daily Report"
+
+      deleted_report = reload!(report, TenantRepo)
+
+      assert deleted_report.deleted_at != nil
+    end
+  end
+
   describe "delete_report/1" do
     setup do
       org = TenantFactory.insert(:org)

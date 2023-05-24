@@ -67,28 +67,11 @@ defmodule Carrier.Reports do
     end
   end
 
-  def update_report(report_id, %{
-        org_id: org_id,
-        user_id: user_id,
-        name: name,
-        trigger_time: trigger_time,
-        timezone: timezone,
-        data_target_info: data_target_info,
-        data_source_info: data_source_info
-      }) do
+  def update_report(report_id, params) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Report{} = report} <- fetch_report(report_id),
            {:ok, %Report{} = created_report} <-
-             Report.create(%{
-               org_id: org_id,
-               report_info_id: report.report_info_id,
-               user_id: user_id,
-               name: name,
-               trigger_time: trigger_time,
-               timezone: timezone,
-               data_target_info: data_target_info,
-               data_source_info: data_source_info
-             })
+             Report.create(params |> Map.merge(%{report_info_id: report.report_info_id}))
              |> TenantRepo.insert(),
            {:ok, _deleted_report} <-
              report |> Report.delete(DateTime.utc_now()) |> TenantRepo.update(),
