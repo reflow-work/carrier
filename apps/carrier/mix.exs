@@ -71,7 +71,7 @@ defmodule Carrier.MixProject do
       {:bypass, "~> 2.1", only: :test},
       {:decimal, "~> 2.0"},
       {:blankable, "~> 1.0"},
-      {:doumi_port, "~> 0.2.0"},
+      {:doumi_port, "~> 0.4.0"},
       {:erlport, github: "nallwhy/erlport", ref: "6f5cb45", override: true},
       {:doumi_phoenix_params, "~> 0.3.2"}
     ]
