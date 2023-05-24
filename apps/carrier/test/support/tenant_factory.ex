@@ -112,7 +112,11 @@ defmodule Carrier.TenantFactory do
       timezone: "Asia/Seoul",
       data_target_info: %{
         data_target_id: data_target_id,
-        channel_id: "channel_id"
+        target: :slack,
+        params: %{
+          channel_id: "channel_id",
+          channel_name: "channe_name"
+        }
       },
       data_source_info: %{
         data_source_info: data_source_id,

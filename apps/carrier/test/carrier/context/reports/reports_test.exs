@@ -56,8 +56,11 @@ defmodule Carrier.ReportsTest do
         timezone: "Asia/Seoul",
         data_target_info: %{
           data_target_id: data_target.id,
-          channel_id: "channel_id",
-          channel_name: "channel_name"
+          target: :slack,
+          params: %{
+            channel_id: "channel_id",
+            channel_name: "channel_name"
+          }
         },
         data_source_info: %{
           data_source_id: data_source.id,
@@ -81,6 +84,9 @@ defmodule Carrier.ReportsTest do
                :trigger_time,
                :timezone
              ])
+
+      assert %DataTargetInfo{params: data_target_info_params} = created_report.data_target_info
+      assert %{} = data_target_info_params
 
       TenantRepo.set_skip_org_id()
 
@@ -150,6 +156,9 @@ defmodule Carrier.ReportsTest do
     test "with valid params", %{reports: [report]} do
       assert {:ok, [fetched_report]} = Reports.list_reports()
       assert same_records?(fetched_report, report)
+
+      assert %DataTargetInfo{params: data_target_info_params} = report.data_target_info
+      assert %{} = data_target_info_params
     end
   end
 
@@ -166,6 +175,8 @@ defmodule Carrier.ReportsTest do
     test "with report_id", %{report: report} do
       assert {:ok, fetched_report} = Reports.fetch_report(report.id)
       assert same_records?(fetched_report, report)
+      assert %DataTargetInfo{params: data_target_info_params} = report.data_target_info
+      assert %{} = data_target_info_params
     end
 
     test "with invalid report_id" do
