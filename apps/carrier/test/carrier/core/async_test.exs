@@ -46,7 +46,9 @@ defmodule Carrier.Core.AsyncTest do
 
       pid = self()
 
-      assert {:ok, _} = Async.run(fn -> send(pid, Process.get(:value)) end, dictionary_keys: [:value])
+      assert {:ok, _} =
+               Async.run(fn -> send(pid, Process.get(:value)) end, dictionary_keys: [:value])
+
       assert_receive 2
     end
   end
