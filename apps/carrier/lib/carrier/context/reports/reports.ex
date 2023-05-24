@@ -35,29 +35,12 @@ defmodule Carrier.Reports do
     end
   end
 
-  def create_report(%{
-        org_id: org_id,
-        user_id: user_id,
-        name: name,
-        trigger_time: trigger_time,
-        timezone: timezone,
-        data_target_info: data_target_info,
-        data_source_info: data_source_info
-      }) do
+  def create_report(%{org_id: org_id} = params) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %ReportInfo{} = report_info} <-
              ReportInfo.create(%{org_id: org_id}) |> TenantRepo.insert(),
            {:ok, %Report{} = report} <-
-             Report.create(%{
-               org_id: org_id,
-               report_info_id: report_info.id,
-               user_id: user_id,
-               name: name,
-               trigger_time: trigger_time,
-               timezone: timezone,
-               data_target_info: data_target_info,
-               data_source_info: data_source_info
-             })
+             Report.create(params |> Map.put(:report_info_id, report_info.id))
              |> TenantRepo.insert(),
            {:ok, _job} <- create_job_from_report(report, report.created_at) do
         {:ok, report |> Report.load_data_source_info()}

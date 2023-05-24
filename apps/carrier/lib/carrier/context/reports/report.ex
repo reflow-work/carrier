@@ -27,6 +27,7 @@ defmodule Carrier.Reports.Report do
     :report_info_id,
     :user_id,
     :name,
+    :interval,
     :trigger_time,
     :timezone,
     :data_source_info
@@ -60,27 +61,9 @@ defmodule Carrier.Reports.Report do
     |> validate_required(@required_for_delete)
   end
 
-  def create(%{
-        org_id: org_id,
-        report_info_id: report_info_id,
-        user_id: user_id,
-        name: name,
-        trigger_time: trigger_time,
-        timezone: timezone,
-        data_target_info: data_target_info,
-        data_source_info: data_source_info
-      }) do
+  def create(params) do
     %__MODULE__{}
-    |> changeset_for_create(%{
-      org_id: org_id,
-      report_info_id: report_info_id,
-      user_id: user_id,
-      name: name,
-      trigger_time: trigger_time,
-      timezone: timezone,
-      data_target_info: data_target_info,
-      data_source_info: data_source_info
-    })
+    |> changeset_for_create(params)
   end
 
   def list() do

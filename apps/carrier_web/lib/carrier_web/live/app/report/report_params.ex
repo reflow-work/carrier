@@ -7,6 +7,7 @@ defmodule CarrierWeb.App.ReportLive.New.ReportParams do
     field :user_id, :id
     field :name, :string
     field :hour, :string
+    field :interval, Ecto.Enum, values: [:daily], default: :daily
     field :trigger_time, :time
     field :timezone, :string
 
