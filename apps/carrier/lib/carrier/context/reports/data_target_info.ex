@@ -19,19 +19,6 @@ defmodule Carrier.Reports.DataTargetInfo do
     |> validate_params()
   end
 
-  def to_string(%__MODULE__{target: target} = struct) do
-    to_params(struct)
-    |> params_module(target).to_string()
-  end
-
-  def to_params(%__MODULE__{target: target, params: params}) do
-    params_module(target).to_params(params)
-  end
-
-  def load_params(%__MODULE__{} = struct) do
-    %__MODULE__{struct | params: to_params(struct)}
-  end
-
   defp validate_params(%Ecto.Changeset{changes: %{target: target}, valid?: true} = changeset) do
     changeset
     |> validate_change(:params, fn :params, params ->
@@ -46,6 +33,18 @@ defmodule Carrier.Reports.DataTargetInfo do
   end
 
   defp validate_params(changeset), do: changeset
+
+  def to_string(%__MODULE__{target: target, params: params}) do
+    params_module(target).to_string(params)
+  end
+
+  def load_params(%__MODULE__{} = struct) do
+    %__MODULE__{struct | params: to_params(struct)}
+  end
+
+  defp to_params(%__MODULE__{target: target, params: params}) do
+    params_module(target).to_params(params)
+  end
 
   defp params_module(target) do
     case target do
