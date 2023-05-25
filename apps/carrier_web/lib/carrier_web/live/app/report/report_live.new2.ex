@@ -1,9 +1,9 @@
 defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
-  use Carrier.{Integrations, Data}
+  use Carrier.{Integrations, Data, Reports}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
-  alias Carrier.Core.{Nillable, Async}
+  alias Carrier.Core.{Nillable, Async, TimeHelper}
   alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
@@ -96,6 +96,38 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_event("create_report", %{"report" => _report_input}, socket) do
+    report = socket.assigns.report_form |> Params.to_map()
+
+    report =
+      report
+      |> Map.update!(
+        :trigger_time,
+        &(&1 |> TimeHelper.to_utc_time(report.timezone))
+      )
+
+    data_source_info = socket.assigns.data_source_info_form |> Params.to_map()
+    data_target_info = socket.assigns.data_target_info_form |> Params.to_map()
+
+    params =
+      report
+      |> Map.merge(%{
+        data_source_info: data_source_info,
+        data_target_info: data_target_info
+      })
+
+    socket =
+      case Reports.create_report(params) do
+        {:ok, _report} ->
+          socket
+          |> put_flash_for(:info, "\"#{report.name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
+          |> push_navigate(to: ~p"/app/reports")
+
+        {:error, error} ->
+          Logger.error(inspect(error))
+
+          socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
+      end
+
     {:noreply, socket}
   end
 
