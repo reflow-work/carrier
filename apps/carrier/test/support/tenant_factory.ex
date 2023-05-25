@@ -185,6 +185,16 @@ defmodule Carrier.TenantFactory do
   def subscription_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
     {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> build(:plan) end)
+
+    {payment, attrs} =
+      attrs
+      |> Map.pop_lazy(:payment, fn ->
+        case plan.subscribable do
+          true -> build(:payment, org_id: org_id, amount: plan.price, currency: plan.currency)
+          false -> nil
+        end
+      end)
+
     {start_on, attrs} = attrs |> Map.pop(:start_on, DateTime.utc_now())
     end_on = Plan.calc_end_on(plan, start_on, 0)
     {status, attrs} = attrs |> Map.pop(:status, :pending)
@@ -192,6 +202,7 @@ defmodule Carrier.TenantFactory do
     %Subscription{
       org_id: org_id,
       plan: plan,
+      payment: payment,
       extension_count: 0,
       start_on: start_on,
       end_on: end_on
@@ -247,7 +258,7 @@ defmodule Carrier.TenantFactory do
     {credit_card, attrs} =
       attrs
       |> Map.pop_lazy(:credit_card, fn ->
-        case TenantRepo.get_by(CreditCard, org_id: org_id) do
+        case TenantRepo.get_by(CreditCard, [org_id: org_id], skip_org_id: true) do
           nil -> build(:credit_card, org_id: org_id)
           credit_card -> credit_card
         end
@@ -308,20 +319,10 @@ defmodule Carrier.TenantFactory do
   end
 
   defp apply_status(%Subscription{} = subscription, :active, attrs) do
-    payment =
-      attrs
-      |> Map.get_lazy(:payment, fn ->
-        case subscription.plan.type do
-          :trial -> nil
-          _ -> build(:payment, org_id: subscription.org_id)
-        end
-      end)
-
     subscription
     |> apply_status(:pending, attrs)
     |> Map.merge(%{
       status: :active,
-      payment: payment,
       activated_at: DateTime.utc_now()
     })
   end

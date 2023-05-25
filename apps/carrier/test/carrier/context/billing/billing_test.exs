@@ -63,7 +63,7 @@ defmodule Carrier.BillingTest do
       # no trial subscription is created & new pending subscription is created
       assert Subscription |> TenantRepo.all() |> Enum.count() == 3
 
-      # created payment
+      # confirmed payment
 
       assert %Payment{} = payment = Payment |> TenantRepo.get(created_subscription.payment_id)
 
@@ -93,7 +93,7 @@ defmodule Carrier.BillingTest do
 
       assert pending_subscription.org_id == created_subscription.org_id
       assert pending_subscription.plan_id == created_subscription.plan_id
-      assert pending_subscription.payment_id == nil
+      assert pending_subscription.payment_id != nil
       assert pending_subscription.origin_subscription_id == created_subscription.id
       assert pending_subscription.extension_count == 1
       assert same_values?(pending_subscription.start_on, created_subscription.end_on)
@@ -157,7 +157,7 @@ defmodule Carrier.BillingTest do
 
       assert created_subscription.org_id == org.org_id
       assert created_subscription.plan_id == plan.id
-      assert created_subscription.payment_id == nil
+      assert created_subscription.payment_id != nil
       assert created_subscription.origin_subscription_id == nil
       assert created_subscription.extension_count == 0
       assert same_values?(created_subscription.start_on, trial_subscription.end_on)
@@ -165,6 +165,16 @@ defmodule Carrier.BillingTest do
       assert created_subscription.status == :pending
       assert created_subscription.activated_at == nil
       assert created_subscription.expired_at == nil
+
+      # pending payment
+
+      assert %Payment{} = payment = Payment |> TenantRepo.get(created_subscription.payment_id)
+
+      assert payment.org_id == created_subscription.org_id
+      assert payment.credit_card_id == nil
+      assert same_values?(payment.amount, plan.price)
+      assert same_values?(payment.currency, plan.currency)
+      assert payment.status == :pending
 
       # no trial subscription is created & no pending subscription is created
       assert Subscription |> TenantRepo.all() |> Enum.count() == 2
@@ -382,13 +392,12 @@ defmodule Carrier.BillingTest do
       assert activated_subscription.status == :active
       assert activated_subscription.activated_at != nil
 
-      # created payment
+      # confirmed payment
 
       assert %Payment{} = payment = Payment |> TenantRepo.get(activated_subscription.payment_id)
 
       assert payment.org_id == activated_subscription.org_id
       assert payment.credit_card_id == credit_card.id
-      assert same_values?(payment.amount, plan.price)
       assert payment.status == :confirmed
 
       # created pending subscription
@@ -398,7 +407,7 @@ defmodule Carrier.BillingTest do
 
       assert pending_subscription.org_id == activated_subscription.org_id
       assert pending_subscription.plan_id == activated_subscription.plan_id
-      assert pending_subscription.payment_id == nil
+      assert pending_subscription.payment_id != nil
 
       assert pending_subscription.origin_subscription_id ==
                activated_subscription.origin_subscription_id
@@ -409,6 +418,16 @@ defmodule Carrier.BillingTest do
       assert pending_subscription.status == :pending
       assert pending_subscription.activated_at == nil
       assert pending_subscription.expired_at == nil
+
+      # pending payment
+
+      assert %Payment{} = payment = Payment |> TenantRepo.get(pending_subscription.payment_id)
+
+      assert payment.org_id == pending_subscription.org_id
+      assert payment.credit_card_id == nil
+      assert same_values?(payment.amount, plan.price)
+      assert same_values?(payment.currency, plan.currency)
+      assert payment.status == :pending
     end
 
     test "with trial subscription and next pending subscription", %{
@@ -475,7 +494,7 @@ defmodule Carrier.BillingTest do
 
       assert pending_subscription.org_id == activated_subscription.org_id
       assert pending_subscription.plan_id == activated_subscription.plan_id
-      assert pending_subscription.payment_id == nil
+      assert pending_subscription.payment_id != nil
       assert pending_subscription.origin_subscription_id == activated_subscription.id
       assert pending_subscription.extension_count == 1
       assert same_values?(pending_subscription.start_on, activated_subscription.end_on)
@@ -483,6 +502,16 @@ defmodule Carrier.BillingTest do
       assert pending_subscription.status == :pending
       assert pending_subscription.activated_at == nil
       assert pending_subscription.expired_at == nil
+
+      # pending payment
+
+      assert %Payment{} = payment = Payment |> TenantRepo.get(pending_subscription.payment_id)
+
+      assert payment.org_id == pending_subscription.org_id
+      assert payment.credit_card_id == nil
+      assert same_values?(payment.amount, plan.price)
+      assert same_values?(payment.currency, plan.currency)
+      assert payment.status == :pending
     end
 
     test "with invalid subscription_id" do
