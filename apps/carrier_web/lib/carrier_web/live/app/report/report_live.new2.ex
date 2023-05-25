@@ -162,7 +162,12 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       })
 
     socket =
-      case Reports.create_report(params) do
+      socket.assigns.action
+      |> case do
+        :new -> Reports.create_report(params)
+        :edit -> Reports.update_report(socket.assigns.report.id, params)
+      end
+      |> case do
         {:ok, _report} ->
           socket
           |> put_flash_for(:info, "\"#{report.name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
@@ -171,7 +176,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         {:error, error} ->
           Logger.error(inspect(error))
 
-          socket |> put_flash_for(:error, "레포트 생성에 실패하였습니다.", timeout: :timer.seconds(3))
+          socket |> put_flash_for(:error, "레포트 저장에 실패하였습니다.", timeout: :timer.seconds(3))
       end
 
     {:noreply, socket}
