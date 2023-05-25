@@ -257,11 +257,10 @@ defmodule Carrier.TenantFactory do
 
     %Payment{
       org_id: org_id,
-      credit_card: credit_card,
       amount: Decimal.new(100_000),
       currency: :KRW
     }
-    |> apply_status(status)
+    |> apply_status(status, %{credit_card: credit_card})
     |> merge_attributes(attrs)
   end
 
@@ -336,26 +335,27 @@ defmodule Carrier.TenantFactory do
     })
   end
 
-  defp apply_status(%Payment{} = payment, :pending) do
+  defp apply_status(%Payment{} = payment, :pending, _attrs) do
     payment
   end
 
-  defp apply_status(%Payment{} = payment, :confirmed) do
+  defp apply_status(%Payment{} = payment, :confirmed, %{credit_card: credit_card} = attrs) do
     payment
-    |> apply_status(:pending)
+    |> apply_status(:pending, attrs)
     |> Map.merge(%{
       status: :confirmed,
+      credit_card: credit_card,
       confirmed_at: DateTime.utc_now(),
-      provider: payment.credit_card.provider,
+      provider: credit_card.provider,
       provider_key: seq(:payment_provider_key),
       item: seq(:payment_item),
       payload: %{}
     })
   end
 
-  defp apply_status(%Payment{} = payment, :failed) do
+  defp apply_status(%Payment{} = payment, :failed, attrs) do
     payment
-    |> apply_status(:pending)
+    |> apply_status(:pending, attrs)
     |> Map.merge(%{
       status: :failed,
       failed_at: DateTime.utc_now(),
