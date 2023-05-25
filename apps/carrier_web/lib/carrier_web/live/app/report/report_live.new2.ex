@@ -85,12 +85,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
-  def handle_event("validate_report_form", %{"report" => report_input}, socket) do
+  def handle_event("validate_report", %{"report" => report_input}, socket) do
     socket =
       socket
       |> update_report_form(report_input)
       |> update_valid()
 
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("create_report", %{"report" => _report_input}, socket) do
     {:noreply, socket}
   end
 
