@@ -53,8 +53,31 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
   @impl true
   def handle_event("request_payment", _, socket) do
     socket =
-      socket
-      |> TossPaymentsHelper.issue_billing_key(socket.assigns.selected_plan.id)
+      case socket.assigns.credit_card do
+        nil ->
+          socket
+          |> TossPaymentsHelper.issue_billing_key(socket.assigns.selected_plan.id)
+
+        _ ->
+          Billing.start_subscription(%{
+            org_id: socket.assigns.org.org_id,
+            plan_id: socket.assigns.selected_plan.id,
+            start_on: DateTime.utc_now()
+          })
+          |> case do
+            {:ok, %Subscription{} = subscription} ->
+              socket
+              |> push_navigate(to: ~p"/app/subscriptions/done?subscription_id=#{subscription}")
+
+            {:error, reason} ->
+              Logger.error(
+                "Failed to start subscription: org_id: #{socket.assigns.org.org_id}, #{inspect(reason)}"
+              )
+
+              socket
+              |> put_flash_for(:error, "구독 신청에 실패했습니다. 다시 시도해주세요.", timeout: :timer.seconds(3))
+          end
+      end
 
     {:noreply, socket}
   end
