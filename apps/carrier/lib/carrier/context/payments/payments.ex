@@ -57,7 +57,6 @@ defmodule Carrier.Payments do
          {:ok, %Payment{} = payment} <-
            create_payment(%{
              org_id: org_id,
-             credit_card_id: credit_card.id,
              amount: amount,
              currency: currency
            }),
@@ -100,13 +99,11 @@ defmodule Carrier.Payments do
 
   defp create_payment(%{
          org_id: org_id,
-         credit_card_id: credit_card_id,
          amount: amount,
          currency: currency
        }) do
     Payment.create(%{
       org_id: org_id,
-      credit_card_id: credit_card_id,
       amount: amount,
       currency: currency
     })
@@ -128,7 +125,10 @@ defmodule Carrier.Payments do
     |> case do
       {:ok, %External.Model.PaymentInfo{} = payment_info} ->
         with {:ok, %Payment{} = confirmed_payment} <-
-               confirm_payment(payment, payment_info |> Map.from_struct()) do
+               confirm_payment(
+                 payment,
+                 payment_info |> Map.from_struct() |> Map.put(:credit_card_id, credit_card.id)
+               ) do
           {:ok, confirmed_payment}
         end
 
@@ -175,6 +175,7 @@ defmodule Carrier.Payments do
   end
 
   defp confirm_payment(%Payment{} = payment, %{
+         credit_card_id: credit_card_id,
          confirmed_at: confirmed_at,
          provider: provider,
          provider_key: provider_key,
@@ -183,6 +184,7 @@ defmodule Carrier.Payments do
        }) do
     payment
     |> Payment.confirm(%{
+      credit_card_id: credit_card_id,
       confirmed_at: confirmed_at,
       provider: provider,
       provider_key: provider_key,
