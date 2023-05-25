@@ -25,23 +25,23 @@ defmodule Carrier.Billing.Subscription do
   end
 
   @required_for_create [:org_id, :plan_id, :start_on, :end_on, :extension_count]
-  @optional_for_create [:origin_subscription_id]
+  @optional_for_create [:payment_id, :origin_subscription_id]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create ++ @optional_for_create)
     |> validate_required(@required_for_create)
     |> foreign_key_constraint(:plan_id)
+    |> foreign_key_constraint(:payment_id)
     |> unique_constraint(:status, name: :subscriptions_org_id_pending)
   end
 
   @required_for_activate [:status, :activated_at]
-  @optional_for_activate [:payment_id]
+  @optional_for_activate []
   defp changeset_for_activate(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_activate ++ @optional_for_activate)
     |> validate_required(@required_for_activate)
     |> validate_inclusion(:status, [:active])
-    |> foreign_key_constraint(:payment_id)
     |> unique_constraint(:status, name: :subscriptions_org_id_active)
   end
 

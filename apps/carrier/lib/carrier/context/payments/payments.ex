@@ -44,23 +44,19 @@ defmodule Carrier.Payments do
     end
   end
 
-  def process_payment(%{
-        org_id: org_id,
-        amount: amount,
-        currency: currency,
+  def create_payment(%{org_id: org_id, amount: amount, currency: currency}) do
+    Payment.create(%{org_id: org_id, amount: amount, currency: currency})
+    |> TenantRepo.insert()
+  end
+
+  def process_payment(payment_id, %{
         order_id: order_id,
         order_name: order_name,
         customer_email: customer_email,
         customer_name: customer_name
       }) do
     with {:ok, %CreditCard{} = credit_card} <- fetch_default_credit_card(),
-         {:ok, %Payment{} = payment} <-
-           create_payment(%{
-             org_id: org_id,
-             credit_card_id: credit_card.id,
-             amount: amount,
-             currency: currency
-           }),
+         {:ok, %Payment{} = payment} <- fetch_payment(payment_id),
          {:ok, %Payment{} = confirmed_payment} <-
            request_and_confirm_payment(payment, credit_card, %{
              order_id: order_id,
@@ -98,19 +94,16 @@ defmodule Carrier.Payments do
     end
   end
 
-  defp create_payment(%{
-         org_id: org_id,
-         credit_card_id: credit_card_id,
-         amount: amount,
-         currency: currency
-       }) do
-    Payment.create(%{
-      org_id: org_id,
-      credit_card_id: credit_card_id,
-      amount: amount,
-      currency: currency
-    })
-    |> TenantRepo.insert()
+  defp fetch_payment(payment_id) do
+    Payment.fetch(payment_id)
+    |> TenantRepo.one()
+    |> case do
+      %Payment{} = payment ->
+        {:ok, payment}
+
+      nil ->
+        {:error, {:resource_not_found, %{target: Payment, conditions: %{payment_id: payment_id}}}}
+    end
   end
 
   defp request_and_confirm_payment(%Payment{} = payment, %CreditCard{} = credit_card, %{
@@ -128,7 +121,10 @@ defmodule Carrier.Payments do
     |> case do
       {:ok, %External.Model.PaymentInfo{} = payment_info} ->
         with {:ok, %Payment{} = confirmed_payment} <-
-               confirm_payment(payment, payment_info |> Map.from_struct()) do
+               confirm_payment(
+                 payment,
+                 payment_info |> Map.from_struct() |> Map.put(:credit_card_id, credit_card.id)
+               ) do
           {:ok, confirmed_payment}
         end
 
@@ -175,6 +171,7 @@ defmodule Carrier.Payments do
   end
 
   defp confirm_payment(%Payment{} = payment, %{
+         credit_card_id: credit_card_id,
          confirmed_at: confirmed_at,
          provider: provider,
          provider_key: provider_key,
@@ -183,6 +180,7 @@ defmodule Carrier.Payments do
        }) do
     payment
     |> Payment.confirm(%{
+      credit_card_id: credit_card_id,
       confirmed_at: confirmed_at,
       provider: provider,
       provider_key: provider_key,

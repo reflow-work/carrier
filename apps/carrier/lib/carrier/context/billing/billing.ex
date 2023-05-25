@@ -174,10 +174,21 @@ defmodule Carrier.Billing do
     end
   end
 
-  defp create_subscription(params) do
+  defp create_subscription(%{org_id: org_id, plan_id: plan_id} = params) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, %Subscription{} = subscription} <-
-             Subscription.create(params) |> TenantRepo.insert() do
+      with {:ok, %Plan{subscribable: subscribable, price: price, currency: currency}} <-
+             Super.fetch_plan(plan_id),
+           {:ok, maybe_payment} <-
+             if(subscribable,
+               do: Payments.create_payment(%{org_id: org_id, amount: price, currency: currency}),
+               else: {:ok, nil}
+             ),
+           {:ok, %Subscription{} = subscription} <-
+             Subscription.create(
+               params
+               |> Map.put(:payment_id, maybe_payment |> Nillable.map(& &1.id))
+             )
+             |> TenantRepo.insert() do
         {:ok, subscription}
       end
     end)
@@ -237,12 +248,9 @@ defmodule Carrier.Billing do
 
   defp activate_subscription(%Subscription{status: :pending} = pending_subscription) do
     TenantRepo.wrap_transaction(fn ->
-      with {:ok, maybe_payment} <- pay_subscription(pending_subscription),
+      with {:ok, _maybe_payment} <- pay_subscription(pending_subscription),
            {:ok, %Subscription{} = activated_subscription} <-
-             Subscription.activate(pending_subscription, %{
-               payment_id: maybe_payment |> Nillable.map(& &1.id),
-               activated_at: DateTime.utc_now()
-             })
+             Subscription.activate(pending_subscription, %{activated_at: DateTime.utc_now()})
              |> TenantRepo.update(),
            {:ok, _} <- create_subscription_expiring_job(activated_subscription),
            {:ok, _} <- create_next_subscription(activated_subscription) do
@@ -268,15 +276,17 @@ defmodule Carrier.Billing do
   defp pay_subscription(
          %Subscription{
            org_id: org_id,
-           plan_id: plan_id
+           plan_id: plan_id,
+           payment_id: payment_id
          } = subscription
-       ) do
+       )
+       when not is_nil(payment_id) do
     with {:ok, %Plan{subscribable: true, price: price, currency: currency} = plan} <-
            Super.fetch_plan(plan_id),
          {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
            Accounts.fetch_billing_user(),
          {:ok, %Payment{} = payment} <-
-           Payments.process_payment(%{
+           Payments.process_payment(payment_id, %{
              org_id: org_id,
              amount: price,
              currency: currency,
@@ -290,6 +300,10 @@ defmodule Carrier.Billing do
       {:ok, %Plan{subscribable: false}} -> {:ok, nil}
       {:error, reason} -> {:error, reason}
     end
+  end
+
+  defp pay_subscription(%Subscription{payment_id: nil}) do
+    {:ok, nil}
   end
 
   defp recalc_start_on(%Subscription{end_on: end_on}, _start_on), do: end_on

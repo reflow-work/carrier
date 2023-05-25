@@ -79,7 +79,7 @@ defmodule Carrier.PaymentsTest do
     end
   end
 
-  describe "process_payment/1" do
+  describe "create_payment/1" do
     setup do
       org = TenantFactory.insert(:org)
       TenantRepo.put_org_id(org.org_id)
@@ -87,36 +87,54 @@ defmodule Carrier.PaymentsTest do
       params = %{
         org_id: org.org_id,
         amount: Decimal.new(100_000),
-        currency: :KRW,
+        currency: :KRW
+      }
+
+      %{params: params}
+    end
+
+    test "with valid params", %{params: params} do
+      assert {:ok, %Payment{} = payment} = Payments.create_payment(params)
+
+      assert same_fields?(payment, params, [:org_id, :amount, :currency])
+      assert payment.status == :pending
+    end
+  end
+
+  describe "process_payment/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      payment = TenantFactory.insert(:payment, org_id: org.org_id, status: :pending)
+
+      params = %{
         order_id: "2MsAs0Bk0wKML",
         order_name: "Pro 연간 플랜 구독",
         customer_email: "json@reflow.work",
         customer_name: "json"
       }
 
-      %{org: org, params: params}
+      %{payment: payment, params: params}
     end
 
-    test "with valid params", %{org: org, params: params} do
+    test "with valid params", %{payment: payment, params: params} do
       credit_card =
-        TenantFactory.insert(:credit_card, org_id: org.org_id, provider: :toss_payments)
+        TenantFactory.insert(:credit_card, org_id: payment.org_id, provider: :toss_payments)
 
       resp =
         ExternalHelper.TossPayments.prepare_bill(%{
           billing_key: credit_card.billing_key,
-          amount: params.amount,
+          amount: payment.amount,
           order_id: "2MsAs0Bk0wKML",
           order_name: params.order_name,
           customer_email: params.customer_email,
           customer_name: params.customer_name
         })
 
-      assert {:ok, %Payment{} = payment} = Payments.process_payment(params)
+      assert {:ok, %Payment{} = payment} = Payments.process_payment(payment.id, params)
 
-      assert payment.org_id == org.org_id
       assert payment.credit_card_id == credit_card.id
-      assert same_values?(payment.amount, 100_000)
-      assert payment.currency == :KRW
       assert payment.status == :confirmed
       assert payment.provider == :toss_payments
       assert payment.provider_key == "2MsAs0Bk0wKML"
@@ -124,19 +142,19 @@ defmodule Carrier.PaymentsTest do
       assert payment.payload == resp
     end
 
-    test "without credit_card", %{params: params} do
+    test "without credit_card", %{payment: payment, params: params} do
       assert {:error, {:resource_not_found, %{target: CreditCard}}} =
-               Payments.process_payment(params)
+               Payments.process_payment(payment.id, params)
     end
 
-    test "with expired credit_card", %{org: org, params: params} do
+    test "with expired credit_card", %{payment: payment, params: params} do
       credit_card =
-        TenantFactory.insert(:credit_card, org_id: org.org_id, provider: :toss_payments)
+        TenantFactory.insert(:credit_card, org_id: payment.org_id, provider: :toss_payments)
 
       ExternalHelper.TossPayments.prepare_bill(
         %{
           billing_key: credit_card.billing_key,
-          amount: params.amount,
+          amount: payment.amount,
           order_id: params.order_id,
           order_name: params.order_name,
           customer_email: params.customer_email,
@@ -145,7 +163,7 @@ defmodule Carrier.PaymentsTest do
         fail: true
       )
 
-      assert {:error, %Payment{} = payment} = Payments.process_payment(params)
+      assert {:error, %Payment{} = payment} = Payments.process_payment(payment.id, params)
 
       assert payment.status == :failed
 

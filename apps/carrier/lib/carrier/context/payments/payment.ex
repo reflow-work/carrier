@@ -22,14 +22,22 @@ defmodule Carrier.Payments.Payment do
     timestamps()
   end
 
-  @required_for_create [:org_id, :credit_card_id, :amount, :currency]
+  @required_for_create [:org_id, :amount, :currency]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create)
     |> validate_required(@required_for_create)
   end
 
-  @required_for_confirm [:status, :confirmed_at, :provider, :provider_key, :item, :payload]
+  @required_for_confirm [
+    :credit_card_id,
+    :status,
+    :confirmed_at,
+    :provider,
+    :provider_key,
+    :item,
+    :payload
+  ]
   defp changeset_for_confirm(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_confirm)
@@ -50,40 +58,24 @@ defmodule Carrier.Payments.Payment do
     |> order_by([p], desc: p.confirmed_at)
   end
 
-  def create(%{org_id: org_id, credit_card_id: credit_card_id, amount: amount, currency: currency}) do
+  def fetch(payment_id) do
+    __MODULE__
+    |> where([p], p.id == ^payment_id)
+    |> where_not_deleted()
+  end
+
+  def create(params) do
     %__MODULE__{}
-    |> changeset_for_create(%{
-      org_id: org_id,
-      credit_card_id: credit_card_id,
-      amount: amount,
-      currency: currency
-    })
+    |> changeset_for_create(params)
   end
 
-  def confirm(%__MODULE__{} = struct, %{
-        confirmed_at: confirmed_at,
-        provider: provider,
-        provider_key: provider_key,
-        item: item,
-        payload: payload
-      }) do
+  def confirm(%__MODULE__{} = struct, params) do
     struct
-    |> changeset_for_confirm(%{
-      status: :confirmed,
-      confirmed_at: confirmed_at,
-      provider: provider,
-      provider_key: provider_key,
-      item: item,
-      payload: payload
-    })
+    |> changeset_for_confirm(params |> Map.put(:status, :confirmed))
   end
 
-  def fail(%__MODULE__{} = struct, %{failed_at: failed_at, payload: payload}) do
+  def fail(%__MODULE__{} = struct, params) do
     struct
-    |> changeset_for_fail(%{
-      status: :failed,
-      failed_at: failed_at,
-      payload: payload
-    })
+    |> changeset_for_fail(params |> Map.put(:status, :failed))
   end
 end
