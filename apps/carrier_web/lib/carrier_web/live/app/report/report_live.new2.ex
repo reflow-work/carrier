@@ -57,7 +57,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket = socket |> load_report(report_id)
 
     report = socket.assigns.report
-    report_form = ReportParams.to_form(report |> Map.from_struct(), validate: false)
+
+    report_form =
+      ReportParams.to_form(
+        report
+        |> Map.from_struct()
+        |> Map.update!(:trigger_time, &(&1 |> TimeHelper.from_utc_time(report.timezone))),
+        validate: false
+      )
+
     data_source_info = report.data_source_info |> Map.from_struct()
     data_target_info = report.data_target_info |> Map.from_struct()
 
