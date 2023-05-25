@@ -114,6 +114,13 @@ defmodule CarrierWeb.App.ReportLive.Index do
     end
   end
 
+  defp edit_path(report) do
+    case report.data_source_info.source do
+      :tableau -> ~p"/app/reports/#{report}/edit2"
+      _ -> ~p"/app/reports/#{report}/edit"
+    end
+  end
+
   # TODO: preload 로 변경
   defp data_source(data_sources, report) do
     data_sources
