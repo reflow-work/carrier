@@ -38,7 +38,7 @@ defmodule Carrier.Reports.Report do
     |> validate_required(@required_for_create)
     |> cast_embed(:data_target_info,
       required: true,
-      with: &DataTargetInfo.changeset_for_create/2
+      with: &DataTargetInfo.changeset/2
     )
     |> validate_data_source_info()
   end
@@ -87,11 +87,23 @@ defmodule Carrier.Reports.Report do
     |> changeset_for_delete(%{deleted_at: deleted_at})
   end
 
-  def load_data_source_info(%__MODULE__{data_source_info: data_source_info} = struct) do
+  def load_fields(%__MODULE__{} = struct) do
+    struct
+    |> load_data_source_info()
+    |> load_data_target_info()
+  end
+
+  defp load_data_source_info(%__MODULE__{data_source_info: data_source_info} = struct) do
     data_source_info =
       data_source_info
       |> DataSourceInfo.get_struct()
 
     %__MODULE__{struct | data_source_info: data_source_info}
+  end
+
+  defp load_data_target_info(%__MODULE__{data_target_info: data_target_info} = struct) do
+    data_target_info = data_target_info |> DataTargetInfo.load_params()
+
+    %__MODULE__{struct | data_target_info: data_target_info}
   end
 end

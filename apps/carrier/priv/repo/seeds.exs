@@ -152,8 +152,11 @@ Repo.transaction(fn ->
           timezone: "Asia/Seoul",
           data_target_info: %DataTargetInfo{
             data_target_id: data_target0.id,
-            channel_id: "C03U2QWU7F1",
-            channel_name: "message_tests"
+            target: :slack,
+            params: %{
+              channel_id: "C03U2QWU7F1",
+              channel_name: "message_tests"
+            }
           },
           data_source_info: %{
             data_source_id: data_source0.id,
@@ -181,8 +184,11 @@ Repo.transaction(fn ->
           timezone: "Asia/Seoul",
           data_target_info: %DataTargetInfo{
             data_target_id: data_target1.id,
-            channel_id: "C03U2QWU7F1",
-            channel_name: "message_tests"
+            target: :slack,
+            params: %{
+              channel_id: "C03U2QWU7F1",
+              channel_name: "message_tests"
+            }
           },
           data_source_info: %{
             data_source_id: data_source1.id,

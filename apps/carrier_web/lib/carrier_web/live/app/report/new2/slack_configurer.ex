@@ -1,7 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   use CarrierWeb, :live_component
-  use Carrier.Integrations
-  alias CarrierWeb.App.ReportLive.New2.DataTargetInfoParams
+  use Carrier.{Integrations, Reports}
   alias Carrier.Data.Target.Slack
   alias Carrier.Core.Nillable
 
@@ -109,7 +108,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         end)
     }
 
-    data_target_info_form = DataTargetInfoParams.to_form(data_target_info_input)
+    data_target_info_form = DataTargetInfo.to_form(data_target_info_input)
 
     send(self(), {:update, {:data_target_info_form, data_target_info_form}})
   end

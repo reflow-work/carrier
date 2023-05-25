@@ -43,7 +43,7 @@ defmodule Carrier.Reports do
              Report.create(params |> Map.put(:report_info_id, report_info.id))
              |> TenantRepo.insert(),
            {:ok, _job} <- create_job_from_report(report, report.created_at) do
-        {:ok, report |> Report.load_data_source_info()}
+        {:ok, report |> Report.load_fields()}
       end
     end)
   end
@@ -52,7 +52,7 @@ defmodule Carrier.Reports do
     Report.list()
     |> TenantRepo.all()
     |> Enum.sort_by(& &1.created_at, {:desc, DateTime})
-    |> then(&{:ok, &1 |> Enum.map(fn report -> report |> Report.load_data_source_info() end)})
+    |> then(&{:ok, &1 |> Enum.map(fn report -> report |> Report.load_fields() end)})
   end
 
   def fetch_report(report_id) do
@@ -60,40 +60,23 @@ defmodule Carrier.Reports do
     |> TenantRepo.one()
     |> case do
       %Report{} = report ->
-        {:ok, report |> Report.load_data_source_info()}
+        {:ok, report |> Report.load_fields()}
 
       nil ->
         {:error, {:resource_not_found, %{target: Report, conditions: %{report_id: report_id}}}}
     end
   end
 
-  def update_report(report_id, %{
-        org_id: org_id,
-        user_id: user_id,
-        name: name,
-        trigger_time: trigger_time,
-        timezone: timezone,
-        data_target_info: data_target_info,
-        data_source_info: data_source_info
-      }) do
+  def update_report(report_id, params) do
     TenantRepo.wrap_transaction(fn ->
       with {:ok, %Report{} = report} <- fetch_report(report_id),
            {:ok, %Report{} = created_report} <-
-             Report.create(%{
-               org_id: org_id,
-               report_info_id: report.report_info_id,
-               user_id: user_id,
-               name: name,
-               trigger_time: trigger_time,
-               timezone: timezone,
-               data_target_info: data_target_info,
-               data_source_info: data_source_info
-             })
+             Report.create(params |> Map.merge(%{report_info_id: report.report_info_id}))
              |> TenantRepo.insert(),
            {:ok, _deleted_report} <-
              report |> Report.delete(DateTime.utc_now()) |> TenantRepo.update(),
            {:ok, _job} <- create_job_from_report(created_report, created_report.created_at) do
-        {:ok, created_report |> Report.load_data_source_info()}
+        {:ok, created_report |> Report.load_fields()}
       end
     end)
   end
