@@ -16,6 +16,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:action, nil)
       |> assign(:title, nil)
       |> assign(:report, nil)
+      |> assign(:data_source_info, nil)
       |> assign(:data_target_info, nil)
       |> assign(:selected_data_source, nil)
       |> assign(:data_source_info_form, nil)
@@ -57,15 +58,18 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
     report = socket.assigns.report
     report_form = ReportParams.to_form(report |> Map.from_struct(), validate: false)
-    data_source_id = report.data_source_info.data_source_id
-    selected_data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
+    data_source_info = report.data_source_info |> Map.from_struct()
     data_target_info = report.data_target_info |> Map.from_struct()
+
+    selected_data_source =
+      socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_info.data_source_id))
 
     socket =
       socket
       |> assign(:action, :edit)
       |> assign(:title, "레포트 수정하기")
       |> assign(:selected_data_source, selected_data_source)
+      |> assign(:data_source_info, data_source_info)
       |> assign(:data_target_info, data_target_info)
       |> assign(:report_form, report_form)
 
@@ -82,7 +86,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
-      <Components.data_transformer data_source={@selected_data_source} />
+      <Components.data_transformer
+        data_source={@selected_data_source}
+        data_source_info={@data_source_info}
+      />
       <Components.data_target_configurer
         data_target={@data_target}
         data_target_info={@data_target_info}
