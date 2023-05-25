@@ -38,11 +38,21 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
     {:ok, socket}
   end
 
-  # update views
+  # update by async update
   @impl true
-  def update(assigns, socket) do
-    {selected_view_ids, assigns} = assigns |> Map.pop(:selected_view_ids, [])
+  def update(%{views: views}, socket) do
+    socket =
+      socket
+      |> assign(:views, views)
 
+    validate_and_send_data_source_info_form(socket)
+
+    {:ok, socket}
+  end
+
+  # update by search
+  @impl true
+  def update(%{selected_view_ids: selected_view_ids}, socket) do
     selected_views =
       selected_view_ids
       |> Enum.map(fn selected_view_id ->
@@ -51,7 +61,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
 
     socket =
       socket
-      |> assign(assigns)
       |> assign(:selected_views, selected_views)
 
     validate_and_send_data_source_info_form(socket)
