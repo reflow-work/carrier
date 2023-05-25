@@ -38,10 +38,24 @@ defmodule CarrierWeb.Components.Search do
 
   # update
   @impl true
+  def update(%{selected_item_values: selected_item_values}, socket) do
+    socket =
+      selected_item_values
+      |> Enum.reduce(socket, fn selected_item_value, socket ->
+        socket
+        |> select_item(selected_item_value)
+      end)
+      |> assign(:show_selectable_items, false)
+
+    {:ok, socket}
+  end
+
+  @impl true
   def update(%{selected_item_value: selected_item_value}, socket) do
     socket =
       socket
       |> select_item(selected_item_value)
+      |> assign(:show_selectable_items, false)
 
     {:ok, socket}
   end
