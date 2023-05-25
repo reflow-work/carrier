@@ -8,6 +8,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
   def mount(socket) do
     socket =
       socket
+      |> assign(:selected_channel_id, nil)
       |> assign(:selected_channel, nil)
 
     {:ok, socket}
@@ -15,7 +16,10 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
 
   # init
   @impl true
-  def update(%{data_target: %DataTarget{} = data_target} = assigns, socket) do
+  def update(
+        %{data_target: %DataTarget{} = data_target, data_target_info: data_target_info} = assigns,
+        socket
+      ) do
     socket =
       socket
       |> assign(assigns)
@@ -32,16 +36,43 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         __MODULE__
       )
 
+    socket =
+      case data_target_info do
+        nil ->
+          socket
+
+        %{params: %{channel_id: channel_id}} ->
+          socket
+          |> assign(:selected_channel_id, channel_id)
+      end
+
     validate_and_send_data_target_info_form(socket)
 
     {:ok, socket}
   end
 
-  # update
+  # update by async update
   @impl true
-  def update(assigns, socket) do
-    {selected_channel_id, assigns} = assigns |> Map.pop(:selected_channel_id)
+  def update(%{channels: channels}, socket) do
+    socket =
+      socket
+      |> assign(:channels, channels)
 
+    if socket.assigns.selected_channel_id do
+      send_update(Search,
+        id: "slack_channel_selector",
+        selected_item_value: socket.assigns.selected_channel_id
+      )
+    end
+
+    validate_and_send_data_target_info_form(socket)
+
+    {:ok, socket}
+  end
+
+  # update by search
+  @impl true
+  def update(%{selected_channel_id: selected_channel_id}, socket) do
     selected_channel =
       socket.assigns.channels.value
       |> Nillable.map(fn channels ->
@@ -51,7 +82,6 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
 
     socket =
       socket
-      |> assign(assigns)
       |> assign(:selected_channel, selected_channel)
 
     validate_and_send_data_target_info_form(socket)
