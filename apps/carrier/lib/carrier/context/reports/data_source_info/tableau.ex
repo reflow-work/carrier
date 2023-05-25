@@ -7,8 +7,10 @@ defmodule Carrier.Reports.DataSourceInfo.Tableau do
     field :data_source_id, :id
     field :source, Ecto.Enum, values: [:tableau]
 
-    embeds_many :views, View, primary_key: false, on_replace: :delete do
-      field :id, :string
+    embeds_one :params, Params, primary_key: false, on_replace: :delete do
+      embeds_many :views, View, primary_key: false, on_replace: :delete do
+        field :id, :string
+      end
     end
   end
 
@@ -20,10 +22,19 @@ defmodule Carrier.Reports.DataSourceInfo.Tableau do
     struct
     |> cast(attrs, @required_for_create)
     |> validate_required(@required_for_create)
+    |> cast_embed(:params, required: true, with: &changeset_params/2)
+  end
+
+  @required_params []
+  def changeset_params(%__MODULE__.Params{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_params)
+    |> validate_required(@required_params)
+    |> cast_embed(:views, required: true, with: &changeset_view/2)
   end
 
   @required_view [:id]
-  defp changeset_view(%__MODULE__.View{} = struct, attrs) do
+  defp changeset_view(%__MODULE__.Params.View{} = struct, attrs) do
     struct
     |> cast(attrs, @required_view)
     |> validate_required(@required_view)

@@ -24,10 +24,15 @@ defmodule Carrier.Works.ReportJob do
     with {:ok, %ReportLog{} = report_log} <-
            Reports.record_tried_report_log(%{report_id: report_id}),
          {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
-         {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
-         {:ok, %ReportLog{} = _updated_report_log} <-
-           Reports.update_report_log(report_log, %{payload: slack_args}),
-         {:ok, _result} <- send_report(%{report: report, slack_args: slack_args}),
+         :ok <-
+           (case report.data_source_info.source do
+              :tableau ->
+                send_tableau_report(report, report_log)
+
+              _ ->
+                send_rdb_report(report, datetime, report_log)
+            end),
+         {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}),
          {:ok, _next_job} <- Reports.create_job_from_report(report, datetime) do
       :ok
     else
@@ -52,6 +57,30 @@ defmodule Carrier.Works.ReportJob do
 
   @impl Oban.Worker
   def timeout(_job), do: :timer.minutes(3)
+
+  def send_rdb_report(%Report{} = report, datetime, report_log) do
+    with {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
+         {:ok, %ReportLog{} = _updated_report_log} <-
+           Reports.update_report_log(report_log, %{payload: slack_args}),
+         {:ok, _result} <- send_report(%{report: report, slack_args: slack_args}) do
+      :ok
+    end
+  end
+
+  def send_tableau_report(
+        %Report{
+          data_source_info: data_source_info,
+          data_target_info: data_target_info
+        } = report,
+        report_log
+      ) do
+    with {:ok, threads} <- Data.prepare_threads(data_source_info),
+         {:ok, %ReportLog{} = _updated_report_log} <-
+           Reports.update_report_log(report_log, %{payload: threads}),
+         :ok <- Data.send_messages(report, threads, data_target_info) do
+      :ok
+    end
+  end
 
   defp generate_slack_args(%{
          report: %Report{
@@ -136,11 +165,12 @@ defmodule Carrier.Works.ReportJob do
 
   defp send_report(%{
          report: %Report{
-           id: report_id,
            timezone: timezone,
            data_target_info: %{
              data_target_id: data_target_id,
-             channel_id: channel_id
+             params: %{
+               channel_id: channel_id
+             }
            }
          },
          slack_args: slack_args
@@ -161,8 +191,7 @@ defmodule Carrier.Works.ReportJob do
                  data_target.conn_info.info["bot_token"]
                )
              end)
-             |> Traversable.traverse(),
-           {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}) do
+             |> Traversable.traverse() do
         {:ok, send_result}
       end
     end)
