@@ -112,7 +112,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                   테스트 발송
                 </.button>
                 <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
-                  리포트 생성
+                  리포트 저장
                 </.button>
               </:actions>
             </.simple_form>
