@@ -95,7 +95,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
 
   defp format_trigger_time(trigger_time, timezone) do
     TimeHelper.from_utc_time(trigger_time, timezone)
-    |> Timex.format!("매일 {_h24}시")
+    |> Timex.format!("매일 {0h24}:{0m}")
   end
 
   defp load_active_subscription(socket) do
