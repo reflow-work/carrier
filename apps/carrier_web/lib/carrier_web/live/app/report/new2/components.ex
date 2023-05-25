@@ -47,6 +47,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   end
 
   attr :data_target, :any
+  attr :data_target_info, :any
 
   def data_target_configurer(assigns) do
     case assigns.data_target do
@@ -56,6 +57,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
           module={CarrierWeb.App.ReportLive.New2.SlackConfigurer}
           id="slack_configurer"
           data_target={@data_target}
+          data_target_info={@data_target_info}
         />
         """
     end

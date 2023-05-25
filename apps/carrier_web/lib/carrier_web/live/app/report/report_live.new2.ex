@@ -13,10 +13,14 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:action, nil)
       |> assign(:title, nil)
+      |> assign(:report, nil)
+      |> assign(:data_target_info, nil)
       |> assign(:selected_data_source, nil)
       |> assign(:data_source_info_form, nil)
       |> assign(:data_target_info_form, nil)
+      |> assign(:report_form, nil)
       |> assign(:valid?, false)
 
     {:ok, socket}
@@ -49,22 +53,20 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def handle_params(params, _uri, %{assigns: %{live_action: :edit}} = socket) do
     report_id = params["report_id"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, Report))
 
-    socket =
-      socket
-      |> load_report(report_id)
+    socket = socket |> load_report(report_id)
 
     report = socket.assigns.report
-    data_source_id = report.data_source_info.data_source_id
     report_form = ReportParams.to_form(report |> Map.from_struct(), validate: false)
+    data_source_id = report.data_source_info.data_source_id
+    selected_data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
+    data_target_info = report.data_target_info |> Map.from_struct()
 
     socket =
       socket
       |> assign(:action, :edit)
       |> assign(:title, "레포트 수정하기")
-      |> assign(
-        :selected_data_source,
-        socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
-      )
+      |> assign(:selected_data_source, selected_data_source)
+      |> assign(:data_target_info, data_target_info)
       |> assign(:report_form, report_form)
 
     {:noreply, socket}
@@ -81,7 +83,10 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         onselect="select_data_source"
       />
       <Components.data_transformer data_source={@selected_data_source} />
-      <Components.data_target_configurer data_target={@data_target} />
+      <Components.data_target_configurer
+        data_target={@data_target}
+        data_target_info={@data_target_info}
+      />
       <Components.report_configurer report_form={@report_form} valid?={@valid?} />
     </section>
     """
