@@ -31,6 +31,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
     socket =
       socket
+      |> assign(:action, :new)
       |> assign(:title, "레포트 생성하기")
       |> Nillable.run(data_source_id, fn socket ->
         socket
@@ -39,6 +40,31 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
         )
       end)
+      |> assign(:report_form, report_form)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_params(params, _uri, %{assigns: %{live_action: :edit}} = socket) do
+    report_id = params["report_id"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, Report))
+
+    socket =
+      socket
+      |> load_report(report_id)
+
+    report = socket.assigns.report
+    data_source_id = report.data_source_info.data_source_id
+    report_form = ReportParams.to_form(report |> Map.from_struct(), validate: false)
+
+    socket =
+      socket
+      |> assign(:action, :edit)
+      |> assign(:title, "레포트 수정하기")
+      |> assign(
+        :selected_data_source,
+        socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
+      )
       |> assign(:report_form, report_form)
 
     {:noreply, socket}
@@ -187,6 +213,20 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
       _ ->
         {:noreply, socket}
+    end
+  end
+
+  defp load_report(socket, report_id) do
+    case Reports.fetch_report(report_id) do
+      {:ok, report} ->
+        socket |> assign(:report, report)
+
+      {:error, reason} ->
+        socket
+        |> put_flash_for(:error, "레포트를 불러오는데 실패하였습니다. (#{inspect(reason)})",
+          timeout: :timer.seconds(3)
+        )
+        |> push_navigate(to: ~p"/app/reports")
     end
   end
 
