@@ -9,6 +9,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
   def mount(socket) do
     socket =
       socket
+      |> assign(:selected_view_ids, [])
       |> assign(:selected_views, [])
 
     {:ok, socket}
@@ -16,7 +17,10 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
 
   # init
   @impl true
-  def update(%{data_source: %DataSource{} = data_source} = assigns, socket) do
+  def update(
+        %{data_source: %DataSource{} = data_source, data_source_info: data_source_info} = assigns,
+        socket
+      ) do
     socket =
       socket
       |> assign(assigns)
@@ -33,16 +37,45 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
         __MODULE__
       )
 
+    socket =
+      case data_source_info do
+        nil ->
+          socket
+
+        %{params: %{views: views}} ->
+          selected_view_ids = views |> Enum.map(& &1.id)
+
+          socket
+          |> assign(:selected_view_ids, selected_view_ids)
+      end
+
     validate_and_send_data_source_info_form(socket)
 
     {:ok, socket}
   end
 
-  # update views
+  # update by async update
   @impl true
-  def update(assigns, socket) do
-    {selected_view_ids, assigns} = assigns |> Map.pop(:selected_view_ids, [])
+  def update(%{views: views}, socket) do
+    socket =
+      socket
+      |> assign(:views, views)
 
+    if not (socket.assigns.selected_view_ids |> Enum.empty?()) do
+      send_update(Search,
+        id: "tableau_view_selector",
+        selected_item_values: socket.assigns.selected_view_ids
+      )
+    end
+
+    validate_and_send_data_source_info_form(socket)
+
+    {:ok, socket}
+  end
+
+  # update by search
+  @impl true
+  def update(%{selected_view_ids: selected_view_ids}, socket) do
     selected_views =
       selected_view_ids
       |> Enum.map(fn selected_view_id ->
@@ -51,7 +84,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
 
     socket =
       socket
-      |> assign(assigns)
       |> assign(:selected_views, selected_views)
 
     validate_and_send_data_source_info_form(socket)

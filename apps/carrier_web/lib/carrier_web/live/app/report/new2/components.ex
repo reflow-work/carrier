@@ -18,6 +18,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   end
 
   attr :data_source, :any, required: true
+  attr :data_source_info, :any
 
   def data_transformer(assigns) do
     case assigns.data_source do
@@ -36,7 +37,12 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
           |> assign(:module, module)
 
         ~H"""
-        <.live_component module={@module} id="data_transformer" data_source={@data_source} />
+        <.live_component
+          module={@module}
+          id="data_transformer"
+          data_source={@data_source}
+          data_source_info={@data_source_info}
+        />
         """
 
       _ ->
@@ -47,6 +53,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   end
 
   attr :data_target, :any
+  attr :data_target_info, :any
 
   def data_target_configurer(assigns) do
     case assigns.data_target do
@@ -56,6 +63,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
           module={CarrierWeb.App.ReportLive.New2.SlackConfigurer}
           id="slack_configurer"
           data_target={@data_target}
+          data_target_info={@data_target_info}
         />
         """
     end
@@ -104,7 +112,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                   테스트 발송
                 </.button>
                 <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
-                  리포트 생성
+                  리포트 저장
                 </.button>
               </:actions>
             </.simple_form>

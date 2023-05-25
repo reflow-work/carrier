@@ -25,6 +25,7 @@
           <tr>
             <th>이름</th>
             <th>발송 시간</th>
+            <th>데이터 소스</th>
             <th>슬랙 채널</th>
             <th></th>
           </tr>
@@ -34,9 +35,10 @@
             <tr class="hover">
               <th><%= report.name %></th>
               <td><%= report.trigger_time |> format_trigger_time(@timezone) %></td>
+              <td><%= data_source(@data_sources, report).name %></td>
               <td><%= DataTargetInfo.to_string(report.data_target_info) %></td>
               <td class="flex justify-end gap-x-2">
-                <.link navigate={~p"/app/reports/#{report}/edit"} class="btn btn-sm">
+                <.link navigate={edit_path(report)} class="btn btn-sm">
                   수정
                 </.link>
                 <.link patch={~p"/app/reports/#{report}/delete"} class="btn btn-sm">

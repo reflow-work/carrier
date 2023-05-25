@@ -21,8 +21,9 @@ defmodule CarrierWeb.Components.Search do
     {:ok, socket}
   end
 
+  # init
   @impl true
-  def update(assigns, socket) do
+  def update(%{items: _} = assigns, socket) do
     {items, assigns} = assigns |> Map.pop(:items)
 
     socket =
@@ -31,6 +32,30 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:items, normalize_items(items))
       |> assign(:selectable_items, [])
       |> assign(:selected_items, [])
+
+    {:ok, socket}
+  end
+
+  # update
+  @impl true
+  def update(%{selected_item_values: selected_item_values}, socket) do
+    socket =
+      selected_item_values
+      |> Enum.reduce(socket, fn selected_item_value, socket ->
+        socket
+        |> select_item(selected_item_value)
+      end)
+      |> assign(:show_selectable_items, false)
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{selected_item_value: selected_item_value}, socket) do
+    socket =
+      socket
+      |> select_item(selected_item_value)
+      |> assign(:show_selectable_items, false)
 
     {:ok, socket}
   end
@@ -119,17 +144,7 @@ defmodule CarrierWeb.Components.Search do
 
   @impl true
   def handle_event("select", %{"value" => selected_item_value}, socket) do
-    selected_item =
-      socket.assigns.items
-      |> Enum.find(&(&1.value == selected_item_value))
-
-    socket =
-      socket
-      |> select_item(selected_item)
-      |> assign_keyword_unless_multiple(selected_item.label)
-      |> assign_selectable_items()
-      |> assign(:show_selectable_items, socket.assigns.multiple)
-      |> run_onchange()
+    socket = select_item(socket, selected_item_value)
 
     {:noreply, socket}
   end
@@ -169,7 +184,20 @@ defmodule CarrierWeb.Components.Search do
     |> Enum.map(fn {label, value} -> %{label: label, value: value} end)
   end
 
-  defp select_item(socket, selected_item) do
+  defp select_item(socket, selected_item_value) do
+    selected_item =
+      socket.assigns.items
+      |> Enum.find(&(&1.value == selected_item_value))
+
+    socket
+    |> do_select_item(selected_item)
+    |> assign_keyword_unless_multiple(selected_item.label)
+    |> assign_selectable_items()
+    |> assign(:show_selectable_items, socket.assigns.multiple)
+    |> run_onchange()
+  end
+
+  defp do_select_item(socket, selected_item) do
     case socket.assigns.multiple do
       true ->
         socket
