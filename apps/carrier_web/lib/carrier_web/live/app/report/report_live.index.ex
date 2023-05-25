@@ -5,6 +5,8 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Core.TimeHelper
   alias Carrier.Roles.Role
 
+  # TODO: remove it
+  on_mount(CarrierWeb.DataSourceHook)
   on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.SubscriptionHook)
 
@@ -110,5 +112,11 @@ defmodule CarrierWeb.App.ReportLive.Index do
       nil -> false
       _ -> role |> Role.report_max_count() <= reports |> length()
     end
+  end
+
+  # TODO: preload 로 변경
+  defp data_source(data_sources, report) do
+    data_sources
+    |> Enum.find(&(&1.id == report.data_source_info.data_source_id))
   end
 end
