@@ -104,13 +104,22 @@ defmodule CarrierWeb.App.ReportLive.Index do
     case Billing.fetch_active_subscription() do
       {:ok, subscription} ->
         socket |> assign(:active_subscription, subscription)
+
+      _ ->
+        socket
     end
   end
 
-  defp disabled_new_report_button(role, reports) do
+  # TODO: remove nil case
+
+  defp disabled_new_report_button(nil, _reports), do: false
+
+  defp disabled_new_report_button(subscription, reports) do
+    role = subscription.plan.role
+
     case role |> Role.report_max_count() do
       nil -> false
-      _ -> role |> Role.report_max_count() <= reports |> length()
+      report_max_count -> report_max_count <= Enum.count(reports)
     end
   end
 

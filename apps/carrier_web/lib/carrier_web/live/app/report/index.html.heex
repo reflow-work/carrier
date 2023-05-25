@@ -7,12 +7,12 @@
       navigate={~p"/app/reports/new"}
       class={[
         "btn btn-primary",
-        @active_subscription.plan.role |> disabled_new_report_button(@reports) &&
+        disabled_new_report_button(@active_subscription, @reports) &&
           "!btn-disabled"
       ]}
     >
       새 레포트 생성
-      <span :if={@active_subscription.plan.role |> disabled_new_report_button(@reports)}>
+      <span :if={disabled_new_report_button(@active_subscription, @reports)}>
         (최대 개수 초과)
       </span>
     </.link>
