@@ -51,6 +51,7 @@ defmodule Carrier.ReportsTest do
         org_id: org.org_id,
         user_id: user.id,
         name: "Daily Report",
+        interval: :daily,
         trigger_time: ~T[10:00:00],
         timezone: "Asia/Seoul",
         data_target_info: %{
@@ -76,6 +77,7 @@ defmodule Carrier.ReportsTest do
                :org_id,
                :user_id,
                :name,
+               :interval,
                :trigger_time,
                :timezone
              ])

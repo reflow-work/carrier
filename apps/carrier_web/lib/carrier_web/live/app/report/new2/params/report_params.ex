@@ -8,6 +8,7 @@ defmodule CarrierWeb.App.ReportLive.New2.ReportParams do
     field :user_id, :id
     field :name, :string
     field :interval, Ecto.Enum, values: [:daily]
+    # TODO: change with map to support more intervals
     field :trigger_time, :time
     field :timezone, :string
   end
@@ -16,6 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2.ReportParams do
     :org_id,
     :user_id,
     :name,
+    :interval,
     :trigger_time,
     :timezone
   ]

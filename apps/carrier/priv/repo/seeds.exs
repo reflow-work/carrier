@@ -147,6 +147,7 @@ Repo.transaction(fn ->
           org_id: org0.org_id,
           report_info_id: report_info0.id,
           name: "json is babo",
+          interval: :daily,
           trigger_time: ~T[01:00:00],
           timezone: "Asia/Seoul",
           data_target_info: %DataTargetInfo{
@@ -175,6 +176,7 @@ Repo.transaction(fn ->
           org_id: org1.org_id,
           report_info_id: report_info1.id,
           name: "wonny is babo",
+          interval: :daily,
           trigger_time: ~T[01:00:00],
           timezone: "Asia/Seoul",
           data_target_info: %DataTargetInfo{
@@ -216,7 +218,7 @@ Repo.transaction(fn ->
   {1, _} =
     Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
 
-  {_, [_trial_plan, _basic_monthly_plan, _pro_monthly_plan | _]} =
+  {_, [_trial_plan, _basic_monthly_plan, pro_monthly_plan | _]} =
     Repo.insert_all(
       Plan,
       [
@@ -298,15 +300,15 @@ Repo.transaction(fn ->
     ]
   )
 
-  # {_, _} =
-  #   Repo.insert_all(Subscription, [
-  #     %{
-  #       org_id: org0.org_id,
-  #       plan_id: pro_monthly_plan.id,
-  #       start_on: now,
-  #       end_on: Plan.calc_end_on(pro_monthly_plan, now, 0),
-  #       status: :active,
-  #       activated_at: now
-  #     }
-  #   ])
+  {_, _} =
+    Repo.insert_all(Subscription, [
+      %{
+        org_id: org0.org_id,
+        plan_id: pro_monthly_plan.id,
+        start_on: now,
+        end_on: Plan.calc_end_on(pro_monthly_plan, now, 0),
+        status: :active,
+        activated_at: now
+      }
+    ])
 end)
