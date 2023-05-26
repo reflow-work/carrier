@@ -8,9 +8,9 @@ defmodule Carrier.Const do
   @env_values (case Mix.env() do
                  :prod ->
                    %{
-                     report_image_storage: %{
+                     report_storage: %{
                        region: "ap-northeast-2",
-                       bucket: "carrier-chart-img"
+                       bucket: "carrier-report-prod"
                      }
                    }
 
