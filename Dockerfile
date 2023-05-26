@@ -9,7 +9,7 @@
 #
 # If you have other environment variables in config/prod.secret.exs, add them as `ARG`s in this file
 
-FROM amazonlinux:2 AS build
+FROM amazonlinux:2023 AS build
 
 RUN yum -y update
 
@@ -39,11 +39,10 @@ RUN make install -e PATH="${PATH}:/usr/local/bin"
 # Install hex + rebar
 RUN mix local.hex --force && mix local.rebar --force
 
-# Install node
-RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash - && \
-    yum -y install nodejs
+# Install node (18.12.1)
+RUN yum -y install nodejs
 
-# Install Python (3.7.16)
+# Install Python (3.9.16)
 RUN yum -y install python3 python3-pip
 
 # Our working directory within the container
