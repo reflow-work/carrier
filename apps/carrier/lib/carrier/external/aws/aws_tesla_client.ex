@@ -30,7 +30,15 @@ defmodule Carrier.External.Aws.TeslaClient do
 
   defp client() do
     Tesla.client([
-      {Tesla.Middleware.Timeout, timeout: :timer.minutes(1)}
+      {Tesla.Middleware.Retry,
+       delay: 500,
+       max_retries: 3,
+       max_delay: 4_000,
+       should_retry: fn
+         {:ok, %{status: 200}} -> false
+         _ -> true
+       end},
+      {Tesla.Middleware.Timeout, timeout: :timer.seconds(90)}
     ])
   end
 end
