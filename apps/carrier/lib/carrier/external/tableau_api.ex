@@ -115,6 +115,14 @@ defmodule Carrier.External.TableauAPI do
         {Tesla.Middleware.BaseUrl, "#{host}/api/#{@api_version}"},
         {Tesla.Middleware.Headers, [{"Accept", "application/json"}]},
         Tesla.Middleware.JSON,
+        {Tesla.Middleware.Retry,
+         delay: 500,
+         max_retries: 3,
+         max_delay: 4_000,
+         should_retry: fn
+           {:ok, %{status: 200}} -> false
+           _ -> true
+         end},
         {Tesla.Middleware.Timeout, timeout: :timer.seconds(30)}
       ]
       |> then(fn middlewares ->
