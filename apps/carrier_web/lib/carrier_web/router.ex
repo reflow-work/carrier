@@ -2,16 +2,16 @@ defmodule CarrierWeb.Router do
   use CarrierWeb, :router
   import Phoenix.LiveView.Router
 
-  @content_security_policy [
-                             "default-src 'self'",
-                             "script-src 'self' 'unsafe-inline' cdn.channel.io js.tosspayments.com js.sentry-cdn.com www.googletagmanager.com web-sdk.smartlook.com blob:",
-                             "style-src 'self' 'unsafe-inline'",
-                             "connect-src 'self' api.channel.io api.tosspayments.com event.tosspayments.com cf.channel.io gw.channel.io www.google-analytics.com *.smartlook.cloud *.amplitude.com wss://*.channel.io",
-                             "frame-src 'self' api.tosspayments.com *.tosspayments.com demo.arcade.software",
-                             "img-src 'self' cf.channel.io data:",
-                             "media-src cdn.channel.io"
-                           ]
-                           |> Enum.join("; ")
+  # @content_security_policy [
+  #                            "default-src 'self'",
+  #                            "script-src 'self' 'unsafe-inline' cdn.channel.io js.tosspayments.com js.sentry-cdn.com www.googletagmanager.com web-sdk.smartlook.com blob:",
+  #                            "style-src 'self' 'unsafe-inline'",
+  #                            "connect-src 'self' api.channel.io api.tosspayments.com event.tosspayments.com cf.channel.io gw.channel.io www.google-analytics.com *.smartlook.cloud *.amplitude.com wss://*.channel.io",
+  #                            "frame-src 'self' api.tosspayments.com *.tosspayments.com demo.arcade.software",
+  #                            "img-src 'self' cf.channel.io data:",
+  #                            "media-src cdn.channel.io"
+  #                          ]
+  #                          |> Enum.join("; ")
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -20,9 +20,9 @@ defmodule CarrierWeb.Router do
     plug :put_root_layout, {CarrierWeb.Layouts, :root}
     plug :protect_from_forgery
 
-    plug :put_secure_browser_headers, %{
-      "content-security-policy" => @content_security_policy
-    }
+    # plug :put_secure_browser_headers, %{
+    #   "content-security-policy" => @content_security_policy
+    # }
   end
 
   pipeline :landing do
