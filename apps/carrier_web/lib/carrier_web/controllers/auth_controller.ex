@@ -1,9 +1,7 @@
 defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
-  alias Carrier.{Accounts, Integrations}
-  alias Carrier.Accounts.{User, Org}
+  use Carrier.Accounts
   alias Carrier.Obfuscatable
-  alias Carrier.Integrations.DataTarget
 
   plug Ueberauth
 
@@ -48,7 +46,6 @@ defmodule CarrierWeb.AuthController do
     _conn =
       case provider do
         :google -> auth(conn, auth)
-        :slack -> add_conn_info_to_org(conn, auth)
       end
   end
 
@@ -78,36 +75,6 @@ defmodule CarrierWeb.AuthController do
       _ ->
         conn
         |> put_flash(:error, "로그인에 실패하였습니다. 다시 시도해주세요.")
-        |> redirect(to: "/")
-    end
-  end
-
-  defp add_conn_info_to_org(conn, auth) do
-    %Ueberauth.Auth{
-      provider: :slack,
-      credentials: %Ueberauth.Auth.Credentials{
-        token: bot_token,
-        other: %{
-          team: team_name,
-          team_id: team_id
-        }
-      }
-    } = auth
-
-    org_id = conn |> get_session(:org_id)
-
-    case Integrations.create_data_target(%{
-           org_id: org_id,
-           service_name: :slack,
-           conn_info: %{team_name: team_name, team_id: team_id, bot_token: bot_token}
-         }) do
-      {:ok, %DataTarget{}} ->
-        conn
-        |> redirect(to: ~p"/app/reports")
-
-      error ->
-        conn
-        |> put_flash(:error, inspect(error))
         |> redirect(to: "/")
     end
   end

@@ -96,6 +96,7 @@ defmodule CarrierWeb.Router do
       live "/settings", SettingsLive, :index
     end
 
+    get "/data-targets/callback/slack", DataTargetController, :slack_callback
     get "/payment/callback/toss-payments", PaymentController, :toss_payments_callback
   end
 

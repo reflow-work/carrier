@@ -1,10 +1,11 @@
 defmodule CarrierWeb.Components.Slack do
   use CarrierWeb, :component
+  alias Carrier.External.SlackAPI
 
   def button(assigns) do
     ~H"""
     <a
-      href={generate_url()}
+      href={SlackAPI.OAuth.generate_url()}
       style="align-items:center;color:#000;background-color:#fff;border:1px solid #ddd;border-radius:4px;display:inline-flex;font-size:14px;font-weight:600;height:44px;justify-content:center;text-decoration:none;width:204px"
     >
       <svg
@@ -26,23 +27,5 @@ defmodule CarrierWeb.Components.Slack do
         ></path></svg>슬랙 연동하기
     </a>
     """
-  end
-
-  @path "https://slack.com/oauth/v2/authorize"
-  defp generate_url() do
-    query = %{
-      scope: ["channels:read", "chat:write", "chat:write.public"] |> Enum.join(","),
-      redirect_uri: nil,
-      client_id: client_id()
-    }
-
-    @path
-    |> URI.parse()
-    |> Map.put(:query, query |> URI.encode_query())
-    |> URI.to_string()
-  end
-
-  defp client_id() do
-    Application.get_env(:carrier, :slack)[:client_id]
   end
 end
