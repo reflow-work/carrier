@@ -134,5 +134,7 @@ defmodule CarrierWeb.Router do
     end
   end
 
-  forward "/", CarrierWeb.FallbackPlug
+  if Mix.env() == :prod do
+    forward "/", CarrierWeb.FallbackPlug
+  end
 end
