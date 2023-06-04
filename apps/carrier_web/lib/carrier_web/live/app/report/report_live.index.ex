@@ -6,8 +6,8 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Roles.Role
 
   # TODO: remove it
-  on_mount(CarrierWeb.DataSourceHook)
   on_mount(CarrierWeb.DataTargetHook)
+  on_mount(CarrierWeb.DataSourceHook)
   on_mount(CarrierWeb.SubscriptionHook)
 
   @impl true
