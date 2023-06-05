@@ -32,18 +32,30 @@ defmodule Carrier.External.SlackAPI.OAuth do
     %URI{path: "/oauth.v2.access"}
     |> URI.to_string()
     |> post(body)
+    |> handle_response()
     |> case do
-      {:ok, %Tesla.Env{status: 200, body: body}} ->
-        %{"access_token" => access_token, "team" => %{"id" => team_id, "name" => team_name}} =
-          body |> Jason.decode!()
-
+      {:ok, %{"access_token" => access_token, "team" => %{"id" => team_id, "name" => team_name}}} ->
         {:ok, %{access_token: access_token, team: %{id: team_id, name: team_name}}}
 
-      error ->
-        Logger.error(inspect(error))
+      {:error, reason} ->
+        Logger.error(reason)
 
-        {:error, :slack_api_oauth2_failed}
+        {:error, reason}
     end
+  end
+
+  def handle_response({:ok, %Tesla.Env{status: 200, body: body}}) do
+    case body |> Jason.decode!() do
+      %{"ok" => true} = json_body ->
+        {:ok, json_body}
+
+      %{"ok" => false, "error" => error} ->
+        {:error, error}
+    end
+  end
+
+  def handle_response({:error, reason}) do
+    {:error, reason}
   end
 
   defp client_id() do

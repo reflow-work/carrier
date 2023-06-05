@@ -2,6 +2,20 @@ defmodule Carrier.External.SlackAPI do
   require Logger
   alias Carrier.Data.Target.Slack.{Channel, Pagination}
 
+  def test_api(token) do
+    Tesla.post(client(token), "/api.test", %{})
+    |> handle_response()
+    |> case do
+      {:ok, _} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error(reason)
+
+        {:error, reason}
+    end
+  end
+
   def post_message(channel_id, message, token) when is_binary(message) do
     query = [channel: channel_id, text: message]
 

@@ -5,9 +5,9 @@ defmodule Carrier.Data.Target.Slack do
   alias Carrier.External.SlackAPI
 
   @impl true
-  def validate_conn(:slack, credentials, _opts) do
-    case list_channels(credentials, %{limit: 1}) do
-      {:ok, _} -> :ok
+  def validate_conn(:slack, %{bot_token: bot_token}, _opts) do
+    case SlackAPI.test_api(bot_token) do
+      :ok -> :ok
       {:error, _} -> {:error, :invalid_conn_info}
     end
   end
