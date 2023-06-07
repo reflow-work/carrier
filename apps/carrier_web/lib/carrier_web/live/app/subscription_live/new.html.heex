@@ -2,7 +2,7 @@
   <.page_header icon="💳" title="플랜 선택하기" />
 
   <div class="text-sm mt-3">
-    베타 기간(~2023.05.31) 동안 무료로 시작해보세요. <br /> 베타 기간 안에 언제든지 구독을 취소할 수 있습니다.
+    베타 기간 동안 무료로 시작해보세요. <br /> 베타 기간 안에 언제든지 구독을 취소할 수 있습니다.
   </div>
 
   <.card_container class="grid grid-cols-12 gap-4">
@@ -86,7 +86,10 @@
         </div>
 
         <div>
-          결제 예정일: 2023년 6월 8일 <span class="text-sm">(2023년 6월 1일 + 무료 7일)</span>
+          결제 예정일: <%= @timezone |> current_datetime!() |> Timex.shift(days: 7) |> format_date() %>
+          <span class="text-sm">
+            (<%= @timezone |> current_datetime!() |> format_date() %> + 무료 7일)
+          </span>
         </div>
         <div :if={@credit_card}>
           결제 수단: <%= CreditCard.format_card_info(@credit_card) %>
