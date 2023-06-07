@@ -101,20 +101,6 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 label="발송 시간"
                 label_align={:left}
               />
-
-              <:actions>
-                <.button
-                  type="button"
-                  style={:outline}
-                  disabled={!@valid?}
-                  phx-click="send_test_report"
-                >
-                  테스트 발송
-                </.button>
-                <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
-                  리포트 저장
-                </.button>
-              </:actions>
             </.simple_form>
           </div>
         </.card>
