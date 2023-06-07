@@ -191,7 +191,7 @@ defmodule CarrierWeb.CoreComponents do
 
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class={["mt-5 space-y-5 bg-white", @class]}>
+      <div class={["space-y-5 bg-white", @class]}>
         <%= render_slot(@inner_block, f) %>
         <.error :for={error <- @errors}><%= inspect(error) %></.error>
         <div :for={action <- @actions} class="!mt-10 flex items-center gap-6">

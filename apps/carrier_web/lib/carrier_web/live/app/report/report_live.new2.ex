@@ -94,15 +94,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
-      <Components.data_transformer
-        data_source={@selected_data_source}
-        data_source_info={@data_source_info}
-      />
-      <Components.data_target_configurer
-        data_target={@data_target}
-        data_target_info={@data_target_info}
-      />
-      <Components.report_configurer report_form={@report_form} valid?={@valid?} />
+      <div :if={@selected_data_source}>
+        <Components.data_transformer
+          data_source={@selected_data_source}
+          data_source_info={@data_source_info}
+        />
+        <Components.data_target_configurer
+          data_target={@data_target}
+          data_target_info={@data_target_info}
+        />
+        <Components.report_configurer report_form={@report_form} valid?={@valid?} />
+      </div>
     </section>
     """
   end
