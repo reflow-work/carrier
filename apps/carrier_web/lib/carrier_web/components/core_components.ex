@@ -429,7 +429,7 @@ defmodule CarrierWeb.CoreComponents do
         @label_align == :top && "mt-1 w-full",
         @label_align == :left && "flex-1"
       ]}>
-        <div :if={slot_exist?(@icon)} class="absolute top-2 right-2 w-6 h-6">
+        <div :if={slot_exist?(@icon)} class="absolute right-3 top-2.5">
           <%= render_slot(@icon) %>
         </div>
         <input
@@ -438,7 +438,7 @@ defmodule CarrierWeb.CoreComponents do
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            "block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+            "h-12 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
             "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
             "border-zinc-300 focus:border-zinc-400",
             @errors != [] && "border-rose-400 focus:border-rose-400",
