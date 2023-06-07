@@ -96,10 +96,12 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 value={:daily}
               />
               <.input
-                type="time"
+                type="select"
                 field={@report_form[:trigger_time]}
                 label="발송 시간"
                 label_align={:left}
+                options={hours()}
+                value="00:00"
               />
             </.simple_form>
           </div>
@@ -111,5 +113,34 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
 
   defp interval_options() do
     [{"매일", :daily}]
+  end
+
+  defp hours() do
+    [
+      {"자정", "00:00"},
+      {"오전 1시", "01:00"},
+      {"오전 2시", "02:00"},
+      {"오전 3시", "03:00"},
+      {"오전 4시", "04:00"},
+      {"오전 5시", "05:00"},
+      {"오전 6시", "06:00"},
+      {"오전 7시", "07:00"},
+      {"오전 8시", "08:00"},
+      {"오전 9시", "09:00"},
+      {"오전 10시", "10:00"},
+      {"오전 11시", "11:00"},
+      {"정오", "12:00"},
+      {"오후 1시", "13:00"},
+      {"오후 2시", "14:00"},
+      {"오후 3시", "15:00"},
+      {"오후 4시", "16:00"},
+      {"오후 5시", "17:00"},
+      {"오후 6시", "18:00"},
+      {"오후 7시", "19:00"},
+      {"오후 8시", "20:00"},
+      {"오후 9시", "21:00"},
+      {"오후 10시", "22:00"},
+      {"오후 11시", "23:00"}
+    ]
   end
 end
