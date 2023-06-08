@@ -104,13 +104,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           data_target={@data_target}
           data_target_info={@data_target_info}
         />
-        <div class="mt-8 space-x-4">
-          <.button type="button" style={:outline} disabled={!@valid?} phx-click="send_test_report">
-            테스트 발송
-          </.button>
-          <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
-            리포트 저장
-          </.button>
+        <div>
+          <.simple_form for={%{}} phx-submit="create_report">
+            <div class="mt-8 space-x-4">
+              <.button type="button" style={:outline} disabled={!@valid?} phx-click="send_test_report">
+                테스트 발송
+              </.button>
+              <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
+                리포트 저장
+              </.button>
+            </div>
+          </.simple_form>
         </div>
       </div>
     </section>
@@ -151,7 +155,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
-  def handle_event("create_report", %{"report" => _report_input}, socket) do
+  def handle_event("create_report", _, socket) do
     report = socket.assigns.report_form |> Params.to_map()
 
     report =
