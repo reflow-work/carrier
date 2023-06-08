@@ -140,7 +140,8 @@ defmodule Carrier.Data.Source.Tableau do
                      } ->
         [
           Block.link(full_name, view_url),
-          Block.image(full_name, image_url, full_name)
+          Block.image(full_name, image_url, full_name),
+          Block.button("Open Original Image", image_url)
         ]
       end)
 
