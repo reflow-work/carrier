@@ -113,7 +113,6 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
                 @views.value |> Enum.map(fn %{id: id, full_name: full_name} -> {full_name, id} end)
               }
               multiple={true}
-              max_search={1000}
               onchange={
                 fn selected_view_ids ->
                   send_update(__MODULE__, id: @id, selected_view_ids: selected_view_ids)
