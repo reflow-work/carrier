@@ -98,8 +98,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       <.card_container>
         <.card class="z-10">
           <div>
-            <.card_title title="Tableau View 선택하기" />
-            <p class="mt-2">Tableau 에서 불러올 View 를 선택해주세요.</p>
+            <.card_title title="Tableau View" />
           </div>
 
           <div class="max-w-md">
@@ -108,16 +107,12 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
               :if={!@views.loading?}
               module={Search}
               id="tableau_view_selector"
-              label="View 이름"
-              label_align={:left}
               placeholder="View 이름으로 검색해주세요."
               position={:top}
               items={
                 @views.value |> Enum.map(fn %{id: id, full_name: full_name} -> {full_name, id} end)
               }
               multiple={true}
-              max_search={7}
-              max_select={3}
               onchange={
                 fn selected_view_ids ->
                   send_update(__MODULE__, id: @id, selected_view_ids: selected_view_ids)
@@ -127,14 +122,16 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           </div>
         </.card>
         <.card>
-          <p :if={@selected_views |> Enum.empty?()}>Tablea View 를 선택해주세요</p>
-          <.live_component
-            :for={%Tableau.View{id: id} = selected_view <- @selected_views}
-            module={TableauView}
-            id={id}
-            data_source={@data_source}
-            view={selected_view}
-          />
+          <div class="space-y-8">
+            <p :if={@selected_views |> Enum.empty?()}>Tablea View 를 선택해주세요</p>
+            <.live_component
+              :for={%Tableau.View{id: id} = selected_view <- @selected_views}
+              module={TableauView}
+              id={id}
+              data_source={@data_source}
+              view={selected_view}
+            />
+          </div>
         </.card>
       </.card_container>
     </div>

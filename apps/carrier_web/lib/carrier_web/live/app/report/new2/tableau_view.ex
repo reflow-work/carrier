@@ -53,10 +53,9 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
     <div>
       <p><%= @view.name %></p>
       <.loading :if={@image_binary.loading?} />
-      <img
-        :if={!@image_binary.loading?}
-        src={"data:image/png;base64,#{@image_binary.value |> Base.encode64()}"}
-      />
+      <div :if={!@image_binary.loading?} class="max-h-40 max-w-md overflow-hidden border rounded mt-2">
+        <img src={"data:image/png;base64,#{@image_binary.value |> Base.encode64()}"} />
+      </div>
     </div>
     """
   end

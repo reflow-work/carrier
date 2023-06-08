@@ -79,7 +79,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
         <.card>
           <.card_title title="리포트 설정하기" />
           <div class="max-w-md">
-            <.simple_form for={@report_form} phx-change="validate_report" phx-submit="create_report">
+            <.simple_form for={@report_form} phx-change="validate_report">
               <.input
                 type="text"
                 field={@report_form[:name]}
@@ -96,25 +96,13 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 value={:daily}
               />
               <.input
-                type="time"
+                type="select"
                 field={@report_form[:trigger_time]}
                 label="발송 시간"
                 label_align={:left}
+                options={trigger_time_options()}
+                value={@report_form[:trigger_time].value}
               />
-
-              <:actions>
-                <.button
-                  type="button"
-                  style={:outline}
-                  disabled={!@valid?}
-                  phx-click="send_test_report"
-                >
-                  테스트 발송
-                </.button>
-                <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
-                  리포트 저장
-                </.button>
-              </:actions>
             </.simple_form>
           </div>
         </.card>
@@ -125,5 +113,34 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
 
   defp interval_options() do
     [{"매일", :daily}]
+  end
+
+  defp trigger_time_options() do
+    [
+      {"자정", "00:00:00"},
+      {"오전 1시", "01:00:00"},
+      {"오전 2시", "02:00:00"},
+      {"오전 3시", "03:00:00"},
+      {"오전 4시", "04:00:00"},
+      {"오전 5시", "05:00:00"},
+      {"오전 6시", "06:00:00"},
+      {"오전 7시", "07:00:00"},
+      {"오전 8시", "08:00:00"},
+      {"오전 9시", "09:00:00"},
+      {"오전 10시", "10:00:00"},
+      {"오전 11시", "11:00:00"},
+      {"정오", "12:00:00"},
+      {"오후 1시", "13:00:00"},
+      {"오후 2시", "14:00:00"},
+      {"오후 3시", "15:00:00"},
+      {"오후 4시", "16:00:00"},
+      {"오후 5시", "17:00:00"},
+      {"오후 6시", "18:00:00"},
+      {"오후 7시", "19:00:00"},
+      {"오후 8시", "20:00:00"},
+      {"오후 9시", "21:00:00"},
+      {"오후 10시", "22:00:00"},
+      {"오후 11시", "23:00:00"}
+    ]
   end
 end

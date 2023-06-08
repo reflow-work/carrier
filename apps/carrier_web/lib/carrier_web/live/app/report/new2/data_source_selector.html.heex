@@ -1,8 +1,7 @@
 <.card_container>
   <.card>
     <div>
-      <.card_title title="데이터 소스 선택하기" />
-      <p class="mt-2">데이터를 불러올 데이터 소스를 선택해주세요.</p>
+      <.card_title title="데이터 소스" />
     </div>
 
     <.simple_form for={%{}} phx-change={@onselect}>
@@ -10,8 +9,6 @@
         <.input
           type="select"
           name="id"
-          label="데이터 소스 이름"
-          label_align={:left}
           prompt="데이터 소스를 선택해주세요"
           options={data_source_options(@data_sources)}
           value={@selected_data_source |> Nillable.map(& &1.id) |> Nillable.fallback("")}

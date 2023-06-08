@@ -9,7 +9,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:label, nil)
       |> assign(:label_align, nil)
       |> assign(:position, :bottom)
-      |> assign(:max_search, 5)
+      |> assign(:max_search, nil)
       |> assign(:multiple, false)
       |> assign(:max_select, nil)
       |> assign(:duplicatable, false)
@@ -223,7 +223,12 @@ defmodule CarrierWeb.Components.Search do
           socket.assigns.items
           |> handle_duplicated(socket.assigns.duplicatable, socket.assigns.selected_items)
           |> Stream.filter(fn item -> item.label =~ regex end)
-          |> Stream.take(socket.assigns.max_search)
+          |> then(fn stream ->
+            case socket.assigns.max_search do
+              nil -> stream
+              max_search -> stream |> Stream.take(max_search)
+            end
+          end)
           |> Enum.to_list()
 
         socket

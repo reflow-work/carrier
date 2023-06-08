@@ -94,15 +94,29 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
-      <Components.data_transformer
-        data_source={@selected_data_source}
-        data_source_info={@data_source_info}
-      />
-      <Components.data_target_configurer
-        data_target={@data_target}
-        data_target_info={@data_target_info}
-      />
-      <Components.report_configurer report_form={@report_form} valid?={@valid?} />
+      <div :if={@selected_data_source}>
+        <Components.data_transformer
+          data_source={@selected_data_source}
+          data_source_info={@data_source_info}
+        />
+        <Components.report_configurer report_form={@report_form} valid?={@valid?} />
+        <Components.data_target_configurer
+          data_target={@data_target}
+          data_target_info={@data_target_info}
+        />
+        <div>
+          <.simple_form for={%{}} phx-submit="create_report">
+            <div class="mt-8 space-x-4">
+              <.button type="button" style={:outline} disabled={!@valid?} phx-click="send_test_report">
+                테스트 발송
+              </.button>
+              <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
+                리포트 저장
+              </.button>
+            </div>
+          </.simple_form>
+        </div>
+      </div>
     </section>
     """
   end
@@ -141,7 +155,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
-  def handle_event("create_report", %{"report" => _report_input}, socket) do
+  def handle_event("create_report", _, socket) do
     report = socket.assigns.report_form |> Params.to_map()
 
     report =

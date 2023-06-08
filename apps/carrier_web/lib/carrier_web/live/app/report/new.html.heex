@@ -2,29 +2,25 @@
   <.page_header icon="📊" title="레포트 생성하기" />
 
   <section class="mt-6 space-y-6">
-    <section class="card">
-      <div class="card-body">
+    <.card_container>
+      <.card class="card">
         <div>
-          <h2 class="card-title mb-3">데이터 소스 선택하기</h2>
-          <div>
-            데이터를 불러올 데이터 소스를 선택해주세요.
-          </div>
+          <.card_title title="데이터 소스" />
         </div>
 
         <.form :let={f} for={:data_source} phx-change="select_data_source">
-          <div class="flex items-center gap-x-2 mt-4">
-            <%= label(f, :id, "데이터 소스 이름", class: "label w-28 text-gray-500 text-sm") %>
+          <div class="flex items-center gap-x-2 mt-1">
             <%= select(
               f,
               :id,
               @data_source_options,
-              class: "select select-bordered w-64",
+              class: "select select-bordered max-w-md w-full",
               selected: @data_source |> Nillable.map(& &1.id)
             ) %>
           </div>
         </.form>
-      </div>
-    </section>
+      </.card>
+    </.card_container>
     <%= if @data_source.source in [:postgres, :mysql, :bigquery, :athena] do %>
       <section class="card">
         <div class="card-body">
