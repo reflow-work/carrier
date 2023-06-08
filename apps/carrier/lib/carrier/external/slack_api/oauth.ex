@@ -34,8 +34,19 @@ defmodule Carrier.External.SlackAPI.OAuth do
     |> post(body)
     |> handle_response()
     |> case do
-      {:ok, %{"access_token" => access_token, "team" => %{"id" => team_id, "name" => team_name}}} ->
-        {:ok, %{access_token: access_token, team: %{id: team_id, name: team_name}}}
+      {:ok,
+       %{
+         "access_token" => bot_access_token,
+         "scope" => bot_scope,
+         "team" => %{"id" => team_id, "name" => team_name}
+       }} ->
+        {:ok,
+         %{
+           bot_scope: bot_scope,
+           bot_token: bot_access_token,
+           team_id: team_id,
+           team_name: team_name
+         }}
 
       {:error, reason} ->
         Logger.error(reason)
