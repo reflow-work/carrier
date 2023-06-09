@@ -103,6 +103,19 @@ defmodule Carrier.Data.Target.Slack do
     def new(%{"id" => id, "user" => user_id, "is_im" => true}) do
       %__MODULE__{id: id, user_id: user_id, type: :direct_message}
     end
+
+    def update_user_name(%__MODULE__{user_id: user_id} = struct, users)
+        when not is_nil(user_id) do
+      %{name: user_name} =
+        users
+        |> Enum.find(&(&1.id == user_id))
+
+      %__MODULE__{struct | name: user_name}
+    end
+
+    def update_user_name(%__MODULE__{user_id: nil} = struct, _users) do
+      struct
+    end
   end
 
   defmodule User do
