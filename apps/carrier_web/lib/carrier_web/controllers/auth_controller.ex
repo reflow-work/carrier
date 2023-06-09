@@ -5,8 +5,6 @@ defmodule CarrierWeb.AuthController do
   alias Carrier.Obfuscatable
   alias Carrier.External.Google
 
-  plug Ueberauth
-
   def login(conn, _params) do
     case get_session(conn, "user_id") do
       nil ->

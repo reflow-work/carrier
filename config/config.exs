@@ -124,17 +124,6 @@ config :carrier, :slack,
   client_id: "3700242262145.3907206908336",
   client_secret: "ea1926306433ead67eea5f55a6855f67"
 
-config :ueberauth, Ueberauth,
-  providers: [
-    google: {Ueberauth.Strategy.Google, [default_scope: "email"]},
-    slack: {Ueberauth.Strategy.SlackV2, []}
-  ]
-
-
-config :ueberauth, Ueberauth.Strategy.SlackV2.OAuth,
-  client_id: "3700242262145.3907206908336",
-  client_secret: "ea1926306433ead67eea5f55a6855f67"
-
 config :reverse_proxy_plug, :http_client, ReverseProxyPlug.HTTPClient.Adapters.Tesla
 
 config :carrier, Carrier.Core.Cache.Local,
