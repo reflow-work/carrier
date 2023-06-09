@@ -75,7 +75,7 @@ defmodule CarrierWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView, layout: {CarrierWeb.Layouts, :live}
+      use Phoenix.LiveView
       require Logger
       import CarrierWeb.{AssignHelper, AnalyticsHelper}
       alias Carrier.Obfuscatable

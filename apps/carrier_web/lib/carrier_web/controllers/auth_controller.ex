@@ -1,7 +1,9 @@
 defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
   use Carrier.Accounts
+  require Logger
   alias Carrier.Obfuscatable
+  alias Carrier.External.Google
 
   plug Ueberauth
 
@@ -30,7 +32,7 @@ defmodule CarrierWeb.AuthController do
     case Accounts.Super.get_org(org_id) do
       {:ok, org} ->
         conn
-        |> put_session(:org_id, org_id)
+        |> put_session(:org_id_for_invite, org_id)
         |> render(:invite, org: org)
 
       _ ->
@@ -39,43 +41,31 @@ defmodule CarrierWeb.AuthController do
     end
   end
 
-  def callback(
-        %{assigns: %{ueberauth_auth: %Ueberauth.Auth{provider: provider} = auth}} = conn,
-        _params
-      ) do
-    _conn =
-      case provider do
-        :google -> auth(conn, auth)
-      end
-  end
+  def google_callback(conn, %{"g_csrf_token" => g_csrf_token, "credential" => credential}) do
+    org_id_for_invite = conn |> get_session(:org_id_for_invite)
 
-  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
-    conn
-    |> put_flash(:error, "로그인에 실패하였습니다. 다시 시도해주세요.")
-    |> redirect(to: "/")
-  end
+    with :ok <- check_google_csrf(conn, g_csrf_token),
+         {:ok, %{email: email}} <- Google.OAuth.verify_credential(credential),
+         {:ok, {_, %User{id: user_id, org_id: org_id}}} <-
+           Accounts.Super.auth(email, org_id_for_invite) do
+      conn
+      |> put_session(:user_id, user_id)
+      |> put_session(:org_id, org_id)
+      |> redirect(to: get_session(conn, :user_return_to) || ~p"/app/reports?redirected=true")
+    else
+      error ->
+        Logger.error("Google OAuth error: #{inspect(error)}")
 
-  defp auth(conn, auth) do
-    %Ueberauth.Auth{
-      provider: :google,
-      info: %Ueberauth.Auth.Info{
-        email: email
-      }
-    } = auth
-
-    org_id = conn |> get_session(:org_id)
-
-    case Accounts.Super.auth(email, org_id) do
-      {:ok, {_, %User{id: user_id, org_id: org_id}}} ->
-        conn
-        |> put_session(:user_id, user_id)
-        |> put_session(:org_id, org_id)
-        |> redirect(to: get_session(conn, :user_return_to) || ~p"/app/reports?redirected=true")
-
-      _ ->
         conn
         |> put_flash(:error, "로그인에 실패하였습니다. 다시 시도해주세요.")
-        |> redirect(to: "/")
+        |> redirect(to: "/login")
+    end
+  end
+
+  defp check_google_csrf(conn, g_csrf_token) do
+    case conn.req_cookies["g_csrf_token"] == g_csrf_token do
+      true -> :ok
+      false -> {:error, "Invalid CSRF token"}
     end
   end
 end

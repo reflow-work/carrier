@@ -37,6 +37,12 @@ defmodule CarrierWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth_api do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug :fetch_live_flash
+  end
+
   get "/health", CarrierWeb.HealthController, :index
 
   # Without Auth
@@ -69,11 +75,18 @@ defmodule CarrierWeb.Router do
     end
   end
 
+  scope "/", CarrierWeb do
+    pipe_through :auth_api
+
+    post "/auth/google/callback", AuthController, :google_callback
+  end
+
   # With Auth
   scope "/app", CarrierWeb.App, as: :app do
     pipe_through [:browser, :auth_user]
 
     live_session :user,
+      layout: {CarrierWeb.Layouts, :live},
       on_mount: [
         CarrierWeb.UserHook,
         CarrierWeb.TimezoneHook,
