@@ -20,6 +20,7 @@ defmodule Carrier.External.SlackAPI.OAuth do
           # private channel
           "groups:read",
           # direct message
+          "users:read",
           "im:read"
         ]
         |> Enum.join(","),

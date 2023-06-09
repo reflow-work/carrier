@@ -105,6 +105,21 @@ defmodule Carrier.Data.Target.Slack do
     end
   end
 
+  defmodule User do
+    defstruct [:id, :name, :type, :deleted]
+
+    def new(%{"id" => id, "name" => name, "is_bot" => is_bot, "deleted" => deleted}) do
+      type =
+        case {id, is_bot} do
+          {"USLACKBOT", _} -> :bot
+          {_, true} -> :bot
+          _ -> :user
+        end
+
+      %__MODULE__{id: id, name: name, type: type, deleted: deleted}
+    end
+  end
+
   defmodule Pagination do
     defstruct [:next_cursor]
 
