@@ -27,6 +27,12 @@ defmodule Carrier.Core.DateTimeHelper do
     end
   end
 
+  def calc_next_hourly(%DateTime{} = datetime) do
+    datetime
+    |> truncate(:hour)
+    |> Timex.shift(hours: 1)
+  end
+
   def max(%DateTime{} = datetime1, %DateTime{} = datetime2) do
     case DateTime.compare(datetime1, datetime2) do
       :lt -> datetime2
@@ -39,5 +45,22 @@ defmodule Carrier.Core.DateTimeHelper do
       :gt -> datetime2
       _ -> datetime1
     end
+  end
+
+  def truncate(%DateTime{} = datetime, precision)
+      when precision in [:microsecond, :millisecond, :second] do
+    datetime |> DateTime.truncate(precision)
+  end
+
+  def truncate(%DateTime{} = datetime, :minute) do
+    datetime
+    |> truncate(:second)
+    |> Map.put(:second, 0)
+  end
+
+  def truncate(%DateTime{} = datetime, :hour) do
+    datetime
+    |> truncate(:minute)
+    |> Map.put(:minute, 0)
   end
 end

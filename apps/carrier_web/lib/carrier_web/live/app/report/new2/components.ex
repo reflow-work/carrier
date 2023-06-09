@@ -93,16 +93,8 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 label="발송 주기"
                 label_align={:left}
                 options={interval_options()}
-                value={:daily}
               />
-              <.input
-                type="select"
-                field={@report_form[:trigger_time]}
-                label="발송 시간"
-                label_align={:left}
-                options={trigger_time_options()}
-                value={@report_form[:trigger_time].value}
-              />
+              <.trigger_detail_inputs form={@report_form} />
             </.simple_form>
           </div>
         </.card>
@@ -111,8 +103,34 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     """
   end
 
+  attr :form, :any, required: true
+
+  def trigger_detail_inputs(assigns) do
+    case assigns.form[:interval].value do
+      :daily ->
+        ~H"""
+        <.input
+          type="select"
+          field={@form[:trigger_time]}
+          label="발송 시간"
+          label_align={:left}
+          options={trigger_time_options()}
+          value={@form[:trigger_time].value}
+        />
+        """
+
+      _ ->
+        ~H"""
+        <div></div>
+        """
+    end
+  end
+
   defp interval_options() do
-    [{"매일", :daily}]
+    [
+      {"매시간", :hourly},
+      {"매일", :daily}
+    ]
   end
 
   defp trigger_time_options() do

@@ -32,7 +32,13 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_id =
       params["data_source_id"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, DataSource))
 
-    report_form = ReportParams.to_form(%{}, validate: false)
+    report_form =
+      ReportParams.to_form(
+        %{
+          interval: :daily
+        },
+        validate: false
+      )
 
     socket =
       socket
@@ -162,7 +168,9 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       report
       |> Map.update!(
         :trigger_time,
-        &(&1 |> TimeHelper.to_utc_time(report.timezone))
+        fn trigger_time ->
+          trigger_time |> Nillable.map(&TimeHelper.to_utc_time(&1, report.timezone))
+        end
       )
 
     data_source_info = socket.assigns.data_source_info_form |> Params.to_map()

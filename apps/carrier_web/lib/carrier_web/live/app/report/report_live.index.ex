@@ -95,7 +95,11 @@ defmodule CarrierWeb.App.ReportLive.Index do
     end
   end
 
-  defp format_trigger_time(trigger_time, timezone) do
+  defp triggered_at(%Report{interval: :hourly}, _timezone) do
+    "매시간"
+  end
+
+  defp triggered_at(%Report{interval: :daily, trigger_time: trigger_time}, timezone) do
     TimeHelper.from_utc_time(trigger_time, timezone)
     |> Timex.format!("매일 {0h24}:{0m}")
   end

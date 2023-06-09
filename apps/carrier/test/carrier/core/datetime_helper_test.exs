@@ -1,5 +1,5 @@
 defmodule Carrier.Core.DateTimeHelperTest do
-  use ExUnit.Case, async: true
+  use Carrier.CommonCase, async: true
   alias Carrier.Core.DateTimeHelper
 
   describe "get_next_with_time/2" do
@@ -47,6 +47,22 @@ defmodule Carrier.Core.DateTimeHelperTest do
     end
   end
 
+  describe "calc_next_hourly" do
+    test "with not sharp datetime" do
+      assert same_values?(
+               DateTimeHelper.calc_next_hourly(~U[2023-01-31 09:11:50.123Z]),
+               ~U[2023-01-31 10:00:00Z]
+             )
+    end
+
+    test "with sharp datetime" do
+      assert same_values?(
+               DateTimeHelper.calc_next_hourly(~U[2023-01-31 09:00:00Z]),
+               ~U[2023-01-31 10:00:00Z]
+             )
+    end
+  end
+
   describe "max/2" do
     test "with first datetime is greater" do
       datetime1 = ~U[2023-01-31 09:00:00Z]
@@ -88,6 +104,22 @@ defmodule Carrier.Core.DateTimeHelperTest do
       datetime = ~U[2023-01-31 09:00:00Z]
 
       assert DateTimeHelper.min(datetime, datetime) == datetime
+    end
+  end
+
+  describe "truncate/2" do
+    @datetime ~U[2023-01-31 09:11:50.123Z]
+
+    test "with :second precision" do
+      assert same_values?(DateTimeHelper.truncate(@datetime, :second), ~U[2023-01-31 09:11:50Z])
+    end
+
+    test "with :minute precision" do
+      assert same_values?(DateTimeHelper.truncate(@datetime, :minute), ~U[2023-01-31 09:11:00Z])
+    end
+
+    test "with :hour precision" do
+      assert same_values?(DateTimeHelper.truncate(@datetime, :hour), ~U[2023-01-31 09:00:00Z])
     end
   end
 end
