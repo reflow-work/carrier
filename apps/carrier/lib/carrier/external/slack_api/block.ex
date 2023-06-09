@@ -4,13 +4,19 @@ defmodule Carrier.External.SlackAPI.Block do
       "type" => "section",
       "text" => %{
         "type" => type,
-        "text" => text
+        "text" => escape_text(text)
       }
     }
   end
 
   def build_link_block(text, url) do
-    build_text_block("<#{url}|#{text}>")
+    %{
+      "type" => "section",
+      "text" => %{
+        "type" => "mrkdwn",
+        "text" => "<#{url}|#{escape_text(text)}>"
+      }
+    }
   end
 
   def build_image_block(url, title, alt_text) do
@@ -20,7 +26,7 @@ defmodule Carrier.External.SlackAPI.Block do
       "type" => "image",
       "title" => %{
         "type" => "plain_text",
-        "text" => title,
+        "text" => escape_text(title),
         "emoji" => false
       },
       "image_url" => encoded_url,
@@ -38,7 +44,7 @@ defmodule Carrier.External.SlackAPI.Block do
           "type" => "button",
           "text" => %{
             "type" => "plain_text",
-            "text" => text,
+            "text" => escape_text(text),
             "emoji" => false
           },
           "url" => encoded_url
@@ -51,5 +57,12 @@ defmodule Carrier.External.SlackAPI.Block do
     %{
       "type" => "divider"
     }
+  end
+
+  defp escape_text(text) do
+    text
+    |> String.replace("&", "&amp;")
+    |> String.replace("<", "&lt;")
+    |> String.replace(">", "&gt;")
   end
 end
