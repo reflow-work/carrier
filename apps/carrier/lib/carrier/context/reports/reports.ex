@@ -177,7 +177,7 @@ defmodule Carrier.Reports do
         %DateTime{} = base_datetime,
         reader \\ %{repo: TenantRepo}
       ) do
-    scheduled_at = DateTimeHelper.get_next_with_time(base_datetime, report.trigger_time)
+    scheduled_at = calc_next_report_time(report, base_datetime)
 
     reader.repo.wrap_transaction(fn ->
       with {:ok, report_job} <-
@@ -211,6 +211,14 @@ defmodule Carrier.Reports do
         "next report job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}"
       )
     end)
+  end
+
+  defp calc_next_report_time(%Report{interval: :hourly}, base_datetime) do
+    DateTimeHelper.calc_next_hourly(base_datetime)
+  end
+
+  defp calc_next_report_time(%Report{interval: :daily, trigger_time: trigger_time}, base_datetime) do
+    DateTimeHelper.get_next_with_time(base_datetime, trigger_time)
   end
 
   def list_report_logs() do

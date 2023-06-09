@@ -4,6 +4,7 @@ defmodule Carrier.ReportsTest do
   use Oban.Testing, repo: Carrier.TenantRepo
   alias Carrier.TenantFactory
   alias Carrier.TenantRepo
+  alias Carrier.Core.DateTimeHelper
 
   @moduletag repo: TenantRepo
 
@@ -118,6 +119,53 @@ defmodule Carrier.ReportsTest do
 
       assert report_log.org_id == created_report.org_id
       assert report_log.report_id == created_report.id
+    end
+
+    test "with hourly report", %{
+      org: org,
+      user: user,
+      data_target: data_target,
+      data_source: data_source
+    } do
+      params = %{
+        org_id: org.org_id,
+        user_id: user.id,
+        name: "Hourly Report",
+        interval: :hourly,
+        trigger_time: nil,
+        timezone: "Asia/Seoul",
+        data_target_info: %{
+          data_target_id: data_target.id,
+          target: :slack,
+          params: %{
+            channel_id: "channel_id",
+            channel_name: "channel_name"
+          }
+        },
+        data_source_info: %{
+          data_source_id: data_source.id,
+          source: :postgres,
+          sql_template: "sql",
+          timezone: "Asia/Seoul",
+          period: 28,
+          window_size: 7,
+          comparing_period: 7,
+          columns: ["total_revenue"]
+        }
+      }
+
+      assert {:ok, created_report} = Reports.create_report(params)
+
+      # ReportJob
+
+      TenantRepo.set_skip_org_id()
+
+      assert [%{scheduled_at: job_scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
+
+      assert same_values?(
+               job_scheduled_at,
+               created_report.created_at |> DateTimeHelper.calc_next_hourly()
+             )
     end
   end
 
