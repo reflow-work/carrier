@@ -111,12 +111,9 @@ defmodule Carrier.Data.Source.Tableau do
 
     with {:ok, view_image_urls} <-
            views
-           |> Async.map(
-             fn %{image_binary: image_binary} ->
-               Uploader.upload(:report_storage, org_id, image_binary, :png)
-             end,
-             timeout: :timer.seconds(30)
-           )
+           |> Async.map(fn %{image_binary: image_binary} ->
+             Uploader.upload(:report_storage, org_id, image_binary, :png)
+           end)
            |> Async.unwrap_map_ok_results(),
          merged_pdf_binary = merge_pdf_binaries(pdf_binaries),
          {:ok, pdf_url} <- Uploader.upload(:report_storage, org_id, merged_pdf_binary, :pdf) do
@@ -216,9 +213,7 @@ defmodule Carrier.Data.Source.Tableau do
   defp do_list_views_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view(view_id, auth) end,
-             timeout: :timer.seconds(30)
-           )
+           |> Async.map(fn view_id -> do_get_view(view_id, auth) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
@@ -227,9 +222,7 @@ defmodule Carrier.Data.Source.Tableau do
   defp do_list_view_image_binaries_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, auth) end,
-             timeout: :timer.seconds(30)
-           )
+           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, auth) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
@@ -238,9 +231,7 @@ defmodule Carrier.Data.Source.Tableau do
   defp do_list_view_pdf_binaries_async(view_ids, auth) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view_pdf_binary(view_id, auth) end,
-             timeout: :timer.seconds(30)
-           )
+           |> Async.map(fn view_id -> do_get_view_pdf_binary(view_id, auth) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
