@@ -22,18 +22,16 @@
       <span class="font-bold"><%= @org.name %></span>에 초대되었습니다.<br />
       구글 계정으로 로그인하여 reflow를 이용해보세요.
     </div>
-    <.link href={~p"/auth/google"}>
-      <div class="flex items-center bg-white border px-6 py-3 mt-8 shadow-sm rounded text-sm font-bold hover:bg-gray-100 max-w-fit">
-        <div class="w-4">
-          <%= img_tag(~p"/images/google-logo.png") %>
-        </div>
-        <div class="mx-4">
-          Google 계정으로 로그인
-        </div>
-        <div>
-          <CarrierWeb.Components.Icon.arrow_right class="w-4" />
-        </div>
+    <div class="flex items-center mt-12">
+      <div
+        class="g_id_signin"
+        data-type="standard"
+        data-size="large"
+        data-theme="filled_black"
+        data-text="continue_with"
+        data-shape="pill"
+      >
       </div>
-    </.link>
+    </div>
   </div>
 </div>
