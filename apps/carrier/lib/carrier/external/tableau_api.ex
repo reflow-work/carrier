@@ -45,11 +45,11 @@ defmodule Carrier.External.TableauAPI do
   end
 
   def get_view(%{view_id: view_id, host: host, site_id: site_id, token: token}) do
-    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}",
-      query: [
-        {"fields", "_default_,project.name,workbook.name,workbook.contentUrl"}
-      ]
-    )
+    query = [
+      {"fields", "_default_,project.name,workbook.name,workbook.contentUrl"}
+    ]
+
+    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}", query: query)
     |> handle_response()
     |> case do
       {:ok, %{"view" => view}} ->
@@ -61,13 +61,13 @@ defmodule Carrier.External.TableauAPI do
   end
 
   def query_views_for_site(%{host: host, site_id: site_id, page: page, token: token}) do
-    Tesla.get(client(host, token), "/sites/#{site_id}/views",
-      query: [
-        {"pageNumber", page},
-        {"pageSize", 1000},
-        {"fields", "_default_,project.name,workbook.name,workbook.contentUrl"}
-      ]
-    )
+    query = [
+      {"pageNumber", page},
+      {"pageSize", 1000},
+      {"fields", "_default_,project.name,workbook.name,workbook.contentUrl"}
+    ]
+
+    Tesla.get(client(host, token), "/sites/#{site_id}/views", query: query)
     |> handle_response()
     |> case do
       {:ok, %{"views" => %{"view" => views}, "pagination" => raw_pagination}} ->
@@ -89,11 +89,11 @@ defmodule Carrier.External.TableauAPI do
   end
 
   def query_view_pdf(%{host: host, site_id: site_id, view_id: view_id, token: token}) do
-    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/pdf",
-      query: [
-        {"vizWidth", 2500}
-      ]
-    )
+    query = [
+      {"vizWidth", 2500}
+    ]
+
+    Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/pdf", query: query)
     |> handle_response()
   end
 
