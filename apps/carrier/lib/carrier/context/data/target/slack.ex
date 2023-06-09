@@ -138,6 +138,10 @@ defmodule Carrier.Data.Target.Slack do
     do_list_channels(credentials, params)
   end
 
+  def list_users(credentials, params \\ %{}) do
+    do_list_users(credentials, params)
+  end
+
   def post_message(channel_id, blocks, %{bot_token: bot_token}) do
     SlackAPI.post_message(channel_id, blocks, bot_token)
   end
@@ -161,6 +165,31 @@ defmodule Carrier.Data.Target.Slack do
         case next_cursor do
           nil -> {channels, false}
           next_cursor -> {channels, next_cursor}
+        end
+    end)
+    |> Enum.to_list()
+    |> List.flatten()
+    |> then(&{:ok, &1})
+  end
+
+  defp do_list_users(%{bot_token: bot_token}, params) do
+    Stream.unfold(nil, fn
+      false ->
+        nil
+
+      next_cursor ->
+        {:ok, %{users: users, pagination: %Pagination{next_cursor: next_cursor}}} =
+          SlackAPI.list_users(
+            params
+            |> Map.merge(%{
+              cursor: next_cursor
+            }),
+            bot_token
+          )
+
+        case next_cursor do
+          nil -> {users, false}
+          next_cursor -> {users, next_cursor}
         end
     end)
     |> Enum.to_list()
