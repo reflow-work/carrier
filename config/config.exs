@@ -115,6 +115,10 @@ config :tailwind,
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :tzdata, :autoupdate, :disabled
 
+config :carrier, :google,
+  client_id: "136111128651-a4h5k0m79mn64ipar78rspim0kt2d2fj.apps.googleusercontent.com",
+  client_secret: "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"
+
 config :carrier, :slack,
   base_url: "https://slack.com/api",
   client_id: "3700242262145.3907206908336",
@@ -126,9 +130,6 @@ config :ueberauth, Ueberauth,
     slack: {Ueberauth.Strategy.SlackV2, []}
   ]
 
-config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-  client_id: "136111128651-a4h5k0m79mn64ipar78rspim0kt2d2fj.apps.googleusercontent.com",
-  client_secret: "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"
 
 config :ueberauth, Ueberauth.Strategy.SlackV2.OAuth,
   client_id: "3700242262145.3907206908336",

@@ -69,6 +69,12 @@ defmodule CarrierWeb.Router do
     end
   end
 
+  scope "/", CarrierWeb do
+    pipe_through :api
+
+    post "/auth/google/callback", AuthController, :google_callback
+  end
+
   # With Auth
   scope "/app", CarrierWeb.App, as: :app do
     pipe_through [:browser, :auth_user]

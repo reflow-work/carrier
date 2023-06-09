@@ -39,20 +39,11 @@ defmodule CarrierWeb.AuthController do
     end
   end
 
-  def callback(
-        %{assigns: %{ueberauth_auth: %Ueberauth.Auth{provider: provider} = auth}} = conn,
-        _params
-      ) do
-    _conn =
-      case provider do
-        :google -> auth(conn, auth)
-      end
-  end
+  def google_callback(conn, %{"credential" => credential}) do
+    # TODO: implement it
 
-  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
-    |> put_flash(:error, "로그인에 실패하였습니다. 다시 시도해주세요.")
-    |> redirect(to: "/")
+    |> redirect(to: ~p"/login")
   end
 
   defp auth(conn, auth) do
