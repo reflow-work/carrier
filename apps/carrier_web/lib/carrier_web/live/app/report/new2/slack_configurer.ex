@@ -109,7 +109,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
               label="Channel 이름"
               label_align={:left}
               poition={:top}
-              items={@channels.value |> Enum.map(fn %{id: id, name: name} -> {"# #{name}", id} end)}
+              items={@channels.value |> channels_to_options()}
               multiple={false}
               duplicatable={true}
               onchange={
@@ -142,5 +142,19 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
     data_target_info_form = DataTargetInfo.to_form(data_target_info_input)
 
     send(self(), {:update, {:data_target_info_form, data_target_info_form}})
+  end
+
+  defp channels_to_options(channels) do
+    channels
+    |> Enum.map(fn %Slack.Channel{id: id, name: name, type: type} ->
+      prefix =
+        case type do
+          :public_channel -> "#"
+          :private_channel -> "🔒"
+          :direct_message -> "@"
+        end
+
+      {"#{prefix}#{name}", id}
+    end)
   end
 end
