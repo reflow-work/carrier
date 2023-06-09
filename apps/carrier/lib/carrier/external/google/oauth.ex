@@ -35,8 +35,6 @@ defmodule Carrier.External.Google.OAuth do
     end
   end
 
-  alias Carrier.Core.Crypto
-
   def verify_credential(credential) do
     {:ok, %{"email" => email}} = JWTManager.verify_and_validate(credential)
 
