@@ -88,10 +88,20 @@ defmodule Carrier.Data.Target.Slack do
   ### raw functions
 
   defmodule Channel do
-    defstruct [:id, :name, :is_private]
+    defstruct [:id, :name, :user_id, :type]
 
     def new(%{"id" => id, "name" => name, "is_private" => is_private}) do
-      %__MODULE__{id: id, name: name, is_private: is_private}
+      type =
+        case is_private do
+          false -> :public_channel
+          true -> :private_channel
+        end
+
+      %__MODULE__{id: id, name: name, type: type}
+    end
+
+    def new(%{"id" => id, "user" => user_id, "is_im" => true}) do
+      %__MODULE__{id: id, user_id: user_id, type: :direct_message}
     end
   end
 
@@ -117,14 +127,21 @@ defmodule Carrier.Data.Target.Slack do
     SlackAPI.post_message(channel_id, blocks, bot_token)
   end
 
-  defp do_list_channels(%{bot_token: bot_token}, params) do
+  defp do_list_channels(%{bot_token: bot_token} = credentials, params) do
     Stream.unfold(nil, fn
       false ->
         nil
 
       next_cursor ->
         {:ok, %{channels: channels, pagination: %Pagination{next_cursor: next_cursor}}} =
-          SlackAPI.list_conversations(params |> Map.merge(%{cursor: next_cursor}), bot_token)
+          SlackAPI.list_conversations(
+            params
+            |> Map.merge(%{
+              scope: credentials[:bot_scope],
+              cursor: next_cursor
+            }),
+            bot_token
+          )
 
         case next_cursor do
           nil -> {channels, false}

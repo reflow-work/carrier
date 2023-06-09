@@ -48,11 +48,23 @@ defmodule Carrier.External.SlackAPI do
     end
   end
 
-  def list_conversations(params \\ nil, token) do
+  def list_conversations(params \\ %{}, token) do
+    scope_type_map = %{
+      "channels:read" => "public_channel",
+      "groups:read" => "private_channel",
+      "im:read" => "im"
+    }
+
+    types =
+      (params[:scope] || "channels:read")
+      |> String.split(",")
+      |> Enum.map(&Map.get(scope_type_map, &1))
+      |> Enum.reject(&is_nil(&1))
+      |> Enum.join(",")
+
     query =
       %{
-        # TODO: change to "public_channel,private_channel"
-        "types" => "public_channel",
+        "types" => types,
         "exclude_archived" => true,
         "limit" => params[:limit] || 1000,
         "cursor" => params[:cursor]
