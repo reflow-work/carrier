@@ -74,6 +74,7 @@ defmodule CarrierWeb.Router do
     pipe_through [:browser, :auth_user]
 
     live_session :user,
+      layout: {CarrierWeb.Layouts, :live},
       on_mount: [
         CarrierWeb.UserHook,
         CarrierWeb.TimezoneHook,
