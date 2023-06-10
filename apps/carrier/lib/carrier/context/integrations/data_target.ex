@@ -8,6 +8,7 @@ defmodule Carrier.Integrations.DataTarget do
     field :org_id, :id
     field :service_name, Ecto.Enum, values: [:slack]
 
+    field :needs_update, :boolean
     field :deleted_at, :utc_datetime_usec
   end
 
