@@ -108,6 +108,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
               id="slack_channel_selector"
               label="Channel 이름"
               label_align={:left}
+              placeholder="Channel 이름으로 검색해주세요"
               poition={:top}
               items={@channels.value |> channels_to_options()}
               multiple={false}

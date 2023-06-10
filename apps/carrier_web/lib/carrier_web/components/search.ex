@@ -14,6 +14,7 @@ defmodule CarrierWeb.Components.Search do
       |> assign(:max_select, nil)
       |> assign(:duplicatable, false)
       |> assign(:placeholder, nil)
+      |> assign(:class, "")
       # internal
       |> assign(:keyword, "")
       |> assign(:show_selectable_items, false)
@@ -26,11 +27,13 @@ defmodule CarrierWeb.Components.Search do
   def update(%{items: _} = assigns, socket) do
     {items, assigns} = assigns |> Map.pop(:items)
 
+    normalized_items = normalize_items(items)
+
     socket =
       socket
       |> assign(assigns)
-      |> assign(:items, normalize_items(items))
-      |> assign(:selectable_items, [])
+      |> assign(:items, normalized_items)
+      |> assign(:selectable_items, normalized_items)
       |> assign(:selected_items, [])
 
     {:ok, socket}
@@ -63,7 +66,7 @@ defmodule CarrierWeb.Components.Search do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
+    <div class={@class}>
       <.simple_form for={%{}}>
         <div class="relative">
           <.input
@@ -85,7 +88,7 @@ defmodule CarrierWeb.Components.Search do
           <div
             :if={@show_selectable_items && @max_select > @selected_items |> Enum.count()}
             class={[
-              "absolute w-full max-h-96 overflow-y-auto bg-white rounded-md shadow cursor-pointer divide-y z-50",
+              "absolute w-full max-h-80 overflow-y-auto bg-white rounded-md shadow cursor-pointer divide-y z-50",
               @position == :top && "bottom-12"
             ]}
           >
@@ -98,14 +101,7 @@ defmodule CarrierWeb.Components.Search do
               <%= selectable_item.label %>
             </div>
 
-            <div :if={Blankable.blank?(@keyword)} class="px-4 py-2">
-              검색어를 입력해주세요
-            </div>
-
-            <div
-              :if={!Blankable.blank?(@keyword) && @selectable_items |> Enum.empty?()}
-              class="px-4 py-2"
-            >
+            <div :if={@selectable_items |> Enum.empty?()} class="px-4 py-2">
               검색 결과가 없습니다
             </div>
           </div>
@@ -210,30 +206,23 @@ defmodule CarrierWeb.Components.Search do
   end
 
   defp assign_selectable_items(socket) do
-    case Blankable.blank?(socket.assigns.keyword) do
-      true ->
-        socket
-        |> assign(:selectable_items, [])
+    # TODO: can be harmful if keyword is not escaped properly
+    regex = socket.assigns.keyword |> String.trim() |> Regex.escape() |> Regex.compile!("i")
 
-      false ->
-        # TODO: can be harmful if keyword is not escaped properly
-        regex = socket.assigns.keyword |> String.trim() |> Regex.escape() |> Regex.compile!("i")
+    selectable_items =
+      socket.assigns.items
+      |> handle_duplicated(socket.assigns.duplicatable, socket.assigns.selected_items)
+      |> Stream.filter(fn item -> item.label =~ regex end)
+      |> then(fn stream ->
+        case socket.assigns.max_search do
+          nil -> stream
+          max_search -> stream |> Stream.take(max_search)
+        end
+      end)
+      |> Enum.to_list()
 
-        selectable_items =
-          socket.assigns.items
-          |> handle_duplicated(socket.assigns.duplicatable, socket.assigns.selected_items)
-          |> Stream.filter(fn item -> item.label =~ regex end)
-          |> then(fn stream ->
-            case socket.assigns.max_search do
-              nil -> stream
-              max_search -> stream |> Stream.take(max_search)
-            end
-          end)
-          |> Enum.to_list()
-
-        socket
-        |> assign(:selectable_items, selectable_items)
-    end
+    socket
+    |> assign(:selectable_items, selectable_items)
   end
 
   defp assign_keyword_unless_multiple(socket, selected_item_label) do
