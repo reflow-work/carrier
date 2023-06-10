@@ -10,7 +10,20 @@ defmodule Carrier.External.SlackAPI.OAuth do
   @path "https://slack.com/oauth/v2/authorize"
   def generate_url() do
     query = %{
-      scope: ["channels:read", "chat:write", "chat:write.public"] |> Enum.join(","),
+      scope:
+        [
+          # common
+          "chat:write",
+          # public channel
+          "channels:read",
+          "chat:write.public",
+          # private channel
+          "groups:read",
+          # direct message
+          "users:read",
+          "im:read"
+        ]
+        |> Enum.join(","),
       redirect_uri: nil,
       client_id: client_id()
     }

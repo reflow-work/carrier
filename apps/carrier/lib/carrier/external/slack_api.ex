@@ -1,6 +1,6 @@
 defmodule Carrier.External.SlackAPI do
   require Logger
-  alias Carrier.Data.Target.Slack.{Channel, Pagination}
+  alias Carrier.Data.Target.Slack.{Channel, User, Pagination}
 
   def test_api(token) do
     Tesla.post(client(token), "/api.test", %{})
@@ -48,11 +48,23 @@ defmodule Carrier.External.SlackAPI do
     end
   end
 
-  def list_conversations(params \\ nil, token) do
+  def list_conversations(params \\ %{}, token) do
+    scope_type_map = %{
+      "channels:read" => "public_channel",
+      "groups:read" => "private_channel",
+      "im:read" => "im"
+    }
+
+    types =
+      (params[:scope] || "channels:read")
+      |> String.split(",")
+      |> Enum.map(&Map.get(scope_type_map, &1))
+      |> Enum.reject(&is_nil(&1))
+      |> Enum.join(",")
+
     query =
       %{
-        # TODO: change to "public_channel,private_channel"
-        "types" => "public_channel",
+        "types" => types,
         "exclude_archived" => true,
         "limit" => params[:limit] || 1000,
         "cursor" => params[:cursor]
@@ -79,6 +91,31 @@ defmodule Carrier.External.SlackAPI do
   def get_conversation(channel_id, token) do
     Tesla.get(client(token), "/conversations.info", query: %{channel: channel_id})
     |> handle_response()
+  end
+
+  def list_users(params \\ %{}, token) do
+    query =
+      %{
+        "limit" => params[:limit] || 1000,
+        "cursor" => params[:cursor]
+      }
+      |> Map.reject(fn {_key, value} -> is_nil(value) end)
+
+    Tesla.get(client(token), "/users.list", query: query)
+    |> handle_response()
+    |> case do
+      {:ok, %{"members" => users, "response_metadata" => response_metadata}} ->
+        {:ok,
+         %{
+           users: users |> Enum.map(&User.new/1),
+           pagination: Pagination.new(response_metadata)
+         }}
+
+      {:error, reason} ->
+        Logger.error(reason)
+
+        {:error, reason}
+    end
   end
 
   # data :: %{ dynamic_column_name: %{ data: list(), meta: map() }, ... }
