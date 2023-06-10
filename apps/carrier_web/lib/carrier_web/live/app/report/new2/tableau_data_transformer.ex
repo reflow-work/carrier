@@ -107,7 +107,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
               :if={!@views.loading?}
               module={Search}
               id="tableau_view_selector"
-              placeholder="View 이름으로 검색해주세요."
+              placeholder="View 이름으로 검색해주세요"
               position={:top}
               items={
                 @views.value |> Enum.map(fn %{id: id, full_name: full_name} -> {full_name, id} end)
