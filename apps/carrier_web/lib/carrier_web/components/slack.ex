@@ -2,10 +2,12 @@ defmodule CarrierWeb.Components.Slack do
   use CarrierWeb, :component
   alias Carrier.External.SlackAPI
 
+  attr :redirect_uri, :string, required: true
+
   def button(assigns) do
     ~H"""
     <a
-      href={SlackAPI.OAuth.generate_url()}
+      href={SlackAPI.OAuth.generate_url(@redirect_uri)}
       style="align-items:center;color:#000;background-color:#fff;border:1px solid #ddd;border-radius:4px;display:inline-flex;font-size:14px;font-weight:600;height:44px;justify-content:center;text-decoration:none;width:204px"
     >
       <svg
