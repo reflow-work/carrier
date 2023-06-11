@@ -87,7 +87,15 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 label_align={:left}
                 placeholder="데일리 유저 지표"
               />
-              <.input type="textarea" field={@report_form[:text]} label="리포트 텍스트" />
+              <.input
+                type="textarea"
+                field={@report_form[:text]}
+                label="리포트 텍스트"
+                value={@report_form[:text].value}
+              />
+              <div id={"#{@report_form[:text].id}-editor"} phx-update="ignore">
+                <trix-editor input={@report_form[:text].id}></trix-editor>
+              </div>
               <.input
                 type="select"
                 field={@report_form[:interval]}
