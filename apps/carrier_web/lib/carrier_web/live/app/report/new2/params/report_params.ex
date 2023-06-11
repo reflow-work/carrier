@@ -7,6 +7,7 @@ defmodule CarrierWeb.App.ReportLive.New2.ReportParams do
     field :org_id, :id
     field :user_id, :id
     field :name, :string
+    field :text, :string
     field :interval, Ecto.Enum, values: [:hourly, :daily]
     # TODO: change with map to support more intervals
     field :trigger_time, :time
@@ -21,6 +22,7 @@ defmodule CarrierWeb.App.ReportLive.New2.ReportParams do
     :timezone
   ]
   @optional [
+    :text,
     :trigger_time
   ]
   def changeset(%__MODULE__{} = struct, attrs) do
