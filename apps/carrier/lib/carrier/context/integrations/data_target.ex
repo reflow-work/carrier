@@ -2,6 +2,8 @@ defmodule Carrier.Integrations.DataTarget do
   use Carrier.Schema
   alias Carrier.Integrations.ConnInfo
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "data_targets" do
     belongs_to :conn_info, ConnInfo
 
