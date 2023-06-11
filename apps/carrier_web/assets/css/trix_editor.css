@@ -1,0 +1,26 @@
+.trix-button--icon-number-list,
+.trix-button--icon-heading-1,
+.trix-button--icon-quote,
+.trix-button-group--file-tools,
+.trix-button-group-spacer,
+.trix-button-group--history-tools {
+  display: none !important;
+}
+
+.trix-button-group--block-tools {
+  margin-left: 6px !important;
+}
+
+trix-editor a {
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+trix-editor ul > li {
+  list-style-type: disc;
+}
+
+trix-editor li {
+  margin-left: 1em;
+}
