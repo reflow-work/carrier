@@ -27,8 +27,7 @@ defmodule CarrierWeb.App.DataTargetController do
                 data_target_id =
                   obfuscated_data_target_id |> Carrier.Obfuscatable.deobfuscate!(DataTarget)
 
-                # TODO: implement it
-                {:ok, %DataTarget{id: data_target_id}}
+                Integrations.update_conn_info_of_data_target(data_target_id, %{info: credentials})
             end) do
       conn
       |> redirect(to: ~p"/app/reports")

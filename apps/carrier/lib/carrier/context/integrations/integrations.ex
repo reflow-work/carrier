@@ -65,6 +65,19 @@ defmodule Carrier.Integrations do
     end)
   end
 
+  def update_conn_info_of_data_target(data_target_id, %{info: info}) do
+    TenantRepo.wrap_transaction(fn ->
+      with {:ok, %DataTarget{conn_info: %ConnInfo{} = conn_info} = data_target} <-
+             fetch_data_target(data_target_id),
+           {:ok, %ConnInfo{} = updated_conn_info} <-
+             do_update_info_of_conn_info(conn_info, %{info: info}),
+           {:ok, %DataTarget{} = updated_data_target} <-
+             do_update_needs_update_of_data_target(data_target, false) do
+        {:ok, %DataTarget{updated_data_target | conn_info: updated_conn_info}}
+      end
+    end)
+  end
+
   def list_data_targets() do
     DataTarget.list()
     |> DataSource.preload_conn_info()
@@ -119,5 +132,15 @@ defmodule Carrier.Integrations do
   def list_conn_infos() do
     ConnInfo.list()
     |> TenantRepo.all()
+  end
+
+  defp do_update_info_of_conn_info(%ConnInfo{} = conn_info, %{info: info}) do
+    ConnInfo.update_info(conn_info, %{info: info})
+    |> TenantRepo.update()
+  end
+
+  defp do_update_needs_update_of_data_target(%DataTarget{} = data_target, needs_update) do
+    DataTarget.update_needs_update(data_target, needs_update)
+    |> TenantRepo.update()
   end
 end

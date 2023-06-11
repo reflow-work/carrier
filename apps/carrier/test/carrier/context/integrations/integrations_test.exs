@@ -14,9 +14,10 @@ defmodule Carrier.IntegrationsTest do
         org_id: org.org_id,
         service_name: :slack,
         conn_info: %{
+          bot_token: "bot_token",
+          bot_scope: "chat:write,channels:read",
           team_name: "dongrami",
-          team_id: "T03LL747Q49",
-          bot_token: "bot_token"
+          team_id: "T03LL747Q49"
         }
       }
 
@@ -24,7 +25,7 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with valid params", %{valid_params: valid_params} do
-      ExternalHelper.SlackAPI.prepare_list_conversations()
+      ExternalHelper.SlackAPI.prepare_api_test()
 
       assert {:ok, %DataTarget{} = data_target} = Integrations.create_data_target(valid_params)
 
@@ -120,6 +121,35 @@ defmodule Carrier.IntegrationsTest do
       invalid_params = valid_params |> put_in([:info, :database], "invalid_database")
 
       assert {:error, :invalid_conn_info} = Integrations.create_conn_info(invalid_params, :source)
+    end
+  end
+
+  describe "update_conn_info_of_data_target/2" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      data_target = TenantFactory.insert(:data_target, org_id: org.org_id, needs_update: true)
+
+      %{data_target: data_target}
+    end
+
+    test "with valid params", %{data_target: data_target} do
+      params = %{
+        info: %{
+          bot_token: "bot_token",
+          bot_scope: "chat:write,channels:read",
+          team_name: "dongrami",
+          team_id: "T03LL747Q49"
+        }
+      }
+
+      assert {:ok, %DataTarget{} = updated_data_target} =
+               Integrations.update_conn_info_of_data_target(data_target.id, params)
+
+      assert updated_data_target.needs_update == false
+      assert updated_data_target.conn_info.info == params.info
     end
   end
 

@@ -23,7 +23,21 @@ defmodule Carrier.Integrations.ConnInfo do
     |> validate_info()
   end
 
-  defp validate_info(%Ecto.Changeset{changes: %{source: source}} = changeset) do
+  @required_for_update_info [:info]
+  def changeset_for_update_info(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_update_info)
+    |> validate_required(@required_for_update_info)
+    |> validate_info()
+  end
+
+  defp validate_info(%Ecto.Changeset{data: data, changes: changes} = changeset) do
+    source =
+      case {data, changes} do
+        {_, %{source: source}} -> source
+        {%{source: source}, _} -> source
+      end
+
     validate_change(changeset, :info, fn :info, info ->
       info_changeset = ConnInfo.Info.get_changeset(source, info)
 
@@ -37,6 +51,11 @@ defmodule Carrier.Integrations.ConnInfo do
   def create(attrs) do
     %__MODULE__{}
     |> changeset_for_create(attrs)
+  end
+
+  def update_info(%__MODULE__{} = struct, attrs) do
+    struct
+    |> changeset_for_update_info(attrs)
   end
 
   def list() do

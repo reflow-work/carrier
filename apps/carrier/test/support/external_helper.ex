@@ -116,6 +116,19 @@ defmodule Carrier.ExternalHelper do
   end
 
   defmodule SlackAPI do
+    def prepare_api_test() do
+      success_resp = %{ok: true}
+
+      Bypass.open(port: 4103)
+      |> Carrier.ExternalHelper.expect(
+        :post,
+        "/api/api.test",
+        {:json, success_resp}
+      )
+
+      success_resp
+    end
+
     def prepare_list_conversations() do
       success_resp =
         Carrier.Fixture.json("slack_api/conversations.list.success.json")
