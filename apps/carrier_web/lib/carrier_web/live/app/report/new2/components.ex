@@ -88,10 +88,10 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 placeholder="데일리 유저 지표"
               />
               <.input
-                type="textarea"
+                type="hidden"
                 field={@report_form[:text]}
                 label="리포트 텍스트"
-                value={@report_form[:text].value}
+                phx-hook="TrixEditor"
               />
               <div id={"#{@report_form[:text].id}-editor"} phx-update="ignore">
                 <trix-editor input={@report_form[:text].id}></trix-editor>
