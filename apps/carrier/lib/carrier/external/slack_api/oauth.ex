@@ -8,7 +8,7 @@ defmodule Carrier.External.SlackAPI.OAuth do
   plug Tesla.Middleware.FormUrlencoded
 
   @path "https://slack.com/oauth/v2/authorize"
-  def generate_url() do
+  def generate_url(redirect_uri) do
     query = %{
       scope:
         [
@@ -24,7 +24,7 @@ defmodule Carrier.External.SlackAPI.OAuth do
           "im:read"
         ]
         |> Enum.join(","),
-      redirect_uri: nil,
+      redirect_uri: redirect_uri,
       client_id: client_id()
     }
 
@@ -34,11 +34,12 @@ defmodule Carrier.External.SlackAPI.OAuth do
     |> URI.to_string()
   end
 
-  def get_access_token(%{code: code}) do
+  def get_access_token(%{code: code, redirect_uri: redirect_uri}) do
     body = %{
       client_id: client_id(),
       client_secret: client_secret(),
       code: code,
+      redirect_uri: redirect_uri,
       grant_type: "authorization_code"
     }
 

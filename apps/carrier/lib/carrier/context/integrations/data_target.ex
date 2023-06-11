@@ -2,12 +2,15 @@ defmodule Carrier.Integrations.DataTarget do
   use Carrier.Schema
   alias Carrier.Integrations.ConnInfo
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "data_targets" do
     belongs_to :conn_info, ConnInfo
 
     field :org_id, :id
     field :service_name, Ecto.Enum, values: [:slack]
 
+    field :needs_update, :boolean
     field :deleted_at, :utc_datetime_usec
   end
 
@@ -23,6 +26,13 @@ defmodule Carrier.Integrations.DataTarget do
     |> foreign_key_constraint(:conn_info_id)
   end
 
+  @required_for_update_needs_update [:needs_update]
+  defp changeset_for_update_needs_update(%__MODULE__{} = struct, attrs) do
+    struct
+    |> cast(attrs, @required_for_update_needs_update)
+    |> validate_required(@required_for_update_needs_update)
+  end
+
   def create(%{org_id: org_id, service_name: service_name, conn_info_id: conn_info_id}) do
     %__MODULE__{}
     |> changeset_for_create(%{
@@ -30,6 +40,11 @@ defmodule Carrier.Integrations.DataTarget do
       service_name: service_name,
       conn_info_id: conn_info_id
     })
+  end
+
+  def update_needs_update(%__MODULE__{} = struct, needs_update) do
+    struct
+    |> changeset_for_update_needs_update(%{needs_update: needs_update})
   end
 
   def list() do
