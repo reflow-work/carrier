@@ -20,6 +20,48 @@ defmodule Carrier.Core.DateTimeHelperTest do
     end
   end
 
+  describe "calc_next_with_weekday_time/3" do
+    test "with passed weekday" do
+      # tuesday
+      utc_datetime = ~U[2023-06-13 09:00:00Z]
+      utc_weekday = 1
+      utc_time = ~T[13:00:00]
+
+      assert DateTimeHelper.calc_next_with_weekday_time(utc_datetime, utc_weekday, utc_time) ==
+               ~U[2023-06-19 13:00:00Z]
+    end
+
+    test "with same weekday and not passed time" do
+      # tuesday
+      utc_datetime = ~U[2023-06-13 09:00:00Z]
+      utc_weekday = 2
+      utc_time = ~T[10:00:00]
+
+      assert DateTimeHelper.calc_next_with_weekday_time(utc_datetime, utc_weekday, utc_time) ==
+               ~U[2023-06-13 10:00:00Z]
+    end
+
+    test "with same weekday and passed time" do
+      # tuesday
+      utc_datetime = ~U[2023-06-13 11:00:00Z]
+      utc_weekday = 2
+      utc_time = ~T[10:00:00]
+
+      assert DateTimeHelper.calc_next_with_weekday_time(utc_datetime, utc_weekday, utc_time) ==
+               ~U[2023-06-20 10:00:00Z]
+    end
+
+    test "with not passed weekday" do
+      # tuesday
+      utc_datetime = ~U[2023-06-13 11:00:00Z]
+      utc_weekday = 4
+      utc_time = ~T[10:00:00]
+
+      assert DateTimeHelper.calc_next_with_weekday_time(utc_datetime, utc_weekday, utc_time) ==
+               ~U[2023-06-15 10:00:00Z]
+    end
+  end
+
   describe "calc_next/3" do
     test "with monthly cycle" do
       start_datetime = ~U[2023-01-31 09:00:00Z]
