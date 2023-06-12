@@ -1,6 +1,7 @@
 defmodule Carrier.Core.WeekdayHelperTest do
   use ExUnit.Case, async: true
   alias Carrier.Core.WeekdayHelper
+  alias Carrier.Core.Cldr
 
   describe "add/2" do
     test "with no over" do
@@ -33,6 +34,20 @@ defmodule Carrier.Core.WeekdayHelperTest do
   describe "from_utc_weekday/3" do
     test "with over" do
       assert WeekdayHelper.from_utc_weekday(7, ~T[23:00:00], "Asia/Seoul") == 1
+    end
+  end
+
+  describe "safe_format_weekday/2" do
+    test "with abbreviated format" do
+      Cldr.put_locale("en")
+
+      assert WeekdayHelper.safe_format_weekday(1) == "Mon"
+    end
+
+    test "with wide format" do
+      Cldr.put_locale("en")
+
+      assert WeekdayHelper.safe_format_weekday(1, :wide) == "Monday"
     end
   end
 end
