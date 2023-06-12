@@ -68,7 +68,9 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       ReportParams.to_form(
         report
         |> Map.from_struct()
-        |> Map.update!(:trigger_time, &(&1 |> TimeHelper.from_utc_time(report.timezone))),
+        |> Map.update!(:trigger_time, fn trigger_time ->
+          trigger_time |> Nillable.map(&TimeHelper.to_utc_time(&1, report.timezone))
+        end),
         validate: false
       )
 
