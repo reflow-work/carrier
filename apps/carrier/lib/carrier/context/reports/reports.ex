@@ -221,6 +221,13 @@ defmodule Carrier.Reports do
     DateTimeHelper.get_next_with_time(base_datetime, trigger_time)
   end
 
+  defp calc_next_report_time(
+         %Report{interval: :weekly, trigger_weekday: trigger_weekday, trigger_time: trigger_time},
+         base_datetime
+       ) do
+    DateTimeHelper.calc_next_with_weekday_time(base_datetime, trigger_weekday, trigger_time)
+  end
+
   def list_report_logs() do
     ReportLog.list()
     |> ReportLog.preload_report()
