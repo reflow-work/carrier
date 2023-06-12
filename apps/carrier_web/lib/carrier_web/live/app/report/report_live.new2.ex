@@ -3,7 +3,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use Carrier.{Integrations, Data, Reports}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
-  alias Carrier.Core.{Nillable, Async, TimeHelper}
+  alias Carrier.Core.{Nillable, Async, TimeHelper, WeekdayHelper}
   alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
@@ -64,13 +64,22 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
     report = socket.assigns.report
 
+    utc_trigger_time = report |> Map.get(:trigger_time)
+    utc_trigger_weekday = report |> Map.get(:trigger_weekday)
+
+    zoned_trigger_time =
+      utc_trigger_time |> Nillable.map(&TimeHelper.from_utc_time(&1, report.timezone))
+
+    zoned_trigger_weekday =
+      utc_trigger_weekday
+      |> Nillable.map(&WeekdayHelper.from_utc_weekday(&1, utc_trigger_time, report.timezone))
+
     report_form =
       ReportParams.to_form(
         report
         |> Map.from_struct()
-        |> Map.update!(:trigger_time, fn trigger_time ->
-          trigger_time |> Nillable.map(&TimeHelper.from_utc_time(&1, report.timezone))
-        end),
+        |> Map.put(:trigger_time, zoned_trigger_time)
+        |> Map.put(:trigger_weekday, zoned_trigger_weekday),
         validate: false
       )
 
@@ -166,14 +175,20 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def handle_event("create_report", _, socket) do
     report = socket.assigns.report_form |> Params.to_map()
 
+    zoned_trigger_time = report |> Map.get(:trigger_time)
+    zoned_trigger_weekday = report |> Map.get(:trigger_weekday)
+
+    utc_trigger_time =
+      zoned_trigger_time |> Nillable.map(&TimeHelper.to_utc_time(&1, report.timezone))
+
+    utc_trigger_weekday =
+      zoned_trigger_weekday
+      |> Nillable.map(&WeekdayHelper.to_utc_weekday(&1, zoned_trigger_time, report.timezone))
+
     report =
       report
-      |> Map.update!(
-        :trigger_time,
-        fn trigger_time ->
-          trigger_time |> Nillable.map(&TimeHelper.to_utc_time(&1, report.timezone))
-        end
-      )
+      |> Map.put(:trigger_time, utc_trigger_time)
+      |> Map.put(:trigger_weekday, utc_trigger_weekday)
 
     data_source_info = socket.assigns.data_source_info_form |> Params.to_map()
     data_target_info = socket.assigns.data_target_info_form |> Params.to_map()
