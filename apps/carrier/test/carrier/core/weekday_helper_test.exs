@@ -23,4 +23,16 @@ defmodule Carrier.Core.WeekdayHelperTest do
       assert WeekdayHelper.add(1, 6) == 7
     end
   end
+
+  describe "to_utc_weekday/3" do
+    test "with over" do
+      assert WeekdayHelper.to_utc_weekday(1, ~T[08:00:00], "Asia/Seoul") == 7
+    end
+  end
+
+  describe "from_utc_weekday/3" do
+    test "with over" do
+      assert WeekdayHelper.from_utc_weekday(7, ~T[23:00:00], "Asia/Seoul") == 1
+    end
+  end
 end
