@@ -41,11 +41,6 @@ defmodule Carrier.Ops do
     end)
   end
 
-  defp delete_not_deleted(module, now) do
-    from(x in module, where: is_nil(x.deleted_at), update: [set: [deleted_at: ^now]])
-    |> TenantRepo.update_all([])
-  end
-
   def hard_delete_org(org_id, org_name) do
     TenantRepo.put_org_id(org_id)
 
@@ -73,6 +68,29 @@ defmodule Carrier.Ops do
 
       {:ok, org}
     end
+  end
+
+  def create_trial_subscription(%{org_id: org_id, start_on: start_on, end_on: end_on}) do
+    TenantRepo.put_org_id(org_id)
+
+    with false <- Billing.have_active_subscription?(),
+         %Plan{id: plan_id, type: :trial} <- Billing.Super.fetch_trial_plan!(),
+         {:ok, %Subscription{} = subscription} <-
+           Billing.create_subscription(%{
+             org_id: org_id,
+             plan_id: plan_id,
+             extension_count: 0,
+             start_on: start_on,
+             end_on: end_on
+           }),
+         {:ok, activated_subscription} <- Billing.activate_subscription(subscription) do
+      {:ok, activated_subscription}
+    end
+  end
+
+  defp delete_not_deleted(module, now) do
+    from(x in module, where: is_nil(x.deleted_at), update: [set: [deleted_at: ^now]])
+    |> TenantRepo.update_all([])
   end
 
   defp retry_failed_report_log(report_log_id) do
