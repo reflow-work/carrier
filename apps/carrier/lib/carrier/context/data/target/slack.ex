@@ -50,12 +50,20 @@ defmodule Carrier.Data.Target.Slack do
     end
   end
 
-  defp header_to_message(%{name: name}) do
+  defp header_to_message(%{name: name, text: text}) do
+    formatted_text = SlackAPI.Format.html_to_mrkdwn(text)
+
     [
       [
         SlackAPI.Block.build_text_block("*#{name}*")
-      ]
+      ],
+      unless Blankable.blank?(formatted_text) do
+        [
+          SlackAPI.Block.build_text_block(formatted_text, "mrkdwn", false)
+        ]
+      end
     ]
+    |> Enum.reject(&is_nil(&1))
   end
 
   defp block_to_message(%{type: :text, text: text, style: style}) do

@@ -75,7 +75,8 @@ defmodule Carrier.MixProject do
       {:erlport, github: "nallwhy/erlport", ref: "6f5cb45", override: true},
       {:doumi_phoenix_params, "~> 0.3.2"},
       {:google_certs, github: "reflow-work/google-certs", ref: "8ad70ca"},
-      {:joken, "~> 2.6"}
+      {:joken, "~> 2.6"},
+      {:floki, ">= 0.30.0"}
     ]
   end
 

@@ -26,7 +26,7 @@ defmodule Carrier.Data do
   end
 
   def send_messages(
-        %{name: _name} = header,
+        %{name: _name, text: _text} = header,
         threads,
         %{data_target_id: data_target_id, params: params}
       ) do

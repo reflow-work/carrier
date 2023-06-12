@@ -10,6 +10,7 @@ defmodule Carrier.Reports.Report do
     field :org_id, :id
     field :user_id, :id
     field :name, :string
+    field :text, :string
     field :interval, Ecto.Enum, values: [:hourly, :daily]
     field :trigger_time, :time
     field :timezone, :string
@@ -31,7 +32,7 @@ defmodule Carrier.Reports.Report do
     :timezone,
     :data_source_info
   ]
-  @optional_for_create [:trigger_time]
+  @optional_for_create [:text, :trigger_time]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create ++ @optional_for_create)
