@@ -92,15 +92,39 @@
           <% end %>
 
           <%= if @step == "step-2" do %>
-            <Components.data_source_form
-              source={@source}
-              form={@form}
-              error={@error}
-              uploads={@uploads}
-              file_name={@file_name}
-              onchange="validate_data_source"
-              onsubmit="create_data_source"
-            />
+            <div class="mt-8">
+              <.simple_form
+                for={@form}
+                phx-change="validate_data_source"
+                phx-submit="create_data_source"
+              >
+                <.input
+                  type="text"
+                  field={@form[:name]}
+                  label="데이터 소스 이름"
+                  placeholder="데이터 마트"
+                  autofocus
+                  class="max-w-xs"
+                />
+
+                <Components.source_inputs
+                  source={@source}
+                  form={@form}
+                  uploads={@uploads}
+                  file_name={@file_name}
+                />
+
+                <:actions>
+                  <.button
+                    type="submit"
+                    disabled={!@form.source.valid?}
+                    phx-disable-with="연결중"
+                  >
+                    연결하기
+                  </.button>
+                </:actions>
+              </.simple_form>
+            </div>
           <% end %>
         </div>
       </div>
