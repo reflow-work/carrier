@@ -109,13 +109,6 @@
     <!-- End Trix Editor -->
   </head>
   <body class="bg-base h-full">
-    <div
-      id="g_id_onload"
-      data-client_id={Carrier.External.Google.OAuth.client_id()}
-      data-ux_mode="redirect"
-      data-login_uri={url(~p"/auth/google/callback")}
-    >
-    </div>
     <%= @inner_content %>
   </body>
 </html>

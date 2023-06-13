@@ -24,6 +24,13 @@
     </div>
     <div class="flex items-center mt-12">
       <div
+        id="g_id_onload"
+        data-client_id={Carrier.External.Google.OAuth.client_id()}
+        data-ux_mode="redirect"
+        data-login_uri={url(~p"/auth/google/callback?invite_token=#{@invite_token}")}
+      >
+      </div>
+      <div
         class="g_id_signin"
         data-type="standard"
         data-size="large"
