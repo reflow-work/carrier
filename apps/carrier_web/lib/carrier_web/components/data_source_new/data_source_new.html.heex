@@ -135,6 +135,7 @@
                     연결하기
                   </.button>
                 </:actions>
+                <.error :if={@error}><%= inspect(@error) %></.error>
               </.simple_form>
             </div>
           <% end %>

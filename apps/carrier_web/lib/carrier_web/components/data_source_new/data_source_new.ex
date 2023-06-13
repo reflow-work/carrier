@@ -185,7 +185,9 @@ defmodule CarrierWeb.Components.DataSourceNew do
     e ->
       Logger.error(inspect(e))
 
-      socket |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+      socket
+      |> assign(:error, Exception.message(e))
+      |> push_flash(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
   end
 
   defp do_create_data_source(params) do
