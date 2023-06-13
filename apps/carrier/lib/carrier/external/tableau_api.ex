@@ -81,7 +81,7 @@ defmodule Carrier.External.TableauAPI do
 
   def query_view_image(%{host: host, site_id: site_id, view_id: view_id, token: token}) do
     query = [
-      {"max-age-minutes", 1}
+      {"maxAge", 1}
     ]
 
     Tesla.get(client(host, token), "/sites/#{site_id}/views/#{view_id}/image", query: query)
