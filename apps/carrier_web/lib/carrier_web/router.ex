@@ -59,6 +59,7 @@ defmodule CarrierWeb.Router do
       live "/", HomeLive, :index
       live "/pricing", PricingLive
       live "/blog", Blog.PostLive.Index
+      live "/blog/:slug", Blog.PostLive.Show
     end
   end
 
