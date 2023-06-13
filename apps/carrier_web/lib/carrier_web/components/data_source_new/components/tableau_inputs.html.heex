@@ -13,16 +13,31 @@
     type="radio-group"
     field={fci[:type]}
     label="인증 방법"
-    options={[{"ID / Password", :user}, {"Personal Access Token", :pat}]}
+    options={[{"Personal Access Token", :pat}, {"ID / Password", :user}]}
   />
-
-  <%= if fci[:type].value == :user do %>
-    <.input type="text" field={fci[:email]} label="Email" class="max-w-xs" />
-    <.input type="password" field={fci[:password]} label="Password" class="max-w-xs" />
-  <% end %>
 
   <%= if fci[:type].value == :pat do %>
     <.input type="text" field={fci[:pat_name]} label="PAT Name" class="max-w-xs" />
     <.input type="password" field={fci[:pat_secret]} label="PAT Secret" class="max-w-xs" />
+  <% end %>
+
+  <%= if fci[:type].value == :user do %>
+    <div class="callout mb-6 max-w-fit">
+      <div class="callout-icon">
+        <Icon.alert_circle class="w-4 h-4 mt-0.5" />
+      </div>
+      <div>
+        Tableau 정책으로 인해 MFA, SAML, oAuth, 그 외 SSO 방법과 함께 Tableau Online이나 Tableau Server를 사용하여 인증하는 경우 반드시
+        <b>PAT(Personal Access Token)를 사용하여 연결해야 합니다.</b>
+        자세한 내용은 <a
+          href={Const.get(:tableau_guide_url)}
+          target="_blank"
+          class="underline text-sky-500"
+        >가이드</a>를 참고해주세요.
+      </div>
+    </div>
+
+    <.input type="text" field={fci[:email]} label="Email" class="max-w-xs" />
+    <.input type="password" field={fci[:password]} label="Password" class="max-w-xs" />
   <% end %>
 </.inputs_for>
