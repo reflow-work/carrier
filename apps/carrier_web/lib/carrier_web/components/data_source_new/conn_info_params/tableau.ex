@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.DataSourceLive.New.ConnInfoParams.Tableau do
+defmodule CarrierWeb.Components.DataSourceNew.ConnInfoParams.Tableau do
   use Ecto.Schema
   import Ecto.Changeset
 

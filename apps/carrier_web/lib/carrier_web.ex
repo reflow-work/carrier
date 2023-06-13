@@ -77,42 +77,22 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.LiveView
       require Logger
-      import CarrierWeb.{AssignHelper, AnalyticsHelper}
       alias Carrier.Obfuscatable
 
       # TODO: remove
       import CarrierWeb.LiveHelpers
 
-      def put_flash_for(socket, kind, message, opts \\ []) do
-        timeout = opts |> Keyword.get(:timeout, :infinity)
-
-        socket = Phoenix.LiveView.put_flash(socket, kind, message)
-
-        case timeout do
-          :infinity ->
-            nil
-
-          timeout when is_integer(timeout) ->
-            Process.send_after(self(), :clear_flash, timeout)
-        end
-
-        socket
-      end
-
-      def handle_info(:clear_flash, socket) do
-        {:noreply, clear_flash(socket)}
-      end
-
       unquote(html_helpers())
+      unquote(live_helpers())
     end
   end
 
   def live_hook do
     quote do
       import Phoenix.LiveView
-      import CarrierWeb.AnalyticsHelper
 
       unquote(html_helpers())
+      unquote(live_helpers())
     end
   end
 
@@ -125,6 +105,7 @@ defmodule CarrierWeb do
       import CarrierWeb.LiveHelpers
 
       unquote(html_helpers())
+      unquote(live_helpers())
     end
   end
 
@@ -184,6 +165,32 @@ defmodule CarrierWeb do
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
+    end
+  end
+
+  defp live_helpers() do
+    quote do
+      import CarrierWeb.{AssignHelper, AnalyticsHelper}
+
+      def put_flash_for(socket, kind, message, opts \\ []) do
+        timeout = opts |> Keyword.get(:timeout, :infinity)
+
+        socket = Phoenix.LiveView.put_flash(socket, kind, message)
+
+        case timeout do
+          :infinity ->
+            nil
+
+          timeout when is_integer(timeout) ->
+            Process.send_after(self(), :clear_flash, timeout)
+        end
+
+        socket
+      end
+
+      def handle_info(:clear_flash, socket) do
+        {:noreply, clear_flash(socket)}
+      end
     end
   end
 

@@ -1,4 +1,4 @@
-defmodule CarrierWeb.App.DataSourceLive.New.Components do
+defmodule CarrierWeb.Components.DataSourceNew.Components do
   use CarrierWeb, :component
   use Carrier.Integrations
 
