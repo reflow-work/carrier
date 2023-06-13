@@ -76,7 +76,10 @@ defmodule Carrier.MixProject do
       {:doumi_phoenix_params, "~> 0.3.2"},
       {:google_certs, github: "reflow-work/google-certs", ref: "8ad70ca"},
       {:joken, "~> 2.6"},
-      {:floki, ">= 0.30.0"}
+      {:floki, ">= 0.30.0"},
+      {:earmark, "~> 1.4"},
+      {:makeup, "~> 1.1"},
+      {:makeup_elixir, "~> 0.16.1"}
     ]
   end
 
