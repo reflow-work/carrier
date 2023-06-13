@@ -4,6 +4,7 @@ defmodule CarrierWeb.AuthController do
   require Logger
   alias Carrier.Obfuscatable
   alias Carrier.External.Google
+  alias Carrier.Core.Nillable
 
   def login(conn, _params) do
     case get_session(conn, "user_id") do
@@ -24,28 +25,30 @@ defmodule CarrierWeb.AuthController do
     |> redirect(to: ~p"/login")
   end
 
-  def invite(conn, %{"token" => token}) do
-    org_id = token |> Obfuscatable.deobfuscate!(Org)
+  def invite(conn, %{"invite_token" => invite_token}) do
+    org_id = invite_token |> Obfuscatable.deobfuscate!(Org)
 
     case Accounts.Super.get_org(org_id) do
       {:ok, org} ->
         conn
-        |> put_session(:org_id_for_invite, org_id)
-        |> render(:invite, org: org)
+        |> render(:invite, org: org, invite_token: invite_token)
 
       _ ->
         conn
-        |> render(:invite, org: nil)
+        |> render(:invite, org: nil, invite_token: nil)
     end
   end
 
-  def google_callback(conn, %{"g_csrf_token" => g_csrf_token, "credential" => credential}) do
-    org_id_for_invite = conn |> get_session(:org_id_for_invite)
+  def google_callback(
+        conn,
+        %{"g_csrf_token" => g_csrf_token, "credential" => credential} = params
+      ) do
+    invited_org_id = params["invite_token"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, Org))
 
     with :ok <- check_google_csrf(conn, g_csrf_token),
          {:ok, %{email: email}} <- Google.OAuth.verify_credential(credential),
          {:ok, {_, %User{id: user_id, org_id: org_id}}} <-
-           Accounts.Super.auth(email, org_id_for_invite) do
+           Accounts.Super.auth(email, invited_org_id) do
       conn
       |> put_session(:user_id, user_id)
       |> put_session(:org_id, org_id)

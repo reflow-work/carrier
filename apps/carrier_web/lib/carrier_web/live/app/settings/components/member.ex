@@ -115,6 +115,6 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
 
   defp load_invite_link(socket, org) do
     socket
-    |> assign(:invite_link, url(~p"/invite?token=#{org}"))
+    |> assign(:invite_link, url(~p"/invite?invite_token=#{org}"))
   end
 end
