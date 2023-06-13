@@ -101,16 +101,27 @@ defmodule Carrier.External.TableauAPI do
     {:ok, body}
   end
 
-  defp handle_response({:ok, %Tesla.Env{body: %{"error" => %{"detail" => detail} = error}}}) do
+  defp handle_response({:ok, %Tesla.Env{body: %{"error" => error}}}) do
     Logger.error("Tableau API error: #{inspect(error)}")
 
-    {:error, detail}
+    {:error, translate_error(error)}
   end
 
   defp handle_response({:error, reason}) do
     Logger.error("Tableau API error: #{inspect(reason)}")
 
     {:error, reason}
+  end
+
+  defp translate_error(%{"code" => code, "detail" => detail}) do
+    case code do
+      "403004" -> {:tableau_api_forbidden, detail}
+      _ -> {:tableau_api_unknown_error, detail}
+    end
+  end
+
+  defp translate_error(_) do
+    {:error, {:tableau_api_unknown_error, "Unknown error"}}
   end
 
   defp client(host, token \\ nil) do
