@@ -14,6 +14,22 @@ defmodule Carrier.Blog do
     |> Enum.sort_by(fn %Post{date_created: date_created} -> date_created end, {:desc, Date})
   end
 
+  @decorate cacheable(
+              cache: Cache.Local,
+              key: {Blog, :fetch_post, [slug, posts_path]},
+              match: &Cache.default_matcher/1,
+              opts: cache_opts()
+            )
+  @spec fetch_post(slug :: String.t()) :: {:ok, %Post{}} | :error
+  def fetch_post(slug, posts_path \\ posts_path()) do
+    list_posts(posts_path)
+    |> Enum.find(fn %Post{slug: post_slug} -> post_slug == slug end)
+    |> case do
+      %Post{} = post -> {:ok, post}
+      nil -> {:error, :resource_not_found}
+    end
+  end
+
   defp list_post_paths(posts_path) do
     (posts_path <> "/**/*.{md,livemd}")
     |> Path.wildcard()
