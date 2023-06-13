@@ -9,7 +9,7 @@ defmodule CarrierWeb.Components.DataSourceNew.ConnInfoParams.Tableau do
 
     embeds_one :conn_info, ConnInfo, primary_key: false do
       field :host, :string
-      field :type, Ecto.Enum, values: [:user, :pat]
+      field :type, Ecto.Enum, values: [:pat, :user]
       field :email, :string
       field :password, :string
       field :pat_name, :string
@@ -50,6 +50,6 @@ defmodule CarrierWeb.Components.DataSourceNew.ConnInfoParams.Tableau do
   end
 
   def init_attrs() do
-    %{conn_info: %{type: :user}}
+    %{conn_info: %{type: :pat}}
   end
 end
