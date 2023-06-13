@@ -80,6 +80,19 @@
 
       <%= if @step == "step-2" do %>
         <div class="mt-8">
+          <div :if={@source == :tableau} class="callout mb-6 max-w-fit">
+            <div class="callout-icon">
+              <Icon.alert_circle class="w-4 h-4 mt-0.5" />
+            </div>
+            <div>
+              Tableau의 각 정보를 확인하는 방법은 <a
+                href={Const.get(:tableau_guide_url)}
+                target="_blank"
+                class="underline text-sky-500"
+              >가이드</a>에서 보실 수 있습니다.
+            </div>
+          </div>
+
           <.simple_form
             for={@form}
             phx-target={@myself}
