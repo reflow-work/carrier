@@ -146,9 +146,10 @@ defmodule CarrierWeb.Components.DataSourceNew do
 
   defp create_data_source(socket, params) do
     case do_create_data_source(params) do
-      {:ok, %DataSource{}} ->
+      {:ok, %DataSource{} = data_source} ->
+        socket.assigns.onsuccess.(data_source)
+
         socket
-        |> push_navigate(to: ~p"/app/reports/new")
 
       {:error, {:invalid_conn_info, reason}} ->
         Logger.error(inspect(reason))
