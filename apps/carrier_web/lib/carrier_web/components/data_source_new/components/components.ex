@@ -1,24 +1,8 @@
-defmodule CarrierWeb.App.DataSourceLive.New.Components do
+defmodule CarrierWeb.Components.DataSourceNew.Components do
   use CarrierWeb, :component
   use Carrier.Integrations
 
   embed_templates "*"
-
-  attr :data_sources, :any, required: true
-  attr :source, :atom, required: true
-  attr :onselect, :any, required: true
-
-  def data_source_selection(assigns)
-
-  attr :source, :atom, required: true
-  attr :form, :any, required: true
-  attr :error, :any, required: true
-  attr :uploads, :any, required: true
-  attr :file_name, :string, required: true
-  attr :onchange, :any, required: true
-  attr :onsubmit, :any, required: true
-
-  def data_source_form(assigns)
 
   attr :source, :atom, required: true
   attr :form, :any, required: true

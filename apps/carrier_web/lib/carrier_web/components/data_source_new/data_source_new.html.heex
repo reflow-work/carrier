@@ -51,7 +51,12 @@
       <div class="rounded-md">
         <div class="mt-8">
           <div class="flex">
-            <a phx-click="change_step" phx-value-step="step-1" class="text-sm cursor-pointer">
+            <a
+              phx-target={@myself}
+              phx-click="change_step"
+              phx-value-step="step-1"
+              class="text-sm cursor-pointer"
+            >
               <div class={"p-2 pt-0 border-b-2 hover:text-primary-200 #{if @step == "step-1" do
                   "border-primary font-bold"
                 end}"}>
@@ -59,7 +64,12 @@
               </div>
             </a>
 
-            <a phx-click="change_step" phx-value-step="step-2" class="text-sm cursor-pointer">
+            <a
+              phx-target={@myself}
+              phx-click="change_step"
+              phx-value-step="step-2"
+              class="text-sm cursor-pointer"
+            >
               <div class={"ml-4 p-2 pt-0 border-b-2 #{if @step == "step-2" do
                   "border-primary font-bold"
                 end}"}>
@@ -69,23 +79,64 @@
           </div>
 
           <%= if @step == "step-1" do %>
-            <Components.data_source_selection
-              data_sources={data_sources()}
-              source={@source}
-              onselect={fn source -> JS.push("select_source", value: %{source: source}) end}
-            />
+            <div class="mt-10 space-y-4">
+              <%= for {source, source_name, image_filename} <- data_sources() do %>
+                <div
+                  phx-target={@myself}
+                  phx-click={JS.push("select_source", value: %{source: source})}
+                  class={[
+                    "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex items-center justify-between",
+                    if @source == source do
+                      "bg-black text-white"
+                    else
+                      "bg-white text-black"
+                    end
+                  ]}
+                >
+                  <div class="flex items-center">
+                    <%= img_tag(~p"/images/#{image_filename}", class: "w-6 mr-4") %> <%= source_name %>
+                  </div>
+                  <Icon.arrow_right class="w-4" />
+                </div>
+              <% end %>
+            </div>
           <% end %>
 
           <%= if @step == "step-2" do %>
-            <Components.data_source_form
-              source={@source}
-              form={@form}
-              error={@error}
-              uploads={@uploads}
-              file_name={@file_name}
-              onchange="validate_data_source"
-              onsubmit="create_data_source"
-            />
+            <div class="mt-8">
+              <.simple_form
+                for={@form}
+                phx-target={@myself}
+                phx-change="validate_data_source"
+                phx-submit="create_data_source"
+              >
+                <.input
+                  type="text"
+                  field={@form[:name]}
+                  label="데이터 소스 이름"
+                  placeholder="데이터 마트"
+                  autofocus
+                  class="max-w-xs"
+                />
+
+                <Components.source_inputs
+                  source={@source}
+                  form={@form}
+                  uploads={@uploads}
+                  file_name={@file_name}
+                />
+
+                <:actions>
+                  <.button
+                    type="submit"
+                    disabled={!@form.source.valid?}
+                    phx-disable-with="연결중"
+                  >
+                    연결하기
+                  </.button>
+                </:actions>
+              </.simple_form>
+            </div>
           <% end %>
         </div>
       </div>
