@@ -4,12 +4,6 @@ defmodule CarrierWeb.App.DataSourceLive.New.Components do
 
   embed_templates "*"
 
-  attr :data_sources, :any, required: true
-  attr :source, :atom, required: true
-  attr :onselect, :any, required: true
-
-  def data_source_selection(assigns)
-
   attr :source, :atom, required: true
   attr :form, :any, required: true
   attr :error, :any, required: true
