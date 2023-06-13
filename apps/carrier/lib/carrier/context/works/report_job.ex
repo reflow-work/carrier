@@ -18,6 +18,7 @@ defmodule Carrier.Works.ReportJob do
         args: %{"org_id" => org_id, "report_id" => report_id, "datetime" => datetime_str}
       }) do
     TenantRepo.put_org_id(org_id)
+    Logger.metadata(org_id: org_id)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()
 
