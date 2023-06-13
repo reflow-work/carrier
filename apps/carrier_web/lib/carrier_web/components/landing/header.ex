@@ -20,6 +20,19 @@ defmodule LandingHeaderComponent do
 
         <div class="flex items-center">
           <ul class="flex-row hidden md:flex md:mr-4">
+            <%= if Carrier.Setting.get_feature_flag_value("blog") do %>
+              <li>
+                <a
+                  class="font-bold cursor-pointer text-base !text-black px-4"
+                  phx-target={@myself}
+                  phx-click="click_link"
+                  phx-value-name="pricing_on_header"
+                  phx-value-to="/blog"
+                >
+                  블로그
+                </a>
+              </li>
+            <% end %>
             <li>
               <a
                 class="font-bold cursor-pointer text-base !text-black px-4"
