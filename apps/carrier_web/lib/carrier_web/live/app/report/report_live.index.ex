@@ -2,7 +2,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
   alias Carrier.Billing
-  alias Carrier.Core.TimeHelper
+  alias Carrier.Core.{WeekdayHelper, TimeHelper}
   alias Carrier.Roles.Role
 
   # TODO: remove it
@@ -102,6 +102,17 @@ defmodule CarrierWeb.App.ReportLive.Index do
   defp triggered_at(%Report{interval: :daily, trigger_time: trigger_time}, timezone) do
     TimeHelper.from_utc_time(trigger_time, timezone)
     |> Timex.format!("매일 {0h24}:{0m}")
+  end
+
+  defp triggered_at(
+         %Report{interval: :weekly, trigger_weekday: trigger_weekday, trigger_time: trigger_time},
+         timezone
+       ) do
+    weekday = WeekdayHelper.from_utc_weekday(trigger_weekday, trigger_time, timezone)
+    weekday_name = WeekdayHelper.safe_format_weekday(weekday)
+
+    TimeHelper.from_utc_time(trigger_time, timezone)
+    |> Timex.format!("#{weekday_name} {0h24}:{0m}")
   end
 
   defp load_active_subscription(socket) do

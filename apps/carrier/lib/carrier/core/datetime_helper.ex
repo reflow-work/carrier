@@ -11,6 +11,20 @@ defmodule Carrier.Core.DateTimeHelper do
     end
   end
 
+  def calc_next_with_weekday_time(%DateTime{} = utc_datetime, utc_weekday, %Time{} = utc_time) do
+    weekday = utc_datetime |> Timex.weekday()
+    time = utc_datetime |> DateTime.to_time()
+
+    case {weekday - utc_weekday, Time.compare(time, utc_time)} do
+      {weekday_diff, time_compare}
+      when weekday_diff < 0 or (weekday_diff == 0 and time_compare == :lt) ->
+        utc_datetime |> Timex.shift(days: -weekday_diff) |> Timex.set(time: utc_time)
+
+      {weekday_diff, _} ->
+        utc_datetime |> Timex.shift(days: 7 - weekday_diff) |> Timex.set(time: utc_time)
+    end
+  end
+
   def calc_next(%DateTime{month: month, day: day} = start_datetime, cycle, nth) do
     shift_option =
       case cycle do

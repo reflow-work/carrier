@@ -128,6 +128,26 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
         />
         """
 
+      :weekly ->
+        ~H"""
+        <.input
+          type="select"
+          field={@form[:trigger_weekday]}
+          label="발송 요일"
+          label_align={:left}
+          options={trigger_weekday_options()}
+          value={@form[:trigger_weekday].value}
+        />
+        <.input
+          type="select"
+          field={@form[:trigger_time]}
+          label="발송 시간"
+          label_align={:left}
+          options={trigger_time_options()}
+          value={@form[:trigger_time].value}
+        />
+        """
+
       _ ->
         ~H"""
         <div></div>
@@ -138,7 +158,8 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   defp interval_options() do
     [
       {"매시간", :hourly},
-      {"매일", :daily}
+      {"매일", :daily},
+      {"매주", :weekly}
     ]
   end
 
@@ -168,6 +189,18 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
       {"오후 9시", "21:00:00"},
       {"오후 10시", "22:00:00"},
       {"오후 11시", "23:00:00"}
+    ]
+  end
+
+  defp trigger_weekday_options() do
+    [
+      {"월요일", 1},
+      {"화요일", 2},
+      {"수요일", 3},
+      {"목요일", 4},
+      {"금요일", 5},
+      {"토요일", 6},
+      {"일요일", 7}
     ]
   end
 end
