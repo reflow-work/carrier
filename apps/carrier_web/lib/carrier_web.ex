@@ -82,6 +82,8 @@ defmodule CarrierWeb do
       # TODO: remove
       import CarrierWeb.LiveHelpers
 
+      on_mount(CarrierWeb.FlashHook)
+
       unquote(html_helpers())
       unquote(live_helpers())
     end
@@ -100,6 +102,8 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.LiveComponent
       import CarrierWeb.AssignHelper
+
+      import CarrierWeb.FlashHook, only: [push_flash: 4]
 
       # TODO: remove
       import CarrierWeb.LiveHelpers

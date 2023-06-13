@@ -156,7 +156,7 @@ defmodule CarrierWeb.Components.DataSourceNew do
 
         socket
         |> assign(:error, inspect(reason))
-        |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+        |> push_flash(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
 
       # TODO: better error handling
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -172,14 +172,14 @@ defmodule CarrierWeb.Components.DataSourceNew do
 
         socket
         |> assign(:error, "#{field} #{reason}")
-        |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+        |> push_flash(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
 
       {:error, reason} ->
         Logger.error(inspect(reason))
 
         socket
         |> assign(:error, inspect(reason))
-        |> put_flash_for(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+        |> push_flash(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
     end
   rescue
     e ->
