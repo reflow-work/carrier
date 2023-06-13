@@ -103,56 +103,30 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 label_align={:left}
                 options={interval_options()}
               />
-              <.trigger_detail_inputs form={@report_form} />
+              <.input
+                class={@report_form[:interval].value != :weekly && "hidden"}
+                type="select"
+                field={@report_form[:trigger_weekday]}
+                label="발송 요일"
+                label_align={:left}
+                options={trigger_weekday_options()}
+                value={@report_form[:trigger_weekday].value}
+              />
+              <.input
+                class={@report_form[:interval].value not in [:daily, :weekly] && "hidden"}
+                type="select"
+                field={@report_form[:trigger_time]}
+                label="발송 시간"
+                label_align={:left}
+                options={trigger_time_options()}
+                value={@report_form[:trigger_time].value}
+              />
             </.simple_form>
           </div>
         </.card>
       </.card_container>
     </div>
     """
-  end
-
-  attr :form, :any, required: true
-
-  def trigger_detail_inputs(assigns) do
-    case assigns.form[:interval].value do
-      :daily ->
-        ~H"""
-        <.input
-          type="select"
-          field={@form[:trigger_time]}
-          label="발송 시간"
-          label_align={:left}
-          options={trigger_time_options()}
-          value={@form[:trigger_time].value}
-        />
-        """
-
-      :weekly ->
-        ~H"""
-        <.input
-          type="select"
-          field={@form[:trigger_weekday]}
-          label="발송 요일"
-          label_align={:left}
-          options={trigger_weekday_options()}
-          value={@form[:trigger_weekday].value}
-        />
-        <.input
-          type="select"
-          field={@form[:trigger_time]}
-          label="발송 시간"
-          label_align={:left}
-          options={trigger_time_options()}
-          value={@form[:trigger_time].value}
-        />
-        """
-
-      _ ->
-        ~H"""
-        <div></div>
-        """
-    end
   end
 
   defp interval_options() do
