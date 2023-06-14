@@ -79,6 +79,20 @@ defmodule Carrier.External.TableauAPI do
     end
   end
 
+  def query_view_preview_image(%{
+        host: host,
+        site_id: site_id,
+        workbook_id: workbook_id,
+        view_id: view_id,
+        token: token
+      }) do
+    Tesla.get(
+      client(host, token),
+      "/sites/#{site_id}/workbooks/#{workbook_id}/views/#{view_id}/previewImage"
+    )
+    |> handle_response()
+  end
+
   def query_view_image(%{host: host, site_id: site_id, view_id: view_id, token: token}) do
     query = [
       {"maxAge", 1}
