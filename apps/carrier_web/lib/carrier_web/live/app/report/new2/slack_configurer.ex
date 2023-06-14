@@ -28,11 +28,9 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         fn ->
           credentials = data_target |> DataTarget.to_credentials()
 
-          {:ok, channels} = Slack.list_channels(credentials)
-          {:ok, users} = Slack.list_users(credentials)
+          {:ok, channels} = Slack.list_all_channels(credentials)
 
           channels
-          |> Enum.map(&Slack.Channel.update_user_name(&1, users))
         end,
         __MODULE__
       )
