@@ -16,21 +16,23 @@ defmodule CarrierWeb.AssignHelper do
             live_component_module -> %{module: live_component_module, id: socket.assigns.id}
           end
 
-        send(pid, {:assign, {key, result, live_component_info}})
+        send(pid, {:assign_async, {key, result, live_component_info}})
       end)
     end
 
     socket
-    |> assign(key, %{loading?: true, value: nil})
+    |> assign(key, %{loading?: true, value: nil, error: nil})
   end
 
-  def handle_async_assigns({:assign, {key, value, live_component_info}}, socket) do
+  def handle_async_assigns({:assign_async, {key, result, live_component_info}}, socket) do
+    async_value = convert_result(result)
+
     case live_component_info do
       # LiveView
       nil ->
         case socket.assigns |> Map.has_key?(key) do
           true ->
-            {:ok, socket |> assign(key, %{loading?: false, value: value})}
+            {:ok, socket |> assign(key, async_value)}
 
           false ->
             {:error, socket}
@@ -40,7 +42,7 @@ defmodule CarrierWeb.AssignHelper do
       %{module: module, id: id} ->
         send_update(module, %{
           :id => id,
-          key => %{loading?: false, value: value}
+          key => async_value
         })
     end
   end
@@ -75,5 +77,13 @@ defmodule CarrierWeb.AssignHelper do
 
   defp call_function(socket, fun) when is_function(fun, 1) do
     fun.(socket.assigns)
+  end
+
+  defp convert_result({:ok, value}) do
+    %{loading?: false, value: value, error: nil}
+  end
+
+  defp convert_result({:error, error}) do
+    %{loading?: false, value: nil, error: error}
   end
 end

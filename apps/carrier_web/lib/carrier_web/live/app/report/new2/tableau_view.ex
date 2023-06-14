@@ -26,14 +26,11 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
         |> assign_async(
           :image_binary,
           fn ->
-            {:ok, image_binary} =
-              Tableau.get_view_preview_image_binary(
-                workbook_id,
-                view_id,
-                DataSource.to_credentials(data_source)
-              )
-
-            image_binary
+            Tableau.get_view_preview_image_binary(
+              workbook_id,
+              view_id,
+              DataSource.to_credentials(data_source)
+            )
           end,
           __MODULE__
         )

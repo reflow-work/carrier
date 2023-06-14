@@ -28,9 +28,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
         fn ->
           credentials = data_target |> DataTarget.to_credentials()
 
-          {:ok, channels} = Slack.list_all_channels(credentials)
-
-          channels
+          Slack.list_all_channels(credentials)
         end,
         __MODULE__
       )
