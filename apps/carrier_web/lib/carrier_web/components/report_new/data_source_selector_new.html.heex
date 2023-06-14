@@ -5,7 +5,7 @@
         <.card_title title="데이터 소스" />
       </div>
 
-      <.simple_form for={%{}} phx-change={@onselect}>
+      <.simple_form for={%{}} phx-change="select_data_source" phx-target={@myself}>
         <div class="flex items-center">
           <.input
             class="max-w-md flex-1"
@@ -13,7 +13,7 @@
             name="id"
             prompt="데이터 소스를 선택해주세요"
             options={data_source_options(@data_sources)}
-            value={@selected_data_source |> Nillable.map(& &1.id) |> Nillable.fallback("")}
+            value={@selected_data_source_id |> Nillable.fallback("")}
           />
           <button class="btn btn-primary ml-2">데이터 소스 추가</button>
         </div>

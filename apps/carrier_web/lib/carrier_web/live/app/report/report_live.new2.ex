@@ -13,18 +13,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:data_sources, [])
       |> assign(:action, nil)
       |> assign(:title, nil)
       |> assign(:report, nil)
       |> assign(:data_source_info, nil)
       |> assign(:data_target_info, nil)
+      |> assign(:selected_data_source_id, nil)
       |> assign(:selected_data_source, nil)
       |> assign(:data_source_info_form, nil)
       |> assign(:data_target_info_form, nil)
       |> assign(:report_form, nil)
       |> assign(:valid?, false)
-      |> load_data_sources()
 
     {:ok, socket}
   end
@@ -46,13 +45,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       socket
       |> assign(:action, :new)
       |> assign(:title, "레포트 생성하기")
-      |> Nillable.run(data_source_id, fn socket ->
-        socket
-        |> assign(
-          :selected_data_source,
-          socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
-        )
-      end)
+      |> assign(:selected_data_source_id, data_source_id)
       |> assign(:report_form, report_form)
 
     {:noreply, socket}
@@ -88,14 +81,11 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_info = report.data_source_info |> Map.from_struct()
     data_target_info = report.data_target_info |> Map.from_struct()
 
-    selected_data_source =
-      socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_info.data_source_id))
-
     socket =
       socket
       |> assign(:action, :edit)
       |> assign(:title, "레포트 수정하기")
-      |> assign(:selected_data_source, selected_data_source)
+      |> assign(:selected_data_source_id, data_source_info.data_source_id)
       |> assign(:data_source_info, data_source_info)
       |> assign(:data_target_info, data_target_info)
       |> assign(:report_form, report_form)
@@ -112,9 +102,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       <.live_component
         module={DataSourceSelectorNew}
         id="data_source_selector_new"
-        data_sources={@data_sources}
-        selected_data_source={@selected_data_source}
-        onselect="select_data_source"
+        selected_data_source_id={@selected_data_source_id}
       />
 
       <div :if={@selected_data_source}>
@@ -142,29 +130,6 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       </div>
     </section>
     """
-  end
-
-  ### Data Source Selector ###
-
-  @impl true
-  def handle_event("select_data_source", %{"id" => data_source_id_str}, socket) do
-    data_source_id = data_source_id_str |> String.to_integer()
-    data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
-
-    # TODO : remove it
-    socket =
-      case data_source.source do
-        :tableau ->
-          socket
-          |> assign(:selected_data_source, data_source)
-          |> push_patch(to: ~p"/app/reports/new2?data_source_id=#{data_source}", replace: true)
-
-        _ ->
-          socket
-          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{data_source}")
-      end
-
-    {:noreply, socket}
   end
 
   @impl true
@@ -256,6 +221,28 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
+  def handle_info(
+        {:data_source_selected, %DataSource{source: source} = selected_data_source},
+        socket
+      ) do
+    socket =
+      socket
+      |> assign(:selected_data_source, selected_data_source)
+
+    socket =
+      case selected_data_source.source do
+        :tableau ->
+          socket
+
+        _ ->
+          socket
+          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{selected_data_source}")
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:update, {:data_source_info_form, data_source_info_form}}, socket) do
     socket =
       socket
@@ -283,17 +270,6 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
       _ ->
         {:noreply, socket}
-    end
-  end
-
-  defp load_data_sources(socket) do
-    case Integrations.list_data_sources() do
-      [_ | _] = data_sources ->
-        socket |> assign(:data_sources, data_sources)
-
-      _ ->
-        socket
-        |> put_flash_for(:error, "데이터 소스를 불러오는데 실패하였습니다.", timeout: :timer.seconds(3))
     end
   end
 
