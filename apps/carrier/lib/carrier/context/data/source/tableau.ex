@@ -27,19 +27,24 @@ defmodule Carrier.Data.Source.Tableau do
 
   # https://help.tableau.com/current/pro/desktop/en-us/embed_structure.htm
   defmodule View do
-    defstruct [:id, :name, :full_name, :view_path]
+    defstruct [:id, :name, :workbook_id, :full_name, :view_path]
 
     def new(%{
           "id" => id,
           "name" => name,
           "location" => %{"type" => "Project"},
           "project" => %{"name" => project_name},
-          "workbook" => %{"name" => workbook_name, "contentUrl" => workbook_content_url},
+          "workbook" => %{
+            "id" => workbook_id,
+            "name" => workbook_name,
+            "contentUrl" => workbook_content_url
+          },
           "viewUrlName" => viewUrlName
         }) do
       %__MODULE__{
         id: id,
         name: name,
+        workbook_id: workbook_id,
         full_name: "#{project_name} / #{workbook_name} / #{name}",
         view_path: "#{workbook_content_url}/#{viewUrlName}"
       }
@@ -49,12 +54,17 @@ defmodule Carrier.Data.Source.Tableau do
           "id" => id,
           "name" => name,
           "location" => %{"type" => "PersonalSpace"},
-          "workbook" => %{"name" => workbook_name, "contentUrl" => workbook_content_url},
+          "workbook" => %{
+            "id" => workbook_id,
+            "name" => workbook_name,
+            "contentUrl" => workbook_content_url
+          },
           "viewUrlName" => viewUrlName
         }) do
       %__MODULE__{
         id: id,
         name: name,
+        workbook_id: workbook_id,
         full_name: "Personal Space / #{workbook_name} / #{name}",
         view_path: "#{workbook_content_url}/#{viewUrlName}"
       }
@@ -162,6 +172,14 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
+  def get_view_preview_image_binary(workbook_id, view_id, credentials) do
+    with {:ok, auth} <- signin(credentials),
+         {:ok, view_preview_image_binary} <-
+           do_get_preview_image_binary(workbook_id, view_id, auth) do
+      {:ok, view_preview_image_binary}
+    end
+  end
+
   def get_view_image_binary(view_id, credentials) do
     with {:ok, auth} <- signin(credentials),
          {:ok, view_image_binary} <- do_get_view_image_binary(view_id, auth) do
@@ -239,6 +257,20 @@ defmodule Carrier.Data.Source.Tableau do
 
   defp do_get_view(view_id, %{host: host, site_id: site_id, token: token}) do
     TableauAPI.get_view(%{host: host, site_id: site_id, view_id: view_id, token: token})
+  end
+
+  defp do_get_preview_image_binary(workbook_id, view_id, %{
+         host: host,
+         site_id: site_id,
+         token: token
+       }) do
+    TableauAPI.query_view_preview_image(%{
+      host: host,
+      site_id: site_id,
+      workbook_id: workbook_id,
+      view_id: view_id,
+      token: token
+    })
   end
 
   defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
