@@ -3,6 +3,7 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
   use Carrier.{Integrations}
   alias Carrier.Integrations.DataSource
   alias Carrier.Core.{Nillable}
+  alias CarrierWeb.Components.DataSourceNew
 
   @impl true
   def mount(socket) do
@@ -11,6 +12,16 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
       |> assign(:data_sources, [])
       |> assign(:selected_data_source_id, nil)
       |> load_data_sources()
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{data_source: data_source}, socket) do
+    socket =
+      socket
+      |> load_data_sources()
+      |> hide_modal_from_server("new_data_source_modal")
 
     {:ok, socket}
   end

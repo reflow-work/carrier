@@ -16,8 +16,21 @@
             value={@selected_data_source_id |> Nillable.fallback("")}
             disabled={@disabled}
           />
+          <.button type="button" class="ml-2" phx-click={show_modal("new_data_source_modal")}>
+            새 데이터 소스 추가
+          </.button>
         </div>
       </.simple_form>
     </.card>
   </.card_container>
+
+  <.modal id="new_data_source_modal">
+    <.live_component
+      module={DataSourceNew}
+      id="data_source_new"
+      org={@org}
+      flash={@flash}
+      onsuccess={fn data_source -> send_update(__MODULE__, id: @id, data_source: data_source) end}
+    />
+  </.modal>
 </div>
