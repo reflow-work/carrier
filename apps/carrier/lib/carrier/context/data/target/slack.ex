@@ -162,6 +162,25 @@ defmodule Carrier.Data.Target.Slack do
     end
   end
 
+  def list_all_channels(credentials) do
+    with {:ok, channels} <- list_channels(credentials),
+         {:ok, users} <- list_users(credentials) do
+      public_and_private_channels =
+        channels
+        |> Enum.filter(fn %Channel{type: type} -> type in [:public_channel, :private_channel] end)
+
+      direct_message_channels =
+        users
+        |> Enum.filter(fn
+          %User{type: :user, deleted: false} -> true
+          _ -> false
+        end)
+        |> Enum.map(&Channel.from/1)
+
+      {:ok, public_and_private_channels ++ direct_message_channels}
+    end
+  end
+
   def list_channels(credentials, params \\ %{}) do
     do_list_channels(credentials, params)
   end
