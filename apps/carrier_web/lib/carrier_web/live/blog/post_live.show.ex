@@ -1,7 +1,6 @@
 defmodule CarrierWeb.Blog.PostLive.Show do
   use CarrierWeb, :live_view
   alias Carrier.Blog
-  alias Carrier.Blog.Post
   alias Carrier.Blog.MarkdownRenderer
 
   @impl true
