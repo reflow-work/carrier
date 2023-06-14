@@ -1,0 +1,22 @@
+<div>
+  <.card_container>
+    <.card>
+      <div>
+        <.card_title title="데이터 소스" />
+      </div>
+
+      <.simple_form for={%{}} phx-change="select_data_source" phx-target={@myself}>
+        <div class="flex items-center">
+          <.input
+            class="max-w-md flex-1"
+            type="select"
+            name="id"
+            prompt="데이터 소스를 선택해주세요"
+            options={data_source_options(@data_sources)}
+            value={@selected_data_source_id |> Nillable.fallback("")}
+          />
+        </div>
+      </.simple_form>
+    </.card>
+  </.card_container>
+</div>

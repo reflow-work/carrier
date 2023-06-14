@@ -43,14 +43,35 @@ defmodule CarrierWeb.App.ReportLive.New do
   end
 
   @impl true
-  def handle_params(_params, _uri, %{assigns: %{live_action: :new}} = socket) do
+  def handle_params(params, _uri, %{assigns: %{live_action: :new}} = socket) do
+    data_source_id =
+      params["data_source_id"]
+      |> Nillable.map(&Obfuscatable.deobfuscate!(&1, DataSource))
+
     socket =
       socket
-      |> assign(:data_source, socket.assigns.data_sources |> List.first())
+      |> Nillable.run(data_source_id, fn socket ->
+        socket
+        |> assign(
+          :data_source,
+          socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
+        )
+      end)
+      |> assign_new(:data_source, fn -> socket.assigns.data_sources |> List.first() end)
       |> init_common_assigns()
       |> init_assigns_by_data_source()
       |> init_assigns_by_data_target()
       |> init_changeset()
+
+    socket =
+      case socket.assigns.data_source.source do
+        :tableau ->
+          socket
+          |> push_navigate(to: ~p"/app/reports/new2?data_source_id=#{socket.assigns.data_source}")
+
+        _ ->
+          socket
+      end
 
     {:noreply, socket}
   end

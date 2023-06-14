@@ -3,11 +3,11 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use Carrier.{Integrations, Data, Reports}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
+  alias CarrierWeb.Components.DataSourceSelectorNew
   alias Carrier.Core.{Nillable, Async, TimeHelper, WeekdayHelper}
   alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
-  on_mount(CarrierWeb.DataSourceHook)
 
   @impl true
   def mount(_params, _session, socket) do
@@ -18,6 +18,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:report, nil)
       |> assign(:data_source_info, nil)
       |> assign(:data_target_info, nil)
+      |> assign(:selected_data_source_id, nil)
       |> assign(:selected_data_source, nil)
       |> assign(:data_source_info_form, nil)
       |> assign(:data_target_info_form, nil)
@@ -44,13 +45,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       socket
       |> assign(:action, :new)
       |> assign(:title, "레포트 생성하기")
-      |> Nillable.run(data_source_id, fn socket ->
-        socket
-        |> assign(
-          :selected_data_source,
-          socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
-        )
-      end)
+      |> assign(:selected_data_source_id, data_source_id)
       |> assign(:report_form, report_form)
 
     {:noreply, socket}
@@ -86,14 +81,11 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_info = report.data_source_info |> Map.from_struct()
     data_target_info = report.data_target_info |> Map.from_struct()
 
-    selected_data_source =
-      socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_info.data_source_id))
-
     socket =
       socket
       |> assign(:action, :edit)
       |> assign(:title, "레포트 수정하기")
-      |> assign(:selected_data_source, selected_data_source)
+      |> assign(:selected_data_source_id, data_source_info.data_source_id)
       |> assign(:data_source_info, data_source_info)
       |> assign(:data_target_info, data_target_info)
       |> assign(:report_form, report_form)
@@ -106,11 +98,13 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     ~H"""
     <section class="page-container">
       <.page_header icon="📊" title={@title} />
-      <Components.data_source_selector
-        data_sources={@data_sources}
-        selected_data_source={@selected_data_source}
-        onselect="select_data_source"
+
+      <.live_component
+        module={DataSourceSelectorNew}
+        id="data_source_selector_new"
+        selected_data_source_id={@selected_data_source_id}
       />
+
       <div :if={@selected_data_source}>
         <Components.data_transformer
           data_source={@selected_data_source}
@@ -136,29 +130,6 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       </div>
     </section>
     """
-  end
-
-  ### Data Source Selector ###
-
-  @impl true
-  def handle_event("select_data_source", %{"id" => data_source_id_str}, socket) do
-    data_source_id = data_source_id_str |> String.to_integer()
-    data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
-
-    # TODO : remove it
-    socket =
-      case data_source.source do
-        :tableau ->
-          socket
-          |> assign(:selected_data_source, data_source)
-          |> push_patch(to: ~p"/app/reports/new2?data_source_id=#{data_source}", replace: true)
-
-        _ ->
-          socket
-          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{data_source}")
-      end
-
-    {:noreply, socket}
   end
 
   @impl true
@@ -245,6 +216,28 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         page_name: "report_new"
       })
       |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(
+        {:data_source_selected, %DataSource{source: source} = selected_data_source},
+        socket
+      ) do
+    socket =
+      socket
+      |> assign(:selected_data_source, selected_data_source)
+
+    socket =
+      case selected_data_source.source do
+        :tableau ->
+          socket
+
+        _ ->
+          socket
+          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{selected_data_source}")
+      end
 
     {:noreply, socket}
   end
