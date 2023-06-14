@@ -185,12 +185,19 @@ defmodule CarrierWeb.Components.Search do
       socket.assigns.items
       |> Enum.find(&(&1.value == selected_item_value))
 
-    socket
-    |> do_select_item(selected_item)
-    |> assign_keyword_unless_multiple(selected_item.label)
-    |> assign_selectable_items()
-    |> assign(:show_selectable_items, socket.assigns.multiple)
-    |> run_onchange()
+    case selected_item do
+      # when loaded item not exist
+      nil ->
+        socket
+
+      selected_item ->
+        socket
+        |> do_select_item(selected_item)
+        |> assign_keyword_unless_multiple(selected_item.label)
+        |> assign_selectable_items()
+        |> assign(:show_selectable_items, socket.assigns.multiple)
+        |> run_onchange()
+    end
   end
 
   defp do_select_item(socket, selected_item) do
