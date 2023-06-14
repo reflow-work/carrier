@@ -2,7 +2,6 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   use CarrierWeb, :component
   use Carrier.Integrations
   import Carrier.Data.Source.RDB.Guard
-  alias Carrier.Core.Nillable
 
   embed_templates "*"
 

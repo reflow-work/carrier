@@ -230,7 +230,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:selected_data_source, selected_data_source)
 
     socket =
-      case selected_data_source.source do
+      case source do
         :tableau ->
           socket
 
