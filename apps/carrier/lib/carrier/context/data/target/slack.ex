@@ -98,20 +98,20 @@ defmodule Carrier.Data.Target.Slack do
   defmodule User do
     defstruct [:id, :name, :type, :deleted]
 
-    def new(%{
-          "id" => id,
-          "profile" => %{"real_name" => real_name, "display_name" => display_name},
-          "is_bot" => is_bot,
-          "is_restricted" => is_restricted,
-          "is_ultra_restricted" => is_ultra_restricted,
-          "deleted" => deleted
-        }) do
+    def new(
+          %{
+            "id" => id,
+            "profile" => %{"real_name" => real_name, "display_name" => display_name},
+            "is_bot" => is_bot,
+            "deleted" => deleted
+          } = params
+        ) do
       type =
         cond do
           id == "USLACKBOT" -> :bot
           is_bot -> :bot
-          is_restricted -> :guest
-          is_ultra_restricted -> :guest
+          params["is_restricted"] -> :guest
+          params["is_ultra_restricted"] -> :guest
           true -> :user
         end
 
