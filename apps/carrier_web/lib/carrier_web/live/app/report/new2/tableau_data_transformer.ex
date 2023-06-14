@@ -101,7 +101,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           <div class="max-w-md">
             <.loading :if={@views.loading?} />
             <.live_component
-              :if={!@views.loading? && !@views.error}
+              :if={@views.valid?}
               module={Search}
               id="tableau_view_selector"
               placeholder="View 이름으로 검색해주세요"

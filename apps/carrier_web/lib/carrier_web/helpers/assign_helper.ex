@@ -21,7 +21,7 @@ defmodule CarrierWeb.AssignHelper do
     end
 
     socket
-    |> assign(key, %{loading?: true, value: nil, error: nil})
+    |> assign(key, init_value())
   end
 
   def handle_async_assigns({:assign_async, {key, result, live_component_info}}, socket) do
@@ -79,11 +79,15 @@ defmodule CarrierWeb.AssignHelper do
     fun.(socket.assigns)
   end
 
+  defp init_value() do
+    %{loading?: true, valid?: false, value: nil, error: nil}
+  end
+
   defp convert_result({:ok, value}) do
-    %{loading?: false, value: value, error: nil}
+    %{loading?: false, valid?: true, value: value, error: nil}
   end
 
   defp convert_result({:error, error}) do
-    %{loading?: false, value: nil, error: error}
+    %{loading?: false, valid?: false, value: nil, error: error}
   end
 end
