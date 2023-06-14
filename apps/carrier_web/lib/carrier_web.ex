@@ -80,7 +80,7 @@ defmodule CarrierWeb do
       alias Carrier.Obfuscatable
 
       # TODO: remove
-      import CarrierWeb.LiveHelpers
+      import CarrierWeb.LiveHelpers, except: [modal: 1, show_modal: 1, hide_modal: 1]
 
       on_mount(CarrierWeb.FlashHook)
 
@@ -106,7 +106,7 @@ defmodule CarrierWeb do
       import CarrierWeb.FlashHook, only: [push_flash: 4]
 
       # TODO: remove
-      import CarrierWeb.LiveHelpers
+      import CarrierWeb.LiveHelpers, except: [modal: 1, show_modal: 1, hide_modal: 1]
 
       unquote(html_helpers())
       unquote(live_helpers())
@@ -116,7 +116,7 @@ defmodule CarrierWeb do
   def component do
     quote do
       use Phoenix.Component
-      import CarrierWeb.LiveHelpers
+      import CarrierWeb.LiveHelpers, except: [modal: 1, show_modal: 1, hide_modal: 1]
 
       unquote(html_helpers())
     end
