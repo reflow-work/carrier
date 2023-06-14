@@ -24,6 +24,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:data_target_info_form, nil)
       |> assign(:report_form, nil)
       |> assign(:valid?, false)
+      |> load_data_sources()
 
     {:ok, socket}
   end
@@ -282,6 +283,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
       _ ->
         {:noreply, socket}
+    end
+  end
+
+  defp load_data_sources(socket) do
+    case Integrations.list_data_sources() do
+      [_ | _] = data_sources ->
+        socket |> assign(:data_sources, data_sources)
+
+      _ ->
+        socket
+        |> put_flash_for(:error, "데이터 소스를 불러오는데 실패하였습니다.", timeout: :timer.seconds(3))
     end
   end
 
