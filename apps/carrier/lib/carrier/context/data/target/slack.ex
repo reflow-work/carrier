@@ -100,8 +100,7 @@ defmodule Carrier.Data.Target.Slack do
 
     def new(%{
           "id" => id,
-          "real_name" => real_name,
-          "profile" => %{"display_name" => display_name},
+          "profile" => %{"real_name" => real_name, "display_name" => display_name},
           "is_bot" => is_bot,
           "is_restricted" => is_restricted,
           "is_ultra_restricted" => is_ultra_restricted,
