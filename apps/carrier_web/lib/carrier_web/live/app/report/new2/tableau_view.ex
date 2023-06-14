@@ -14,7 +14,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
   def update(
         %{
           data_source: %DataSource{} = data_source,
-          view: %Tableau.View{id: view_id}
+          view: %Tableau.View{id: view_id, workbook_id: workbook_id}
         } = assigns,
         socket
       ) do
@@ -27,7 +27,11 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
           :image_binary,
           fn ->
             {:ok, image_binary} =
-              Tableau.get_view_image_binary(view_id, DataSource.to_credentials(data_source))
+              Tableau.get_view_preview_image_binary(
+                workbook_id,
+                view_id,
+                DataSource.to_credentials(data_source)
+              )
 
             image_binary
           end,
