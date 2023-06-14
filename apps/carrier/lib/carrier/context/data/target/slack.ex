@@ -95,6 +95,37 @@ defmodule Carrier.Data.Target.Slack do
 
   ### raw functions
 
+  defmodule User do
+    defstruct [:id, :name, :type, :deleted]
+
+    def new(%{
+          "id" => id,
+          "real_name" => real_name,
+          "profile" => %{"display_name" => display_name},
+          "is_bot" => is_bot,
+          "is_restricted" => is_restricted,
+          "is_ultra_restricted" => is_ultra_restricted,
+          "deleted" => deleted
+        }) do
+      type =
+        cond do
+          id == "USLACKBOT" -> :bot
+          is_bot -> :bot
+          is_restricted -> :guest
+          is_ultra_restricted -> :guest
+          true -> :user
+        end
+
+      name =
+        case display_name do
+          "" -> real_name
+          display_name -> display_name
+        end
+
+      %__MODULE__{id: id, name: name, type: type, deleted: deleted}
+    end
+  end
+
   defmodule Channel do
     defstruct [:id, :name, :user_id, :type]
 
@@ -109,35 +140,11 @@ defmodule Carrier.Data.Target.Slack do
     end
 
     def new(%{"id" => id, "user" => user_id, "is_im" => true}) do
-      %__MODULE__{id: id, user_id: user_id, type: :direct_message}
+      %__MODULE__{id: id, user_id: user_id, type: :im}
     end
 
-    def update_user_name(%__MODULE__{user_id: user_id} = struct, users)
-        when not is_nil(user_id) do
-      %{name: user_name} =
-        users
-        |> Enum.find(&(&1.id == user_id))
-
-      %__MODULE__{struct | name: user_name}
-    end
-
-    def update_user_name(%__MODULE__{user_id: nil} = struct, _users) do
-      struct
-    end
-  end
-
-  defmodule User do
-    defstruct [:id, :name, :type, :deleted]
-
-    def new(%{"id" => id, "name" => name, "is_bot" => is_bot, "deleted" => deleted}) do
-      type =
-        case {id, is_bot} do
-          {"USLACKBOT", _} -> :bot
-          {_, true} -> :bot
-          _ -> :user
-        end
-
-      %__MODULE__{id: id, name: name, type: type, deleted: deleted}
+    def from(%Carrier.Data.Target.Slack.User{id: user_id, name: name, type: :user}) do
+      %__MODULE__{id: user_id, name: name, user_id: user_id, type: :direct_message}
     end
   end
 
