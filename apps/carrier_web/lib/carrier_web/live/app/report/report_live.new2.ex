@@ -3,16 +3,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use Carrier.{Integrations, Data, Reports}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
+  alias CarrierWeb.Components.DataSourceSelectorNew
   alias Carrier.Core.{Nillable, Async, TimeHelper, WeekdayHelper}
   alias Doumi.Phoenix.Params
 
   on_mount(CarrierWeb.DataTargetHook)
-  on_mount(CarrierWeb.DataSourceHook)
 
   @impl true
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:data_sources, [])
       |> assign(:action, nil)
       |> assign(:title, nil)
       |> assign(:report, nil)
@@ -106,11 +107,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     ~H"""
     <section class="page-container">
       <.page_header icon="📊" title={@title} />
-      <Components.data_source_selector
+
+      <.live_component
+        module={DataSourceSelectorNew}
+        id="data_source_selector_new"
         data_sources={@data_sources}
         selected_data_source={@selected_data_source}
         onselect="select_data_source"
       />
+
       <div :if={@selected_data_source}>
         <Components.data_transformer
           data_source={@selected_data_source}
