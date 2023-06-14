@@ -124,8 +124,6 @@ config :carrier, :slack,
   client_id: "3700242262145.3907206908336",
   client_secret: "ea1926306433ead67eea5f55a6855f67"
 
-config :reverse_proxy_plug, :http_client, ReverseProxyPlug.HTTPClient.Adapters.Tesla
-
 config :carrier, Carrier.Core.Cache.Local,
   gc_interval: :timer.hours(12),
   # 1GiB

@@ -52,7 +52,6 @@ defmodule CarrierWeb.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
-      {:reverse_proxy_plug, "~> 2.1"},
       {:doumi_phoenix_svg, "~> 0.3.0"},
       {:sentry, "~> 8.0"},
       {:plug_canonical_host, "~> 2.0"}
