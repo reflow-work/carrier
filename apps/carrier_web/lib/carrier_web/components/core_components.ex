@@ -344,8 +344,8 @@ defmodule CarrierWeb.CoreComponents do
         <.label for={@id} align={@label_align}><%= @label %></.label>
       <% end %>
       <div class={[
-        @label_align == :top && "mt-1 w-full",
-        @label_align == :left && "flex-1"
+        @label && @label_align == :top && "mt-1 w-full",
+        @label && @label_align == :left && "flex-1"
       ]}>
         <select
           id={@id}
