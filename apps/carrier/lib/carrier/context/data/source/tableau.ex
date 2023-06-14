@@ -162,6 +162,14 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
+  def get_view_preview_image_binary(workbook_id, view_id, credentials) do
+    with {:ok, auth} <- signin(credentials),
+         {:ok, view_preview_image_binary} <-
+           do_get_preview_image_binary(workbook_id, view_id, auth) do
+      {:ok, view_preview_image_binary}
+    end
+  end
+
   def get_view_image_binary(view_id, credentials) do
     with {:ok, auth} <- signin(credentials),
          {:ok, view_image_binary} <- do_get_view_image_binary(view_id, auth) do
@@ -239,6 +247,20 @@ defmodule Carrier.Data.Source.Tableau do
 
   defp do_get_view(view_id, %{host: host, site_id: site_id, token: token}) do
     TableauAPI.get_view(%{host: host, site_id: site_id, view_id: view_id, token: token})
+  end
+
+  defp do_get_preview_image_binary(workbook_id, view_id, %{
+         host: host,
+         site_id: site_id,
+         token: token
+       }) do
+    TableauAPI.query_view_preview_image(%{
+      host: host,
+      site_id: site_id,
+      workbook_id: workbook_id,
+      view_id: view_id,
+      token: token
+    })
   end
 
   defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
