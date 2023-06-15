@@ -12,7 +12,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
       |> assign(:query_result, nil)
       |> assign(:period, 28)
       |> assign(:comparing_period, 28)
-      |> assign(:rdb_form, RDBParamsOld.to_form(%{}, validate: false))
+      |> assign(:rdb_form, RDBParamsOld.to_form(%{columns: []}, validate: false))
 
     {:ok, socket}
   end
@@ -48,6 +48,15 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
           <.card_title title="차트 설정하기" />
           <div>
             <.simple_form for={@rdb_form} phx-target={@myself} phx-change="validate_rdb">
+              <div>
+                <.input
+                  type="checkgroup"
+                  field={@rdb_form[:columns]}
+                  multiple={true}
+                  label="지표 선택"
+                  options={data_columns(@query_result)}
+                />
+              </div>
             </.simple_form>
           </div>
         </.card>
@@ -58,7 +67,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
   @impl true
   def handle_event("validate_rdb", %{"rdb" => params}, socket) do
-    rdb_form = validate_rdb(params, socket)
+    rdb_form = validate_rdb(params, socket) |> IO.inspect(label: "validation")
 
     socket =
       socket
@@ -83,5 +92,9 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
   defp validate_and_send_data_source_info_form(socket) do
     send(self(), {:update, {:data_source_info_form, socket.assigns.rdb_form}})
+  end
+
+  defp data_columns(%{columns: [_date_column | data_columns]} = _query_result) do
+    data_columns
   end
 end

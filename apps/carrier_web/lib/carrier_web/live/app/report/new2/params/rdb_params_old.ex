@@ -26,5 +26,6 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBParamsOld do
     struct
     |> cast(attrs, @required)
     |> validate_required(@required)
+    |> validate_length(:columns, min: 1)
   end
 end
