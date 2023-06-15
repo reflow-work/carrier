@@ -1,6 +1,6 @@
 defmodule CarrierWeb.App.ReportLive.New2 do
   use CarrierWeb, :live_view
-  use Carrier.{Integrations, Data, Reports}
+  use Carrier.{Integrations, Data, Reports, Setting}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
   alias CarrierWeb.Components.DataSourceSelectorNew
@@ -225,10 +225,30 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket =
       socket
       |> assign(:selected_data_source, selected_data_source)
-      |> push_patch(
-        to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
-        replace: true
-      )
+
+    socket =
+      case Setting.get_feature_flag_value("report_refactoring") do
+        true ->
+          socket
+          |> push_patch(
+            to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
+            replace: true
+          )
+
+        false ->
+          case selected_data_source.source do
+            :tableau ->
+              socket
+              |> push_patch(
+                to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
+                replace: true
+              )
+
+            _ ->
+              socket
+              |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{selected_data_source}")
+          end
+      end
 
     {:noreply, socket}
   end
