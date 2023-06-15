@@ -3,16 +3,34 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
   use Carrier.{Integrations, Data}
   alias CarrierWeb.App.ReportLive.New2.RDBParamsOld
   alias CarrierWeb.App.ReportLive.New2.RDBQuerier
+  alias CarrierWeb.Components.SlackImgMetaData
+  alias Carrier.Data.QueryData
+  alias Carrier.Core.{TimezoneHelper, DateHelper}
+  alias Doumi.Phoenix.Params
 
   @impl true
   def mount(socket) do
     socket =
       socket
-      |> assign(:sql_template, "")
+      |> assign(:sql_template, nil)
       |> assign(:query_result, nil)
       |> assign(:period, 28)
       |> assign(:comparing_period, 28)
-      |> assign(:rdb_form, RDBParamsOld.to_form(%{columns: []}, validate: false))
+      |> assign(:rdb_form, RDBParamsOld.to_form(%{window_size: 1, columns: []}, validate: false))
+      |> assign(:timezone, TimezoneHelper.get_timezone())
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{sql_template: _sql_template, query_result: _query_result} = assigns, socket) do
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign_query_result_by_columns()
+      |> update_columns()
+
+    validate_and_send_data_source_info_form(socket)
 
     {:ok, socket}
   end
@@ -43,8 +61,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
           end
         }
       />
-      <.card_container :if={@query_result}>
-        <.card>
+      <.card_container :if={@query_result} class="flex flex-col gap-4 lg:flex-row">
+        <.card class="basis-96">
           <.card_title title="차트 설정하기" />
           <div>
             <.simple_form for={@rdb_form} phx-target={@myself} phx-change="validate_rdb">
@@ -64,6 +82,66 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
             </.simple_form>
           </div>
         </.card>
+        <.card class="flex-1">
+          <.card_title title="차트 미리보기" />
+          <div>
+            <div :for={column <- @rdb_form[:columns].value}>
+              <section class="space-y-3 bg-slackImgLightGrey p-4">
+                <p class="font-bold text-base-dark text-sm">
+                  <%= report_title(column, @timezone) %>
+                </p>
+                <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                  <section>
+                    <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
+                    <p class="text-xl font-bold mt-2">
+                      <%= format_number(
+                        @query_result_by_columns[column].meta.current_period_last_tick_raw
+                      ) %>
+                    </p>
+                    <div class="flex space-x-2 mt-1">
+                      <SlackImgMetaData.card
+                        diff_value_raw={
+                          @query_result_by_columns[column].meta.diff_between_period_raws
+                        }
+                        diff_value_percentage={
+                          @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                        }
+                      />
+                    </div>
+                  </section>
+                  <section class="pl-5">
+                    <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
+                    <p class="text-xl font-bold mt-2">
+                      <%= format_number(@query_result_by_columns[column].meta.current_period_sum) %>
+                    </p>
+                    <div class="flex space-x-2 mt-1">
+                      <SlackImgMetaData.card
+                        diff_value_raw={
+                          @query_result_by_columns[column].meta.diff_between_period_sums
+                        }
+                        diff_value_percentage={
+                          @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                        }
+                      />
+                    </div>
+                  </section>
+                </div>
+                <section
+                  id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
+                  phx-update="ignore"
+                  class="h-[250px]"
+                >
+                  <canvas
+                    id={"chart-#{@query_result_by_columns[column].meta.label}"}
+                    class="rounded-lg shadow-slackImgSection"
+                    phx-hook="Chart"
+                  >
+                  </canvas>
+                </section>
+              </section>
+            </div>
+          </div>
+        </.card>
       </.card_container>
     </div>
     """
@@ -71,7 +149,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
   @impl true
   def handle_event("validate_rdb", %{"rdb" => params}, socket) do
-    rdb_form = validate_rdb(params, socket) |> IO.inspect(label: "validation")
+    rdb_form = validate_rdb(params, socket)
 
     socket =
       socket
@@ -98,7 +176,46 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
     send(self(), {:update, {:data_source_info_form, socket.assigns.rdb_form}})
   end
 
+  defp assign_query_result_by_columns(socket) do
+    %{columns: [_date_column | data_columns] = columns, data: data} = socket.assigns.query_result
+    window_size = socket.assigns.rdb_form[:window_size].value
+
+    {:ok, analyzed_data} =
+      QueryData.analyze(data, %{
+        columns: columns,
+        period: socket.assigns.period,
+        window_size: window_size,
+        comparing_period: socket.assigns.comparing_period
+      })
+
+    parsed_data =
+      QueryData.refine_data_based_on_columns(
+        %{columns: columns, data: analyzed_data},
+        data_columns,
+        window_size
+      )
+
+    socket
+    |> assign(:query_result_by_columns, parsed_data)
+  end
+
+  defp update_columns(socket) do
+    rdb_form =
+      socket.assigns.rdb_form
+      |> Params.to_params(%{
+        "columns" => data_columns(socket.assigns.query_result)
+      })
+      |> RDBParamsOld.to_form()
+
+    socket
+    |> assign(:rdb_form, rdb_form)
+  end
+
   defp data_columns(%{columns: [_date_column | data_columns]} = _query_result) do
     data_columns
+  end
+
+  defp report_title(title, timezone) do
+    "📊 #{current_datetime!(timezone) |> DateHelper.safe_format_date()} - #{title}"
   end
 end
