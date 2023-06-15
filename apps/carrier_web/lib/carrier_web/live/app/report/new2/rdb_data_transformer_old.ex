@@ -48,15 +48,19 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
           <.card_title title="차트 설정하기" />
           <div>
             <.simple_form for={@rdb_form} phx-target={@myself} phx-change="validate_rdb">
-              <div>
-                <.input
-                  type="checkgroup"
-                  field={@rdb_form[:columns]}
-                  multiple={true}
-                  label="지표 선택"
-                  options={data_columns(@query_result)}
-                />
-              </div>
+              <.input
+                type="checkgroup"
+                field={@rdb_form[:columns]}
+                multiple={true}
+                label="지표 선택"
+                options={data_columns(@query_result)}
+              />
+              <.input
+                type="radio-group"
+                field={@rdb_form[:window_size]}
+                label="그래프 값 옵션"
+                options={[{"당일 지표", 1}, {"7일 이동합계", 7}]}
+              />
             </.simple_form>
           </div>
         </.card>
