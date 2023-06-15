@@ -27,8 +27,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
     socket =
       socket
       |> assign(assigns)
-      |> assign_query_result_by_columns()
       |> update_columns()
+      |> assign_query_result_by_columns()
 
     validate_and_send_data_source_info_form(socket)
 
@@ -84,7 +84,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
         </.card>
         <.card class="flex-1">
           <.card_title title="차트 미리보기" />
-          <div>
+          <div class="space-y-3">
             <div :for={column <- @rdb_form[:columns].value}>
               <section class="space-y-3 bg-slackImgLightGrey p-4">
                 <p class="font-bold text-base-dark text-sm">
@@ -199,6 +199,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
     socket
     |> assign(:query_result_by_columns, parsed_data)
+    |> add_draw_chart_events()
   end
 
   defp update_columns(socket) do
@@ -216,6 +217,16 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
     socket
     |> assign(:rdb_form, rdb_form)
+  end
+
+  defp add_draw_chart_events(socket) do
+    columns = socket.assigns.rdb_form[:columns].value
+
+    socket.assigns.query_result_by_columns
+    |> Enum.filter(fn {k, _v} -> k in columns end)
+    |> Enum.reduce(socket, fn {k, v}, acc ->
+      push_event(acc, "input_data_#{k}", v)
+    end)
   end
 
   defp data_columns(%{columns: [_date_column | data_columns]} = _query_result) do
