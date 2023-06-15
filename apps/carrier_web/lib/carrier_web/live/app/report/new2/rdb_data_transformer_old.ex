@@ -155,6 +155,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
       socket
       |> assign(:rdb_form, rdb_form)
 
+    validate_and_send_data_source_info_form(socket)
+
     {:noreply, socket}
   end
 
@@ -203,6 +205,11 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
     rdb_form =
       socket.assigns.rdb_form
       |> Params.to_params(%{
+        "data_source_id" => socket.assigns.data_source.id,
+        "source" => socket.assigns.data_source.source,
+        "sql_template" => socket.assigns.sql_template,
+        "period" => socket.assigns.period,
+        "comparing_period" => socket.assigns.comparing_period,
         "columns" => data_columns(socket.assigns.query_result)
       })
       |> RDBParamsOld.to_form()
