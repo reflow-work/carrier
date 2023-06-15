@@ -221,23 +221,14 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
-  def handle_info(
-        {:data_source_selected, %DataSource{source: source} = selected_data_source},
-        socket
-      ) do
+  def handle_info({:data_source_selected, selected_data_source}, socket) do
     socket =
       socket
       |> assign(:selected_data_source, selected_data_source)
-
-    socket =
-      case source do
-        :tableau ->
-          socket
-
-        _ ->
-          socket
-          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{selected_data_source}")
-      end
+      |> push_patch(
+        to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
+        replace: true
+      )
 
     {:noreply, socket}
   end

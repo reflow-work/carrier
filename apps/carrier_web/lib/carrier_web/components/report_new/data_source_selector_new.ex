@@ -48,19 +48,9 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
   @impl true
   def handle_event("select_data_source", %{"id" => data_source_id_str}, socket) do
     data_source_id = data_source_id_str |> String.to_integer()
-    data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
+    selected_data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
 
-    socket =
-      case data_source.source do
-        :tableau ->
-          socket
-          |> assign(:selected_data_source, data_source)
-          |> push_patch(to: ~p"/app/reports/new2?data_source_id=#{data_source}", replace: true)
-
-        _ ->
-          socket
-          |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{data_source}")
-      end
+    send(self(), {:data_source_selected, selected_data_source})
 
     {:noreply, socket}
   end
