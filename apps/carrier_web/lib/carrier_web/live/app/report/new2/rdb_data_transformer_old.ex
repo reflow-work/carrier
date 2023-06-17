@@ -5,7 +5,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
   alias CarrierWeb.App.ReportLive.New2.RDBQuerier
   alias CarrierWeb.Components.SlackImgMetaData
   alias Carrier.Data.QueryData
-  alias Carrier.Core.{TimezoneHelper, DateHelper}
+  alias Carrier.Data.Source.RDBOld
+  alias Carrier.Core.TimezoneHelper
   alias Doumi.Phoenix.Params
 
   @impl true
@@ -88,7 +89,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
             <div :for={column <- @rdb_form[:columns].value}>
               <section class="space-y-3 bg-slackImgLightGrey p-4">
                 <p class="font-bold text-base-dark text-sm">
-                  <%= report_title(column, @timezone) %>
+                  <%= RDBOld.title(column, @timezone) %>
                 </p>
                 <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
                   <section>
@@ -231,9 +232,5 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
   defp data_columns(%{columns: [_date_column | data_columns]} = _query_result) do
     data_columns
-  end
-
-  defp report_title(title, timezone) do
-    "📊 #{current_datetime!(timezone) |> DateHelper.safe_format_date()} - #{title}"
   end
 end

@@ -200,7 +200,12 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
     params =
       report
-      |> Map.merge(%{data_source_info: data_source_info, data_target_info: data_target_info})
+      |> Map.merge(%{
+        data_source_info: data_source_info,
+        data_target_info: data_target_info,
+        datetime: DateTime.utc_now(),
+        timezone: socket.assigns.timezone
+      })
 
     Async.run(fn ->
       with {:ok, threads} <- Data.prepare_threads(params),

@@ -11,12 +11,12 @@ defmodule Carrier.Data.Source do
 
   use Carrier.Integrations
   import Carrier.Data.Source.RDB.Guard
-  alias __MODULE__.{RDB, Tableau}
+  alias __MODULE__.{RDB, Tableau, RDBOld}
 
   defmacro __using__([]) do
     quote do
       alias unquote(__MODULE__)
-      alias unquote(__MODULE__).{RDB, Tableau}
+      alias unquote(__MODULE__).{RDB, Tableau, RDBOld}
     end
   end
 
@@ -50,7 +50,7 @@ defmodule Carrier.Data.Source do
 
   defp source_to_module(source) do
     case source do
-      source when is_rdb_source(source) -> RDB
+      source when is_rdb_source(source) -> RDBOld
       :tableau -> Tableau
     end
   end
