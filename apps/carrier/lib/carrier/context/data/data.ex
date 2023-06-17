@@ -16,11 +16,11 @@ defmodule Carrier.Data do
     end
   end
 
-  def prepare_threads(%{data_source_id: data_source_id, params: params}) do
+  def prepare_threads(%{data_source_info: %{data_source_id: data_source_id}} = params) do
     with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
-         {:ok, raw_data} <- Source.load_raw_data(data_source, params),
-         {:ok, transformed_data} <- Source.transform_data(data_source, raw_data),
-         {:ok, threads} <- Source.data_to_threads(data_source, transformed_data) do
+         {:ok, raw_data} <- Source.load_raw_data(params, data_source),
+         {:ok, transformed_data} <- Source.transform_data(params, data_source, raw_data),
+         {:ok, threads} <- Source.data_to_threads(params, data_source, transformed_data) do
       {:ok, threads}
     end
   end

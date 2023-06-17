@@ -16,8 +16,8 @@ defmodule Carrier.Reports.Report do
     field :trigger_weekday, :integer
     field :timezone, :string
 
-    embeds_one :data_target_info, DataTargetInfo, on_replace: :delete
     field :data_source_info, :map
+    embeds_one :data_target_info, DataTargetInfo, on_replace: :delete
 
     field :deleted_at, :utc_datetime_usec
 

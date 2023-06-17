@@ -86,7 +86,10 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def load_raw_data(%DataSource{source: :tableau} = data_source, %{views: views}) do
+  def load_raw_data(
+        %{data_source_info: %{params: %{views: views}}},
+        %DataSource{source: :tableau} = data_source
+      ) do
     with %{host: host, site: site} = credentials = DataSource.to_credentials(data_source),
          {:ok, auth} <- signin(credentials),
          view_ids = views |> Enum.map(& &1.id),
@@ -109,7 +112,7 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def transform_data(%DataSource{source: :tableau, org_id: org_id}, %{views: views}) do
+  def transform_data(_params, %DataSource{source: :tableau, org_id: org_id}, %{views: views}) do
     [views, pdf_binaries] =
       views
       |> Enum.map(fn view ->
@@ -137,7 +140,7 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def data_to_threads(%DataSource{source: :tableau}, %{views: views, pdf_url: pdf_url}) do
+  def data_to_threads(_params, %DataSource{source: :tableau}, %{views: views, pdf_url: pdf_url}) do
     threads =
       views
       |> Enum.map(fn %{

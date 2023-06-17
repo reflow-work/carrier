@@ -198,8 +198,12 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_info = socket.assigns.data_source_info_form |> Params.to_map()
     data_target_info = socket.assigns.data_target_info_form |> Params.to_map()
 
+    params =
+      report
+      |> Map.merge(%{data_source_info: data_source_info, data_target_info: data_target_info})
+
     Async.run(fn ->
-      with {:ok, threads} <- Data.prepare_threads(data_source_info),
+      with {:ok, threads} <- Data.prepare_threads(params),
            :ok <- Data.send_messages(report, threads, data_target_info) do
         :ok
       else

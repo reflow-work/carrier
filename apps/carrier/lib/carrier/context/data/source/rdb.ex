@@ -48,8 +48,8 @@ defmodule Carrier.Data.Source.RDB do
 
   @impl true
   def load_raw_data(
-        %DataSource{source: source} = data_source,
-        %{sql_template: sql_template} = params
+        %{data_source_info: %{params: %{sql_template: sql_template} = params}},
+        %DataSource{source: source} = data_source
       ) do
     {query_start_date, query_end_date} = calc_query_start_end_date(params)
     query_params = %{"start" => query_start_date, "end" => query_end_date}

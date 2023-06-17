@@ -70,12 +70,11 @@ defmodule Carrier.Works.ReportJob do
 
   def send_tableau_report(
         %Report{
-          data_source_info: data_source_info,
           data_target_info: data_target_info
         } = report,
         report_log
       ) do
-    with {:ok, threads} <- Data.prepare_threads(data_source_info),
+    with {:ok, threads} <- Data.prepare_threads(report),
          {:ok, %ReportLog{} = _updated_report_log} <-
            Reports.update_report_log(report_log, %{payload: threads}),
          :ok <- Data.send_messages(report, threads, data_target_info) do
