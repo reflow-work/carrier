@@ -23,6 +23,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
     {:ok, socket}
   end
 
+  # update from RDBQuerier
   @impl true
   def update(%{sql_template: _sql_template, query_result: _query_result} = assigns, socket) do
     socket =
@@ -38,10 +39,20 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
   # init
   @impl true
-  def update(assigns, socket) do
+  def update(%{data_source_info: data_source_info} = assigns, socket) do
     socket =
       socket
       |> assign(assigns)
+
+    socket =
+      case data_source_info do
+        nil ->
+          socket
+
+        %{sql_template: sql_template} ->
+          socket
+          |> assign(:sql_template, sql_template)
+      end
 
     validate_and_send_data_source_info_form(socket)
 
@@ -56,6 +67,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
         module={RDBQuerier}
         id="rdb_querier"
         data_source={@data_source}
+        sql_template={@sql_template}
         onchange={
           fn sql_template, query_result ->
             send_update(__MODULE__, id: @id, sql_template: sql_template, query_result: query_result)
