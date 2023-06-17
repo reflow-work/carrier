@@ -97,61 +97,47 @@ defmodule Carrier.Data.Source.Tableau do
          {:ok, view_image_binaries} <- view_ids |> do_list_view_image_binaries_async(auth),
          {:ok, view_pdf_binaries} <- view_ids |> do_list_view_pdf_binaries_async(auth) do
       views =
-        [views, view_image_binaries, view_pdf_binaries]
-        |> Enum.zip_with(fn [view, view_image_binary, view_pdf_binary] ->
-          view
-          |> Map.merge(%{
-            view_url: View.view_url(view, host, site),
-            image_binary: view_image_binary,
-            pdf_binary: view_pdf_binary
-          })
-        end)
+        views
+        |> Enum.map(&(&1 |> Map.put(:view_url, View.view_url(&1, host, site))))
 
-      {:ok, %{views: views}}
+      {:ok,
+       %{
+         views: views,
+         view_image_binaries: view_image_binaries,
+         view_pdf_binaries: view_pdf_binaries
+       }}
     end
   end
 
   @impl true
-  def transform_data(_params, %DataSource{source: :tableau, org_id: org_id}, %{views: views}) do
-    [views, pdf_binaries] =
-      views
-      |> Enum.map(fn view ->
-        {pdf_binary, view} = view |> Map.pop(:pdf_binary)
-
-        [view, pdf_binary]
-      end)
-      |> Enum.zip_with(& &1)
-
+  def transform_data(%{org_id: org_id}, %DataSource{source: :tableau}, %{
+        views: views,
+        view_image_binaries: view_image_binaries,
+        view_pdf_binaries: view_pdf_binaries
+      }) do
     with {:ok, view_image_urls} <-
-           views
-           |> Async.map(fn %{image_binary: image_binary} ->
-             Uploader.upload(:report_storage, org_id, image_binary, :png)
-           end)
+           view_image_binaries
+           |> Async.map(&Uploader.upload(:report_storage, org_id, &1, :png))
            |> Async.unwrap_map_ok_results(),
-         merged_pdf_binary = merge_pdf_binaries(pdf_binaries),
+         merged_pdf_binary = merge_pdf_binaries(view_pdf_binaries),
          {:ok, pdf_url} <- Uploader.upload(:report_storage, org_id, merged_pdf_binary, :pdf) do
-      views =
-        Enum.zip_with(views, view_image_urls, fn view, view_image_url ->
-          view |> Map.put(:image_url, view_image_url)
-        end)
-
-      {:ok, %{views: views, pdf_url: pdf_url}}
+      {:ok, %{views: views, view_image_urls: view_image_urls, pdf_url: pdf_url}}
     end
   end
 
   @impl true
-  def data_to_threads(_params, %DataSource{source: :tableau}, %{views: views, pdf_url: pdf_url}) do
+  def data_to_threads(_params, %DataSource{source: :tableau}, %{
+        views: views,
+        view_image_urls: view_image_urls,
+        pdf_url: pdf_url
+      }) do
     threads =
-      views
-      |> Enum.map(fn %{
-                       full_name: full_name,
-                       view_url: view_url,
-                       image_url: image_url
-                     } ->
+      [views, view_image_urls]
+      |> Enum.zip_with(fn [%{full_name: full_name, view_url: view_url}, view_image_url] ->
         [
           Block.link(full_name, view_url),
-          Block.image(full_name, image_url, full_name),
-          Block.button("Open Original Image", image_url)
+          Block.image(full_name, view_image_url, full_name),
+          Block.button("Open Original Image", view_image_url)
         ]
       end)
 
