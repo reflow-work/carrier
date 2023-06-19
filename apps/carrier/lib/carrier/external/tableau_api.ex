@@ -152,7 +152,7 @@ defmodule Carrier.External.TableauAPI do
            {:ok, %{status: 200}} -> false
            _ -> true
          end},
-        {Tesla.Middleware.Timeout, timeout: :timer.minutes(1)}
+        {Tesla.Middleware.Timeout, timeout: :timer.minutes(5)}
       ]
       |> then(fn middlewares ->
         case token do
