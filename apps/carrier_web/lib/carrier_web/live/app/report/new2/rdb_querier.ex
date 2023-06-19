@@ -1,6 +1,7 @@
 defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   use CarrierWeb, :live_component
   use Carrier.Data
+  alias CarrierWeb.App.ReportLive.New2.RDBQueryMaker
   alias CarrierWeb.Components.QueryChecker
   alias Carrier.Core.TimezoneHelper
 
@@ -61,7 +62,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
               <p class="mt-2">☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.</p>
             </div>
             <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
-              <.button type="button" phx-click={show_modal("query_maker")}>
+              <.button type="button" phx-click={show_modal("query_maker_modal")}>
                 <Icon.package class="inline-block w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
               </.button>
             </div>
@@ -134,8 +135,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
         </.card>
       </.card_container>
 
-      <.modal id="query_maker">
-        hi
+      <.modal id="query_maker_modal">
+        <.live_component module={RDBQueryMaker} id="query_maker" />
       </.modal>
     </div>
     """
