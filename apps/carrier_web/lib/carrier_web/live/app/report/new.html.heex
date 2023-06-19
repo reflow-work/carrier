@@ -433,7 +433,7 @@
                     <button
                       class="btn btn-outline"
                       type="button"
-                      phx-click={show_modal("send-preview")}
+                      phx-click={CarrierWeb.LiveHelpers.show_modal("send-preview")}
                       disabled={!@data_loaded}
                     >
                       테스트 발송
@@ -559,7 +559,7 @@
                 <button
                   class="btn btn-outline"
                   type="button"
-                  phx-click={show_modal("send-preview")}
+                  phx-click={CarrierWeb.LiveHelpers.show_modal("send-preview")}
                   disabled={!@data_loaded}
                 >
                   테스트 발송
@@ -577,7 +577,7 @@
   </section>
 </section>
 
-<.modal id="send-preview">
+<CarrierWeb.LiveHelpers.modal id="send-preview">
   <div>
     <h3 class="font-bold text-lg">테스트 발송</h3>
     <.form
@@ -598,10 +598,10 @@
       </div>
     </.form>
   </div>
-</.modal>
+</CarrierWeb.LiveHelpers.modal>
 
 <%= if @data_source.source in [:postgres, :mysql, :bigquery, :athena] do %>
-  <.modal id="query-maker">
+  <CarrierWeb.LiveHelpers.modal id="query-maker">
     <div class="mt-6">
       <.form
         :let={f}
@@ -678,5 +678,5 @@
         </div>
       </.form>
     </div>
-  </.modal>
+  </CarrierWeb.LiveHelpers.modal>
 <% end %>

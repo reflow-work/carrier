@@ -19,7 +19,7 @@ defmodule CarrierWeb.App.DataSourceLive.New do
 
       <.card_container>
         <.card>
-          <div class="flex space-x-6">
+          <div class="flex space-x-6 mb-6">
             <div class="flex items-center">
               <div class="circle gray mr-2">
                 1
