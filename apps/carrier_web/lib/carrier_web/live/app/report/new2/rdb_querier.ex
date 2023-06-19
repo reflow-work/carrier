@@ -17,7 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
     SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
   FROM [테이블 이름]
     WHERE DATE([기준이 되는 날짜 컬럼]) >= {{start}}
-    AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
+      AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
     GROUP BY 1
   """
 
@@ -25,12 +25,23 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   def mount(socket) do
     socket =
       socket
+      |> assign(:data_source, nil)
       |> assign(:sql_template, nil)
       |> assign(:query_errors, [])
       |> assign(:query_result, nil)
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:timezone, TimezoneHelper.get_timezone())
       |> assign(:sample_sql_template, @sample_sql_template)
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{message: {:sql_template_updated, sql_template}}, socket) do
+    socket =
+      socket
+      |> assign(:sql_template, sql_template)
+      |> hide_modal_from_server("query_maker_modal")
 
     {:ok, socket}
   end
@@ -136,7 +147,16 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
       </.card_container>
 
       <.modal id="query_maker_modal">
-        <.live_component module={RDBQueryMaker} id="query_maker" />
+        <.live_component
+          module={RDBQueryMaker}
+          id="query_maker"
+          data_source={@data_source}
+          onsuccess={
+            fn sql_template ->
+              send_update(__MODULE__, id: @id, message: {:sql_template_updated, sql_template})
+            end
+          }
+        />
       </.modal>
     </div>
     """
