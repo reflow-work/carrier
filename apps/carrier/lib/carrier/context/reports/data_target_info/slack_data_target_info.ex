@@ -15,8 +15,18 @@ defmodule Carrier.Reports.DataTargetInfo.SlackDataTargetInfo do
     |> validate_required(@required)
   end
 
-  def to_string(%__MODULE__{channel_name: channel_name}) do
-    "# #{channel_name}"
+  # TODO: duplicated with Data.Slack.Channel.to_string/1
+  def to_string(%__MODULE__{channel_name: channel_name, channel_type: channel_type}) do
+    prefix =
+      case channel_type do
+        :public_channel -> "#"
+        :private_channel -> "🔒"
+        :direct_message -> "@"
+        # fallback
+        _ -> "#"
+      end
+
+    prefix <> channel_name
   end
 
   def to_params(params) do
