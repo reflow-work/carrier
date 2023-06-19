@@ -98,7 +98,8 @@ config :carrier_worker, Oban,
 
 config :carrier, Carrier.Vault, json_library: Jason
 
-config :tesla, adapter: {Tesla.Adapter.Finch, name: Carrier.Finch}
+config :tesla,
+  adapter: {Tesla.Adapter.Finch, name: Carrier.Finch, receive_timeout: :timer.minutes(5)}
 
 config :tailwind,
   version: "3.1.5",
