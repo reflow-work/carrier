@@ -128,10 +128,11 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
       target: :slack,
       params:
         socket.assigns.selected_channel
-        |> Nillable.map(fn %{id: id, name: name} ->
+        |> Nillable.map(fn %{id: id, name: name, type: type} ->
           %{
             channel_id: id,
-            channel_name: name
+            channel_name: name,
+            channel_type: type
           }
         end)
     }

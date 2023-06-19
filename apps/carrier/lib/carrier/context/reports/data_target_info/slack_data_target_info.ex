@@ -5,9 +5,10 @@ defmodule Carrier.Reports.DataTargetInfo.SlackDataTargetInfo do
   embedded_schema do
     field :channel_id, :string
     field :channel_name, :string
+    field :channel_type, Ecto.Enum, values: [:public_channel, :private_channel, :direct_message]
   end
 
-  @required [:channel_id, :channel_name]
+  @required [:channel_id, :channel_name, :channel_type]
   def changeset(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required)
