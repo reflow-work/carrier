@@ -12,11 +12,26 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   def mount(socket) do
     socket =
       socket
-      |> assign(:sql_template, "")
+      |> assign(:sql_template, nil)
       |> assign(:query_errors, [])
       |> assign(:query_result, nil)
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:timezone, TimezoneHelper.get_timezone())
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(assigns, socket) do
+    socket =
+      socket
+      |> assign(assigns)
+
+    socket =
+      case socket.assigns.sql_template do
+        nil -> socket
+        _sql_template -> socket |> run_query()
+      end
 
     {:ok, socket}
   end
@@ -117,34 +132,38 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   @impl true
   def handle_event("run_query", %{"sql_template" => sql_template}, socket) do
     socket =
-      Source.RDBOld.load_raw_data(
-        %{
-          data_source_info: %{
-            params: %{
-              sql_template: sql_template,
-              period: @max_period_days,
-              window_size: @max_window_days,
-              comparing_period: @max_over_days
-            }
-          },
-          datetime: DateTime.utc_now(),
-          timezone: socket.assigns.timezone
-        },
-        socket.assigns.data_source
-      )
-      |> case do
-        {:ok, query_result} ->
-          socket.assigns.onchange.(sql_template, query_result)
-
-          socket
-          |> assign(:query_result, query_result)
-
-        {:error, reason} ->
-          socket
-          |> assign(:query_errors, [reason])
-      end
+      socket
+      |> assign(:sql_template, sql_template)
+      |> run_query()
 
     {:noreply, socket}
+  end
+
+  defp run_query(socket) do
+    Source.RDBOld.load_raw_data(
+      %{
+        data_source_info: %{
+          sql_template: socket.assigns.sql_template,
+          period: @max_period_days,
+          window_size: @max_window_days,
+          comparing_period: @max_over_days
+        },
+        datetime: DateTime.utc_now(),
+        timezone: socket.assigns.timezone
+      },
+      socket.assigns.data_source
+    )
+    |> case do
+      {:ok, query_result} ->
+        socket.assigns.onchange.(socket.assigns.sql_template, query_result)
+
+        socket
+        |> assign(:query_result, query_result)
+
+      {:error, reason} ->
+        socket
+        |> assign(:query_errors, [reason])
+    end
   end
 
   defp run_query_disabled?(sql_template, query_validations) do

@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
   alias Carrier.Billing
+  alias Carrier.Setting
   alias Carrier.Core.{WeekdayHelper, TimeHelper}
   alias Carrier.Roles.Role
 
@@ -139,9 +140,15 @@ defmodule CarrierWeb.App.ReportLive.Index do
   end
 
   defp edit_path(report) do
-    case report.data_source_info.source do
-      :tableau -> ~p"/app/reports/#{report}/edit2"
-      _ -> ~p"/app/reports/#{report}/edit"
+    case Setting.get_feature_flag_value("report_refactoring") do
+      true ->
+        ~p"/app/reports/#{report}/edit2"
+
+      false ->
+        case report.data_source_info.source do
+          :tableau -> ~p"/app/reports/#{report}/edit2"
+          _ -> ~p"/app/reports/#{report}/edit"
+        end
     end
   end
 
