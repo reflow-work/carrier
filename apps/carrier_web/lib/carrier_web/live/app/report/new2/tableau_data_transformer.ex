@@ -27,12 +27,9 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       |> assign_async(
         :views,
         fn ->
-          {:ok, tableau_views} =
-            data_source
-            |> DataSource.to_credentials()
-            |> Tableau.list_views()
-
-          tableau_views
+          data_source
+          |> DataSource.to_credentials()
+          |> Tableau.list_views()
         end,
         __MODULE__
       )
@@ -104,7 +101,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           <div class="max-w-md">
             <.loading :if={@views.loading?} />
             <.live_component
-              :if={!@views.loading?}
+              :if={@views.valid?}
               module={Search}
               id="tableau_view_selector"
               placeholder="View 이름으로 검색해주세요"
@@ -119,6 +116,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
                 end
               }
             />
+            <.error :if={@views.error}><%= @views.error %></.error>
           </div>
         </.card>
         <.card>

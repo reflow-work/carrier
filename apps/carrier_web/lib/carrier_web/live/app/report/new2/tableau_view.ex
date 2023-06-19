@@ -26,14 +26,11 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
         |> assign_async(
           :image_binary,
           fn ->
-            {:ok, image_binary} =
-              Tableau.get_view_preview_image_binary(
-                workbook_id,
-                view_id,
-                DataSource.to_credentials(data_source)
-              )
-
-            image_binary
+            Tableau.get_view_preview_image_binary(
+              workbook_id,
+              view_id,
+              DataSource.to_credentials(data_source)
+            )
           end,
           __MODULE__
         )
@@ -57,9 +54,10 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
     <div>
       <p><%= @view.name %></p>
       <.loading :if={@image_binary.loading?} />
-      <div :if={!@image_binary.loading?} class="max-h-40 max-w-md overflow-hidden border rounded mt-2">
+      <div :if={@image_binary.valid?} class="max-h-40 max-w-md overflow-hidden border rounded mt-2">
         <img src={"data:image/png;base64,#{@image_binary.value |> Base.encode64()}"} />
       </div>
+      <.error :if={@image_binary.error}><%= @image_binary.error %></.error>
     </div>
     """
   end
