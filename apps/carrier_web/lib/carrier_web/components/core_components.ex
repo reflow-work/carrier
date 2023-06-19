@@ -49,6 +49,7 @@ defmodule CarrierWeb.CoreComponents do
       phx-mounted={@show && show_modal(@id)}
       phx-remove={hide_modal(@id)}
       data-cancel={JS.exec(@on_cancel, "phx-remove")}
+      data-close={JS.exec("phx-remove")}
       class="relative z-50 hidden"
     >
       <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
@@ -830,7 +831,7 @@ defmodule CarrierWeb.CoreComponents do
 
   def hide_modal_from_server(socket, modal_id) do
     socket
-    |> Phoenix.LiveView.push_event("js-exec", %{to: modal_id, attr: "data-cancel"})
+    |> Phoenix.LiveView.push_event("js-exec", %{to: "##{modal_id}", attr: "data-close"})
   end
 
   @doc """
