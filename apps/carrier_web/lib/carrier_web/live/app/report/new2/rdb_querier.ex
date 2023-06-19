@@ -55,9 +55,16 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
     <div>
       <.card_container>
         <.card class="z-10">
-          <div>
-            <.card_title title="쿼리 입력하기" />
-            <p class="mt-2">☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.</p>
+          <div class="flex justify-between">
+            <div>
+              <.card_title title="쿼리 입력하기" />
+              <p class="mt-2">☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.</p>
+            </div>
+            <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
+              <.button type="button">
+                <Icon.package class="inline-block w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
+              </.button>
+            </div>
           </div>
           <div>
             <.simple_form
