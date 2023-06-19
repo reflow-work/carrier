@@ -128,10 +128,11 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
       target: :slack,
       params:
         socket.assigns.selected_channel
-        |> Nillable.map(fn %{id: id, name: name} ->
+        |> Nillable.map(fn %{id: id, name: name, type: type} ->
           %{
             channel_id: id,
-            channel_name: name
+            channel_name: name,
+            channel_type: type
           }
         end)
     }
@@ -143,15 +144,8 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
 
   defp channels_to_options(channels) do
     channels
-    |> Enum.map(fn %Slack.Channel{id: id, name: name, type: type} ->
-      prefix =
-        case type do
-          :public_channel -> "#"
-          :private_channel -> "🔒"
-          :direct_message -> "@"
-        end
-
-      {"#{prefix}#{name}", id}
+    |> Enum.map(fn %Slack.Channel{id: id} = channel ->
+      {Slack.Channel.to_string(channel), id}
     end)
   end
 end

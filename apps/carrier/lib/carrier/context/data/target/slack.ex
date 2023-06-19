@@ -145,6 +145,18 @@ defmodule Carrier.Data.Target.Slack do
     def from(%Carrier.Data.Target.Slack.User{id: user_id, name: name, type: :user}) do
       %__MODULE__{id: user_id, name: name, user_id: user_id, type: :direct_message}
     end
+
+    def to_string(%__MODULE__{name: name, type: type}) do
+      prefix =
+        case type do
+          :public_channel -> "#"
+          :private_channel -> "🔒"
+          :direct_message -> "@"
+          :im -> "@"
+        end
+
+      prefix <> name
+    end
   end
 
   defmodule Pagination do
