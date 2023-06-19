@@ -8,6 +8,18 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   @max_over_days 28
   @max_window_days 7
 
+  @sample_sql_template """
+  SELECT
+    DATE([기준이 되는 날짜 컬럼]),
+    SUM([보고 싶은 지표 컬럼1]) AS [컬럼1 이름],
+    SUM([보고 싶은 지표 컬럼2]) AS [컬럼2 이름],
+    SUM([보고 싶은 지표 컬럼3]) AS [컬럼3 이름]
+  FROM [테이블 이름]
+    WHERE DATE([기준이 되는 날짜 컬럼]) >= {{start}}
+    AND DATE([기준이 되는 날짜 컬럼]) < {{end}}
+    GROUP BY 1
+  """
+
   @impl true
   def mount(socket) do
     socket =
@@ -17,6 +29,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
       |> assign(:query_result, nil)
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:timezone, TimezoneHelper.get_timezone())
+      |> assign(:sample_sql_template, @sample_sql_template)
 
     {:ok, socket}
   end
@@ -61,6 +74,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                     class="h-full"
                     input_class="mt-0"
                     value={@sql_template}
+                    placeholder={@sample_sql_template}
                     errors={@query_errors}
                   />
                 </div>
