@@ -16,8 +16,11 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
       %DataSource{source: source} ->
         module =
           case source do
-            source when is_rdb_source(source) -> CarrierWeb.App.ReportLive.New2.RDBDataTransformer
-            :tableau -> CarrierWeb.App.ReportLive.New2.TableauDataTransformer
+            source when is_rdb_source(source) ->
+              CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld
+
+            :tableau ->
+              CarrierWeb.App.ReportLive.New2.TableauDataTransformer
           end
 
         assigns =

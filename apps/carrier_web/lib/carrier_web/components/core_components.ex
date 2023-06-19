@@ -257,7 +257,8 @@ defmodule CarrierWeb.CoreComponents do
 
   attr :type, :string,
     default: "text",
-    values: ~w(checkbox color date datetime-local email file hidden month number password
+    values:
+      ~w(checkbox checkgroup color date datetime-local email file hidden month number password
                range radio radio-group search select tel text textarea time url week)
 
   attr :field, Phoenix.HTML.FormField,
@@ -314,6 +315,59 @@ defmodule CarrierWeb.CoreComponents do
         <% end %>
       </label>
       <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  # https://fly.io/phoenix-files/making-a-checkboxgroup-input/
+  def input(%{type: "checkgroup"} = assigns) do
+    assigns =
+      assigns
+      |> update(
+        :options,
+        &(&1
+          |> Enum.map(fn
+            {label, value} -> {label, value}
+            value -> {value, value}
+          end))
+      )
+
+    ~H"""
+    <div
+      class={[
+        @label_align == :top && nil,
+        @label_align == :left && "flex items-center gap-2",
+        @class
+      ]}
+      phx-feedback-for={@name}
+    >
+      <%= if slot_exist?(@label_element) do %>
+        <.label for={@id} align={@label_align}><%= render_slot(@label_element) %></.label>
+      <% else %>
+        <.label for={@id} align={@label_align}><%= @label %></.label>
+      <% end %>
+      <div class={[
+        @label && @label_align == :top && "mt-1 w-full",
+        @label && @label_align == :left && "flex-1"
+      ]}>
+        <input type="hidden" name={@name} value="" />
+        <label
+          :for={{label, value} <- @options}
+          class="flex items-center gap-2 text-sm leading-6 text-zinc-600"
+        >
+          <input
+            type="checkbox"
+            id={"#{@name}-#{value}"}
+            name={@name}
+            value={value}
+            checked={value in @value}
+            class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+            {@rest}
+          />
+          <.label for={@id}><%= label %></.label>
+        </label>
+        <.error :for={msg <- @errors}><%= msg %></.error>
+      </div>
     </div>
     """
   end
