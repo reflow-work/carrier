@@ -198,8 +198,17 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     data_source_info = socket.assigns.data_source_info_form |> Params.to_map()
     data_target_info = socket.assigns.data_target_info_form |> Params.to_map()
 
+    params =
+      report
+      |> Map.merge(%{
+        data_source_info: data_source_info,
+        data_target_info: data_target_info,
+        datetime: DateTime.utc_now(),
+        timezone: socket.assigns.timezone
+      })
+
     Async.run(fn ->
-      with {:ok, threads} <- Data.prepare_threads(data_source_info),
+      with {:ok, threads} <- Data.prepare_threads(params),
            :ok <- Data.send_messages(report, threads, data_target_info) do
         :ok
       else
@@ -227,27 +236,35 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:selected_data_source, selected_data_source)
 
     socket =
-      case Setting.get_feature_flag_value("report_refactoring") do
-        true ->
-          socket
-          |> push_patch(
-            to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
-            replace: true
-          )
-
-        false ->
-          case selected_data_source.source do
-            :tableau ->
+      case socket.assigns.live_action do
+        :new ->
+          case Setting.get_feature_flag_value("report_refactoring") do
+            true ->
               socket
               |> push_patch(
                 to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
                 replace: true
               )
 
-            _ ->
-              socket
-              |> push_navigate(to: ~p"/app/reports/new?data_source_id=#{selected_data_source}")
+            false ->
+              case selected_data_source.source do
+                :tableau ->
+                  socket
+                  |> push_patch(
+                    to: ~p"/app/reports/new2?data_source_id=#{selected_data_source}",
+                    replace: true
+                  )
+
+                _ ->
+                  socket
+                  |> push_navigate(
+                    to: ~p"/app/reports/new?data_source_id=#{selected_data_source}"
+                  )
+              end
           end
+
+        :edit ->
+          socket
       end
 
     {:noreply, socket}

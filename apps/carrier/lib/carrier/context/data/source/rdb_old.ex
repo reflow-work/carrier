@@ -1,4 +1,4 @@
-defmodule Carrier.Data.Source.RDB do
+defmodule Carrier.Data.Source.RDBOld do
   # required
   @callback validation_query() :: String.t()
   @callback param(n :: integer()) :: String.t()
@@ -30,6 +30,10 @@ defmodule Carrier.Data.Source.RDB do
   @behaviour Carrier.Data.Source
 
   use Carrier.Integrations
+  alias Carrier.Data.QueryData
+  alias Carrier.Data.Block
+  alias Carrier.Reports.ImageGenerator
+  alias Carrier.Core.{Crypto, DateHelper}
 
   @impl true
   def validate_conn(source, credentials, opts) do
@@ -48,10 +52,27 @@ defmodule Carrier.Data.Source.RDB do
 
   @impl true
   def load_raw_data(
-        %{data_source_info: %{params: %{sql_template: sql_template} = params}},
+        %{
+          data_source_info: %{
+            sql_template: sql_template,
+            period: period,
+            window_size: window_size,
+            comparing_period: comparing_period
+          },
+          datetime: utc_datetime,
+          timezone: timezone
+        },
         %DataSource{source: source} = data_source
       ) do
-    {query_start_date, query_end_date} = calc_query_start_end_date(params)
+    {query_start_date, query_end_date} =
+      calc_query_start_end_date(%{
+        datetime: utc_datetime,
+        timezone: timezone,
+        period: period,
+        window_size: window_size,
+        comparing_period: comparing_period
+      })
+
     query_params = %{"start" => query_start_date, "end" => query_end_date}
 
     credentials = DataSource.to_credentials(data_source)
@@ -69,19 +90,85 @@ defmodule Carrier.Data.Source.RDB do
     end
   end
 
+  @impl true
+  def transform_data(
+        %{
+          org_id: org_id,
+          data_source_info: %{
+            period: period,
+            window_size: window_size,
+            comparing_period: comparing_period,
+            columns: selected_columns
+          }
+        },
+        _data_source,
+        %{columns: columns, data: data}
+      ) do
+    {:ok, analyzed_data} =
+      QueryData.analyze(data, %{
+        columns: columns,
+        period: period,
+        window_size: window_size,
+        comparing_period: comparing_period
+      })
+
+    parsed_data =
+      QueryData.refine_data_based_on_columns(
+        %{columns: columns, data: analyzed_data},
+        selected_columns,
+        window_size
+      )
+
+    fake_report_id = Crypto.random_string(8)
+
+    with {:ok, %{image_urls: image_urls}} <-
+           ImageGenerator.gen_chart_images(%{
+             org_id: org_id,
+             report_id: fake_report_id,
+             data: parsed_data
+           }) do
+      {:ok, %{image_urls: image_urls}}
+    end
+  end
+
+  @impl true
+  def data_to_threads(
+        %{
+          data_source_info: %{
+            columns: selected_columns
+          },
+          timezone: timezone
+        },
+        _data_source,
+        %{image_urls: image_urls}
+      ) do
+    threads =
+      selected_columns
+      |> Enum.map(fn column ->
+        image_url = image_urls |> Map.get(column)
+
+        [
+          Block.text(title(column, timezone)),
+          Block.image(column, image_url, column)
+        ]
+      end)
+
+    {:ok, threads}
+  end
+
   defp calc_query_start_end_date(%{
          datetime: utc_datetime,
          timezone: timezone,
-         period_days: period_days,
-         over_days: over_days,
-         window_days: window_days
+         period: period,
+         comparing_period: comparing_period,
+         window_size: window_size
        }) do
     query_end_date =
       utc_datetime
       |> DateTime.shift_zone!(timezone)
       |> DateTime.to_date()
 
-    query_start_date = query_end_date |> Date.add(-(period_days + over_days + window_days + 1))
+    query_start_date = query_end_date |> Date.add(-(period + comparing_period + window_size + 1))
 
     {query_start_date, query_end_date}
   end
@@ -185,6 +272,10 @@ defmodule Carrier.Data.Source.RDB do
     end)
   end
 
+  def title(column, timezone) do
+    "📊 #{DateTime.now!(timezone) |> DateHelper.safe_format_date()} - #{column}"
+  end
+
   require Logger
   alias Carrier.Core.DataHelper
 
@@ -194,10 +285,10 @@ defmodule Carrier.Data.Source.RDB do
 
   def get_module(source) do
     case source do
-      :postgres -> __MODULE__.Postgres
-      :mysql -> __MODULE__.MySQL
-      :bigquery -> __MODULE__.BigQuery
-      :athena -> __MODULE__.Athena
+      :postgres -> Carrier.Data.Source.RDB.Postgres
+      :mysql -> Carrier.Data.Source.RDB.MySQL
+      :bigquery -> Carrier.Data.Source.RDB.BigQuery
+      :athena -> Carrier.Data.Source.RDB.Athena
     end
   end
 

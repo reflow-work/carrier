@@ -4,14 +4,9 @@ defmodule Carrier.Works.ReportJob do
     priority: 2,
     max_attempts: 2
 
-  use Carrier.{Reports, Integrations, Data}
-  import Carrier.Data.Source.RDB.Guard
+  use Carrier.{Reports, Data}
   require Logger
   alias Carrier.TenantRepo
-  alias Carrier.External.SlackAPI
-  alias Carrier.Core.{DateHelper, Traversable}
-
-  @query_date_length 28 + 7 + 28 + 1
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -25,14 +20,7 @@ defmodule Carrier.Works.ReportJob do
     with {:ok, %ReportLog{} = report_log} <-
            Reports.record_tried_report_log(%{report_id: report_id}),
          {:ok, %Report{} = report} <- Reports.fetch_report(report_id),
-         :ok <-
-           (case report.data_source_info.source do
-              :tableau ->
-                send_tableau_report(report, report_log)
-
-              _ ->
-                send_rdb_report(report, datetime, report_log)
-            end),
+         :ok <- send_report(report, datetime, report_log),
          {:ok, _report_log} <- Reports.record_succeeded_report_log(%{report_id: report_id}),
          {:ok, _next_job} <- Reports.create_job_from_report(report, datetime) do
       :ok
@@ -59,147 +47,16 @@ defmodule Carrier.Works.ReportJob do
   @impl Oban.Worker
   def timeout(_job), do: :timer.minutes(3)
 
-  def send_rdb_report(%Report{} = report, datetime, report_log) do
-    with {:ok, slack_args} <- generate_slack_args(%{report: report, datetime: datetime}),
-         {:ok, %ReportLog{} = _updated_report_log} <-
-           Reports.update_report_log(report_log, %{payload: slack_args}),
-         {:ok, _result} <- send_report(%{report: report, slack_args: slack_args}) do
-      :ok
-    end
-  end
-
-  def send_tableau_report(
-        %Report{
-          data_source_info: data_source_info,
-          data_target_info: data_target_info
-        } = report,
-        report_log
-      ) do
-    with {:ok, threads} <- Data.prepare_threads(data_source_info),
+  defp send_report(
+         %Report{data_target_info: data_target_info} = report,
+         datetime,
+         report_log
+       ) do
+    with {:ok, threads} <- Data.prepare_threads(report |> Map.put(:datetime, datetime)),
          {:ok, %ReportLog{} = _updated_report_log} <-
            Reports.update_report_log(report_log, %{payload: threads}),
          :ok <- Data.send_messages(report, threads, data_target_info) do
       :ok
     end
-  end
-
-  defp generate_slack_args(%{
-         report: %Report{
-           id: report_id,
-           org_id: org_id,
-           timezone: timezone,
-           data_source_info: %{
-             data_source_id: data_source_id,
-             source: source,
-             sql_template: sql_template,
-             period: period,
-             window_size: window_size,
-             comparing_period: comparing_period,
-             columns: value_columns
-           }
-         },
-         datetime: datetime
-       })
-       when is_rdb_source(source) do
-    with {:ok, %{columns: columns, data: data}} <-
-           Data.QueryData.query(%{
-             org_id: org_id,
-             data_source_id: data_source_id,
-             sql_template: sql_template,
-             datetime: datetime,
-             timezone: timezone,
-             query_date_length: @query_date_length
-           }),
-         {:ok, analyzed_data} <-
-           Data.QueryData.analyze(data, %{
-             columns: columns,
-             period: period,
-             window_size: window_size,
-             comparing_period: comparing_period
-           }),
-         parsed_data =
-           Data.QueryData.refine_data_based_on_columns(
-             %{columns: columns, data: analyzed_data},
-             value_columns,
-             window_size
-           ),
-         {:ok, %{image_urls: image_urls}} <-
-           ImageGenerator.gen_chart_images(%{
-             org_id: org_id,
-             report_id: report_id,
-             data: parsed_data
-           }),
-         slack_args = SlackAPI.build_post_message_args(parsed_data, image_urls) do
-      {:ok, slack_args}
-    end
-  end
-
-  defp generate_slack_args(%{
-         report: %Report{
-           id: report_id,
-           org_id: org_id,
-           data_source_info: %{
-             data_source_id: data_source_id,
-             source: :tableau,
-             view_id: view_id,
-             view_full_name: view_full_name
-           }
-         }
-       }) do
-    with {:ok, %DataSource{} = data_source} <-
-           Integrations.fetch_data_source(data_source_id),
-         {:ok, tableau_image_binary} =
-           Source.Tableau.get_view_image_binary(
-             view_id,
-             DataSource.to_credentials(data_source)
-           ),
-         {:ok, url} <-
-           ImageGenerator.upload_chart_image(%{
-             org_id: org_id,
-             report_id: report_id,
-             binary: tableau_image_binary
-           }),
-         slack_args = [%{title: view_full_name, img_url: url}] do
-      {:ok, slack_args}
-    end
-  end
-
-  defp send_report(%{
-         report: %Report{
-           timezone: timezone,
-           data_target_info: %{
-             data_target_id: data_target_id,
-             params: %{
-               channel_id: channel_id
-             }
-           }
-         },
-         slack_args: slack_args
-       }) do
-    TenantRepo.wrap_transaction(fn ->
-      with {:ok, %DataTarget{} = data_target} <- Integrations.fetch_data_target(data_target_id),
-           {:ok, send_result} <-
-             slack_args
-             |> Enum.map(fn %{img_url: image_url, title: image_title} ->
-               blocks = [
-                 SlackAPI.Block.build_text_block(report_title(timezone, image_title)),
-                 SlackAPI.Block.build_image_block(image_url, image_title, image_title)
-               ]
-
-               SlackAPI.post_message(
-                 channel_id,
-                 blocks,
-                 data_target.conn_info.info["bot_token"]
-               )
-             end)
-             |> Traversable.traverse() do
-        {:ok, send_result}
-      end
-    end)
-  end
-
-  defp report_title(timezone, title) do
-    # TODO: 이후에 구조를 바꿔서 리포트에 찍히는 날짜와 동일한 날짜로 바꿔야함
-    "*📊 #{DateTime.now!(timezone) |> Timex.shift(days: -1) |> DateHelper.safe_format_date()} - #{title}*"
   end
 end

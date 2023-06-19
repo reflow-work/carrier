@@ -117,14 +117,21 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   @impl true
   def handle_event("run_query", %{"sql_template" => sql_template}, socket) do
     socket =
-      Source.RDB.load_raw_data(socket.assigns.data_source, %{
-        sql_template: sql_template,
-        datetime: DateTime.utc_now(),
-        timezone: socket.assigns.timezone,
-        period_days: @max_period_days,
-        over_days: @max_over_days,
-        window_days: @max_window_days
-      })
+      Source.RDBOld.load_raw_data(
+        %{
+          data_source_info: %{
+            params: %{
+              sql_template: sql_template,
+              period: @max_period_days,
+              window_size: @max_window_days,
+              comparing_period: @max_over_days
+            }
+          },
+          datetime: DateTime.utc_now(),
+          timezone: socket.assigns.timezone
+        },
+        socket.assigns.data_source
+      )
       |> case do
         {:ok, query_result} ->
           socket.assigns.onchange.(sql_template, query_result)
