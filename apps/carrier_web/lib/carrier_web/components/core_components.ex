@@ -62,7 +62,7 @@ defmodule CarrierWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
+          <div class="w-full max-w-5xl p-4 sm:p-6 lg:py-8">
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
@@ -408,7 +408,8 @@ defmodule CarrierWeb.CoreComponents do
           name={@name}
           class={[
             "select w-full block rounded-md border border-gray-300 bg-white shadow-sm",
-            "focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6"
+            "focus:border-zinc-400 focus:ring-0 sm:text-sm !leading-6",
+            @input_class
           ]}
           multiple={@multiple}
           {@rest}
@@ -498,7 +499,8 @@ defmodule CarrierWeb.CoreComponents do
             "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
             "border-zinc-300 focus:border-zinc-400",
             @errors != [] && "border-rose-400 focus:border-rose-400",
-            if(slot_exist?(@icon), do: "pr-10")
+            if(slot_exist?(@icon), do: "pr-10"),
+            @input_class
           ]}
           {@rest}
         />

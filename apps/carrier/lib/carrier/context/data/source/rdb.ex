@@ -201,6 +201,10 @@ defmodule Carrier.Data.Source.RDB do
     end
   end
 
+  def support_query_maker?(source) do
+    source in [:postgres, :mysql]
+  end
+
   def run_query(source, credentials, query, query_params \\ %{}, opts \\ []) do
     source_module = get_module(source)
 
