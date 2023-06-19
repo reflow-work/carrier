@@ -27,7 +27,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
             |> load_reports()
 
           case length(socket.assigns.reports) < 1 do
-            true -> socket |> push_navigate(to: ~p"/app/reports/new")
+            true -> socket |> push_navigate(to: ~p"/app/reports/new2")
             _ -> socket
           end
 
