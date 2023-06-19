@@ -103,6 +103,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         module={DataSourceSelectorNew}
         id="data_source_selector_new"
         selected_data_source_id={@selected_data_source_id}
+        disabled={@live_action != :new}
       />
 
       <div :if={@selected_data_source}>
