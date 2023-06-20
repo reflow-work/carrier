@@ -141,6 +141,8 @@ defmodule CarrierWeb.Router do
     scope "/dev" do
       pipe_through :browser
 
+      get "/test", CarrierWeb.TestController, :index
+
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
