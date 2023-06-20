@@ -146,7 +146,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
         </.card>
       </.card_container>
 
-      <.modal id="query_maker_modal">
+      <.modal :if={Source.RDB.support_query_maker?(@data_source.source)} id="query_maker_modal">
         <.live_component
           module={RDBQueryMaker}
           id="query_maker"
