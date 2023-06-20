@@ -84,6 +84,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
               phx-target={@myself}
               phx-change="validate_query"
               phx-submit="run_query"
+              errors={@query_errors}
             >
               <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
                 <div class="sm:col-span-4">
@@ -94,7 +95,6 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                     input_class="mt-0"
                     value={@sql_template}
                     placeholder={@sample_sql_template}
-                    errors={@query_errors}
                   />
                 </div>
                 <div class="w-full px-2 sm:col-span-3 text-sm">
@@ -207,8 +207,17 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
         |> assign(:query_result, query_result)
 
       {:error, reason} ->
+        error =
+          case reason do
+            {:query_error, message} ->
+              message
+
+            message ->
+              message
+          end
+
         socket
-        |> assign(:query_errors, [reason])
+        |> assign(:query_errors, [error])
     end
   end
 
