@@ -20,6 +20,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:data_target_info, nil)
       |> assign(:selected_data_source_id, nil)
       |> assign(:selected_data_source, nil)
+      |> assign(:selected_data_target, socket.assigns.data_target)
       |> assign(:data_source_info_form, nil)
       |> assign(:data_target_info_form, nil)
       |> assign(:report_form, nil)
@@ -113,6 +114,11 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           data_source_info={@data_source_info}
         />
         <Components.report_configurer report_form={@report_form} valid?={@valid?} />
+        <Components.data_target_selector
+          data_targets={@data_targets}
+          selected_data_target={@selected_data_target}
+          onselect="select_data_target"
+        />
         <Components.data_target_configurer
           data_target={@data_target}
           data_target_info={@data_target_info}
@@ -132,6 +138,21 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       </div>
     </section>
     """
+  end
+
+  @impl true
+  def handle_event("select_data_target", %{"data_target_id" => data_target_id_str}, socket) do
+    data_target_id = data_target_id_str |> String.to_integer()
+
+    selected_data_target =
+      socket.assigns.data_targets
+      |> Enum.find(&(&1.id == data_target_id))
+
+    socket =
+      socket
+      |> assign(:selected_data_target, selected_data_target)
+
+    {:noreply, socket}
   end
 
   @impl true

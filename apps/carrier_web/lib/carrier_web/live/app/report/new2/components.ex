@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   use CarrierWeb, :component
   use Carrier.Integrations
   import Carrier.Data.Source.RDB.Guard
+  alias Carrier.Core.Nillable
 
   embed_templates "*"
 
@@ -43,6 +44,39 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     end
   end
 
+  attr :data_targets, :list, required: true
+  attr :selected_data_target, :any
+  attr :onselect, :any, required: true
+
+  def data_target_selector(assigns) do
+    ~H"""
+    <div>
+      <.card_container>
+        <.card>
+          <div>
+            <.card_title title="데이터 타겟" />
+          </div>
+          <.simple_form for={%{}} phx-change={@onselect}>
+            <.input
+              class="max-w-md flex-1"
+              type="select"
+              name="data_target_id"
+              prompt="데이터 타겟을 선택해주세요"
+              options={data_target_options(@data_targets)}
+              value={@selected_data_target |> Nillable.map(& &1.id) |> Nillable.fallback("")}
+            />
+          </.simple_form>
+        </.card>
+      </.card_container>
+    </div>
+    """
+  end
+
+  defp data_target_options(data_targets) do
+    data_targets
+    |> Enum.map(fn %DataTarget{id: id, service_name: service_name} -> {service_name, id} end)
+  end
+
   attr :data_target, :any
   attr :data_target_info, :any
 
@@ -56,6 +90,11 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
           data_target={@data_target}
           data_target_info={@data_target_info}
         />
+        """
+
+      _ ->
+        ~H"""
+        Not implemented
         """
     end
   end
