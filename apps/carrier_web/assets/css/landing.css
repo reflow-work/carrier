@@ -4,7 +4,7 @@
   .mobile-menu-list {
     @apply max-h-0 transition-all duration-200;
   }
-  
+
   .hamburger-button:checked ~ .mobile-menu-list {
     @apply max-h-60;
   }
@@ -28,9 +28,9 @@
   .h1 {
     @apply font-extrabold text-4xl lg:text-5xl leading-tight lg:leading-snug;
   }
-  
+
   &.section {
-    @apply justify-between py-20 md:py-52;
+    @apply justify-between py-12 md:py-44;
 
     .section-description {
       @apply text-sm md:text-base mt-6 mb-12;
@@ -63,7 +63,7 @@
 
   .avatar-card-container {
     @apply flex flex-col items-center flex-1;
-  
+
     .avatar-card-text-description {
       @apply text-sm md:text-base !text-landingDescription;
     }

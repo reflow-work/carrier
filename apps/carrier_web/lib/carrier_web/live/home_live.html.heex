@@ -7,56 +7,12 @@
     </div>
 
     <div class="!text-landingDescription mt-12 text-sm md:text-base">
-      언제 어디서든 데이터를 확인하고 논의하세요.<br /> reflow를 통해 데이터 보는 문화를 쉽게 만들 수 있습니다.
+      언제 어디서든 데이터를 확인하고 논의하세요.<br /> 몇 번의 클릭만으로 태블로 등의 대시보드를 슬랙으로 확인할 수 있습니다.
     </div>
   </div>
 
   <div class="col-span-12 md:col-span-6">
     <%= img_tag(~p"/images/section-1.png", class: "w-full") %>
-  </div>
-</section>
-
-<section class="landing-container section sm:!px-24">
-  <div
-    class="relative max-w-4xl mx-auto"
-    style="padding-bottom: calc(66.66666666666666% + 41px); height: 0;"
-  >
-    <iframe
-      src="https://demo.arcade.software/rcNgnDoQ5ukCtpb1DtYA?embed"
-      frameborder="0"
-      loading="lazy"
-      webkitallowfullscreen
-      mozallowfullscreen
-      allowfullscreen
-      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;color-scheme: light;"
-      title="reflow - 데이터 보는 습관을 만드는 가장 쉬운 툴"
-    >
-    </iframe>
-  </div>
-</section>
-
-<section class="landing-container section text-center !pt-10">
-  <h1 class="h1 mb-28">reflow 고객들은</h1>
-  <div class="flex flex-col md:flex-row space-y-16 md:space-y-0 justify-center md:divide-x">
-    <div class="md:px-28 pt-6 pb-10">
-      <div class="text-md mb-4">
-        리텐션율
-      </div>
-      <u class="text-5xl font-bold">
-        70%
-      </u>
-    </div>
-    <div class="md:px-28 pt-6 pb-10">
-      <div class="text-md mb-4">
-        생성된 레포트
-      </div>
-      <u class="text-5xl font-bold">
-        <%= @report_log_count |> format_number() %>개
-      </u>
-    </div>
-  </div>
-  <div class="text-landingDescription mt-18 mb-20 md:mb-0 md:mt-28 text-sm">
-    * <%= current_datetime!(@timezone) |> DateHelper.safe_format_date() %> 기준
   </div>
 </section>
 
@@ -128,6 +84,29 @@
   </div>
 </section>
 
+<.feature image_url={~p"/images/section-6.png"} image_position="left">
+  <div class="text-center md:text-left">
+    <h1 class="h1">태블로 대시보드를<br />슬랙에서 확인하세요</h1>
+
+    <div class="!text-landingDescription section-description">
+      클릭 몇 번으로 손쉽게 태블로 대시보드를 원하는 주기마다 슬랙에서 확인할 수 있습니다.
+    </div>
+
+    <div class="section-quote-container">
+      <%= img_tag(~p"/images/small-avatar-1.png", width: "60px") %>
+      <div class="section-quote-text-container">
+        <div class="section-quote-text-comment">
+          매일 봐야하는 대시보드를 태블로로 볼 때는 너무 느려서 불편했어요.<br class="hidden md:block" />
+          reflow를 쓴 후에는 슬랙을 통해 모바일에서도 쉽게 데이터를 확인하게 되었습니다.
+        </div>
+        <div class="section-quote-text-description">
+          BA ∙ <span class="section-quote-text-description-plus">150명 규모 스타트업</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</.feature>
+
 <.feature image_url={~p"/images/section-2.png"} bg_color="bg-landingBgGray">
   <div class="text-center md:text-left">
     <h1 class="h1">분석에 최적화된 레포트를<br />손쉽게 매일 받아보세요.</h1>
@@ -138,7 +117,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(~p"/images/small-avatar-1.png", width: "60px") %>
+      <%= img_tag(~p"/images/small-avatar-4.png", width: "60px") %>
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br class="hidden md:block" /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
@@ -192,29 +171,6 @@
         </div>
         <div class="section-quote-text-description">
           Marketer ∙ <span class="section-quote-text-description-plus">20~49명 규모 스타트업</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</.feature>
-
-<.feature image_url={~p"/images/section-6.png"} image_position="left">
-  <div class="text-center md:text-left">
-    <h1 class="h1">NEW!<br />태블로 대시보드를<br />슬랙에서 확인하세요</h1>
-
-    <div class="!text-landingDescription section-description">
-      이제 태블로 대시보드를 매일매일 손쉽게 슬랙에서 확인할 수 있습니다.
-    </div>
-
-    <div class="section-quote-container">
-      <%= img_tag(~p"/images/small-avatar-4.png", width: "60px") %>
-      <div class="section-quote-text-container">
-        <div class="section-quote-text-comment">
-          매일 봐야하는 지표들을 태블로로 볼 때는 너무 느려서 불편했어요.<br class="hidden md:block" />
-          reflow는 자동으로 슬랙에 전송되니까 손쉽고 빠르게 데이터를 매일 확인하게 되었습니다.
-        </div>
-        <div class="section-quote-text-description">
-          BA ∙ <span class="section-quote-text-description-plus">150명 규모 스타트업</span>
         </div>
       </div>
     </div>
