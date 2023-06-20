@@ -67,7 +67,14 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 options={data_target_options(@data_targets)}
                 value={@selected_data_target |> Nillable.map(& &1.id) |> Nillable.fallback("")}
               />
-              <.button :if={!@disabled} type="button" class="ml-2">
+              <.button
+                :if={!@disabled}
+                id="new_data_target_button"
+                type="button"
+                class="ml-2"
+                phx-hook="Popup"
+                phx-click={JS.dispatch("open-popup", detail: %{url: ~p"/dev/test"})}
+              >
                 새 데이터 타겟 추가
               </.button>
             </div>
