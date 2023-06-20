@@ -47,6 +47,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   attr :data_targets, :list, required: true
   attr :selected_data_target, :any
   attr :onselect, :any, required: true
+  attr :disabled, :boolean, required: true
 
   def data_target_selector(assigns) do
     ~H"""
@@ -57,14 +58,19 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
             <.card_title title="데이터 타겟" />
           </div>
           <.simple_form for={%{}} phx-change={@onselect}>
-            <.input
-              class="max-w-md flex-1"
-              type="select"
-              name="data_target_id"
-              prompt="데이터 타겟을 선택해주세요"
-              options={data_target_options(@data_targets)}
-              value={@selected_data_target |> Nillable.map(& &1.id) |> Nillable.fallback("")}
-            />
+            <div class="flex items-center">
+              <.input
+                class="max-w-md flex-1"
+                type="select"
+                name="data_target_id"
+                prompt="데이터 타겟을 선택해주세요"
+                options={data_target_options(@data_targets)}
+                value={@selected_data_target |> Nillable.map(& &1.id) |> Nillable.fallback("")}
+              />
+              <.button :if={!@disabled} type="button" class="ml-2">
+                새 데이터 타겟 추가
+              </.button>
+            </div>
           </.simple_form>
         </.card>
       </.card_container>

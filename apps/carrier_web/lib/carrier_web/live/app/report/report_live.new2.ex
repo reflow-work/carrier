@@ -118,6 +118,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           data_targets={@data_targets}
           selected_data_target={@selected_data_target}
           onselect="select_data_target"
+          disabled={@live_action != :new}
         />
         <Components.data_target_configurer
           data_target={@data_target}
