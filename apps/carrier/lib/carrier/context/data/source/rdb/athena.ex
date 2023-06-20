@@ -45,6 +45,13 @@ defmodule Carrier.Data.Source.RDB.Athena do
 
         {:error, {:query_error, message}}
 
+      {:ok, %Req.Response{body: json_str}} ->
+        %{"Message" => message} = error = json_str |> Jason.decode!()
+
+        Logger.error(error)
+
+        {:error, {:query_error, message}}
+
       {:error, reason} ->
         Logger.error(inspect(reason))
 
