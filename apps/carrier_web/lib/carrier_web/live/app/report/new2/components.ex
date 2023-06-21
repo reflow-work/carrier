@@ -50,41 +50,79 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   attr :disabled, :boolean, required: true
 
   def data_target_selector(assigns) do
-    ~H"""
-    <div>
-      <.card_container>
-        <.card>
-          <div>
-            <.card_title title="데이터 타겟" />
-          </div>
-          <.simple_form for={%{}} phx-change={@onselect}>
-            <div class="flex items-center">
-              <.input
-                class="max-w-md flex-1"
-                type="select"
-                name="data_target_id"
-                prompt="데이터 타겟을 선택해주세요"
-                options={data_target_options(@data_targets)}
-                value={@selected_data_target |> Nillable.map(& &1.id) |> Nillable.fallback("")}
-              />
-              <.button
-                :if={!@disabled}
-                id="new_data_target_button"
-                type="button"
-                class="ml-2"
-                phx-hook="Popup"
-                data-popup-url={url(~p"/app/data-targets/new?popup=true")}
-                data-callback-event="data_target_created"
-                phx-click={JS.dispatch("open_popup")}
-              >
-                새 데이터 타겟 추가
-              </.button>
-            </div>
-          </.simple_form>
-        </.card>
-      </.card_container>
-    </div>
-    """
+    case assigns.selected_data_target do
+      nil ->
+        ~H"""
+        <div>
+          <.card_container>
+            <.card>
+              <div>
+                <.card_title title="Slack 발송 설정하기" />
+              </div>
+
+              <div>
+                <.button
+                  :if={!@disabled}
+                  id="new_data_target_button"
+                  type="button"
+                  phx-hook="Popup"
+                  data-popup-url={
+                    CarrierWeb.Helpers.SlackHelper.get_redirect_uri(nil, true)
+                    |> Carrier.External.SlackAPI.OAuth.generate_url()
+                  }
+                  data-callback-event="data_target_created"
+                  phx-click={JS.dispatch("open_popup")}
+                >
+                  Slack 연결하기
+                </.button>
+              </div>
+            </.card>
+          </.card_container>
+        </div>
+        """
+
+      :later ->
+        ~H"""
+        <div>
+          <.card_container>
+            <.card>
+              <div>
+                <.card_title title="데이터 타겟" />
+              </div>
+              <.simple_form for={%{}} phx-change={@onselect}>
+                <div class="flex items-center">
+                  <.input
+                    class="max-w-md flex-1"
+                    type="select"
+                    name="data_target_id"
+                    prompt="데이터 타겟을 선택해주세요"
+                    options={data_target_options(@data_targets)}
+                    value={@selected_data_target |> Nillable.map(& &1.id) |> Nillable.fallback("")}
+                  />
+                  <.button
+                    :if={!@disabled}
+                    id="new_data_target_button"
+                    type="button"
+                    class="ml-2"
+                    phx-hook="Popup"
+                    data-popup-url={url(~p"/app/data-targets/new?popup=true")}
+                    data-callback-event="data_target_created"
+                    phx-click={JS.dispatch("open_popup")}
+                  >
+                    새 데이터 타겟 추가
+                  </.button>
+                </div>
+              </.simple_form>
+            </.card>
+          </.card_container>
+        </div>
+        """
+
+      _ ->
+        ~H"""
+        <div></div>
+        """
+    end
   end
 
   defp data_target_options(data_targets) do
