@@ -254,6 +254,24 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   end
 
   @impl true
+  def handle_event(
+        "data_target_created",
+        %{"data_target_id" => obfuscated_data_target_id},
+        socket
+      ) do
+    data_target_id = Carrier.Obfuscatable.deobfuscate!(obfuscated_data_target_id, DataTarget)
+
+    {:ok, data_target} = Integrations.fetch_data_target(data_target_id)
+
+    socket =
+      socket
+      |> update(:data_targets, &(&1 ++ [data_target]))
+      |> assign(:selected_data_target, data_target)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:data_source_selected, selected_data_source}, socket) do
     socket =
       socket
