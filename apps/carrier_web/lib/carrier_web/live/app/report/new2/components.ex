@@ -73,7 +73,9 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 type="button"
                 class="ml-2"
                 phx-hook="Popup"
-                phx-click={JS.dispatch("open-popup", detail: %{url: ~p"/dev/test"})}
+                data-popup-url={url(~p"/app/data-targets/new?popup=true")}
+                data-callback-event="data_target_created"
+                phx-click={JS.dispatch("open_popup")}
               >
                 새 데이터 타겟 추가
               </.button>
