@@ -1,0 +1,9 @@
+redirecting...
+<script>
+  const event = new CustomEvent("popup_closed", {
+    detail: {data_target_id: "<%= @data_target_id %>"}
+  })
+
+  window.opener.document.dispatchEvent(event)
+  window.close()
+</script>
