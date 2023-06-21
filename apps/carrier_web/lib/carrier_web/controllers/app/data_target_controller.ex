@@ -3,6 +3,7 @@ defmodule CarrierWeb.App.DataTargetController do
   use Carrier.Integrations
   alias CarrierWeb.Helpers.SlackHelper
   alias Carrier.TenantRepo
+  alias Carrier.Obfuscatable
   alias Carrier.External.SlackAPI
 
   def slack_callback(conn, %{"code" => code} = params) do
@@ -14,7 +15,7 @@ defmodule CarrierWeb.App.DataTargetController do
 
     with {:ok, credentials} <-
            SlackAPI.OAuth.get_access_token(%{code: code, redirect_uri: redirect_uri}),
-         {:ok, %DataTarget{}} <-
+         {:ok, %DataTarget{} = data_target} <-
            (case obfuscated_data_target_id do
               nil ->
                 Integrations.create_data_target(%{
@@ -29,8 +30,15 @@ defmodule CarrierWeb.App.DataTargetController do
 
                 Integrations.update_conn_info_of_data_target(data_target_id, %{info: credentials})
             end) do
-      conn
-      |> redirect(to: ~p"/app/reports")
+      case params["popup"] do
+        "true" ->
+          conn
+          |> render(:popup, data_target_id: Obfuscatable.obfuscate(data_target))
+
+        _ ->
+          conn
+          |> redirect(to: ~p"/app/reports")
+      end
     else
       error ->
         conn
