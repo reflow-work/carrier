@@ -14,9 +14,7 @@ defmodule CarrierWeb.DataTargetHook do
         {:halt, socket}
 
       _ ->
-        socket = socket |> push_navigate(to: ~p"/app/data-targets/new")
-
-        {:halt, socket}
+        {:cont, socket |> assign(:data_target, nil) |> assign(:data_targets, [])}
     end
   end
 end
