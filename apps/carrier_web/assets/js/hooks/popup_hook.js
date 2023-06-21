@@ -10,7 +10,7 @@ const PopupHook = {
     document.addEventListener("popup_closed", this.callbackEventListener)
     
     this.el.addEventListener("open_popup", (e) => {
-      const windowParams = 'toolbar=no,menubar=no,width=600,height=700,top=100,left=100'
+      const windowParams = 'toolbar=no,menubar=no,width=1000,height=900,top=100,left=100'
       
       window.open(popupUrl, "popup", windowParams)
     })
