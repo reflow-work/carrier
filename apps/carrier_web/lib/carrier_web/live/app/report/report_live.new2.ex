@@ -121,7 +121,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           disabled={@live_action != :new}
         />
         <Components.data_target_configurer
-          data_target={@data_target}
+          data_target={@selected_data_target}
           data_target_info={@data_target_info}
         />
         <div>
