@@ -109,7 +109,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
 
       _ ->
         ~H"""
-        Not implemented
+        <div></div>
         """
     end
   end
