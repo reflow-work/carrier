@@ -11,23 +11,23 @@ defmodule CarrierWeb.App.DataTargetLive.New do
   end
 
   @impl true
-  def handle_params(_params, _uri, %{assigns: %{live_action: :new}} = socket) do
+  def handle_params(params, _uri, %{assigns: %{live_action: :new}} = socket) do
     socket =
       socket
-      |> assign(:redirect_uri, SlackHelper.get_redirect_uri(nil))
+      |> assign(:redirect_uri, SlackHelper.get_redirect_uri(nil, params["popup"]))
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_params(
-        %{"data_target_id" => data_target_id_str},
+        %{"data_target_id" => data_target_id_str} = params,
         _uri,
         %{assigns: %{live_action: :edit}} = socket
       ) do
     socket =
       socket
-      |> assign(:redirect_uri, SlackHelper.get_redirect_uri(data_target_id_str))
+      |> assign(:redirect_uri, SlackHelper.get_redirect_uri(data_target_id_str, params["popup"]))
 
     {:noreply, socket}
   end

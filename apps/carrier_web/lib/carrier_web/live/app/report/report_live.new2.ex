@@ -20,6 +20,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> assign(:data_target_info, nil)
       |> assign(:selected_data_source_id, nil)
       |> assign(:selected_data_source, nil)
+      |> assign(:selected_data_target, socket.assigns.data_target)
       |> assign(:data_source_info_form, nil)
       |> assign(:data_target_info_form, nil)
       |> assign(:report_form, nil)
@@ -113,8 +114,14 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           data_source_info={@data_source_info}
         />
         <Components.report_configurer report_form={@report_form} valid?={@valid?} />
+        <Components.data_target_selector
+          data_targets={@data_targets}
+          selected_data_target={@selected_data_target}
+          onselect="select_data_target"
+          disabled={@live_action != :new}
+        />
         <Components.data_target_configurer
-          data_target={@data_target}
+          data_target={@selected_data_target}
           data_target_info={@data_target_info}
         />
         <div>
@@ -132,6 +139,21 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       </div>
     </section>
     """
+  end
+
+  @impl true
+  def handle_event("select_data_target", %{"data_target_id" => data_target_id_str}, socket) do
+    data_target_id = data_target_id_str |> String.to_integer()
+
+    selected_data_target =
+      socket.assigns.data_targets
+      |> Enum.find(&(&1.id == data_target_id))
+
+    socket =
+      socket
+      |> assign(:selected_data_target, selected_data_target)
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -227,6 +249,24 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         page_name: "report_new"
       })
       |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "data_target_created",
+        %{"data_target_id" => obfuscated_data_target_id},
+        socket
+      ) do
+    data_target_id = Carrier.Obfuscatable.deobfuscate!(obfuscated_data_target_id, DataTarget)
+
+    {:ok, data_target} = Integrations.fetch_data_target(data_target_id)
+
+    socket =
+      socket
+      |> update(:data_targets, &(&1 ++ [data_target]))
+      |> assign(:selected_data_target, data_target)
 
     {:noreply, socket}
   end
