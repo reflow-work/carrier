@@ -10,7 +10,7 @@ defmodule CarrierWeb.App.DataTargetController do
     TenantRepo.put_org_id(org_id)
     obfuscated_data_target_id = params["data_target_id"]
 
-    redirect_uri = SlackHelper.get_redirect_uri(obfuscated_data_target_id)
+    redirect_uri = SlackHelper.get_redirect_uri(obfuscated_data_target_id, params["popup"])
 
     with {:ok, credentials} <-
            SlackAPI.OAuth.get_access_token(%{code: code, redirect_uri: redirect_uri}),
