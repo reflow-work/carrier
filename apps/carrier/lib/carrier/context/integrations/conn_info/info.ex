@@ -26,7 +26,7 @@ defmodule Carrier.Integrations.ConnInfo.Info do
 
   def to_credentials(source, info) do
     get_struct(source, info)
-    |> Nillable.map(&Map.from_struct/1)
+    |> Map.from_struct()
   end
 
   def get_module(source) do
@@ -37,8 +37,7 @@ defmodule Carrier.Integrations.ConnInfo.Info do
       :athena -> ConnInfo.Athena
       :slack -> ConnInfo.Slack
       :tableau -> ConnInfo.Tableau
-      # demos
-      _ -> nil
+      _ -> ConnInfo.Demo
     end
   end
 end
