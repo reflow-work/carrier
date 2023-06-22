@@ -68,4 +68,8 @@ defmodule Carrier.Integrations.DataSource do
       :tableau_demo -> "(Demo)Tableau Cloud"
     end
   end
+
+  def is_demo?(%__MODULE__{source: source}) do
+    source in [:tableau_demo]
+  end
 end
