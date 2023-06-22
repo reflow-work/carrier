@@ -1,7 +1,6 @@
 defmodule CarrierWeb.HomeLive do
   use CarrierWeb, :live_view
   use Carrier.Reports
-  alias Carrier.Core.DateHelper
 
   import CarrierWeb.Components.Landing.Section, only: [feature: 1]
 

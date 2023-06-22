@@ -81,8 +81,4 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
         socket
     end
   end
-
-  defp transl_data_source_source(%DataSource{source: source}) do
-    DataSource.transl_source(source)
-  end
 end
