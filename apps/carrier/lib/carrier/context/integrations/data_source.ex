@@ -8,7 +8,10 @@ defmodule Carrier.Integrations.DataSource do
     belongs_to :conn_info, ConnInfo
 
     field :org_id, :id
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :tableau]
+
+    field :source, Ecto.Enum,
+      values: [:postgres, :mysql, :bigquery, :athena, :tableau, :tableau_demo]
+
     field :name, :string
 
     field :deleted_at, :utc_datetime_usec

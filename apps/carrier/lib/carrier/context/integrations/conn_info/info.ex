@@ -1,6 +1,7 @@
 defmodule Carrier.Integrations.ConnInfo.Info do
   import Ecto.Changeset, only: [apply_changes: 1]
   alias Carrier.Integrations.ConnInfo
+  alias Carrier.Core.Nillable
 
   @callback changeset(struct :: struct(), attrs :: map()) :: %Ecto.Changeset{}
 
@@ -25,7 +26,7 @@ defmodule Carrier.Integrations.ConnInfo.Info do
 
   def to_credentials(source, info) do
     get_struct(source, info)
-    |> Map.from_struct()
+    |> Nillable.map(&Map.from_struct/1)
   end
 
   def get_module(source) do
@@ -36,6 +37,8 @@ defmodule Carrier.Integrations.ConnInfo.Info do
       :athena -> ConnInfo.Athena
       :slack -> ConnInfo.Slack
       :tableau -> ConnInfo.Tableau
+      # demos
+      _ -> nil
     end
   end
 end
