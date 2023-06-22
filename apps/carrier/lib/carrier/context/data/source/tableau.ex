@@ -6,6 +6,7 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Tmp}
   alias Carrier.{Uploader, PDF}
+  alias Carrier.Fixture
 
   ### models
 
@@ -86,6 +87,11 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
+  def validate_conn(:tableau_demo, _credentials, _opts) do
+    :ok
+  end
+
+  @impl true
   def load_raw_data(
         %{data_source_info: %{params: %{views: views}}},
         %DataSource{source: :tableau} = data_source
@@ -110,11 +116,42 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def transform_data(%{org_id: org_id}, %DataSource{source: :tableau}, %{
+  def load_raw_data(
+        %{data_source_info: %{params: %{views: views}}},
+        %DataSource{source: :tableau_demo} = data_source
+      ) do
+    view_ids = views |> Enum.map(& &1.id)
+
+    {:ok, views} = list_views(data_source)
+
+    views =
+      views
+      |> Enum.filter(&(&1.id in view_ids))
+      |> Enum.map(&(&1 |> Map.put(:view_url, "https://reflow.work")))
+
+    view_image_binaries =
+      view_ids
+      |> Enum.map(fn view_id -> Fixture.read("tableau_api/view_images/#{view_id}") end)
+
+    view_pdf_binaries =
+      view_ids
+      |> Enum.map(fn view_id -> Fixture.read("tableau_api/view_pdfs/#{view_id}") end)
+
+    {:ok,
+     %{
+       views: views,
+       view_image_binaries: view_image_binaries,
+       view_pdf_binaries: view_pdf_binaries
+     }}
+  end
+
+  @impl true
+  def transform_data(%{org_id: org_id}, %DataSource{source: source}, %{
         views: views,
         view_image_binaries: view_image_binaries,
         view_pdf_binaries: view_pdf_binaries
-      }) do
+      })
+      when source in [:tableau, :tableau_demo] do
     with {:ok, view_image_urls} <-
            view_image_binaries
            |> Async.map(&Uploader.upload(:report_storage, org_id, &1, :png))
@@ -126,11 +163,12 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def data_to_threads(_params, %DataSource{source: :tableau}, %{
+  def data_to_threads(_params, %DataSource{source: source}, %{
         views: views,
         view_image_urls: view_image_urls,
         pdf_url: pdf_url
-      }) do
+      })
+      when source in [:tableau, :tableau_demo] do
     threads =
       [views, view_image_urls]
       |> Enum.zip_with(fn [%{full_name: full_name, view_url: view_url}, view_image_url] ->
@@ -154,14 +192,31 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def list_views(credentials) do
+  def list_views(%DataSource{source: :tableau} = data_source) do
+    credentials = data_source |> DataSource.to_credentials()
+
     with {:ok, auth} <- signin(credentials),
          {:ok, views} <- do_list_views(auth) do
       {:ok, views}
     end
   end
 
-  def get_view_preview_image_binary(workbook_id, view_id, credentials) do
+  def list_views(%DataSource{source: :tableau_demo}) do
+    %{"views" => %{"view" => raw_views}} =
+      Fixture.json("tableau_api/query_views_for_site.success.json")
+
+    views = raw_views |> Enum.map(&View.new(&1))
+
+    {:ok, views}
+  end
+
+  def get_view_preview_image_binary(
+        workbook_id,
+        view_id,
+        %DataSource{source: :tableau} = data_source
+      ) do
+    credentials = data_source |> DataSource.to_credentials()
+
     with {:ok, auth} <- signin(credentials),
          {:ok, view_preview_image_binary} <-
            do_get_preview_image_binary(workbook_id, view_id, auth) do
@@ -169,10 +224,27 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def get_view_image_binary(view_id, credentials) do
+  def get_view_preview_image_binary(_workbook_id, view_id, %DataSource{source: :tableau_demo}) do
+    view_preview_image_binary = Fixture.read("tableau_api/view_preview_images/#{view_id}")
+
+    {:ok, view_preview_image_binary}
+  end
+
+  def get_view_image_binary(view_id, %DataSource{source: :tableau} = data_source) do
+    credentials = data_source |> DataSource.to_credentials()
+
     with {:ok, auth} <- signin(credentials),
          {:ok, view_image_binary} <- do_get_view_image_binary(view_id, auth) do
       {:ok, view_image_binary}
+    end
+  end
+
+  def get_view_pdf_binary(view_id, %DataSource{source: :tableau} = data_source) do
+    credentials = data_source |> DataSource.to_credentials()
+
+    with {:ok, auth} <- signin(credentials),
+         {:ok, view_pdf_binary} <- do_get_view_pdf_binary(view_id, auth) do
+      {:ok, view_pdf_binary}
     end
   end
 

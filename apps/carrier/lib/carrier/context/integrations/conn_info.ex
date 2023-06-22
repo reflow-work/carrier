@@ -6,7 +6,10 @@ defmodule Carrier.Integrations.ConnInfo do
   schema "conn_infos" do
     field :org_id, :id
     field :name, :string
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :slack, :tableau]
+
+    field :source, Ecto.Enum,
+      values: [:postgres, :mysql, :bigquery, :athena, :slack, :tableau, :tableau_demo]
+
     field :info, Types.Map, source: :encrypted_info, redact: true
 
     field :deleted_at, :utc_datetime_usec

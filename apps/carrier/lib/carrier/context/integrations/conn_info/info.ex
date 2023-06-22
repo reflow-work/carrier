@@ -1,6 +1,7 @@
 defmodule Carrier.Integrations.ConnInfo.Info do
   import Ecto.Changeset, only: [apply_changes: 1]
   alias Carrier.Integrations.ConnInfo
+  alias Carrier.Core.Nillable
 
   @callback changeset(struct :: struct(), attrs :: map()) :: %Ecto.Changeset{}
 
@@ -36,6 +37,7 @@ defmodule Carrier.Integrations.ConnInfo.Info do
       :athena -> ConnInfo.Athena
       :slack -> ConnInfo.Slack
       :tableau -> ConnInfo.Tableau
+      _ -> ConnInfo.Demo
     end
   end
 end

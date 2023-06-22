@@ -1,6 +1,6 @@
 defmodule CarrierWeb.AuthController do
   use CarrierWeb, :controller
-  use Carrier.Accounts
+  use Carrier.{Accounts, Integrations}
   require Logger
   alias Carrier.Obfuscatable
   alias Carrier.External.Google
@@ -49,6 +49,12 @@ defmodule CarrierWeb.AuthController do
          {:ok, %{email: email}} <- Google.OAuth.verify_credential(credential),
          {:ok, {_, %User{id: user_id, org_id: org_id}}} <-
            Accounts.Super.auth(email, invited_org_id) do
+      # TODO: use event-driven
+      # org is created
+      if is_nil(invited_org_id) do
+        Integrations.create_demo_data_sources(%{org_id: org_id})
+      end
+
       conn
       |> put_session(:user_id, user_id)
       |> put_session(:org_id, org_id)

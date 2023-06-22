@@ -16,6 +16,8 @@ defmodule CarrierWeb.Components.DataSourceNew.Components do
       :bigquery -> bigquery_inputs(assigns)
       :athena -> athena_inputs(assigns)
       :tableau -> tableau_inputs(assigns)
+      # demos
+      _ -> ~H()
     end
   end
 end

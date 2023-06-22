@@ -37,17 +37,15 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
               class={[
                 "btn",
                 "btn-primary",
-                if(@is_disabled_to_create_new_data_source, do: "btn-disabled")
+                @is_disabled_to_create_new_data_source && "btn-disabled"
               ]}
             >
               새 데이터 소스 생성
             </.link>
 
-            <%= if @is_disabled_to_create_new_data_source do %>
-              <div>
-                데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
-              </div>
-            <% end %>
+            <div :if={@is_disabled_to_create_new_data_source}>
+              데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
+            </div>
           </div>
 
           <section class="mt-6">
@@ -60,12 +58,10 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
                   </tr>
                 </thead>
                 <tbody>
-                  <%= for data_source <- @data_sources do %>
-                    <tr class="hover">
-                      <td><%= data_source.name %></td>
-                      <td><%= transl_data_source_source(data_source) %></td>
-                    </tr>
-                  <% end %>
+                  <tr :for={data_source <- @data_sources} class="hover">
+                    <td><%= data_source.name %></td>
+                    <td><%= DataSource.transl_source(data_source.source) %></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -87,12 +83,6 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
   end
 
   defp transl_data_source_source(%DataSource{source: source}) do
-    case source do
-      :postgres -> "PostgreSQL"
-      :mysql -> "MySQL"
-      :bigquery -> "Google BigQuery"
-      :athena -> "AWS Athena"
-      :tableau -> "Tableau Cloud"
-    end
+    DataSource.transl_source(source)
   end
 end

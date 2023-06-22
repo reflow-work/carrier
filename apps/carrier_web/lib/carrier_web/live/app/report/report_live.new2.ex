@@ -130,10 +130,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
               <.button type="button" style={:outline} disabled={!@valid?} phx-click="send_test_report">
                 테스트 발송
               </.button>
-              <.button type="submit" disabled={!@valid?} phx-disable-with="생성 중">
+              <.button
+                type="submit"
+                disabled={!@valid? || DataSource.is_demo?(@selected_data_source)}
+                phx-disable-with="생성 중"
+              >
                 리포트 저장
               </.button>
             </div>
+            <p :if={DataSource.is_demo?(@selected_data_source)}>데모 데이터 소스로는 테스트발송만 가능합니다</p>
           </.simple_form>
         </div>
       </div>

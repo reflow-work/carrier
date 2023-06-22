@@ -8,7 +8,10 @@ defmodule Carrier.Integrations.DataSource do
     belongs_to :conn_info, ConnInfo
 
     field :org_id, :id
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :tableau]
+
+    field :source, Ecto.Enum,
+      values: [:postgres, :mysql, :bigquery, :athena, :tableau, :tableau_demo]
+
     field :name, :string
 
     field :deleted_at, :utc_datetime_usec
@@ -53,5 +56,20 @@ defmodule Carrier.Integrations.DataSource do
 
   def to_credentials(%__MODULE__{conn_info: %ConnInfo{} = conn_info}) do
     ConnInfo.to_credentials(conn_info)
+  end
+
+  def transl_source(source) do
+    case source do
+      :postgres -> "PostgreSQL"
+      :mysql -> "MySQL"
+      :bigquery -> "Google BigQuery"
+      :athena -> "AWS Athena"
+      :tableau -> "Tableau Cloud"
+      :tableau_demo -> "(Demo)Tableau Cloud"
+    end
+  end
+
+  def is_demo?(%__MODULE__{source: source}) do
+    source in [:tableau_demo]
   end
 end

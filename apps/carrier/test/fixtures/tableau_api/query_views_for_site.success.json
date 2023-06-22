@@ -1,0 +1,61 @@
+{
+  "pagination": {
+    "pageNumber": "1",
+    "pageSize": "1000",
+    "totalAvailable": "2"
+  },
+  "views": {
+    "view": [
+      {
+        "workbook": {
+          "id": "b6720c80-d27e-4416-a924-b146aad8eb6a",
+          "name": "Regional",
+          "contentUrl": "Regional"
+        },
+        "owner": {
+          "id": "668de213-0084-4850-bc46-d9e2e547b2e4"
+        },
+        "project": {
+          "id": "22c864c3-9306-4afa-b70d-9408d2d73d78",
+          "name": "Samples"
+        },
+        "tags": {},
+        "location": {
+          "id": "22c864c3-9306-4afa-b70d-9408d2d73d78",
+          "type": "Project"
+        },
+        "id": "bc70f71e-d255-4911-8c18-ea6b6f373b94",
+        "name": "Obesity",
+        "contentUrl": "Regional/sheets/Obesity",
+        "createdAt": "2023-06-13T10:39:06Z",
+        "updatedAt": "2023-06-13T10:39:06Z",
+        "viewUrlName": "Obesity"
+      },
+      {
+        "workbook": {
+          "id": "b6720c80-d27e-4416-a924-b146aad8eb6a",
+          "name": "Regional",
+          "contentUrl": "Regional"
+        },
+        "owner": {
+          "id": "668de213-0084-4850-bc46-d9e2e547b2e4"
+        },
+        "project": {
+          "id": "22c864c3-9306-4afa-b70d-9408d2d73d78",
+          "name": "Samples"
+        },
+        "tags": {},
+        "location": {
+          "id": "22c864c3-9306-4afa-b70d-9408d2d73d78",
+          "type": "Project"
+        },
+        "id": "35f646f2-d870-4b09-b9e2-c8eb03e6eb0a",
+        "name": "Stocks",
+        "contentUrl": "Regional/sheets/Stocks",
+        "createdAt": "2023-06-13T10:39:06Z",
+        "updatedAt": "2023-06-13T10:39:06Z",
+        "viewUrlName": "Stocks"
+      }
+    ]
+  }
+}
