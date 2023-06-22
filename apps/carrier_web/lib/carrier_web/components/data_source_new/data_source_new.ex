@@ -211,8 +211,7 @@ defmodule CarrierWeb.Components.DataSourceNew do
       {:postgres, "logo-postgresql.png"},
       {:bigquery, "logo-bigquery.png"},
       {:athena, "logo-athena.png"},
-      {:tableau, "logo-tableau.png"},
-      {:tableau_demo, "logo-tableau.png"}
+      {:tableau, "logo-tableau.png"}
     ]
   end
 end
