@@ -57,4 +57,15 @@ defmodule Carrier.Integrations.DataSource do
   def to_credentials(%__MODULE__{conn_info: %ConnInfo{} = conn_info}) do
     ConnInfo.to_credentials(conn_info)
   end
+
+  def transl_source(source) do
+    case source do
+      :postgres -> "PostgreSQL"
+      :mysql -> "MySQL"
+      :bigquery -> "Google BigQuery"
+      :athena -> "AWS Athena"
+      :tableau -> "Tableau Cloud"
+      :tableau_demo -> "(Demo)Tableau Cloud"
+    end
+  end
 end

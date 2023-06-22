@@ -207,12 +207,12 @@ defmodule CarrierWeb.Components.DataSourceNew do
 
   defp data_sources() do
     [
-      {:mysql, "MySQL", "logo-mysql.png"},
-      {:postgres, "PostgreSQL", "logo-postgresql.png"},
-      {:bigquery, "BigQuery", "logo-bigquery.png"},
-      {:athena, "Athena", "logo-athena.png"},
-      {:tableau, "Tableau Cloud", "logo-tableau.png"},
-      {:tableau_demo, "(Demo)Tableau Cloud", "logo-tableau.png"}
+      {:mysql, "logo-mysql.png"},
+      {:postgres, "logo-postgresql.png"},
+      {:bigquery, "logo-bigquery.png"},
+      {:athena, "logo-athena.png"},
+      {:tableau, "logo-tableau.png"},
+      {:tableau_demo, "logo-tableau.png"}
     ]
   end
 end
