@@ -34,7 +34,7 @@ defmodule Carrier.Data.Source.RDB.Postgres do
   @impl Carrier.Data.Source.RDB
   def tables_query() do
     """
-    SELECT table_schema, table_name
+    SELECT #{table_name_field()}
       FROM information_schema.tables
       WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
     """
@@ -48,7 +48,7 @@ defmodule Carrier.Data.Source.RDB.Postgres do
   @impl Carrier.Data.Source.RDB
   def columns_query() do
     """
-    SELECT *
+    SELECT #{column_name_field()}, #{data_type_field()}
       FROM information_schema.columns
       WHERE table_schema = 'public'
         AND table_name = {{table_name}}

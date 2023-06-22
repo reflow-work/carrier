@@ -32,6 +32,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
       |> assign(:query_validations, %{contains_start: true, contains_end: true})
       |> assign(:timezone, TimezoneHelper.get_timezone())
       |> assign(:sample_sql_template, @sample_sql_template)
+      |> assign(:is_demo, false)
 
     {:ok, socket}
   end
@@ -51,6 +52,26 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
     socket =
       socket
       |> assign(assigns)
+
+    socket =
+      case socket.assigns.data_source.source do
+        :rdb_demo ->
+          socket
+          |> assign(:sql_template, """
+            SELECT
+              DATE(order_date),
+              SUM(amount) AS "amount_sum",
+              SUM(revenue) AS "revenue_sum"
+            FROM sample_data
+              WHERE DATE(order_date) >= {{start}}
+                AND DATE(order_date) < {{end}}
+              GROUP BY 1
+          """)
+          |> assign(:is_demo, true)
+
+        _ ->
+          socket
+      end
 
     socket =
       case socket.assigns.sql_template do
@@ -95,6 +116,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                     input_class="mt-0"
                     value={@sql_template}
                     placeholder={@sample_sql_template}
+                    disabled={@is_demo}
                   />
                 </div>
                 <div class="w-full px-2 sm:col-span-3 text-sm">

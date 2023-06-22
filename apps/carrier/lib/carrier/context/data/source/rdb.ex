@@ -189,7 +189,7 @@ defmodule Carrier.Data.Source.RDB do
   alias Carrier.Core.DataHelper
 
   def sources() do
-    [:postgres, :mysql, :bigquery, :athena]
+    [:postgres, :mysql, :bigquery, :athena, :rdb_demo]
   end
 
   def get_module(source) do
@@ -198,6 +198,7 @@ defmodule Carrier.Data.Source.RDB do
       :mysql -> __MODULE__.MySQL
       :bigquery -> __MODULE__.BigQuery
       :athena -> __MODULE__.Athena
+      :rdb_demo -> __MODULE__.Demo
     end
   end
 

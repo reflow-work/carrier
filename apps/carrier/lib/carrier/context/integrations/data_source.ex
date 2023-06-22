@@ -10,7 +10,7 @@ defmodule Carrier.Integrations.DataSource do
     field :org_id, :id
 
     field :source, Ecto.Enum,
-      values: [:postgres, :mysql, :bigquery, :athena, :tableau, :tableau_demo]
+      values: [:postgres, :mysql, :bigquery, :athena, :tableau, :tableau_demo, :rdb_demo]
 
     field :name, :string
 
@@ -66,10 +66,11 @@ defmodule Carrier.Integrations.DataSource do
       :athena -> "AWS Athena"
       :tableau -> "Tableau Cloud"
       :tableau_demo -> "(Demo)Tableau Cloud"
+      :rdb_demo -> "(Demo)Relational Database"
     end
   end
 
   def is_demo?(%__MODULE__{source: source}) do
-    source in [:tableau_demo]
+    source in [:tableau_demo, :rdb_demo]
   end
 end

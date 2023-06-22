@@ -69,7 +69,8 @@ defmodule Carrier.Integrations do
   def create_demo_data_sources(%{org_id: org_id}) do
     TenantRepo.wrap_transaction(fn ->
       [
-        %{org_id: org_id, name: "(Demo) Tableau", source: :tableau_demo, conn_info: %{}}
+        %{org_id: org_id, name: "(Demo)Tableau", source: :tableau_demo, conn_info: %{}},
+        %{org_id: org_id, name: "(Demo)Relational Database", source: :rdb_demo, conn_info: %{}}
       ]
       |> Enum.map(&create_data_source/1)
       |> Traversable.traverse()

@@ -438,6 +438,7 @@ defmodule CarrierWeb.CoreComponents do
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           "min-h-[6rem] border-zinc-300 focus:border-zinc-400",
           "resize-none",
+          "disabled:bg-zinc-50",
           @errors != [] && "border-rose-400 focus:border-rose-400",
           @input_class
         ]}
