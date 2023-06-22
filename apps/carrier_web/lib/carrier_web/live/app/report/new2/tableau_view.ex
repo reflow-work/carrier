@@ -29,7 +29,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
             Tableau.get_view_preview_image_binary(
               workbook_id,
               view_id,
-              DataSource.to_credentials(data_source)
+              data_source
             )
           end,
           __MODULE__

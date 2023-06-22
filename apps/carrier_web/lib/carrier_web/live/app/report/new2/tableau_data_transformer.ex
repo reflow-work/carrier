@@ -26,11 +26,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       |> assign(assigns)
       |> assign_async(
         :views,
-        fn ->
-          data_source
-          |> DataSource.to_credentials()
-          |> Tableau.list_views()
-        end,
+        fn -> data_source |> Tableau.list_views() end,
         __MODULE__
       )
 

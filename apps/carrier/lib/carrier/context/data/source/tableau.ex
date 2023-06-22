@@ -6,6 +6,7 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Tmp}
   alias Carrier.{Uploader, PDF}
+  alias Carrier.Fixture
 
   ### models
 
@@ -154,19 +155,42 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def list_views(credentials) do
+  def list_views(%DataSource{source: :tableau} = data_source) do
+    credentials = data_source |> DataSource.to_credentials()
+
     with {:ok, auth} <- signin(credentials),
          {:ok, views} <- do_list_views(auth) do
       {:ok, views}
     end
   end
 
-  def get_view_preview_image_binary(workbook_id, view_id, credentials) do
+  def list_views(%DataSource{source: :tableau_demo}) do
+    %{"views" => %{"view" => raw_views}} =
+      Fixture.json("tableau_api/query_views_for_site.success.json")
+
+    views = raw_views |> Enum.map(&View.new(&1))
+
+    {:ok, views}
+  end
+
+  def get_view_preview_image_binary(
+        workbook_id,
+        view_id,
+        %DataSource{source: :tableau} = data_source
+      ) do
+    credentials = data_source |> DataSource.to_credentials()
+
     with {:ok, auth} <- signin(credentials),
          {:ok, view_preview_image_binary} <-
            do_get_preview_image_binary(workbook_id, view_id, auth) do
       {:ok, view_preview_image_binary}
     end
+  end
+
+  def get_view_preview_image_binary(workbook_id, view_id, %DataSource{source: :tableau_demo}) do
+    view_preview_image_binary = Fixture.read("tableau_api/view_preview_images/#{view_id}")
+
+    {:ok, view_preview_image_binary}
   end
 
   def get_view_image_binary(view_id, credentials) do
