@@ -36,7 +36,7 @@ defmodule CarrierWeb.App.OnboardingLive.Index do
            }) do
       socket =
         socket
-        |> push_navigate(to: ~p"/app/data-targets/new")
+        |> push_navigate(to: ~p"/app/reports/new2")
 
       {:noreply, socket}
     else
