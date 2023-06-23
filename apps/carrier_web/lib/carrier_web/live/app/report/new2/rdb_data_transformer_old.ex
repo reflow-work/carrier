@@ -167,6 +167,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
     socket =
       socket
       |> assign(:rdb_form, rdb_form)
+      |> assign_query_result_by_columns()
       |> add_draw_chart_events()
 
     validate_and_send_data_source_info_form(socket)
