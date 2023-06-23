@@ -33,7 +33,7 @@ defmodule Carrier.Integrations do
                conn_info_id: conn_info_id
              })
              |> TenantRepo.insert() do
-        {:ok, data_target}
+        {:ok, data_target |> TenantRepo.preload(:conn_info)}
       end
     end)
   end
@@ -61,7 +61,7 @@ defmodule Carrier.Integrations do
                conn_info_id: conn_info_id
              })
              |> TenantRepo.insert() do
-        {:ok, data_source}
+        {:ok, data_source |> TenantRepo.preload(:conn_info)}
       end
     end)
   end

@@ -20,8 +20,11 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
   def update(%{data_source: data_source}, socket) do
     socket =
       socket
-      |> load_data_sources()
+      |> update(:data_sources, &[data_source | &1])
+      |> assign(:selected_data_source_id, data_source.id)
       |> hide_modal_from_server("new_data_source_modal")
+
+    send(self(), {:data_source_selected, data_source})
 
     {:ok, socket}
   end

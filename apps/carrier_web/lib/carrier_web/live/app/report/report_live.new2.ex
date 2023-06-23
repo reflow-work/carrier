@@ -270,7 +270,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
     socket =
       socket
-      |> update(:data_targets, &(&1 ++ [data_target]))
+      |> update(:data_targets, &[data_target | &1])
       |> assign(:selected_data_target, data_target)
 
     {:noreply, socket}
