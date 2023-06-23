@@ -93,16 +93,13 @@ defmodule Carrier.Reports do
     end
   end
 
-  def record_scheduled_report_log(
-        %{
-          org_id: org_id,
-          report_info_id: report_info_id,
-          report_id: report_id,
-          report_job_id: report_job_id,
-          scheduled_at: scheduled_at
-        },
-        reader \\ %{repo: TenantRepo}
-      ) do
+  def record_scheduled_report_log(%{
+        org_id: org_id,
+        report_info_id: report_info_id,
+        report_id: report_id,
+        report_job_id: report_job_id,
+        scheduled_at: scheduled_at
+      }) do
     ReportLog.record_scheduled(%{
       org_id: org_id,
       report_info_id: report_info_id,
@@ -111,7 +108,7 @@ defmodule Carrier.Reports do
       created_at: DateTime.utc_now(),
       scheduled_at: scheduled_at
     })
-    |> reader.repo.insert()
+    |> TenantRepo.insert()
   end
 
   def record_tried_report_log(%{
@@ -174,12 +171,11 @@ defmodule Carrier.Reports do
 
   def create_job_from_report(
         %Report{} = report,
-        %DateTime{} = base_datetime,
-        reader \\ %{repo: TenantRepo}
+        %DateTime{} = base_datetime
       ) do
     scheduled_at = calc_next_report_time(report, base_datetime)
 
-    reader.repo.wrap_transaction(fn ->
+    TenantRepo.wrap_transaction(fn ->
       with {:ok, report_job} <-
              %{
                org_id: report.org_id,
@@ -191,18 +187,15 @@ defmodule Carrier.Reports do
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
              )
-             |> reader.repo.insert(),
+             |> TenantRepo.insert(),
            {:ok, %ReportLog{}} <-
-             record_scheduled_report_log(
-               %{
-                 org_id: report.org_id,
-                 report_info_id: report.report_info_id,
-                 report_id: report.id,
-                 report_job_id: report_job.id,
-                 scheduled_at: scheduled_at
-               },
-               reader
-             ) do
+             record_scheduled_report_log(%{
+               org_id: report.org_id,
+               report_info_id: report.report_info_id,
+               report_id: report.id,
+               report_job_id: report_job.id,
+               scheduled_at: scheduled_at
+             }) do
         {:ok, report_job}
       end
     end)
