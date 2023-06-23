@@ -149,6 +149,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                   </div>
                 </div>
               </div>
+              <p :if={@is_demo}>데모 데이터 소스로는 정해진 쿼리만 가능합니다</p>
               <.button class="mt-2" disabled={run_query_disabled?(@sql_template, @query_validations)}>
                 쿼리 실행
               </.button>
