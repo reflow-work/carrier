@@ -704,7 +704,11 @@ defmodule Carrier.BillingTest do
 
     test "without active trial subscription", %{org: org, trial_plan: trial_plan} do
       _expired_trial_subscription =
-        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
+        TenantFactory.insert(:subscription,
+          org_id: org.org_id,
+          plan: trial_plan,
+          status: :expired
+        )
 
       assert Billing.get_active_trial_subscription() == nil
     end
