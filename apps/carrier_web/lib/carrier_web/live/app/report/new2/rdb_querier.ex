@@ -199,7 +199,9 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   end
 
   @impl true
-  def handle_event("run_query", %{"sql_template" => sql_template}, socket) do
+  def handle_event("run_query", params, socket) do
+    sql_template = params["sql_template"] || socket.assigns.sql_template
+
     socket =
       socket
       |> assign(:sql_template, sql_template)
