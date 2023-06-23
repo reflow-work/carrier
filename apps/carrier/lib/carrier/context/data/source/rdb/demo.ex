@@ -12,7 +12,7 @@ defmodule Carrier.Data.Source.RDB.Demo do
   end
 
   @impl Carrier.Data.Source.RDB
-  def run_query(_credentials, sql, sql_params \\ [], opts \\ []) do
+  def run_query(_credentials, sql, _sql_params \\ [], _opts \\ []) do
     case sql do
       "validation_query" ->
         {:ok, %{columns: ["?column?"], rows: [[1]]}}
