@@ -35,7 +35,7 @@ config :carrier_web, CarrierWeb.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
 # In test we don't send emails.
 config :carrier, Carrier.Mailer, adapter: Swoosh.Adapters.Test
