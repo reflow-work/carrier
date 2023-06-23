@@ -6,7 +6,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBParamsOld do
   @primary_key false
   embedded_schema do
     field :data_source_id, :id
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena]
+    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :rdb_demo]
     field :sql_template, :string
     field :period, :integer
     field :window_size, :integer

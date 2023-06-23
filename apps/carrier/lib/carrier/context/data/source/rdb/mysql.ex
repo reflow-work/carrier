@@ -34,7 +34,7 @@ defmodule Carrier.Data.Source.RDB.MySQL do
   @impl Carrier.Data.Source.RDB
   def tables_query() do
     """
-    SELECT *
+    SELECT #{table_name_field()}
       FROM information_schema.tables
       WHERE TABLE_SCHEMA not in ('mysql', 'performance_schema', 'sys', 'information_schema');
     """
@@ -48,7 +48,7 @@ defmodule Carrier.Data.Source.RDB.MySQL do
   @impl Carrier.Data.Source.RDB
   def columns_query() do
     """
-    SELECT *
+    SELECT #{column_name_field()}, #{data_type_field()}
       FROM information_schema.columns
       WHERE TABLE_NAME = {{table_name}}
       ORDER BY ORDINAL_POSITION;

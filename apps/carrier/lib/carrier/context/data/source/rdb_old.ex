@@ -289,6 +289,7 @@ defmodule Carrier.Data.Source.RDBOld do
       :mysql -> Carrier.Data.Source.RDB.MySQL
       :bigquery -> Carrier.Data.Source.RDB.BigQuery
       :athena -> Carrier.Data.Source.RDB.Athena
+      :rdb_demo -> Carrier.Data.Source.RDB.Demo
     end
   end
 
