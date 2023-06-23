@@ -34,7 +34,13 @@ defmodule Carrier.TenantFactory do
     {conn_info, attrs} =
       attrs
       |> Map.pop_lazy(:conn_info, fn ->
-        build(:conn_info, org_id: org_id, source: service_name)
+        build(:conn_info,
+          org_id: org_id,
+          source: service_name,
+          info: %{
+            bot_scope: "chat:write,channels:read,chat:write.public,groups:read,users:read,im:read"
+          }
+        )
       end)
 
     %DataTarget{
@@ -124,7 +130,8 @@ defmodule Carrier.TenantFactory do
         target: :slack,
         params: %{
           channel_id: "channel_id",
-          channel_name: "channe_name"
+          channel_name: "channe_name",
+          channel_type: "public_channel"
         }
       },
       data_source_info: %{

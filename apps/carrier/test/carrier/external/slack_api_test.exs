@@ -13,7 +13,7 @@ defmodule Carrier.External.SlackAPITest do
     @sucess_resp Carrier.Fixture.json("slack_api/conversations.list.success.json")
 
     test "with valid params", %{bypass: bypass} do
-      params = %{limit: 2, cursor: "cursor"}
+      params = %{limit: 2, scope: "channels:read,groups:read,im:read", cursor: "cursor"}
       token = "token"
 
       ExternalHelper.expect(
@@ -28,7 +28,7 @@ defmodule Carrier.External.SlackAPITest do
                    "cursor" => "cursor",
                    "exclude_archived" => "true",
                    "limit" => "2",
-                   "types" => "public_channel,private_channel"
+                   "types" => "public_channel,private_channel,im"
                  }
         end
       )
@@ -38,10 +38,10 @@ defmodule Carrier.External.SlackAPITest do
 
       assert channel0.id == "C03KTBEU3ST"
       assert channel0.name == "1-제품개발"
-      assert channel0.is_private == false
+      assert channel0.type == :public_channel
       assert channel1.id == "C056VFU2CE4"
       assert channel1.name == "private"
-      assert channel1.is_private == true
+      assert channel1.type == :private_channel
 
       assert pagination.next_cursor == "dGVhbTpDMDNMMFVMRlVEVQ=="
     end

@@ -21,7 +21,7 @@ defmodule Carrier.Core.AsyncTest do
     test "with some timeout results" do
       list = [1, 2]
 
-      assert [{:ok, 2}, {:error, :timeout}] =
+      assert catch_exit(
                Async.map(
                  list,
                  fn i ->
@@ -30,6 +30,7 @@ defmodule Carrier.Core.AsyncTest do
                  end,
                  timeout: 1000
                )
+             )
     end
   end
 

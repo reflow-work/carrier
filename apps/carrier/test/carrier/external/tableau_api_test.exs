@@ -93,7 +93,8 @@ defmodule Carrier.External.TableauAPITest do
         status: 401
       )
 
-      assert {:error, "Error signing in to Tableau Server"} = TableauAPI.signin(params)
+      assert {:error, {:tableau_api_unknown_error, "Error signing in to Tableau Server"}} =
+               TableauAPI.signin(params)
     end
   end
 end

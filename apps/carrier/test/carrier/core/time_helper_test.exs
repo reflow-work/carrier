@@ -44,15 +44,15 @@ defmodule Carrier.Core.TimeHelperTest do
 
   describe "calc_day_diff_from_utc_time/2" do
     test "with not date diff condition" do
-      assert TimeHelper.calc_day_diff_to_utc_time(~T[10:00:00], "Asia/Seoul") == 0
+      assert TimeHelper.calc_day_diff_from_utc_time(~T[10:00:00], "Asia/Seoul") == 0
     end
 
     test "with positive date diff condition" do
-      assert TimeHelper.calc_day_diff_to_utc_time(~T[23:00:00], "Asia/Seoul") == 1
+      assert TimeHelper.calc_day_diff_from_utc_time(~T[23:00:00], "Asia/Seoul") == 1
     end
 
     test "with negative date diff condition" do
-      assert TimeHelper.calc_day_diff_to_utc_time(~T[01:00:00], "America/Toronto") == -1
+      assert TimeHelper.calc_day_diff_from_utc_time(~T[01:00:00], "America/Toronto") == -1
     end
   end
 end

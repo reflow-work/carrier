@@ -60,7 +60,8 @@ defmodule Carrier.ReportsTest do
           target: :slack,
           params: %{
             channel_id: "channel_id",
-            channel_name: "channel_name"
+            channel_name: "channel_name",
+            channel_type: "public_channel"
           }
         },
         data_source_info: %{
@@ -139,7 +140,8 @@ defmodule Carrier.ReportsTest do
           target: :slack,
           params: %{
             channel_id: "channel_id",
-            channel_name: "channel_name"
+            channel_name: "channel_name",
+            channel_type: "public_channel"
           }
         },
         data_source_info: %{
@@ -270,7 +272,8 @@ defmodule Carrier.ReportsTest do
           target: :slack,
           params: %{
             channel_id: "channel_id",
-            channel_name: "channel_name"
+            channel_name: "channel_name",
+            channel_type: "public_channel"
           }
         },
         data_source_info: %{
