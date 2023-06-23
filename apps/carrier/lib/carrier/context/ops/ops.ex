@@ -88,6 +88,23 @@ defmodule Carrier.Ops do
     end
   end
 
+  def validate_data_sources() do
+    DataSource.list()
+    |> DataSource.preload_conn_info()
+    |> Repo.all()
+    |> Enum.map(fn %DataSource{
+                     id: data_source_id,
+                     conn_info: %ConnInfo{source: source, info: info}
+                   } ->
+      try do
+        {data_source_id, ConnValidator.validate(source, info, :source)}
+      rescue
+        e ->
+          {data_source_id, {:error, inspect(e)}}
+      end
+    end)
+  end
+
   defp delete_not_deleted(module, now) do
     from(x in module, where: is_nil(x.deleted_at), update: [set: [deleted_at: ^now]])
     |> TenantRepo.update_all([])
