@@ -15,7 +15,7 @@ defmodule Carrier.Setting.Super do
         Property.get_value_by_type(property)
 
       _ ->
-        Logger.warn("property not found for key: #{key}")
+        Logger.warning("property not found for key: #{key}")
         default_value
     end
   end

@@ -13,7 +13,7 @@ defmodule Carrier.Core.NumberHelper do
         result
 
       {:error, _reason} ->
-        Logger.warn(
+        Logger.warning(
           "safe_format_money: invalid number #{inspect(number)} or currency #{inspect(currency)}"
         )
 
@@ -22,7 +22,7 @@ defmodule Carrier.Core.NumberHelper do
   end
 
   def safe_format_money(number, currency) do
-    Logger.warn(
+    Logger.warning(
       "safe_format_money: invalid number #{inspect(number)} or currency #{inspect(currency)}"
     )
 

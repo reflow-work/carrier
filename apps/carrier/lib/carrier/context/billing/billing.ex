@@ -268,7 +268,7 @@ defmodule Carrier.Billing do
   end
 
   defp do_expire_subscription(%Subscription{status: :expired} = subscription) do
-    Logger.warn("Subscription #{subscription.id} is already expired")
+    Logger.warning("Subscription #{subscription.id} is already expired")
 
     {:ok, subscription}
   end
