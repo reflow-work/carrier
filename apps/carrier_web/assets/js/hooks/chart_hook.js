@@ -112,6 +112,7 @@ const ChartHook = {
       },
       plugins: [bgColorPlugIn],
       options: {
+        animation: false,
         responsive: true,
         maintainAspectRatio: false,
         layout: {
