@@ -2,7 +2,6 @@ defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
   alias Carrier.Billing
-  alias Carrier.Setting
   alias Carrier.Core.{WeekdayHelper, TimeHelper}
   alias Carrier.Roles.Role
 
@@ -136,19 +135,6 @@ defmodule CarrierWeb.App.ReportLive.Index do
     case role |> Role.report_max_count() do
       nil -> false
       report_max_count -> report_max_count <= Enum.count(reports)
-    end
-  end
-
-  defp edit_path(report) do
-    case Setting.get_feature_flag_value("report_refactoring") do
-      true ->
-        ~p"/app/reports/#{report}/edit2"
-
-      false ->
-        case report.data_source_info.source do
-          :tableau -> ~p"/app/reports/#{report}/edit2"
-          _ -> ~p"/app/reports/#{report}/edit"
-        end
     end
   end
 

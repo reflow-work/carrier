@@ -53,12 +53,8 @@ defmodule CarrierWeb.App.DataSourceLive.New do
   end
 
   @impl true
-  def handle_info({:data_source_created, %DataSource{source: source} = data_source}, socket) do
-    redirect_path =
-      case source do
-        :tableau -> ~p"/app/reports/new2?data_source_id=#{data_source}"
-        _ -> ~p"/app/reports/new?data_source_id=#{data_source}"
-      end
+  def handle_info({:data_source_created, %DataSource{} = data_source}, socket) do
+    redirect_path = ~p"/app/reports/new2?data_source_id=#{data_source}"
 
     socket =
       socket
