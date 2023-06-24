@@ -107,7 +107,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
           </.table>
         </.card>
         <div :if={has_billing_payment_permission(@user)} class="text-right text-sm text-description">
-          <.link href="https://reflow-work.channel.io/" target="_blank" class="link">환불문의</.link>
+          <.link phx-click={JS.dispatch("phx:channeltalk-open")}>환불문의</.link>
         </div>
       </.card_container>
     </div>
