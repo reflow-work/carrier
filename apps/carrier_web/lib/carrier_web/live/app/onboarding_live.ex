@@ -9,6 +9,15 @@ defmodule CarrierWeb.App.OnboardingLive do
   end
 
   @impl true
+  def handle_event("validate_onboarding", %{"onboarding" => onboarding_inputs}, socket) do
+    socket =
+      socket
+      |> assign(:onboarding, onboarding_inputs)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("update_onboarding", %{"onboarding" => onboarding_inputs}, socket) do
     %{
       "position" => position,
