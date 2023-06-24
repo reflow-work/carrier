@@ -1,7 +1,6 @@
 defmodule CarrierWeb.App.OnboardingLive.Index do
   use CarrierWeb, :live_view
-
-  alias Carrier.Accounts
+  alias Carrier.Context.Onboarding
   alias Carrier.Accounts.{Org, User}
 
   @impl true
@@ -21,19 +20,13 @@ defmodule CarrierWeb.App.OnboardingLive.Index do
     } = onboarding_inputs
 
     with :ok <- validate_policy(agreed_terms_of_service, agreed_privacy_policy),
-         now = DateTime.utc_now(),
-         {:ok, %User{}} <-
-           Accounts.update_user(socket.assigns.user.id, %{
-             position: position,
-             agreed_terms_of_service_at: now,
-             agreed_privacy_policy_at: now
-           }),
-         {:ok, %Org{}} <-
-           Accounts.update_org(%{
-             name: name,
-             industry: industry,
-             employee_count: employee_count
-           }) do
+         Onboarding.onboard(%{
+           user_id: socket.assigns.user.id,
+           name: name,
+           industry: industry,
+           employee_count: employee_count,
+           position: position
+         }) do
       socket =
         socket
         |> push_navigate(to: ~p"/app/reports/new2")
