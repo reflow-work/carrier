@@ -85,11 +85,11 @@ config :ecto_sql, migration_module: Carrier.Migration
 
 config :carrier, Oban,
   name: Carrier.Oban,
-  repo: Carrier.Repo
+  repo: Carrier.TenantRepo
 
 config :carrier_worker, Oban,
   name: CarrierWorker.Oban,
-  repo: Carrier.Repo,
+  repo: Carrier.TenantRepo,
   plugins: [
     {Oban.Plugins.Lifeline, interval: :timer.minutes(1), rescue_after: :timer.minutes(5)},
     Oban.Plugins.Reindexer

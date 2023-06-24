@@ -9,6 +9,7 @@ defmodule Carrier.IntegrationsTest do
   describe "create_data_target/1" do
     setup do
       org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
 
       valid_params = %{
         org_id: org.org_id,
@@ -36,6 +37,7 @@ defmodule Carrier.IntegrationsTest do
   describe "create_data_source/1" do
     setup do
       org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
 
       params = %{
         org_id: org.org_id,
