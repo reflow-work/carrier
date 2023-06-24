@@ -21,6 +21,7 @@ defmodule CarrierWeb.App.OnboardingLive do
 
     with :ok <- validate_policy(agreed_terms_of_service, agreed_privacy_policy),
          Onboarding.onboard(%{
+           org_id: socket.assigns.org.org_id,
            user_id: socket.assigns.user.id,
            name: name,
            industry: industry,
