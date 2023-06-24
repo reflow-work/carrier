@@ -8,6 +8,7 @@ defmodule Carrier.Accounts.Org do
     field :name, :string
     field :industry, :string
     field :employee_count, :string
+    field :onboarded, :boolean
 
     field :deleted_at, :utc_datetime_usec
   end
