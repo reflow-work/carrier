@@ -91,7 +91,7 @@ defmodule CarrierWeb.Router do
         CarrierWeb.ChanneltalkHook,
         CarrierWeb.OnboardingHook
       ] do
-      live "/onboarding", OnboardingLive.Index, :index
+      live "/onboarding", OnboardingLive
       live "/subscriptions/new", SubscriptionLive.New
       live "/subscriptions/done", SubscriptionLive.Done
       live "/data-targets/new", DataTargetLive.New, :new

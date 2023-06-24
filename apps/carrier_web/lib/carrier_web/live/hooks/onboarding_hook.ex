@@ -3,7 +3,7 @@ defmodule CarrierWeb.OnboardingHook do
   use Carrier.Accounts
 
   def on_mount(:default, _params, _session, socket) do
-    if socket.view != CarrierWeb.App.OnboardingLive.Index && !socket.assigns.org.onboarded do
+    if socket.view != CarrierWeb.App.OnboardingLive && !socket.assigns.org.onboarded do
       socket =
         socket
         |> push_navigate(to: ~p"/app/onboarding")
