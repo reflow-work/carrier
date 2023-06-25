@@ -47,14 +47,8 @@ defmodule CarrierWeb.AuthController do
 
     with :ok <- check_google_csrf(conn, g_csrf_token),
          {:ok, %{email: email}} <- Google.OAuth.verify_credential(credential),
-         {:ok, {auth_type, %User{id: user_id, org_id: org_id}}} <-
+         {:ok, {_, %User{id: user_id, org_id: org_id}}} <-
            Accounts.Super.auth(email, invited_org_id) do
-      # TODO: use event-driven
-      # signed_up and org is created
-      if auth_type == :signed_up && is_nil(invited_org_id) do
-        Integrations.create_demo_data_sources(%{org_id: org_id})
-      end
-
       conn
       |> put_session(:user_id, user_id)
       |> put_session(:org_id, org_id)

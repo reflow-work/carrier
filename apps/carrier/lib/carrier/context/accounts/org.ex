@@ -8,6 +8,7 @@ defmodule Carrier.Accounts.Org do
     field :name, :string
     field :industry, :string
     field :employee_count, :string
+    field :onboarded, :boolean
 
     field :deleted_at, :utc_datetime_usec
   end
@@ -21,7 +22,8 @@ defmodule Carrier.Accounts.Org do
   @required_for_update [
     :name,
     :industry,
-    :employee_count
+    :employee_count,
+    :onboarded
   ]
   defp changeset_for_update(%__MODULE__{} = struct, attrs) do
     struct
@@ -34,9 +36,9 @@ defmodule Carrier.Accounts.Org do
     |> changeset_for_create(%{name: name})
   end
 
-  def update(%__MODULE__{} = struct, attrs \\ %{}) do
+  def update(%__MODULE__{} = struct, attrs) do
     struct
-    |> changeset_for_update(attrs)
+    |> changeset_for_update(attrs |> Map.put(:onboarded, true))
   end
 
   def get(org_id) do

@@ -1,9 +1,32 @@
 defmodule Carrier.AccountsTest do
   use Carrier.DataCase, async: true
   alias Carrier.Accounts
-  alias Carrier.Accounts.User
+  alias Carrier.Accounts.{Org, User}
 
   @moduletag repo: TenantRepo
+
+  describe "update_org/1" do
+    setup do
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      %{org: org}
+    end
+
+    test "with valid attrs", %{org: org} do
+      params = %{
+        name: "org1",
+        industry: "IT Service",
+        employee_count: "10-19"
+      }
+
+      assert {:ok, %Org{} = updated_org} = Accounts.update_org(params)
+
+      assert same_records?(updated_org, org)
+      assert same_fields?(updated_org, params, [:name, :industry, :employee_count])
+      assert updated_org.onboarded == true
+    end
+  end
 
   describe "fetch_user/1" do
     setup do
