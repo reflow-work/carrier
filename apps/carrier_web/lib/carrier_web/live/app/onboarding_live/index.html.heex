@@ -1,64 +1,50 @@
-<section class="page-container">
-  <.page_header icon="🏢" title="회사 정보 입력하기" />
+<section class="bg-white h-screen flex flex-col items-center justify-center">
+  <div class="text-2xl font-bold">🏢 회사 정보 입력하기</div>
 
-  <.card_container>
-    <.card>
-      <.card_title title="회사 정보" />
+  <div class="mt-16">
+    <.simple_form
+      :let={f}
+      for={%{}}
+      as={:onboarding}
+      phx-submit="update_onboarding"
+      class="max-w-xs w-80"
+    >
+      <.input label="회사 이름" type="text" field={f[:name]} placeholder="리플로우" />
+
+      <.input label="회사 업종" type="select" field={f[:industry]} options={Org.industries()} />
+
+      <.input
+        label="회사 직원수"
+        type="select"
+        field={f[:employee_count]}
+        options={Org.employee_counts()}
+      />
+
+      <.input label="직무" type="select" field={f[:position]} options={User.positions()} />
+
       <div>
-        <.simple_form
-          :let={f}
-          for={%{}}
-          as={:onboarding}
-          phx-submit="update_onboarding"
-          class="max-w-xs"
-        >
-          <.input label="회사 이름" type="text" field={f[:name]} placeholder="리플로우" />
+        <.input id="agreed_terms_of_service" type="checkbox" field={f[:agreed_terms_of_service]}>
+          <:label_element>
+            <a href={Const.get(:terms_of_service_url)} target="_blank" class="underline">
+              이용약관
+            </a>
+            에 동의합니다.
+          </:label_element>
+        </.input>
 
-          <.input
-            label="회사 업종"
-            type="select"
-            field={f[:industry]}
-            options={Org.industries()}
-          />
-
-          <.input
-            label="회사 직원수"
-            type="select"
-            field={f[:employee_count]}
-            options={Org.employee_counts()}
-          />
-
-          <.input label="직무" type="select" field={f[:position]} options={User.positions()} />
-
-          <div>
-            <.input
-              id="agreed_terms_of_service"
-              type="checkbox"
-              field={f[:agreed_terms_of_service]}
-            >
-              <:label_element>
-                <a href={Const.get(:terms_of_service_url)} target="_blank" class="underline">
-                  이용약관
-                </a>
-                에 동의합니다.
-              </:label_element>
-            </.input>
-
-            <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
-              <:label_element>
-                <a href={Const.get(:privacy_policy_url)} target="_blank" class="underline">
-                  개인정보 처리방침
-                </a>
-                에 동의합니다.
-              </:label_element>
-            </.input>
-          </div>
-
-          <:actions>
-            <.button phx-disable-with="가입중">가입하기</.button>
-          </:actions>
-        </.simple_form>
+        <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
+          <:label_element>
+            <a href={Const.get(:privacy_policy_url)} target="_blank" class="underline">
+              개인정보 처리방침
+            </a>
+            에 동의합니다.
+          </:label_element>
+        </.input>
       </div>
-    </.card>
-  </.card_container>
+
+      <:actions>
+        <.button class="w-full" phx-disable-with="가입중">무료로 시작하기</.button>
+      </:actions>
+    </.simple_form>
+  </div>
 </section>
