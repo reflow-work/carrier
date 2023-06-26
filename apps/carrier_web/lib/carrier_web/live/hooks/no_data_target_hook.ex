@@ -4,7 +4,7 @@ defmodule CarrierWeb.NoDataTargetHook do
 
   def on_mount(:default, _params, _session, socket) do
     case Integrations.list_data_targets() do
-      [%DataTarget{needs_update: false}] ->
+      {:ok, [%DataTarget{needs_update: false}]} ->
         socket = socket |> push_navigate(to: ~p"/app/reports")
 
         {:halt, socket}

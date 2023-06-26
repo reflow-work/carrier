@@ -82,6 +82,7 @@ defmodule Carrier.Integrations do
     DataTarget.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
+    |> then(&{:ok, &1})
   end
 
   def fetch_data_target(data_target_id) do
