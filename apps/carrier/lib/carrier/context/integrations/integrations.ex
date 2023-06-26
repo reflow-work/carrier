@@ -131,11 +131,6 @@ defmodule Carrier.Integrations do
     end
   end
 
-  def list_conn_infos() do
-    ConnInfo.list()
-    |> TenantRepo.all()
-  end
-
   defp do_update_info_of_conn_info(%ConnInfo{} = conn_info, %{info: info}) do
     ConnInfo.update_info(conn_info, %{info: info})
     |> TenantRepo.update()
