@@ -58,10 +58,6 @@ defmodule Carrier.Billing.Subscription do
     |> changeset_for_create(params)
   end
 
-  def list_include_deleted() do
-    __MODULE__
-  end
-
   def fetch(subscription_id) do
     __MODULE__
     |> where([s], s.id == ^subscription_id)

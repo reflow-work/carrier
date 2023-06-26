@@ -1,5 +1,5 @@
 defmodule Carrier.Context.Onboarding do
-  use Carrier.{Accounts, Integrations}
+  use Carrier.{Accounts, Integrations, Billing}
   alias Carrier.TenantRepo
   alias Carrier.Core.Traversable
 
@@ -26,6 +26,7 @@ defmodule Carrier.Context.Onboarding do
                agreed_terms_of_service_at: now,
                agreed_privacy_policy_at: now
              }),
+           {:ok, _} <- create_trial_subscription(%{org_id: org_id}),
            {:ok, _} <- create_demo_data_sources(%{org_id: org_id}) do
         {:ok, nil}
       end
@@ -41,5 +42,19 @@ defmodule Carrier.Context.Onboarding do
       |> Enum.map(&Integrations.create_data_source/1)
       |> Traversable.traverse()
     end)
+  end
+
+  defp create_trial_subscription(%{org_id: org_id}) do
+    start_on = DateTime.utc_now()
+
+    with %Plan{id: plan_id, type: :trial} <- Billing.Super.fetch_trial_plan!(),
+         {:ok, %Subscription{} = trial_subscription} <-
+           Billing.start_subscription(%{
+             org_id: org_id,
+             plan_id: plan_id,
+             start_on: start_on
+           }) do
+      {:ok, trial_subscription}
+    end
   end
 end
