@@ -12,9 +12,6 @@ defmodule Carrier.Core.Cache do
       adapter: Nebulex.Adapters.Local
   end
 
-  def default_matcher({:ok, _}), do: true
-  def default_matcher(_), do: false
-
   def ttl(ttl) do
     case Application.get_env(:carrier, __MODULE__)[:force_ttl] do
       nil -> ttl
