@@ -70,21 +70,21 @@ defmodule Carrier.Ops do
     end
   end
 
-  def create_trial_subscription(%{org_id: org_id, start_on: start_on, end_on: end_on}) do
+  def create_trial_subscription(%{org_id: org_id, end_on: end_on}) do
     TenantRepo.put_org_id(org_id)
+
+    start_on = DateTime.utc_now()
 
     with false <- Billing.have_active_subscription?(),
          %Plan{id: plan_id, type: :trial} <- Billing.Super.fetch_trial_plan!(),
-         {:ok, %Subscription{} = subscription} <-
-           Billing.create_subscription(%{
+         {:ok, %Subscription{} = trial_subscription} <-
+           Billing.start_subscription(%{
              org_id: org_id,
              plan_id: plan_id,
-             extension_count: 0,
              start_on: start_on,
              end_on: end_on
-           }),
-         {:ok, activated_subscription} <- Billing.activate_subscription(subscription) do
-      {:ok, activated_subscription}
+           }) do
+      {:ok, trial_subscription}
     end
   end
 
