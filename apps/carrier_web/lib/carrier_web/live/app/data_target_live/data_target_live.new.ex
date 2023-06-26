@@ -7,6 +7,10 @@ defmodule CarrierWeb.App.DataTargetLive.New do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(:title, nil)
+
     {:ok, socket}
   end
 
@@ -15,6 +19,7 @@ defmodule CarrierWeb.App.DataTargetLive.New do
     socket =
       socket
       |> assign(:redirect_uri, SlackHelper.get_redirect_uri(nil, params["popup"]))
+      |> assign(:title, "슬랙 연동")
 
     {:noreply, socket}
   end
@@ -28,6 +33,7 @@ defmodule CarrierWeb.App.DataTargetLive.New do
     socket =
       socket
       |> assign(:redirect_uri, SlackHelper.get_redirect_uri(data_target_id_str, params["popup"]))
+      |> assign(:title, "슬랙 재연동")
 
     {:noreply, socket}
   end
