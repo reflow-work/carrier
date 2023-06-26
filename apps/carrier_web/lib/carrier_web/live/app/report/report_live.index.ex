@@ -125,10 +125,10 @@ defmodule CarrierWeb.App.ReportLive.Index do
   end
 
   defp load_data_sources(socket) do
-    data_sources = Integrations.list_data_sources()
-
-    socket
-    |> assign(:data_sources, data_sources)
+    case Integrations.list_data_sources() do
+      {:ok, data_sources} -> socket |> assign(:data_sources, data_sources)
+      _ -> socket
+    end
   end
 
   # TODO: remove nil case

@@ -104,6 +104,7 @@ defmodule Carrier.Integrations do
     DataSource.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
+    |> then(&{:ok, &1})
   end
 
   def fetch_data_source(data_source_id) do
