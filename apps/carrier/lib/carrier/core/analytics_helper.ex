@@ -12,9 +12,6 @@ defmodule Carrier.Core.AnalyticsHelper do
       "/onboarding" ->
         "onboarding"
 
-      "/data-targets/new" ->
-        "data_target_new"
-
       "/data-sources" ->
         "data_source"
 
