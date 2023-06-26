@@ -64,9 +64,9 @@ defmodule Carrier.Integrations.DataSource do
       :mysql -> "MySQL"
       :bigquery -> "Google BigQuery"
       :athena -> "AWS Athena"
-      :tableau -> "Tableau Cloud"
-      :tableau_demo -> "(Demo)Tableau Cloud"
-      :rdb_demo -> "(Demo)Relational Database"
+      :tableau -> "Tableau"
+      :tableau_demo -> "(Demo) Tableau"
+      :rdb_demo -> "(Demo) Relational Database"
     end
   end
 
