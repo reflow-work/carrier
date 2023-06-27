@@ -14,24 +14,14 @@
   <div class="col-span-12 md:col-span-6">
     <%= img_tag(~p"/images/section-1.png", class: "w-full") %>
   </div>
-</section>
 
-<div class="landing-container">
-  <div class="bg-primary rounded-lg flex justify-between items-center py-4 px-4 md:px-8">
-    <div class="text-white font-bold text-sm lg:text-base">
-      지금 시작하면 Beta 기간이 끝날 때까지 무료 🎉
-    </div>
-
-    <button
-      class="button ml-4"
-      phx-click="click_link"
-      phx-value-name="start_on_banner"
-      phx-value-to="/login"
-    >
-      무료로 시작하기
-    </button>
+  <div class="col-span-12 grid grid-cols-4 gap-28 px-40 mt-28 items-center max-h-8 justify-center">
+    <div><%= img_tag(~p"/images/company_logo_gu.png") %></div>
+    <div><%= img_tag(~p"/images/company_logo_carat.webp") %></div>
+    <div><%= img_tag(~p"/images/company_logo_sool.webp", class: "h-[70px] mx-auto") %></div>
+    <div><%= img_tag(~p"/images/company_logo_pet.png") %></div>
   </div>
-</div>
+</section>
 
 <section class="landing-container flex flex-col section text-center">
   <h1 class="h1 mb-28">이런 고민을 해봤다면<br /> reflow를 도입할 때!</h1>
