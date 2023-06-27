@@ -156,6 +156,11 @@ defmodule Carrier.Billing do
     |> TenantRepo.exists?()
   end
 
+  def have_active_non_trial_subscription?() do
+    Subscription.fetch_active_non_trial()
+    |> TenantRepo.exists?()
+  end
+
   defp fetch_subscription_with_state(subscription_id, state) do
     Subscription.fetch_with_state(subscription_id, state)
     |> TenantRepo.one()
