@@ -37,9 +37,9 @@ defmodule Carrier.Data.Source.RDBOld do
 
   @impl true
   def validate_conn(source, credentials, opts) do
-    query = get_module(source).validation_query()
+    query = get_module(source, false).validation_query()
 
-    case run_query(source, credentials, query, [], opts) do
+    case do_run_query(source, false, credentials, query, [], opts) do
       {:ok, _} -> :ok
       {:error, _} -> {:error, :invalid_conn_info}
     end
@@ -62,7 +62,7 @@ defmodule Carrier.Data.Source.RDBOld do
           datetime: utc_datetime,
           timezone: timezone
         },
-        %DataSource{source: source} = data_source
+        %DataSource{} = data_source
       ) do
     {query_start_date, query_end_date} =
       calc_query_start_end_date(%{
@@ -75,11 +75,9 @@ defmodule Carrier.Data.Source.RDBOld do
 
     query_params = %{"start" => query_start_date, "end" => query_end_date}
 
-    credentials = DataSource.to_credentials(data_source)
-
     with :ok <- is_valid_sql?(sql_template),
          {:ok, %{columns: columns, data: data} = query_result} <-
-           run_query(source, credentials, sql_template, query_params),
+           run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(query_result) do
       data =
         data
@@ -283,18 +281,32 @@ defmodule Carrier.Data.Source.RDBOld do
     [:postgres, :mysql, :bigquery, :athena]
   end
 
-  def get_module(source) do
+  def get_module(:postgres, true) do
+    Carrier.Data.Source.RDB.PostgresDemo
+  end
+
+  def get_module(source, false) when is_atom(source) do
     case source do
       :postgres -> Carrier.Data.Source.RDB.Postgres
       :mysql -> Carrier.Data.Source.RDB.MySQL
       :bigquery -> Carrier.Data.Source.RDB.BigQuery
       :athena -> Carrier.Data.Source.RDB.Athena
-      :rdb_demo -> Carrier.Data.Source.RDB.Demo
     end
   end
 
-  def run_query(source, credentials, query, query_params \\ %{}, opts \\ []) do
-    source_module = get_module(source)
+  def run_query(
+        %DataSource{source: source, demo: demo} = data_source,
+        query,
+        query_params \\ %{},
+        opts \\ []
+      ) do
+    credentials = DataSource.to_credentials(data_source)
+
+    do_run_query(source, demo, credentials, query, query_params, opts)
+  end
+
+  def do_run_query(source, demo, credentials, query, query_params \\ %{}, opts \\ []) do
+    source_module = get_module(source, demo)
 
     with {:ok, {query, sql_params}} <-
            parameterize_query(query, query_params, &source_module.param/1),
