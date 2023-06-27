@@ -60,4 +60,20 @@ defmodule Carrier.Roles.Role do
         end
     end
   end
+
+  def data_source_max_count(role) do
+    data_source_max_count_permission =
+      role.permissions |> Enum.find(fn x -> x |> String.contains?("data-source.max-count") end)
+
+    case data_source_max_count_permission do
+      nil ->
+        0
+
+      "data-source.max-count." <> max_count_str ->
+        case max_count_str do
+          "infinity" -> :infinity
+          _ -> max_count_str |> String.to_integer()
+        end
+    end
+  end
 end
