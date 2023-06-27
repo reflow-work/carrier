@@ -9,31 +9,37 @@ defmodule Carrier.Core.AnalyticsHelper do
       "/pricing" ->
         "pricing"
 
-      "/onboarding" ->
+      "/app/onboarding" ->
         "onboarding"
 
-      "/data-sources" ->
+      "/app/data-sources" ->
         "data_source"
 
-      "/data-sources/new" ->
+      "/app/data-sources/new" ->
         "data_source_new"
 
-      "/reports" ->
+      "/app/reports" ->
         "report_list"
 
-      "/reports/new" ->
+      "/app/reports/new" ->
         "report_new"
 
-      "/report_logs" ->
+      "/app/report_logs" ->
         "report_log_list"
 
-      "/settings" ->
+      "/app/settings" ->
         "setting"
+
+      "/app/reports/new2" ->
+        "report_new"
+
+      "/app/subscriptions/new" ->
+        "subscription_new"
 
       path ->
         cond do
-          Regex.match?(~r/\/report\/\d+\/delete/, path) -> "report_deletion"
-          Regex.match?(~r/\/report\/\d+\/edit/, path) -> "report_editing"
+          Regex.match?(~r/\/app\/reports\/\w+\/delete/, path) -> "report_deletion"
+          Regex.match?(~r/\/app\/reports\/\w+\/edit2/, path) -> "report_editing"
           true -> nil
         end
     end
