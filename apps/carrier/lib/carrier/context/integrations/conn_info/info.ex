@@ -37,8 +37,6 @@ defmodule Carrier.Integrations.ConnInfo.Info do
       :slack -> ConnInfo.Slack
       :tableau -> ConnInfo.Tableau
       :demo -> ConnInfo.Demo
-      # TODO: remove it
-      _ -> ConnInfo.Demo
     end
   end
 end

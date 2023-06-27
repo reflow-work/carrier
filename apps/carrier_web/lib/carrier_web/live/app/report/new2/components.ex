@@ -19,7 +19,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
             source when is_rdb_source(source) ->
               CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld
 
-            source when source in [:tableau, :tableau_demo] ->
+            :tableau ->
               CarrierWeb.App.ReportLive.New2.TableauDataTransformer
           end
 

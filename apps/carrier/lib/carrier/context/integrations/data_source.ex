@@ -10,7 +10,7 @@ defmodule Carrier.Integrations.DataSource do
     field :org_id, :id
 
     field :source, Ecto.Enum,
-      values: [:postgres, :mysql, :bigquery, :athena, :tableau, :tableau_demo, :rdb_demo]
+      values: [:postgres, :mysql, :bigquery, :athena, :tableau]
 
     field :name, :string
     field :demo, :boolean, virtual: true, default: false
@@ -66,12 +66,6 @@ defmodule Carrier.Integrations.DataSource do
       :bigquery -> "Google BigQuery"
       :athena -> "AWS Athena"
       :tableau -> "Tableau"
-      :tableau_demo -> "(Demo) Tableau"
-      :rdb_demo -> "(Demo) Relational Database"
     end
-  end
-
-  def is_demo?(%__MODULE__{source: source}) do
-    source in [:tableau_demo, :rdb_demo]
   end
 end

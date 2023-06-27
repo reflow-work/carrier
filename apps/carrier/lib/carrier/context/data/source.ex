@@ -52,7 +52,6 @@ defmodule Carrier.Data.Source do
     case source do
       source when is_rdb_source(source) -> RDBOld
       :tableau -> Tableau
-      :tableau_demo -> Tableau
     end
   end
 end

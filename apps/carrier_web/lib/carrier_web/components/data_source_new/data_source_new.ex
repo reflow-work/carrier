@@ -56,7 +56,6 @@ defmodule CarrierWeb.Components.DataSourceNew do
         :bigquery -> ConnInfoParams.BigQuery
         :athena -> ConnInfoParams.Athena
         :tableau -> ConnInfoParams.Tableau
-        :tableau_demo -> ConnInfoParams.TableauDemo
       end
 
     form =
