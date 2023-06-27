@@ -154,7 +154,7 @@ defmodule Carrier.Integrations do
 
     [
       %DataSource{
-        id: 100000000001,
+        id: 100_000_000_001,
         org_id: org_id,
         source: :tableau,
         name: "(Demo) Tableau",
@@ -162,7 +162,7 @@ defmodule Carrier.Integrations do
         conn_info: %ConnInfo{source: :demo, info: %{}}
       },
       %DataSource{
-        id: 100000000002,
+        id: 100_000_000_002,
         org_id: org_id,
         source: :postgres,
         name: "(Demo) PostgreSQL",

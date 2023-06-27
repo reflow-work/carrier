@@ -217,7 +217,10 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def get_view_preview_image_binary(_workbook_id, view_id, %DataSource{source: :tableau, demo: true}) do
+  def get_view_preview_image_binary(_workbook_id, view_id, %DataSource{
+        source: :tableau,
+        demo: true
+      }) do
     view_preview_image_binary = Fixture.read("tableau_api/view_preview_images/#{view_id}")
 
     {:ok, view_preview_image_binary}
