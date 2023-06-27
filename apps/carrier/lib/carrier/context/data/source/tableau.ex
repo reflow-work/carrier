@@ -6,7 +6,7 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Tmp}
   alias Carrier.{Uploader, PDF}
-  alias Carrier.Fixture
+  alias Carrier.PrivLoader
 
   ### models
 
@@ -126,11 +126,11 @@ defmodule Carrier.Data.Source.Tableau do
 
     view_image_binaries =
       view_ids
-      |> Enum.map(fn view_id -> Fixture.read("tableau_api/view_images/#{view_id}") end)
+      |> Enum.map(fn view_id -> PrivLoader.read("tableau_api/view_images/#{view_id}") end)
 
     view_pdf_binaries =
       view_ids
-      |> Enum.map(fn view_id -> Fixture.read("tableau_api/view_pdfs/#{view_id}") end)
+      |> Enum.map(fn view_id -> PrivLoader.read("tableau_api/view_pdfs/#{view_id}") end)
 
     {:ok,
      %{
@@ -196,7 +196,7 @@ defmodule Carrier.Data.Source.Tableau do
 
   def list_views(%DataSource{source: :tableau, demo: true}) do
     %{"views" => %{"view" => raw_views}} =
-      Fixture.json("tableau_api/query_views_for_site.success.json")
+      PrivLoader.json("tableau_api/query_views_for_site.success.json")
 
     views = raw_views |> Enum.map(&View.new(&1))
 
@@ -221,7 +221,7 @@ defmodule Carrier.Data.Source.Tableau do
         source: :tableau,
         demo: true
       }) do
-    view_preview_image_binary = Fixture.read("tableau_api/view_preview_images/#{view_id}")
+    view_preview_image_binary = PrivLoader.read("tableau_api/view_preview_images/#{view_id}")
 
     {:ok, view_preview_image_binary}
   end
