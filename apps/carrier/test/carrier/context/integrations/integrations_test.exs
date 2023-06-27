@@ -211,7 +211,7 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with valid params", %{data_source: data_source} do
-      assert {:ok, [%DataSource{} = fetched_data_source0]} = Integrations.list_data_sources()
+      assert {:ok, [%DataSource{} = fetched_data_source0 | _]} = Integrations.list_data_sources()
 
       assert same_records?(fetched_data_source0, data_source)
       assert %ConnInfo{} = fetched_data_source0.conn_info

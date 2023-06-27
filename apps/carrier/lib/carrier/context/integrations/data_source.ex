@@ -13,6 +13,7 @@ defmodule Carrier.Integrations.DataSource do
       values: [:postgres, :mysql, :bigquery, :athena, :tableau, :tableau_demo, :rdb_demo]
 
     field :name, :string
+    field :demo, :boolean, virtual: true, default: false
 
     field :deleted_at, :utc_datetime_usec
   end
