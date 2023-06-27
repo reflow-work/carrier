@@ -54,8 +54,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
       |> assign(assigns)
 
     socket =
-      case socket.assigns.data_source.source do
-        :rdb_demo ->
+      case socket.assigns.data_source.demo do
+        true ->
           socket
           |> assign(:sql_template, """
             SELECT
@@ -69,8 +69,9 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
           """)
           |> assign(:is_demo, true)
 
-        _ ->
+        false ->
           socket
+          |> assign(:is_demo, false)
       end
 
     socket =
