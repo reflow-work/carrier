@@ -1,6 +1,7 @@
 defmodule Carrier.Data.Source.RDB.MySQL do
   @behaviour Carrier.Data.Source.RDB
 
+  require Logger
   alias Carrier.Dynamic.MySQLRepo
 
   @impl Carrier.Data.Source.RDB
@@ -22,12 +23,16 @@ defmodule Carrier.Data.Source.RDB.MySQL do
 
     {:ok, %{columns: columns, rows: rows}}
   rescue
-    error in MyXQL.Error ->
-      %MyXQL.Error{message: message} = error
+    e in MyXQL.Error ->
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
+      %MyXQL.Error{message: message} = e
 
       {:error, {:query_error, message}}
 
-    DBConnection.ConnectionError ->
+    e in DBConnection.ConnectionError ->
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
       {:error, :db_connection_error}
   end
 

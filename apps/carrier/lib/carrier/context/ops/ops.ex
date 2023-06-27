@@ -1,5 +1,6 @@
 defmodule Carrier.Ops do
   use Carrier.{Accounts, Integrations, Reports, Billing, Payments}
+  require Logger
   import Ecto.Query, only: [from: 2]
   alias Carrier.{Repo, TenantRepo}
 
@@ -100,6 +101,8 @@ defmodule Carrier.Ops do
         {data_source_id, ConnValidator.validate(source, info, :source)}
       rescue
         e ->
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
           {data_source_id, {:error, inspect(e)}}
       end
     end)

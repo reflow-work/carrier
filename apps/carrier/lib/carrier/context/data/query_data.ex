@@ -1,6 +1,6 @@
 defmodule Carrier.Data.QueryData do
-  require Logger
   use Carrier.Integrations
+  require Logger
   alias Carrier.Data.Source
   alias Carrier.TenantRepo
 
@@ -48,7 +48,7 @@ defmodule Carrier.Data.QueryData do
     end
   rescue
     e ->
-      Logger.error(inspect(e))
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
 
       {:error, :query_failed}
   end
