@@ -45,7 +45,7 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
 
   defp load_data_sources(socket) do
     case Integrations.list_data_sources() do
-      [_ | _] = data_sources ->
+      {:ok, data_sources} ->
         socket |> assign(:data_sources, data_sources)
 
       _ ->

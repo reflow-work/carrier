@@ -168,7 +168,7 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with valid params", %{data_target: data_target} do
-      assert [fetched_data_target] = Integrations.list_data_targets()
+      assert {:ok, [fetched_data_target]} = Integrations.list_data_targets()
       assert same_records?(fetched_data_target, data_target)
     end
   end
@@ -211,7 +211,7 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with valid params", %{data_source: data_source} do
-      assert [%DataSource{} = fetched_data_source0] = Integrations.list_data_sources()
+      assert {:ok, [%DataSource{} = fetched_data_source0]} = Integrations.list_data_sources()
 
       assert same_records?(fetched_data_source0, data_source)
       assert %ConnInfo{} = fetched_data_source0.conn_info

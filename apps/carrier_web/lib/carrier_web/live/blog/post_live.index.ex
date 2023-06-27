@@ -7,7 +7,8 @@ defmodule CarrierWeb.Blog.PostLive.Index do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:posts, Blog.list_posts())
+      |> assign(:posts, [])
+      |> load_posts()
 
     {:ok, socket}
   end
@@ -35,5 +36,12 @@ defmodule CarrierWeb.Blog.PostLive.Index do
       <% end %>
     </div>
     """
+  end
+
+  defp load_posts(socket) do
+    case Blog.list_posts() do
+      {:ok, posts} -> socket |> assign(:posts, posts)
+      _ -> socket
+    end
   end
 end
