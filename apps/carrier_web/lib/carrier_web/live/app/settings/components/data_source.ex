@@ -99,7 +99,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
 
   defp load_data_sources(socket) do
     case Integrations.list_data_sources() do
-      data_sources ->
+      {:ok, data_sources} ->
         socket |> assign(:data_sources, data_sources)
 
       {:error, _} ->

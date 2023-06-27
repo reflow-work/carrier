@@ -82,6 +82,7 @@ defmodule Carrier.Integrations do
     DataTarget.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
+    |> then(&{:ok, &1})
   end
 
   def fetch_data_target(data_target_id) do
@@ -103,6 +104,7 @@ defmodule Carrier.Integrations do
     DataSource.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
+    |> then(&{:ok, &1})
   end
 
   def fetch_data_source(data_source_id) do
@@ -127,11 +129,6 @@ defmodule Carrier.Integrations do
            |> TenantRepo.insert() do
       {:ok, conn_info}
     end
-  end
-
-  def list_conn_infos() do
-    ConnInfo.list()
-    |> TenantRepo.all()
   end
 
   defp do_update_info_of_conn_info(%ConnInfo{} = conn_info, %{info: info}) do
