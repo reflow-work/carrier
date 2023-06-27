@@ -1,7 +1,6 @@
 defmodule Carrier.Context.Onboarding do
   use Carrier.{Accounts, Integrations, Billing}
   alias Carrier.TenantRepo
-  alias Carrier.Core.Traversable
 
   def onboard(%{
         org_id: org_id,
@@ -26,21 +25,9 @@ defmodule Carrier.Context.Onboarding do
                agreed_terms_of_service_at: now,
                agreed_privacy_policy_at: now
              }),
-           {:ok, _} <- create_trial_subscription(%{org_id: org_id}),
-           {:ok, _} <- create_demo_data_sources(%{org_id: org_id}) do
+           {:ok, _} <- create_trial_subscription(%{org_id: org_id}) do
         {:ok, nil}
       end
-    end)
-  end
-
-  defp create_demo_data_sources(%{org_id: org_id}) do
-    TenantRepo.wrap_transaction(fn ->
-      [
-        %{org_id: org_id, name: "(Demo) Tableau", source: :tableau_demo, conn_info: %{}},
-        %{org_id: org_id, name: "(Demo) Relational Database", source: :rdb_demo, conn_info: %{}}
-      ]
-      |> Enum.map(&Integrations.create_data_source/1)
-      |> Traversable.traverse()
     end)
   end
 
