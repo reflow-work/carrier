@@ -184,7 +184,7 @@ defmodule CarrierWeb.Components.DataSourceNew do
     end
   rescue
     e ->
-      Logger.error(inspect(e))
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
 
       socket
       |> assign(:error, Exception.message(e))

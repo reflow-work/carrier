@@ -1,4 +1,5 @@
 defmodule Carrier.Payments do
+  require Logger
   alias Carrier.Payments.{CreditCard, Payment}
   alias Carrier.External
   alias Carrier.TenantRepo
@@ -135,9 +136,11 @@ defmodule Carrier.Payments do
         end
     end
   rescue
-    error ->
+    e ->
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
       with {:ok, %Payment{} = failed_payment} <-
-             fail_payment(payment, %{error: inspect(error)}) do
+             fail_payment(payment, %{error: inspect(e)}) do
         {:error, failed_payment}
       end
   end

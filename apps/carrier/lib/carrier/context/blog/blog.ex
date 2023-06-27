@@ -17,7 +17,6 @@ defmodule Carrier.Blog do
   @decorate cacheable(
               cache: Cache.Local,
               key: {Blog, :fetch_post, [slug, posts_path]},
-              match: &Cache.default_matcher/1,
               opts: cache_opts()
             )
   @spec fetch_post(slug :: String.t()) :: {:ok, %Post{}} | :error

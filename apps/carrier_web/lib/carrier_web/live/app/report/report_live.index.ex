@@ -1,13 +1,11 @@
 defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
-  use Carrier.Reports
-  alias Carrier.Billing
+  use Carrier.{Integrations, Billing, Reports}
   alias Carrier.Core.{WeekdayHelper, TimeHelper}
   alias Carrier.Roles.Role
 
   # TODO: remove it
   on_mount(CarrierWeb.DataTargetHook)
-  on_mount(CarrierWeb.DataSourceHook)
   on_mount(CarrierWeb.SubscriptionHook)
 
   @impl true
@@ -17,6 +15,7 @@ defmodule CarrierWeb.App.ReportLive.Index do
       |> assign(:reports, [])
       |> assign(:active_subscription, nil)
       |> load_active_subscription()
+      |> load_data_sources()
 
     socket =
       case connected?(socket) do
@@ -123,6 +122,13 @@ defmodule CarrierWeb.App.ReportLive.Index do
       _ ->
         socket
     end
+  end
+
+  defp load_data_sources(socket) do
+    data_sources = Integrations.list_data_sources()
+
+    socket
+    |> assign(:data_sources, data_sources)
   end
 
   # TODO: remove nil case

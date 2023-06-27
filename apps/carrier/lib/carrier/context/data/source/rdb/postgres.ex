@@ -1,6 +1,7 @@
 defmodule Carrier.Data.Source.RDB.Postgres do
   @behaviour Carrier.Data.Source.RDB
 
+  require Logger
   alias Carrier.Dynamic.PostgresRepo
 
   @impl Carrier.Data.Source.RDB
@@ -22,12 +23,16 @@ defmodule Carrier.Data.Source.RDB.Postgres do
 
     {:ok, %{columns: columns, rows: rows}}
   rescue
-    error in Postgrex.Error ->
-      %Postgrex.Error{postgres: %{message: message}} = error
+    e in Postgrex.Error ->
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
+      %Postgrex.Error{postgres: %{message: message}} = e
 
       {:error, {:query_error, message}}
 
-    DBConnection.ConnectionError ->
+    e in DBConnection.ConnectionError ->
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
       {:error, :db_connection_error}
   end
 

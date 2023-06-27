@@ -1,4 +1,6 @@
 defmodule Carrier.Obfuscatable do
+  require Logger
+
   defdelegate obfuscate(data), to: Carrier.Obfuscatable.Protocol
 
   def deobfuscate!(obfuscated_key, module) when is_binary(obfuscated_key) do
@@ -8,7 +10,10 @@ defmodule Carrier.Obfuscatable do
 
     key
   rescue
-    _ -> raise ArgumentError, "invalid obfuscated key"
+    e ->
+      Logger.error(Exception.format(:error, e, __STACKTRACE__))
+
+      raise ArgumentError, "invalid obfuscated key"
   end
 
   def hash_module(module) do

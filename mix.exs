@@ -14,7 +14,7 @@ defmodule Carrier.Umbrella.MixProject do
 
   defp deps do
     [
-      {:phoenix_live_view, "~> 0.18.2"}
+      {:phoenix_live_view, "~> 0.19.0"}
     ]
   end
 

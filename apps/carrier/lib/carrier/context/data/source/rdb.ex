@@ -69,6 +69,16 @@ defmodule Carrier.Data.Source.RDB do
     end
   end
 
+  @impl true
+  def transform_data(_params, _data_source, _raw_data) do
+    {:ok, []}
+  end
+
+  @impl true
+  def data_to_threads(_params, _data_source, _data) do
+    {:ok, []}
+  end
+
   defp calc_query_start_end_date(%{
          datetime: utc_datetime,
          timezone: timezone,

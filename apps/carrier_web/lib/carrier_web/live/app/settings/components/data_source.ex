@@ -3,6 +3,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
   alias Carrier.Integrations
   alias Carrier.Integrations.DataSource
   alias Carrier.Setting
+  alias CarrierWeb.Components.DataSourceNew
 
   @impl true
   def mount(socket) do
@@ -32,16 +33,13 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
         <.card>
           <div class="flex justify-between">
             <.card_title title="데이터 소스 목록" />
-            <.link
-              navigate={~p"/app/data-sources/new"}
-              class={[
-                "btn",
-                "btn-primary",
-                @is_disabled_to_create_new_data_source && "btn-disabled"
-              ]}
+            <.button
+              type="button"
+              class={["ml-2", @is_disabled_to_create_new_data_source && "btn-disabled"]}
+              phx-click={show_modal("new_data_source_modal")}
             >
-              새 데이터 소스 생성
-            </.link>
+              새 데이터 소스 추가
+            </.button>
 
             <div :if={@is_disabled_to_create_new_data_source}>
               데이터 소스는 최대 <%= @max_data_source_count %>개까지 등록 가능합니다
@@ -68,8 +66,35 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
           </section>
         </.card>
       </.card_container>
+
+      <.modal id="new_data_source_modal">
+        <.live_component
+          module={DataSourceNew}
+          id="data_source_new"
+          org={@org}
+          flash={@flash}
+          onsuccess={fn data_source -> send_update(__MODULE__, id: @id, data_source: data_source) end}
+        />
+      </.modal>
     </div>
     """
+  end
+
+  @impl true
+  def update(%{data_source: data_source}, socket) do
+    socket =
+      socket
+      |> update(:data_sources, &[data_source | &1])
+      |> hide_modal_from_server("new_data_source_modal")
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(assigns, socket) do
+    socket = socket |> assign(assigns)
+
+    {:ok, socket}
   end
 
   defp load_data_sources(socket) do
