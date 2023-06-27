@@ -28,7 +28,7 @@ TenantRepo.transaction(fn ->
       returning: true
     )
 
-  {_, [admin_role, _, trial_plan_role, basic_plan_role, pro_plan_role]} =
+  {_, [admin_role, _, trial_plan_role, basic_plan_role]} =
     TenantRepo.insert_all(
       Role,
       Role.default_roles(),
@@ -244,43 +244,22 @@ TenantRepo.transaction(fn ->
           billing_cycle: :monthly,
           name: "Basic",
           type: :basic,
-          price: 48000,
-          currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"],
-          subscribable: true,
-          role_id: basic_plan_role.id
-        },
-        %{
-          billing_cycle: :monthly,
-          name: "Pro",
-          type: :pro,
           price: 150_000,
           currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
+          description: ["리포트 최대 50개", "유저 수 제한 없음", "데이터 소스 1개 연동 가능", "실시간 문의 지원", "초기 구축 및 설정 지원"],
           subscribable: true,
-          role_id: pro_plan_role.id
+          role_id: basic_plan_role.id
         },
         %{
           billing_cycle: :yearly,
           name: "Basic",
           type: :basic,
-          original_price: 576_000,
-          price: 480_000,
-          currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "리포트 최대 50개"],
-          subscribable: true,
-          role_id: basic_plan_role.id
-        },
-        %{
-          billing_cycle: :yearly,
-          name: "Pro",
-          type: :pro,
           original_price: 1_800_000,
           price: 1_500_000,
           currency: :KRW,
-          description: ["SQL 쿼리를 사용하는 리포트 사용 가능", "태블로 연동 리포트 사용 가능", "리포트 무제한"],
+          description: ["리포트 최대 50개", "유저 수 제한 없음", "데이터 소스 1개 연동 가능", "실시간 문의 지원", "초기 구축 및 설정 지원"],
           subscribable: true,
-          role_id: pro_plan_role.id
+          role_id: basic_plan_role.id
         }
       ],
       returning: true
