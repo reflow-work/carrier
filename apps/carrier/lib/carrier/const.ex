@@ -4,7 +4,8 @@ defmodule Carrier.Const do
     privacy_policy_url: "https://reflow-work.notion.site/cca0124a9a5745f6a22f3532ae24ce91",
     refund_policy_url: "https://reflow-work.notion.site/14781220fe5b4b4b89be2db5eb7cccf4",
     tableau_guide_url:
-      "https://reflow-work.notion.site/Tableau-Cloud-dafbcc3df3a34ed197ff449a21059551"
+      "https://reflow-work.notion.site/Tableau-Cloud-dafbcc3df3a34ed197ff449a21059551",
+    demo_call_url: "https://whattime.co.kr/wonny727/30min-demo-call"
   }
 
   @env_values (case Mix.env() do

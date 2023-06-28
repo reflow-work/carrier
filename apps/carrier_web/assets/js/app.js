@@ -46,6 +46,9 @@ window.addEventListener("phx:js-exec", ({ detail }) => {
   })
 })
 window.addEventListener("js:exec", e => e.target[e.detail.call](...e.detail.args))
+window.addEventListener("phx:new-window", ({ detail }) => {
+  window.open(detail.url, detail.target || "_self")
+})
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()

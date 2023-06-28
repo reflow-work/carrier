@@ -1,5 +1,6 @@
 defmodule LandingHeaderComponent do
   use Phoenix.LiveComponent
+  alias Carrier.Const
 
   import CarrierWeb.AnalyticsHelper
 
@@ -60,11 +61,9 @@ defmodule LandingHeaderComponent do
             class="button button-primary"
             type="button"
             phx-target={@myself}
-            phx-click="click_link"
-            phx-value-name="login_on_header"
-            phx-value-to="/login"
+            phx-click="click_demo_button"
           >
-            무료로 시작하기
+            데모 신청하기
           </button>
 
           <label class="cursor-pointer pl-3 md:hidden" for="hamburger-button">
@@ -114,5 +113,17 @@ defmodule LandingHeaderComponent do
       })
 
     {:noreply, push_navigate(socket, to: to)}
+  end
+
+  @impl true
+  def handle_event("click_demo_button", _params, socket) do
+    url = Const.get(:demo_call_url)
+
+    socket
+    |> log_event("click_demo_on_header", %{
+      page_name: "landing"
+    })
+
+    {:noreply, push_event(socket, "new-window", %{url: url, target: "_blank"})}
   end
 end
