@@ -1,6 +1,7 @@
 defmodule CarrierWeb.HomeLive do
   use CarrierWeb, :live_view
   use Carrier.Reports
+  alias Carrier.Const
 
   import CarrierWeb.Components.Landing.Section, only: [feature: 1]
 
@@ -23,6 +24,18 @@ defmodule CarrierWeb.HomeLive do
       })
 
     {:noreply, push_navigate(socket, to: to)}
+  end
+
+  @impl true
+  def handle_event("click_demo_button", _params, socket) do
+    url = Const.get(:demo_call_url)
+
+    socket
+    |> log_event("click_demo_on_last_section", %{
+      page_name: "landing"
+    })
+
+    {:noreply, push_event(socket, "new-window", %{url: url, target: "_blank"})}
   end
 
   defp load_report_log_count(socket) do
