@@ -3,7 +3,7 @@ defmodule CarrierWeb.SubscriptionRedirectionHook do
   alias Carrier.Billing
 
   def on_mount(:default, _params, _session, socket) do
-    case Billing.have_active_subscription?() do
+    case Billing.have_active_non_trial_subscription?() do
       true ->
         socket = socket |> push_navigate(to: ~p"/app/settings")
         {:halt, socket}

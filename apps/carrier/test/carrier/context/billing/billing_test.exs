@@ -588,4 +588,60 @@ defmodule Carrier.BillingTest do
       assert Billing.get_active_trial_subscription() == nil
     end
   end
+
+  describe "have_active_subscription/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      %{org: org}
+    end
+
+    test "with trial plan", %{org: org} do
+      trial_plan = TenantFactory.insert(:plan, type: :trial)
+
+      _subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+
+      assert Billing.have_active_subscription?() == true
+    end
+
+    test "with non-trial plan", %{org: org} do
+      plan = TenantFactory.insert(:plan, type: :basic)
+
+      _subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
+
+      assert Billing.have_active_subscription?() == true
+    end
+  end
+
+  describe "have_active_non_trial_subscription/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+
+      TenantRepo.put_org_id(org.org_id)
+
+      %{org: org}
+    end
+
+    test "with trial plan", %{org: org} do
+      trial_plan = TenantFactory.insert(:plan, type: :trial)
+
+      _subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+
+      assert Billing.have_active_non_trial_subscription?() == false
+    end
+
+    test "with non-trial plan", %{org: org} do
+      plan = TenantFactory.insert(:plan, type: :basic)
+
+      _subscription =
+        TenantFactory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
+
+      assert Billing.have_active_non_trial_subscription?() == true
+    end
+  end
 end

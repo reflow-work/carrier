@@ -78,6 +78,14 @@ defmodule Carrier.Billing.Subscription do
     |> where_not_deleted()
   end
 
+  def fetch_active_non_trial() do
+    __MODULE__
+    |> join(:inner, [s], p in assoc(s, :plan))
+    |> where([s], s.status == :active)
+    |> where([s, p], p.type != :trial)
+    |> where_not_deleted()
+  end
+
   def fetch_pending() do
     __MODULE__
     |> where([s], s.status == :pending)
