@@ -6,7 +6,7 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Tmp}
   alias Carrier.{Uploader, PDF}
-  alias Carrier.Fixture
+  alias Carrier.PrivLoader
 
   ### models
 
@@ -87,14 +87,9 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def validate_conn(:tableau_demo, _credentials, _opts) do
-    :ok
-  end
-
-  @impl true
   def load_raw_data(
         %{data_source_info: %{params: %{views: views}}},
-        %DataSource{source: :tableau} = data_source
+        %DataSource{source: :tableau, demo: false} = data_source
       ) do
     with %{host: host, site: site} = credentials = DataSource.to_credentials(data_source),
          {:ok, auth} <- signin(credentials),
@@ -118,7 +113,7 @@ defmodule Carrier.Data.Source.Tableau do
   @impl true
   def load_raw_data(
         %{data_source_info: %{params: %{views: views}}},
-        %DataSource{source: :tableau_demo} = data_source
+        %DataSource{source: :tableau, demo: true} = data_source
       ) do
     view_ids = views |> Enum.map(& &1.id)
 
@@ -131,11 +126,11 @@ defmodule Carrier.Data.Source.Tableau do
 
     view_image_binaries =
       view_ids
-      |> Enum.map(fn view_id -> Fixture.read("tableau_api/view_images/#{view_id}") end)
+      |> Enum.map(fn view_id -> PrivLoader.read("tableau_api/view_images/#{view_id}") end)
 
     view_pdf_binaries =
       view_ids
-      |> Enum.map(fn view_id -> Fixture.read("tableau_api/view_pdfs/#{view_id}") end)
+      |> Enum.map(fn view_id -> PrivLoader.read("tableau_api/view_pdfs/#{view_id}") end)
 
     {:ok,
      %{
@@ -146,12 +141,11 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def transform_data(%{org_id: org_id}, %DataSource{source: source}, %{
+  def transform_data(%{org_id: org_id}, %DataSource{source: :tableau}, %{
         views: views,
         view_image_binaries: view_image_binaries,
         view_pdf_binaries: view_pdf_binaries
-      })
-      when source in [:tableau, :tableau_demo] do
+      }) do
     with {:ok, view_image_urls} <-
            view_image_binaries
            |> Async.map(&Uploader.upload(:report_storage, org_id, &1, :png))
@@ -163,12 +157,11 @@ defmodule Carrier.Data.Source.Tableau do
   end
 
   @impl true
-  def data_to_threads(_params, %DataSource{source: source}, %{
+  def data_to_threads(_params, %DataSource{source: :tableau}, %{
         views: views,
         view_image_urls: view_image_urls,
         pdf_url: pdf_url
-      })
-      when source in [:tableau, :tableau_demo] do
+      }) do
     threads =
       [views, view_image_urls]
       |> Enum.zip_with(fn [%{full_name: full_name, view_url: view_url}, view_image_url] ->
@@ -192,7 +185,7 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def list_views(%DataSource{source: :tableau} = data_source) do
+  def list_views(%DataSource{source: :tableau, demo: false} = data_source) do
     credentials = data_source |> DataSource.to_credentials()
 
     with {:ok, auth} <- signin(credentials),
@@ -201,9 +194,9 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def list_views(%DataSource{source: :tableau_demo}) do
+  def list_views(%DataSource{source: :tableau, demo: true}) do
     %{"views" => %{"view" => raw_views}} =
-      Fixture.json("tableau_api/query_views_for_site.success.json")
+      PrivLoader.json("tableau_api/query_views_for_site.success.json")
 
     views = raw_views |> Enum.map(&View.new(&1))
 
@@ -213,7 +206,7 @@ defmodule Carrier.Data.Source.Tableau do
   def get_view_preview_image_binary(
         workbook_id,
         view_id,
-        %DataSource{source: :tableau} = data_source
+        %DataSource{source: :tableau, demo: false} = data_source
       ) do
     credentials = data_source |> DataSource.to_credentials()
 
@@ -224,8 +217,11 @@ defmodule Carrier.Data.Source.Tableau do
     end
   end
 
-  def get_view_preview_image_binary(_workbook_id, view_id, %DataSource{source: :tableau_demo}) do
-    view_preview_image_binary = Fixture.read("tableau_api/view_preview_images/#{view_id}")
+  def get_view_preview_image_binary(_workbook_id, view_id, %DataSource{
+        source: :tableau,
+        demo: true
+      }) do
+    view_preview_image_binary = PrivLoader.read("tableau_api/view_preview_images/#{view_id}")
 
     {:ok, view_preview_image_binary}
   end

@@ -1,4 +1,4 @@
-defmodule Carrier.Data.Source.RDB.Demo do
+defmodule Carrier.Data.Source.RDB.PostgresDemo do
   @behaviour Carrier.Data.Source.RDB
 
   @impl Carrier.Data.Source.RDB

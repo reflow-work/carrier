@@ -3,8 +3,7 @@ defmodule Carrier.Data.Source.RDB.Guard do
     :postgres,
     :mysql,
     :bigquery,
-    :athena,
-    :rdb_demo
+    :athena
   ]
 
   defguard is_rdb_source(source) when source in @sources

@@ -33,9 +33,9 @@ defmodule Carrier.Data.Source.RDB do
 
   @impl true
   def validate_conn(source, credentials, opts) do
-    query = get_module(source).validation_query()
+    query = get_module(source, false).validation_query()
 
-    case run_query(source, credentials, query, [], opts) do
+    case do_run_query(source, false, credentials, query, [], opts) do
       {:ok, _} -> :ok
       {:error, _} -> {:error, :invalid_conn_info}
     end
@@ -49,16 +49,14 @@ defmodule Carrier.Data.Source.RDB do
   @impl true
   def load_raw_data(
         %{data_source_info: %{params: %{sql_template: sql_template} = params}},
-        %DataSource{source: source} = data_source
+        %DataSource{} = data_source
       ) do
     {query_start_date, query_end_date} = calc_query_start_end_date(params)
     query_params = %{"start" => query_start_date, "end" => query_end_date}
 
-    credentials = DataSource.to_credentials(data_source)
-
     with :ok <- is_valid_sql?(sql_template),
          {:ok, %{columns: columns, data: data} = query_result} <-
-           run_query(source, credentials, sql_template, query_params),
+           run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(query_result) do
       data =
         data
@@ -199,16 +197,23 @@ defmodule Carrier.Data.Source.RDB do
   alias Carrier.Core.DataHelper
 
   def sources() do
-    [:postgres, :mysql, :bigquery, :athena, :rdb_demo]
+    [:postgres, :mysql, :bigquery, :athena]
   end
 
-  def get_module(source) do
+  def get_module(%DataSource{source: source, demo: demo}) do
+    get_module(source, demo)
+  end
+
+  def get_module(:postgres, true) do
+    __MODULE__.PostgresDemo
+  end
+
+  def get_module(source, false) when is_atom(source) do
     case source do
       :postgres -> __MODULE__.Postgres
       :mysql -> __MODULE__.MySQL
       :bigquery -> __MODULE__.BigQuery
       :athena -> __MODULE__.Athena
-      :rdb_demo -> __MODULE__.Demo
     end
   end
 
@@ -216,8 +221,19 @@ defmodule Carrier.Data.Source.RDB do
     source in [:postgres, :mysql]
   end
 
-  def run_query(source, credentials, query, query_params \\ %{}, opts \\ []) do
-    source_module = get_module(source)
+  def run_query(
+        %DataSource{source: source, demo: demo} = data_source,
+        query,
+        query_params \\ %{},
+        opts \\ []
+      ) do
+    credentials = DataSource.to_credentials(data_source)
+
+    do_run_query(source, demo, credentials, query, query_params, opts)
+  end
+
+  def do_run_query(source, demo, credentials, query, query_params \\ %{}, opts \\ []) do
+    source_module = get_module(source, demo)
 
     with {:ok, {query, sql_params}} <-
            parameterize_query(query, query_params, &source_module.param/1),

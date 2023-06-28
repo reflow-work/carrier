@@ -104,7 +104,7 @@ defmodule Carrier.Integrations do
     DataSource.list()
     |> DataSource.preload_conn_info()
     |> TenantRepo.all()
-    |> then(&{:ok, &1})
+    |> then(&{:ok, &1 ++ list_demo_data_sources()})
   end
 
   def fetch_data_source(data_source_id) do
@@ -116,9 +116,17 @@ defmodule Carrier.Integrations do
         {:ok, data_source}
 
       nil ->
-        {:error,
-         {:resource_not_found,
-          %{target: DataSource, conditions: %{data_source_id: data_source_id}}}}
+        list_demo_data_sources()
+        |> Enum.find(&(&1.id == data_source_id))
+        |> case do
+          nil ->
+            {:error,
+             {:resource_not_found,
+              %{target: DataSource, conditions: %{data_source_id: data_source_id}}}}
+
+          data_source ->
+            {:ok, data_source}
+        end
     end
   end
 
@@ -139,5 +147,28 @@ defmodule Carrier.Integrations do
   defp do_update_needs_update_of_data_target(%DataTarget{} = data_target, needs_update) do
     DataTarget.update_needs_update(data_target, needs_update)
     |> TenantRepo.update()
+  end
+
+  defp list_demo_data_sources() do
+    org_id = TenantRepo.get_org_id()
+
+    [
+      %DataSource{
+        id: 100_000_000_001,
+        org_id: org_id,
+        source: :tableau,
+        name: "(Demo) Tableau",
+        demo: true,
+        conn_info: %ConnInfo{source: :demo, info: %{}}
+      },
+      %DataSource{
+        id: 100_000_000_002,
+        org_id: org_id,
+        source: :postgres,
+        name: "(Demo) PostgreSQL",
+        demo: true,
+        conn_info: %ConnInfo{source: :demo, info: %{}}
+      }
+    ]
   end
 end

@@ -31,10 +31,9 @@ defmodule Carrier.Data.QueryData do
     query_params = %{"start" => query_start_date, "end" => query_end_date}
 
     with :ok <- is_valid_sql?(sql_template),
-         {:ok, %DataSource{} = data_source} <-
-           Integrations.fetch_data_source(data_source_id),
+         {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
          {:ok, %{columns: columns, data: data}} <-
-           run_query(data_source, sql_template, query_params),
+           Source.RDB.run_query(data_source, sql_template, query_params),
          :ok <- validate_query_result(columns, data),
          normalized_data = normalize_data(data),
          filled_data =
@@ -86,11 +85,10 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{source: source} = data_source} <-
-           Integrations.fetch_data_source(data_source_id),
-         source_module = Source.RDB.get_module(source),
+    with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
+         source_module = Source.RDB.get_module(data_source),
          tables_query = source_module.tables_query(),
-         {:ok, %{data: data}} <- run_query(data_source, tables_query) do
+         {:ok, %{data: data}} <- Source.RDB.run_query(data_source, tables_query) do
       table_names =
         data
         |> Enum.map(&"#{&1[source_module.table_name_field()]}")
@@ -114,12 +112,11 @@ defmodule Carrier.Data.QueryData do
       ) do
     TenantRepo.put_org_id(org_id)
 
-    with {:ok, %DataSource{source: source} = data_source} <-
-           Integrations.fetch_data_source(data_source_id),
-         source_module = Source.RDB.get_module(source),
+    with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
+         source_module = Source.RDB.get_module(data_source),
          columns_query = source_module.columns_query(),
          {:ok, %{data: data}} <-
-           run_query(data_source, columns_query, %{"table_name" => table_name}) do
+           Source.RDB.run_query(data_source, columns_query, %{"table_name" => table_name}) do
       %{date_columns: date_columns, other_columns: other_columns} =
         data
         |> Enum.group_by(
@@ -318,16 +315,6 @@ defmodule Carrier.Data.QueryData do
       true -> :ok
       false -> {:error, :sql_missing_template_keys}
     end
-  end
-
-  defp run_query(
-         %DataSource{source: source, conn_info: %ConnInfo{} = conn_info},
-         sql,
-         query_params \\ %{}
-       ) do
-    credentials = ConnInfo.to_credentials(conn_info)
-
-    Source.RDB.run_query(source, credentials, sql, query_params)
   end
 
   defp validate_query_result(_columns, []), do: :ok
