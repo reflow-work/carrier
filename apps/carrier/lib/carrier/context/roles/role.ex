@@ -25,21 +25,15 @@ defmodule Carrier.Roles.Role do
       %{
         name: "Trial Plan",
         permissions: [
-          "data-source.tableau",
+          "data-source.max-count.infinity",
           "reports.max-count.infinity"
         ]
       },
       %{
         name: "Basic Plan",
         permissions: [
+          "data-source.max-count.1",
           "reports.max-count.50"
-        ]
-      },
-      %{
-        name: "Pro Plan",
-        permissions: [
-          "data-source.tableau",
-          "reports.max-count.infinity"
         ]
       }
     ]
@@ -60,6 +54,22 @@ defmodule Carrier.Roles.Role do
         0
 
       "reports.max-count." <> max_count_str ->
+        case max_count_str do
+          "infinity" -> :infinity
+          _ -> max_count_str |> String.to_integer()
+        end
+    end
+  end
+
+  def data_source_max_count(role) do
+    data_source_max_count_permission =
+      role.permissions |> Enum.find(fn x -> x |> String.contains?("data-source.max-count") end)
+
+    case data_source_max_count_permission do
+      nil ->
+        0
+
+      "data-source.max-count." <> max_count_str ->
         case max_count_str do
           "infinity" -> :infinity
           _ -> max_count_str |> String.to_integer()
