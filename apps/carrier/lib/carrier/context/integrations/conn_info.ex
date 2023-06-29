@@ -7,8 +7,7 @@ defmodule Carrier.Integrations.ConnInfo do
     field :org_id, :id
     field :name, :string
 
-    field :source, Ecto.Enum,
-      values: [:postgres, :mysql, :bigquery, :athena, :slack, :tableau]
+    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :slack, :tableau]
 
     field :info, Types.Map, source: :encrypted_info, redact: true
 

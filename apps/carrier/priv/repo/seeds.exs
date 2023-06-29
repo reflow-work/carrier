@@ -246,7 +246,13 @@ TenantRepo.transaction(fn ->
           type: :basic,
           price: 150_000,
           currency: :KRW,
-          description: ["리포트 최대 50개", "유저 수 제한 없음", "데이터 소스 1개 연동 가능", "실시간 문의 지원", "초기 구축 및 설정 지원"],
+          description: [
+            "리포트 최대 50개",
+            "유저 수 제한 없음",
+            "데이터 소스 1개 연동 가능",
+            "실시간 문의 지원",
+            "초기 구축 및 설정 지원"
+          ],
           subscribable: true,
           role_id: basic_plan_role.id
         },
@@ -257,7 +263,13 @@ TenantRepo.transaction(fn ->
           original_price: 1_800_000,
           price: 1_500_000,
           currency: :KRW,
-          description: ["리포트 최대 50개", "유저 수 제한 없음", "데이터 소스 1개 연동 가능", "실시간 문의 지원", "초기 구축 및 설정 지원"],
+          description: [
+            "리포트 최대 50개",
+            "유저 수 제한 없음",
+            "데이터 소스 1개 연동 가능",
+            "실시간 문의 지원",
+            "초기 구축 및 설정 지원"
+          ],
           subscribable: true,
           role_id: basic_plan_role.id
         }

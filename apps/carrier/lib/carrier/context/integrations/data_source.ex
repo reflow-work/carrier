@@ -9,8 +9,7 @@ defmodule Carrier.Integrations.DataSource do
 
     field :org_id, :id
 
-    field :source, Ecto.Enum,
-      values: [:postgres, :mysql, :bigquery, :athena, :tableau]
+    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :tableau]
 
     field :name, :string
     field :demo, :boolean, virtual: true, default: false
