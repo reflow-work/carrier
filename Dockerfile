@@ -13,6 +13,8 @@ FROM amazonlinux:2023 AS build
 
 RUN yum -y update
 
+RUN yum -y install glibc-langpack-en.aarch64
+
 # https://gist.github.com/techgaun/335ef6f6abb5a254c66d73ac6b390262
 RUN yum -y groupinstall "Development Tools" && \
     yum -y install openssl-devel ncurses-devel
