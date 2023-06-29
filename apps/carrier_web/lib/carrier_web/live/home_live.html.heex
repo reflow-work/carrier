@@ -219,11 +219,13 @@
 <section class="landing-container">
   <div class="flex flex-col items-center bg-primary py-16 my-40 rounded-xl text-white text-center">
     <h1 class="h1">5분 만에 데이터 보는 팀을 만드세요.</h1>
-    <button
+    <.link
       class="button button-lg mt-8"
-      phx-click="click_demo_button"
+      href={Const.get(:demo_call_url)}
+      target="_blank"
+      phx-click={js_log_event("click_demo_on_last_section", %{page_name: "landing"})}
     >
       데모 신청하기
-    </button>
+    </.link>
   </div>
 </section>

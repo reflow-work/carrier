@@ -1,8 +1,6 @@
 defmodule LandingHeaderComponent do
-  use Phoenix.LiveComponent
+  use CarrierWeb, :live_component
   alias Carrier.Const
-
-  import CarrierWeb.AnalyticsHelper
 
   @impl true
   def render(assigns) do
@@ -12,9 +10,10 @@ defmodule LandingHeaderComponent do
         <a
           class="float-left py-4 cursor-pointer"
           phx-target={@myself}
-          phx-click="click_link"
-          phx-value-name="logo_on_header"
-          phx-value-to="/"
+          phx-click={
+            js_log_event("logo_on_header", %{page_name: "landing"})
+            |> JS.navigate(~p"/")
+          }
         >
           <CarrierWeb.Components.Icon.logo_with_beta class="w-32" />
         </a>
@@ -26,9 +25,10 @@ defmodule LandingHeaderComponent do
                 <a
                   class="font-bold cursor-pointer text-base !text-black px-4"
                   phx-target={@myself}
-                  phx-click="click_link"
-                  phx-value-name="pricing_on_header"
-                  phx-value-to="/blog"
+                  phx-click={
+                    js_log_event("blog_on_header", %{page_name: "landing"})
+                    |> JS.navigate(~p"/blog")
+                  }
                 >
                   블로그
                 </a>
@@ -38,9 +38,10 @@ defmodule LandingHeaderComponent do
               <a
                 class="font-bold cursor-pointer text-base !text-black px-4"
                 phx-target={@myself}
-                phx-click="click_link"
-                phx-value-name="pricing_on_header"
-                phx-value-to="/pricing"
+                phx-click={
+                  js_log_event("pricing_on_header", %{page_name: "landing"})
+                  |> JS.navigate(~p"/pricing")
+                }
               >
                 가격 정책
               </a>
@@ -49,22 +50,24 @@ defmodule LandingHeaderComponent do
               <a
                 class="font-bold cursor-pointer text-base !text-black px-4"
                 phx-target={@myself}
-                phx-click="click_link"
-                phx-value-name="login_on_header"
-                phx-value-to="/login"
+                phx-click={
+                  js_log_event("login_on_header", %{page_name: "landing"})
+                  |> JS.navigate(~p"/login")
+                }
               >
                 로그인
               </a>
             </li>
           </ul>
-          <button
+          <.link
             class="button button-primary"
-            type="button"
+            href={Const.get(:demo_call_url)}
+            target="_blank"
             phx-target={@myself}
-            phx-click="click_demo_button"
+            phx-click={js_log_event("click_demo_on_header", %{page_name: "landing"})}
           >
             데모 신청하기
-          </button>
+          </.link>
 
           <label class="cursor-pointer pl-3 md:hidden" for="hamburger-button">
             <CarrierWeb.Components.Icon.menu class="w-8" />
@@ -80,9 +83,10 @@ defmodule LandingHeaderComponent do
             <a
               class="w-full block font-bold cursor-pointer px-4 py-4 text-sm"
               phx-target={@myself}
-              phx-click="click_link"
-              phx-value-name="pricing_on_header"
-              phx-value-to="/pricing"
+              phx-click={
+                js_log_event("pricing_on_header", %{page_name: "landing"})
+                |> JS.navigate(~p"/pricing")
+              }
             >
               가격 정책
             </a>
@@ -91,9 +95,10 @@ defmodule LandingHeaderComponent do
             <a
               class="w-full block font-bold cursor-pointer px-4 py-4 text-sm"
               phx-target={@myself}
-              phx-click="click_link"
-              phx-value-name="login_on_header"
-              phx-value-to="/login"
+              phx-click={
+                js_log_event("login_on_header", %{page_name: "landing"})
+                |> JS.navigate(~p"/login")
+              }
             >
               로그인
             </a>
@@ -102,28 +107,5 @@ defmodule LandingHeaderComponent do
       </div>
     </header>
     """
-  end
-
-  @impl true
-  def handle_event("click_link", %{"name" => name, "to" => to}, socket) do
-    socket =
-      socket
-      |> log_event(name, %{
-        page_name: "landing"
-      })
-
-    {:noreply, push_navigate(socket, to: to)}
-  end
-
-  @impl true
-  def handle_event("click_demo_button", _params, socket) do
-    url = Const.get(:demo_call_url)
-
-    socket
-    |> log_event("click_demo_on_header", %{
-      page_name: "landing"
-    })
-
-    {:noreply, push_event(socket, "new-window", %{url: url, target: "_blank"})}
   end
 end

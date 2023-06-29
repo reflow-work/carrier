@@ -127,7 +127,15 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         <div>
           <.simple_form for={%{}} phx-submit="create_report">
             <div class="mt-8 space-x-4">
-              <.button type="button" style={:outline} disabled={!@valid?} phx-click="send_test_report">
+              <.button
+                type="button"
+                style={:outline}
+                disabled={!@valid?}
+                phx-click={
+                  js_log_event("send_test_report", %{page_name: "report_new"})
+                  |> JS.push("send_test_report")
+                }
+              >
                 테스트 발송
               </.button>
               <.button
@@ -250,9 +258,6 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
     socket =
       socket
-      |> log_event("send_test_report", %{
-        page_name: "report_new"
-      })
       |> put_flash_for(:info, "선택한 쿼리 결과에 대한 슬랙 메시지가 발송되었습니다! 😊", timeout: :timer.seconds(3))
 
     {:noreply, socket}

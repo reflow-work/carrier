@@ -15,29 +15,6 @@ defmodule CarrierWeb.HomeLive do
     {:ok, socket}
   end
 
-  @impl true
-  def handle_event("click_link", %{"name" => name, "to" => to}, socket) do
-    socket =
-      socket
-      |> log_event(name, %{
-        page_name: "landing"
-      })
-
-    {:noreply, push_navigate(socket, to: to)}
-  end
-
-  @impl true
-  def handle_event("click_demo_button", _params, socket) do
-    url = Const.get(:demo_call_url)
-
-    socket
-    |> log_event("click_demo_on_last_section", %{
-      page_name: "landing"
-    })
-
-    {:noreply, push_event(socket, "new-window", %{url: url, target: "_blank"})}
-  end
-
   defp load_report_log_count(socket) do
     {:ok, count} = Reports.Super.get_report_log_count()
 
