@@ -7,18 +7,17 @@ defmodule LandingFooterComponent do
     ~H"""
     <footer class="bg-primary text-white py-6 md:py-20">
       <div class="landing-container flex flex-col md:flex-row justify-between">
-        <div>
+        <div class="flex flex-col items-start">
           <CarrierWeb.Components.Icon.logo_white class="w-40 h-auto mb-4" />
           <div class="text-white">지표보는 문화를 만드는 가장 쉬운 툴, reflow</div>
-          <button
+          <.link
             class="button button-lg mt-8"
-            phx-click={
-              js_log_event("start_on_last_section", %{page_name: "landing"})
-              |> JS.navigate(~p"/login")
-            }
+            href={Const.get(:demo_call_url)}
+            target="_blank"
+            phx-click={js_log_event("click_demo_on_last_section", %{page_name: "landing"})}
           >
-            무료로 시작하기
-          </button>
+            데모 신청하기
+          </.link>
         </div>
         <div>
           <div class="text-lg mt-10 md:mt-0 mb-4">Copyright ⓒ reflow</div>
