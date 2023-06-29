@@ -39,18 +39,6 @@ defmodule LandingHeaderComponent do
                 class="font-bold cursor-pointer text-base !text-black px-4"
                 phx-target={@myself}
                 phx-click={
-                  js_log_event("pricing_on_header", %{page_name: "landing"})
-                  |> JS.navigate(~p"/pricing")
-                }
-              >
-                가격 정책
-              </a>
-            </li>
-            <li>
-              <a
-                class="font-bold cursor-pointer text-base !text-black px-4"
-                phx-target={@myself}
-                phx-click={
                   js_log_event("login_on_header", %{page_name: "landing"})
                   |> JS.navigate(~p"/login")
                 }
@@ -79,18 +67,6 @@ defmodule LandingHeaderComponent do
 
       <div class="mobile-menu-list overflow-hidden md:hidden">
         <ul>
-          <li>
-            <a
-              class="w-full block font-bold cursor-pointer px-4 py-4 text-sm"
-              phx-target={@myself}
-              phx-click={
-                js_log_event("pricing_on_header", %{page_name: "landing"})
-                |> JS.navigate(~p"/pricing")
-              }
-            >
-              가격 정책
-            </a>
-          </li>
           <li>
             <a
               class="w-full block font-bold cursor-pointer px-4 py-4 text-sm"
