@@ -58,7 +58,10 @@
         <div
           :for={{source, image_filename} <- data_sources()}
           phx-target={@myself}
-          phx-click={JS.push("select_source", value: %{source: source})}
+          phx-click={
+            js_log_event("click_data_source_type", %{page_name: "data_source_new", type: source})
+            |> JS.push("select_source", value: %{source: source})
+          }
           class={[
             "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex items-center justify-between",
             if @source == source do

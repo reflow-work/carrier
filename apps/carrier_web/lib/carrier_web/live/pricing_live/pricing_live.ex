@@ -18,17 +18,6 @@ defmodule CarrierWeb.PricingLive do
     {:ok, socket}
   end
 
-  @impl true
-  def handle_event("click_link", %{"name" => name, "to" => to}, socket) do
-    socket =
-      socket
-      |> log_event(name, %{
-        page_name: "pricing"
-      })
-
-    {:noreply, push_navigate(socket, to: to)}
-  end
-
   defp load_plans_by_billing_cycle(socket) do
     case Billing.Super.list_subscribable_plans() do
       {:ok, plans} ->

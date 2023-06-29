@@ -42,13 +42,6 @@ defmodule CarrierWeb.Components.DataSourceNew do
   def handle_event("select_source", %{"source" => source_str}, socket) do
     source = String.to_existing_atom(source_str)
 
-    socket =
-      socket
-      |> log_event("click_data_source_type", %{
-        page_name: "data_source_new",
-        type: source_str
-      })
-
     data_source_module =
       case source do
         :postgres -> ConnInfoParams.Postgres

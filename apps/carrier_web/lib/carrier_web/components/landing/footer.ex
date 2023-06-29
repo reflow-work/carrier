@@ -1,8 +1,6 @@
 defmodule LandingFooterComponent do
-  use Phoenix.LiveComponent
+  use CarrierWeb, :live_component
   alias Carrier.Const
-
-  import CarrierWeb.AnalyticsHelper
 
   @impl true
   def render(assigns) do
@@ -14,9 +12,10 @@ defmodule LandingFooterComponent do
           <div class="text-white">지표보는 문화를 만드는 가장 쉬운 툴, reflow</div>
           <button
             class="button button-lg mt-8"
-            phx-click="click_link"
-            phx-value-name="start_on_last_section"
-            phx-value-to="/login"
+            phx-click={
+              js_log_event("start_on_last_section", %{page_name: "landing"})
+              |> JS.navigate(~p"/login")
+            }
           >
             무료로 시작하기
           </button>
@@ -43,16 +42,5 @@ defmodule LandingFooterComponent do
       </div>
     </footer>
     """
-  end
-
-  @impl true
-  def handle_event("click_link", %{"name" => name, "to" => to}, socket) do
-    socket =
-      socket
-      |> log_event(name, %{
-        page_name: "landing"
-      })
-
-    {:noreply, push_navigate(socket, to: to)}
   end
 end

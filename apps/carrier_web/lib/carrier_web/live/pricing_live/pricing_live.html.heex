@@ -70,9 +70,12 @@
               <button
                 class="btn btn-primary w-full"
                 type="button"
-                phx-click="click_link"
-                phx-value-name={"start_#{plan.billing_cycle}"}
-                phx-value-to={"/app/subscriptions/new?plan-type=#{plan.type}&plan-billing-cycle=#{plan.billing_cycle}"}
+                phx-click={
+                  js_log_event("start_#{plan.billing_cycle}", %{page_name: "pricing"})
+                  |> JS.navigate(
+                    ~p"/app/subscriptions/new?plan-type=#{plan.type}&plan-billing-cycle=#{plan.billing_cycle}"
+                  )
+                }
               >
                 무료로 시작하기
               </button>
