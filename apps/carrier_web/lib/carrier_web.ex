@@ -89,6 +89,7 @@ defmodule CarrierWeb do
   def live_hook do
     quote do
       import Phoenix.LiveView
+      import Phoenix.Component
 
       unquote(html_helpers())
       unquote(live_helpers())
@@ -156,10 +157,6 @@ defmodule CarrierWeb do
       alias CarrierWeb.Components.{Icon, Search}
 
       alias Carrier.Const
-
-      # TODO: remove
-      import CarrierWeb.ErrorHelpers
-      import Phoenix.Component
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
