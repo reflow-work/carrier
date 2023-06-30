@@ -58,21 +58,6 @@ defmodule CarrierWeb do
     end
   end
 
-  # TODO: remove
-  def view do
-    quote do
-      use Phoenix.View,
-        root: "lib/carrier_web/templates",
-        namespace: CarrierWeb
-
-      # Import convenience functions from controllers
-      import Phoenix.Controller, only: [view_module: 1, view_template: 1]
-
-      # Include shared imports and aliases for views
-      unquote(html_helpers())
-    end
-  end
-
   def live_view do
     quote do
       use Phoenix.LiveView
