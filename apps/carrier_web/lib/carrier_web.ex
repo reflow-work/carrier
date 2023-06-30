@@ -79,9 +79,6 @@ defmodule CarrierWeb do
       require Logger
       alias Carrier.Obfuscatable
 
-      # TODO: remove
-      import CarrierWeb.LiveHelpers, except: [modal: 1, show_modal: 1, hide_modal: 1]
-
       on_mount(CarrierWeb.FlashHook)
 
       unquote(html_helpers())
@@ -105,9 +102,6 @@ defmodule CarrierWeb do
 
       import CarrierWeb.FlashHook, only: [push_flash: 4]
 
-      # TODO: remove
-      import CarrierWeb.LiveHelpers, except: [modal: 1, show_modal: 1, hide_modal: 1]
-
       unquote(html_helpers())
       unquote(live_helpers())
     end
@@ -116,7 +110,6 @@ defmodule CarrierWeb do
   def component do
     quote do
       use Phoenix.Component
-      import CarrierWeb.LiveHelpers, except: [modal: 1, show_modal: 1, hide_modal: 1]
 
       unquote(html_helpers())
     end
@@ -155,6 +148,8 @@ defmodule CarrierWeb do
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
+
+      import CarrierWeb.LiveHelpers
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
