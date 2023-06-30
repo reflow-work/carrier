@@ -140,8 +140,7 @@ defmodule CarrierWeb do
   defp html_helpers do
     quote do
       # HTML escaping functionality
-      # TODO: change to `import Phoenix.HTML`
-      use Phoenix.HTML
+      import Phoenix.HTML
       # Core UI components and translation
       import CarrierWeb.{CoreComponents, MainComponents}
       import CarrierWeb.Gettext

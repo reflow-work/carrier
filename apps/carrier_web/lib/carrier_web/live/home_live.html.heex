@@ -12,14 +12,14 @@
   </div>
 
   <div class="col-span-12 md:col-span-6">
-    <%= img_tag(~p"/images/section-1.png", class: "w-full") %>
+    <img src={~p"/images/section-1.png"} class="w-full" />
   </div>
 
   <div class="col-span-12 grid grid-cols-4 gap-28 px-40 mt-28 items-center max-h-8 justify-center">
-    <div><%= img_tag(~p"/images/company_logo_gu.png") %></div>
-    <div><%= img_tag(~p"/images/company_logo_carat.webp") %></div>
-    <div><%= img_tag(~p"/images/company_logo_sool.webp", class: "h-[70px] mx-auto") %></div>
-    <div><%= img_tag(~p"/images/company_logo_pet.png") %></div>
+    <div><img src={~p"/images/company_logo_gu.png"} /></div>
+    <div><img src={~p"/images/company_logo_carat.webp"} /></div>
+    <div><img src={~p"/images/company_logo_sool.webp"} class="h-[70px] mx-auto" /></div>
+    <div><img src={~p"/images/company_logo_pet.png"} /></div>
   </div>
 </section>
 
@@ -29,7 +29,7 @@
   <div class="flex flex-col md:flex-row space-y-12 md:space-y-0">
     <div class="avatar-card-container">
       <div>
-        <%= img_tag(~p"/images/avatar-1.png", width: "127px") %>
+        <img src={~p"/images/avatar-1.png"} width="127px" />
       </div>
 
       <div class="avatar-card-text">
@@ -44,7 +44,7 @@
 
     <div class="avatar-card-container">
       <div>
-        <%= img_tag(~p"/images/avatar-2.png", width: "127px") %>
+        <img src={~p"/images/avatar-2.png"} width="127px" />
       </div>
 
       <div class="avatar-card-text">
@@ -59,7 +59,7 @@
 
     <div class="avatar-card-container">
       <div>
-        <%= img_tag(~p"/images/avatar-3.png", width: "127px") %>
+        <img src={~p"/images/avatar-3.png"} width="127px" />
       </div>
 
       <div class="avatar-card-text">
@@ -83,7 +83,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(~p"/images/small-avatar-1.png", width: "60px") %>
+      <img src={~p"/images/small-avatar-1.png"} width="60px" />
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           매일 봐야하는 대시보드를 태블로로 볼 때는 너무 느려서 불편했어요.<br class="hidden md:block" />
@@ -107,7 +107,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(~p"/images/small-avatar-4.png", width: "60px") %>
+      <img src={~p"/images/small-avatar-4.png"} width="60px" />
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           매일 30분씩 만들던 레포트를 자동으로 받게 되면서<br class="hidden md:block" /> 데이터 분석 업무에 집중할 수 있게 되었습니다.
@@ -130,7 +130,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(~p"/images/small-avatar-2.png", width: "60px") %>
+      <img src={~p"/images/small-avatar-2.png"} width="60px" />
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           개발자에게 부탁해도 우선순위에 밀려서 잘 안 만들어지던<br class="hidden md:block" />
@@ -153,7 +153,7 @@
     </div>
 
     <div class="section-quote-container">
-      <%= img_tag(~p"/images/small-avatar-3.png", width: "60px") %>
+      <img src={~p"/images/small-avatar-3.png"} width="60px" />
       <div class="section-quote-text-container">
         <div class="section-quote-text-comment">
           쿼리를 배우는 게 부담스러웠는데<br class="hidden md:block" />
@@ -169,7 +169,7 @@
 
 <section class="landing-container ">
   <div class="bg-landingBgGray py-20 my-20 px-10 flex flex-col items-center rounded-lg text-center">
-    <%= img_tag(~p"/images/security.png", width: "66px") %>
+    <img src={~p"/images/security.png"} width="66px" />
     <h1 class="h1 mt-8 mb-12">고객의 데이터는 안전합니다</h1>
     <div class="text-landingDescription leading-8 text-left md:text-center">
       🔐 고객과 reflow 사이의 정보는 모두 TLS 암호화 되어 전송됩니다.<br /> 🔐 데이터 소스 접속 정보는 또한 모두 암호화되어 저장됩니다.<br />
@@ -184,31 +184,31 @@
 
   <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-8">
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(~p"/images/logo-tableau.png", class: "w-8 mr-5") %>
+      <img src={~p"/images/logo-tableau.png"} class="w-8 mr-5" />
       <div class="font-bold">
         Tableau Cloud
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(~p"/images/logo-bigquery.png", class: "w-8 mr-5") %>
+      <img src={~p"/images/logo-bigquery.png"} class="w-8 mr-5" />
       <div class="font-bold">
         Google BigQuery
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(~p"/images/logo-athena.png", class: "w-8 mr-5") %>
+      <img src={~p"/images/logo-athena.png"} class="w-8 mr-5" />
       <div class="font-bold">
         AWS Athena
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(~p"/images/logo-mysql.png", class: "w-8 mr-5") %>
+      <img src={~p"/images/logo-mysql.png"} class="w-8 mr-5" />
       <div class="font-bold">
         MySQL
       </div>
     </div>
     <div class="border py-4 px-6 rounded-md flex items-center">
-      <%= img_tag(~p"/images/logo-postgresql.png", class: "w-8 mr-5") %>
+      <img src={~p"/images/logo-postgresql.png"} class="w-8 mr-5" />
       <div class="font-bold">
         PostgreSQL
       </div>

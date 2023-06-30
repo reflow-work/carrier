@@ -72,9 +72,8 @@
           ]}
         >
           <div class="flex items-center">
-            <%= img_tag(~p"/images/#{image_filename}", class: "w-6 mr-4") %> <%= DataSource.transl_source(
-              source
-            ) %>
+            <img src={~p"/images/#{image_filename}"} class="w-6 mr-4" />
+            <%= DataSource.transl_source(source) %>
           </div>
           <Icon.arrow_right class="w-4" />
         </div>
