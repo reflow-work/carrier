@@ -36,7 +36,7 @@ defmodule Carrier.Data.Source.RDBOld do
   alias Carrier.Core.{Crypto, DateHelper}
 
   @impl true
-  def validate_conn(source, credentials, opts) do
+  def validate_conn(source, credentials, _opts) do
     get_module(source, false).validate_conn(credentials)
   end
 
