@@ -130,6 +130,7 @@ defmodule Carrier.External.TableauAPI do
   defp translate_error(%{"code" => code, "detail" => detail}) do
     case code do
       "403004" -> {:tableau_api_forbidden, detail}
+      "401001" -> {:tableau_api_invalid_access_token, detail}
       _ -> {:tableau_api_unknown_error, detail}
     end
   end
