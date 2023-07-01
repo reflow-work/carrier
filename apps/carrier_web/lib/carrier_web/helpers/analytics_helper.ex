@@ -6,7 +6,7 @@ defmodule CarrierWeb.AnalyticsHelper do
   def init_analytics(socket) do
     socket
     |> push_event("analytics-init", %{
-      user_id: socket.assigns[:user_id] |> Nillable.map(&(&1 |> to_string()))
+      user_id: socket.assigns[:user] |> Nillable.map(&(&1 |> Map.get(:id) |> to_string()))
     })
   end
 

@@ -14,7 +14,7 @@ defmodule LandingFooterComponent do
             class="button button-lg mt-8"
             href={Const.get(:demo_call_url)}
             target="_blank"
-            phx-click={js_log_event("click_demo_on_last_section", %{page_name: "landing"})}
+            phx-click={js_log_event("click_demo_on_footer", %{page_name: "landing"})}
           >
             데모 신청하기
           </.link>

@@ -44,7 +44,13 @@
       </div>
 
       <:actions>
-        <.button class="w-full" phx-disable-with="가입중">무료로 시작하기</.button>
+        <.button
+          class="w-full"
+          phx-disable-with="가입중"
+          phx-click={js_log_event("click_submit_onboarding", %{page_name: "onboarding"})}
+        >
+          무료로 시작하기
+        </.button>
       </:actions>
     </.simple_form>
   </div>

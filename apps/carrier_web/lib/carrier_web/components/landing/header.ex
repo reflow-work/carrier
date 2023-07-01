@@ -39,7 +39,7 @@ defmodule LandingHeaderComponent do
                 class="font-bold cursor-pointer text-base !text-black px-4"
                 phx-target={@myself}
                 phx-click={
-                  js_log_event("login_on_header", %{page_name: "landing"})
+                  js_log_event("click_login_on_header", %{page_name: "landing"})
                   |> JS.navigate(~p"/login")
                 }
               >
@@ -72,7 +72,7 @@ defmodule LandingHeaderComponent do
               class="w-full block font-bold cursor-pointer px-4 py-4 text-sm"
               phx-target={@myself}
               phx-click={
-                js_log_event("login_on_header", %{page_name: "landing"})
+                js_log_event("click_login_on_header", %{page_name: "landing"})
                 |> JS.navigate(~p"/login")
               }
             >
