@@ -5,8 +5,35 @@ defmodule Carrier.Data.Source.RDB.MySQL do
   alias Carrier.Dynamic.MySQLRepo
 
   @impl Carrier.Data.Source.RDB
-  def validation_query() do
-    "SELECT 1"
+  def validate_conn(credentials) do
+    opts =
+      Keyword.new(credentials) ++
+        [disconnect_on_error_codes: [1461], connect_timeout: 3000, pool_size: 1]
+
+    case MyXQL.Connection.connect(opts) do
+      {:ok, state} ->
+        MyXQL.Connection.disconnect(nil, state)
+
+        :ok
+
+      {:error, %DBConnection.ConnectionError{message: message}} ->
+        # hostname, port error
+        # "tcp connect (localhost1:48140): non-existing domain - :nxdomain"
+        # timeout(firewall) error
+        # "tcp connect (reflow-carrier-app-db.cdw6skjbo8fk.ap-northeast-2.rds.amazonaws.com:48140): timeout"
+
+        Logger.warning(message)
+
+        {:error, {:invalid_conn_info, message}}
+
+      {:error, %MyXQL.Error{message: message}} ->
+        # username, password, database error
+        # "Access denied for user 'root1'@'172.30.0.1' (using password: YES)"
+
+        Logger.warning(message)
+
+        {:error, {:invalid_conn_info, message}}
+    end
   end
 
   @impl Carrier.Data.Source.RDB
