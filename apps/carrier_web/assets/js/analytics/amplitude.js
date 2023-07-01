@@ -13,7 +13,8 @@ export class Amplitude {
         minIdLength: 1,
         defaultTracking: {
           pageViews: true,
-          sessions: false
+          sessions: false,
+          formInteractions: false
         },
       }
     )
