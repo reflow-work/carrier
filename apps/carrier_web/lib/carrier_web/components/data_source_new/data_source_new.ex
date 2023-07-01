@@ -144,6 +144,13 @@ defmodule CarrierWeb.Components.DataSourceNew do
 
         socket
 
+      {:error, {:invalid_conn_info, reason}} when is_binary(reason) ->
+        Logger.error(reason)
+
+        socket
+        |> assign(:error, reason)
+        |> push_flash(:error, "데이터 소스 연동에 실패하였습니다.", timeout: :timer.seconds(3))
+
       {:error, {:invalid_conn_info, reason}} ->
         Logger.error(inspect(reason))
 
