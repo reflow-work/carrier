@@ -56,7 +56,9 @@ defmodule CarrierWeb.Router do
         CarrierWeb.AnalyticsHook,
         CarrierWeb.ChanneltalkHook
       ] do
-      live "/", HomeLive, :index
+      live "/", HomeLive
+      live "/login", LoginLive
+      live "/invite", InviteLive
       live "/blog", Blog.PostLive.Index
       live "/blog/:slug", Blog.PostLive.Show
     end
@@ -66,9 +68,7 @@ defmodule CarrierWeb.Router do
   scope "/", CarrierWeb do
     pipe_through :browser
 
-    get "/login", AuthController, :login
     get "/logout", AuthController, :logout
-    get "/invite", AuthController, :invite
   end
 
   scope "/", CarrierWeb do
