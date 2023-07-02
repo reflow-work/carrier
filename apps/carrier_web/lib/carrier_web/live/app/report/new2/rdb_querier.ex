@@ -87,100 +87,98 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
   def render(assigns) do
     ~H"""
     <div>
-      <.card_container>
-        <.card class="z-10">
-          <div>
-            <.card_title title="2. 쿼리 입력하기" />
-          </div>
+      <div class="z-10">
+        <div>
+          <.card_title title="2. 대시보드 데이터 설정" />
+        </div>
 
-          <div class="flex justify-end">
-            <div :if={@is_demo} class="callout flex-1 mr-8">
-              <div class="callout-icon">
-                📌
-              </div>
-              Demo 데이터 소스를 선택한 경우 고정된 쿼리로만 리포트를 설정할 수 있습니다.
+        <div class="flex justify-end">
+          <div :if={@is_demo} class="callout flex-1 mr-8">
+            <div class="callout-icon">
+              📌
             </div>
-            <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
-              <.button
-                type="button"
-                phx-click={show_modal("query_maker_modal")}
-                class="self-end flex items-center"
-              >
-                <.icon name="hero-wrench-screwdriver" class="w-4 h-4 mr-2" /> 간단한 쿼리 자동 입력기
-              </.button>
-            </div>
+            Demo 데이터 소스를 선택한 경우 고정된 쿼리로만 리포트를 설정할 수 있습니다.
           </div>
-          <div>
-            <.simple_form
-              for={%{}}
-              phx-target={@myself}
-              phx-change="validate_query"
-              phx-submit="run_query"
-              errors={@query_errors}
+          <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
+            <.button
+              type="button"
+              phx-click={show_modal("query_maker_modal")}
+              class="self-end flex items-center"
             >
-              <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
-                <div class="sm:col-span-4 h-full flex flex-col">
-                  <.input
-                    class="flex-1"
-                    type="textarea"
-                    name="sql_template"
-                    input_class="mt-0"
-                    value={@sql_template}
-                    placeholder={@sample_sql_template}
-                    disabled={@is_demo}
-                  />
-                  <.button
-                    class="mt-2 w-full"
-                    disabled={run_query_disabled?(@sql_template, @query_validations)}
-                  >
-                    쿼리 실행
-                  </.button>
-                </div>
-                <div class="w-full px-2 sm:col-span-3 text-sm">
-                  <QueryChecker.checker checked={@query_validations.contains_start}>
-                    <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
-                  </QueryChecker.checker>
+              <.icon name="hero-wrench-screwdriver" class="w-4 h-4 mr-2" /> 간단한 쿼리 자동 입력기
+            </.button>
+          </div>
+        </div>
+        <div>
+          <.simple_form
+            for={%{}}
+            phx-target={@myself}
+            phx-change="validate_query"
+            phx-submit="run_query"
+            errors={@query_errors}
+          >
+            <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
+              <div class="sm:col-span-4 h-full flex flex-col">
+                <.input
+                  class="flex-1"
+                  type="textarea"
+                  name="sql_template"
+                  input_class="mt-0"
+                  value={@sql_template}
+                  placeholder={@sample_sql_template}
+                  disabled={@is_demo}
+                />
+                <.button
+                  class="mt-2 w-full"
+                  disabled={run_query_disabled?(@sql_template, @query_validations)}
+                >
+                  쿼리 실행
+                </.button>
+              </div>
+              <div class="w-full px-2 sm:col-span-3 text-sm">
+                <QueryChecker.checker checked={@query_validations.contains_start}>
+                  <b>기간 시작 조건</b>에 실제 날짜가 아닌 <code class="code">{{start}}</code>를 넣어주세요.
+                </QueryChecker.checker>
 
-                  <QueryChecker.checker class="mt-2" checked={@query_validations.contains_end}>
-                    <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
-                  </QueryChecker.checker>
+                <QueryChecker.checker class="mt-2" checked={@query_validations.contains_end}>
+                  <b>기간 종료 조건</b>에 실제 날짜가 아닌 <code class="code">{{end}}</code>를 넣어주세요.
+                </QueryChecker.checker>
 
-                  <div class="bg-yellow-50 rounded p-3 mt-3">
-                    <b>📌 Check point</b>
+                <div class="bg-yellow-50 rounded p-3 mt-3">
+                  <b>📌 Check point</b>
 
-                    <p class="mt-2">
-                      - SELECT문의 첫 번째 컬럼에 <b>DATE 타입</b>의 기준이 되는 날짜 컬럼을 넣어주세요.
-                    </p>
+                  <p class="mt-2">
+                    - SELECT문의 첫 번째 컬럼에 <b>DATE 타입</b>의 기준이 되는 날짜 컬럼을 넣어주세요.
+                  </p>
 
-                    <p class="mt-2">
-                      - SELECT문의 두 번째 컬럼부터는 <b>지표 컬럼</b>을 넣어주세요.
-                    </p>
+                  <p class="mt-2">
+                    - SELECT문의 두 번째 컬럼부터는 <b>지표 컬럼</b>을 넣어주세요.
+                  </p>
 
-                    <p class="mt-2">
-                      - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
-                    </p>
+                  <p class="mt-2">
+                    - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
+                  </p>
 
-                    <p class="mt-2">
-                      - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
-                    </p>
-                  </div>
+                  <p class="mt-2">
+                    - 집계된 데이터가 담긴 테이블이 아닌 경우 기준이 되는 날짜로 GROUP BY한 집계 쿼리를 작성해주세요.
+                  </p>
                 </div>
               </div>
-            </.simple_form>
-          </div>
-          <div class="mt-6 border p-4 rounded-md">
-            <div class="border-b pb-4">쿼리 결과</div>
-            <p :if={!@query_result} class="mt-4 text-sm">쿼리를 실행해주세요.</p>
-            <div :if={@query_result} class="h-60 overflow-auto">
-              <.table id="query_result" rows={@query_result.data |> Enum.reverse()}>
-                <:col :let={row} :for={column <- @query_result.columns} label={column}>
-                  <%= row[column] %>
-                </:col>
-              </.table>
             </div>
+          </.simple_form>
+        </div>
+        <div class="mt-6 border p-4 rounded-md">
+          <div class="border-b pb-4">쿼리 결과</div>
+          <p :if={!@query_result} class="mt-4 text-sm">쿼리를 실행해주세요.</p>
+          <div :if={@query_result} class="h-60 overflow-auto">
+            <.table id="query_result" rows={@query_result.data |> Enum.reverse()}>
+              <:col :let={row} :for={column <- @query_result.columns} label={column}>
+                <%= row[column] %>
+              </:col>
+            </.table>
           </div>
-        </.card>
-      </.card_container>
+        </div>
+      </div>
 
       <.modal :if={Source.RDB.support_query_maker?(@data_source.source)} id="query_maker_modal">
         <.live_component

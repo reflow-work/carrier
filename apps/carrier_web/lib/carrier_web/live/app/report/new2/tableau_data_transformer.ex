@@ -91,7 +91,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       <.card_container>
         <.card class="z-10">
           <div>
-            <.card_title title="2. 데이터 설정" />
+            <.card_title title="2. 대시보드 데이터 설정" />
           </div>
 
           <div class="max-w-md">

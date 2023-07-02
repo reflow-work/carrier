@@ -170,7 +170,7 @@ input[type="checkbox"] {
 }
 
 .card {
-  @apply w-full drop-shadow-sm bg-background-light rounded-md border border-gray-200 ;
+  @apply w-full drop-shadow-sm bg-background-light rounded-md border border-gray-200;
 }
 
 .card {
