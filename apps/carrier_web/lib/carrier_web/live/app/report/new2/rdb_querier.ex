@@ -60,8 +60,8 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
           |> assign(:sql_template, """
             SELECT
               DATE(order_date),
-              SUM(amount) AS "amount_sum",
-              SUM(revenue) AS "revenue_sum"
+              SUM(amount) AS "총 주문액",
+              SUM(revenue) AS "총 매출"
             FROM sample_data
               WHERE DATE(order_date) >= {{start}}
                 AND DATE(order_date) < {{end}}
