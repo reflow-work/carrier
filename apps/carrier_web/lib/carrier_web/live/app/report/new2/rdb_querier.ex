@@ -101,8 +101,12 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
               Demo 데이터 소스를 선택한 경우 고정된 쿼리로만 리포트를 설정할 수 있습니다.
             </div>
             <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
-              <.button type="button" phx-click={show_modal("query_maker_modal")} class="self-end">
-                <Icon.package class="inline-block w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
+              <.button
+                type="button"
+                phx-click={show_modal("query_maker_modal")}
+                class="self-end flex items-center"
+              >
+                <.icon name="hero-wrench-screwdriver" class="w-4 h-4 mr-2" /> 간단한 쿼리 자동 입력기
               </.button>
             </div>
           </div>
@@ -115,16 +119,22 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
               errors={@query_errors}
             >
               <div class="flex-col gap-2 sm:grid sm:grid-cols-7 sm:gap-2 pt-2">
-                <div class="sm:col-span-4">
+                <div class="sm:col-span-4 h-full flex flex-col">
                   <.input
+                    class="flex-1"
                     type="textarea"
                     name="sql_template"
-                    class="h-full"
                     input_class="mt-0"
                     value={@sql_template}
                     placeholder={@sample_sql_template}
                     disabled={@is_demo}
                   />
+                  <.button
+                    class="mt-2 w-full"
+                    disabled={run_query_disabled?(@sql_template, @query_validations)}
+                  >
+                    쿼리 실행
+                  </.button>
                 </div>
                 <div class="w-full px-2 sm:col-span-3 text-sm">
                   <QueryChecker.checker checked={@query_validations.contains_start}>
@@ -156,15 +166,12 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                   </div>
                 </div>
               </div>
-              <.button class="mt-2" disabled={run_query_disabled?(@sql_template, @query_validations)}>
-                쿼리 실행
-              </.button>
             </.simple_form>
           </div>
-          <div class="mt-6">
-            <.card_title title="쿼리 결과 데이터" />
-            <p :if={!@query_result} class="mt-2">쿼리를 실행해주세요.</p>
-            <div :if={@query_result} class="h-96 overflow-auto">
+          <div class="mt-6 border p-4 rounded-md">
+            <div class="border-b pb-4">쿼리 결과</div>
+            <p :if={!@query_result} class="mt-4 text-sm">쿼리를 실행해주세요.</p>
+            <div :if={@query_result} class="h-60 overflow-auto">
               <.table id="query_result" rows={@query_result.data |> Enum.reverse()}>
                 <:col :let={row} :for={column <- @query_result.columns} label={column}>
                   <%= row[column] %>
