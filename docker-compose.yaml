@@ -22,3 +22,5 @@ services:
       MYSQL_DATABASE: customer_db
     ports:
       - '48142:3306'
+    volumes:
+      - ./docker/volumns/mysql:/var/lib/mysql
