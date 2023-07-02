@@ -144,10 +144,9 @@ defmodule CarrierWeb.App.ReportLive.New2 do
                 disabled={!@valid? || @selected_data_source.demo}
                 phx-disable-with="생성 중"
               >
-                리포트 저장
+                리포트 저장 <span :if={@selected_data_source.demo}>(Demo 데이터 소스는 저장 불가)</span>
               </.button>
             </div>
-            <p :if={@selected_data_source.demo}>데모 데이터 소스로는 테스트발송만 가능합니다</p>
           </.simple_form>
         </div>
       </div>
