@@ -23,14 +23,15 @@ defmodule CarrierWeb.LoginLive do
 
         <div class="flex flex-col flex-1 items-center justify-center relative">
           <div
-            id="g_id_onload"
+            id="google_signin_info"
             data-client_id={Google.OAuth.client_id()}
             data-ux_mode="redirect"
             data-login_uri={url(~p"/auth/google/callback")}
           >
           </div>
           <div
-            class="g_id_signin"
+            id="google_signin_button"
+            phx-hook="GoogleSignIn"
             data-type="standard"
             data-size="large"
             data-theme="filled_black"
