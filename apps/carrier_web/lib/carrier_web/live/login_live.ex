@@ -3,7 +3,13 @@ defmodule CarrierWeb.LoginLive do
   alias Carrier.External.Google
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    socket =
+      case session["user_id"] do
+        nil -> socket
+        _ -> socket |> push_navigate(to: ~p"/app/reports")
+      end
+
     {:ok, socket, layout: false}
   end
 
