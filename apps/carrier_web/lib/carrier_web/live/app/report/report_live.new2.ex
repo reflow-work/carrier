@@ -106,6 +106,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         org={@org}
         selected_data_source_id={@selected_data_source_id}
         disabled={@live_action != :new}
+        title="1. 데이터 소스 선택"
       />
 
       <div :if={@selected_data_source}>

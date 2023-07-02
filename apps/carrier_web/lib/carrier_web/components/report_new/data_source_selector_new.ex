@@ -11,6 +11,7 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
       socket
       |> assign(:data_sources, [])
       |> assign(:selected_data_source_id, nil)
+      |> assign(:title, "데이터 소스")
       |> load_data_sources()
 
     {:ok, socket}
