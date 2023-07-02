@@ -6,18 +6,6 @@ defmodule CarrierWeb.AuthController do
   alias Carrier.External.Google
   alias Carrier.Core.Nillable
 
-  def login(conn, _params) do
-    case get_session(conn, "user_id") do
-      nil ->
-        conn
-        |> render(:login)
-
-      _ ->
-        conn
-        |> redirect(to: ~p"/app/reports")
-    end
-  end
-
   def logout(conn, _params) do
     conn
     |> clear_session()
