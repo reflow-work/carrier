@@ -68,4 +68,9 @@ defmodule CarrierWeb.Components.DataSourceSelectorNew do
 
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_event("select_data_source", _, socket) do
+    {:noreply, socket}
+  end
 end
