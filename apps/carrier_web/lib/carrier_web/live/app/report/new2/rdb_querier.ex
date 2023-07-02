@@ -89,13 +89,19 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
     <div>
       <.card_container>
         <.card class="z-10">
-          <div class="flex justify-between">
-            <div>
-              <.card_title title="2. 쿼리 입력하기" />
-              <p class="mt-2">☝️ 기준이 되는 날짜 컬럼과 보고 싶은 지표 컬럼(최대 3개)을 쿼리해주세요.</p>
+          <div>
+            <.card_title title="2. 쿼리 입력하기" />
+          </div>
+
+          <div class="flex justify-end">
+            <div :if={@is_demo} class="callout flex-1 mr-8">
+              <div class="callout-icon">
+                📌
+              </div>
+              Demo 데이터 소스를 선택한 경우 고정된 쿼리로만 리포트를 설정할 수 있습니다.
             </div>
             <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
-              <.button type="button" phx-click={show_modal("query_maker_modal")}>
+              <.button type="button" phx-click={show_modal("query_maker_modal")} class="self-end">
                 <Icon.package class="inline-block w-6 h-6 mr-3" /> 간단한 쿼리 자동 입력기
               </.button>
             </div>
@@ -150,7 +156,6 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                   </div>
                 </div>
               </div>
-              <p :if={@is_demo}>데모 데이터 소스로는 정해진 쿼리만 가능합니다</p>
               <.button class="mt-2" disabled={run_query_disabled?(@sql_template, @query_validations)}>
                 쿼리 실행
               </.button>
