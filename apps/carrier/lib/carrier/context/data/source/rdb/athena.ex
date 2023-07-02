@@ -4,8 +4,11 @@ defmodule Carrier.Data.Source.RDB.Athena do
   require Logger
 
   @impl Carrier.Data.Source.RDB
-  def validation_query() do
-    "SELECT 1"
+  def validate_conn(credentials) do
+    case run_query(credentials, "SELECT 1") do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   @impl Carrier.Data.Source.RDB
@@ -13,6 +16,8 @@ defmodule Carrier.Data.Source.RDB.Athena do
     "?"
   end
 
+  # TODO: ReqAthena 는 쓰기 쉽긴 한데, error 를 걸러내기가 힘듦.
+  # AWS API 를 사용하는 방식으로 바꾸거나 ReqAthena 를 수정할 필요성이 있음
   @impl Carrier.Data.Source.RDB
   def run_query(
         %{
@@ -46,11 +51,25 @@ defmodule Carrier.Data.Source.RDB.Athena do
         {:error, {:query_error, message}}
 
       {:ok, %Req.Response{body: json_str}} ->
-        %{"Message" => message} = error = json_str |> Jason.decode!()
+        error = json_str |> Jason.decode!()
 
         Logger.error(error)
 
-        {:error, {:query_error, message}}
+        reason =
+          case error do
+            %{"Message" => message} ->
+              {:query_error, message}
+
+            %{"message" => message} ->
+              {:invalid_conn_info, message}
+          end
+
+        {:error, reason}
+
+      {:error, %Mint.TransportError{reason: reason}} ->
+        Logger.error(inspect(reason))
+
+        {:error, {:invalid_conn_info, reason}}
 
       {:error, reason} ->
         Logger.error(inspect(reason))

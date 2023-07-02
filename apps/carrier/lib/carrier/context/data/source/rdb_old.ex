@@ -1,6 +1,6 @@
 defmodule Carrier.Data.Source.RDBOld do
   # required
-  @callback validation_query() :: String.t()
+  @callback validate_conn(credentials :: map()) :: :ok | {:error, any()}
   @callback param(n :: integer()) :: String.t()
   @callback run_query(
               credentials :: map(),
@@ -36,13 +36,8 @@ defmodule Carrier.Data.Source.RDBOld do
   alias Carrier.Core.{Crypto, DateHelper}
 
   @impl true
-  def validate_conn(source, credentials, opts) do
-    query = get_module(source, false).validation_query()
-
-    case do_run_query(source, false, credentials, query, [], opts) do
-      {:ok, _} -> :ok
-      {:error, _} -> {:error, :invalid_conn_info}
-    end
+  def validate_conn(source, credentials, _opts) do
+    get_module(source, false).validate_conn(credentials)
   end
 
   @start_template_key "start"

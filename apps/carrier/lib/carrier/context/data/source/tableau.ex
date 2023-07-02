@@ -2,6 +2,7 @@ defmodule Carrier.Data.Source.Tableau do
   @behaviour Carrier.Data.Source
 
   use Carrier.{Integrations, Reports}
+  require Logger
   alias Carrier.Data.Block
   alias Carrier.External.TableauAPI
   alias Carrier.Core.{Async, Tmp}
@@ -81,8 +82,18 @@ defmodule Carrier.Data.Source.Tableau do
   @impl true
   def validate_conn(:tableau, credentials, _opts) do
     case signin(credentials) do
-      {:ok, _} -> :ok
-      {:error, _} -> {:error, :invalid_conn_info}
+      {:ok, _} ->
+        :ok
+
+      {:error, "non-existing domain" = message} ->
+        {:error, {:invalid_conn_info, message}}
+
+      {:error, {:tableau_api_invalid_access_token, message}} ->
+        {:error, {:invalid_conn_info, message}}
+
+      {:error, reason} ->
+        Logger.error(inspect(reason))
+        {:error, {:invalid_conn_info, "Unknown error"}}
     end
   end
 

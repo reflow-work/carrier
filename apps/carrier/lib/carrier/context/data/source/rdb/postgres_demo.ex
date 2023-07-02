@@ -2,8 +2,8 @@ defmodule Carrier.Data.Source.RDB.PostgresDemo do
   @behaviour Carrier.Data.Source.RDB
 
   @impl Carrier.Data.Source.RDB
-  def validation_query() do
-    "validation_query"
+  def validate_conn(_credentials) do
+    :ok
   end
 
   @impl Carrier.Data.Source.RDB

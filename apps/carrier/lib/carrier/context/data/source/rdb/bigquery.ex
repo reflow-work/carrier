@@ -4,8 +4,11 @@ defmodule Carrier.Data.Source.RDB.BigQuery do
   require Logger
 
   @impl Carrier.Data.Source.RDB
-  def validation_query() do
-    "SELECT 1"
+  def validate_conn(credentials) do
+    case run_query(credentials, "SELECT 1") do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   @impl Carrier.Data.Source.RDB
@@ -51,8 +54,14 @@ defmodule Carrier.Data.Source.RDB.BigQuery do
     opts = [name: name, source: source, http_client: &Req.request/1, prefetch: :sync]
 
     case DynamicSupervisor.start_child(Carrier.GothSupervisor, {Goth, opts}) do
-      {:ok, pid} -> {:ok, pid}
-      {:error, {:already_started, pid}} -> {:ok, pid}
+      {:ok, pid} ->
+        {:ok, pid}
+
+      {:error, {:already_started, pid}} ->
+        {:ok, pid}
+
+      {:error, {%{value: %{"error_description" => message}}, _}} ->
+        {:error, {:invalid_conn_info, message}}
     end
   end
 
