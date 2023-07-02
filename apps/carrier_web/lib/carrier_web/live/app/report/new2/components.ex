@@ -186,7 +186,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     <div>
       <.card_container>
         <.card>
-          <.card_title title="리포트 설정하기" />
+          <.card_title title="3. 리포트 설정" />
           <div class="max-w-md">
             <.simple_form for={@report_form} phx-change="validate_report">
               <.input
