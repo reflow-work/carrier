@@ -5,7 +5,7 @@ defmodule CarrierWeb.App.OnboardingLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket, layout: false}
+    {:ok, socket}
   end
 
   @impl true
