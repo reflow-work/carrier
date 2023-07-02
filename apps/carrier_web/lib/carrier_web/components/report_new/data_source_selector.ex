@@ -56,8 +56,15 @@ defmodule CarrierWeb.Components.DataSourceSelector do
   end
 
   defp data_source_options(data_sources) do
-    data_sources
-    |> Enum.map(fn %DataSource{id: id, name: name} -> {name, id} end)
+    {normal_data_sources, demo_data_sources} =
+      data_sources
+      |> Enum.split_with(fn %DataSource{demo: demo} -> demo == false end)
+
+    (normal_data_sources ++ [nil] ++ demo_data_sources)
+    |> Enum.map(fn
+      %DataSource{id: id, name: name} -> {name, id}
+      nil -> [key: "--- Demo ---", value: "_invalid_value", disabled: true]
+    end)
   end
 
   @impl true
