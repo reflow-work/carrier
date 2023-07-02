@@ -75,9 +75,9 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
       end
 
     socket =
-      case socket.assigns.sql_template do
-        nil -> socket
-        _sql_template -> socket |> run_query()
+      case {socket.assigns.is_demo, socket.assigns.sql_template} do
+        {false, sql_template} when not is_nil(sql_template) -> socket |> run_query()
+        _ -> socket
       end
 
     {:ok, socket}
