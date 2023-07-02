@@ -26,7 +26,7 @@ defmodule CarrierWeb.MainComponents do
 
   def card_container(assigns) do
     ~H"""
-    <div class={["mt-6", @class]}>
+    <div class={["mt-4", @class]}>
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -38,7 +38,7 @@ defmodule CarrierWeb.MainComponents do
 
   def card(assigns) do
     ~H"""
-    <div class={["card !rounded-md", @class]}>
+    <div class={["card", @class]}>
       <div class="card-body">
         <%= render_slot(@inner_block) %>
       </div>

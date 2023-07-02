@@ -63,7 +63,7 @@ defmodule Carrier.Data.Source.RDB.PostgresDemo do
           end)
           |> Enum.reverse()
 
-        {:ok, %{columns: ["date", "amount_sum", "revenue_sum"], rows: rows}}
+        {:ok, %{columns: ["date", "총 주문액", "총 매출"], rows: rows}}
     end
   end
 

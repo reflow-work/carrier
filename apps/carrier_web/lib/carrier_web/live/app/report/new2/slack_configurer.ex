@@ -93,7 +93,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
       <.card_container>
         <.card class="z-10">
           <div>
-            <.card_title title="Slack 발송 설정하기" />
+            <.card_title title="4. 슬랙 설정" />
           </div>
 
           <div class="max-w-md">

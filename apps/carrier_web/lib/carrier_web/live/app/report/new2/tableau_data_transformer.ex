@@ -91,7 +91,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
       <.card_container>
         <.card class="z-10">
           <div>
-            <.card_title title="Tableau View" />
+            <.card_title title="2. 대시보드 데이터 설정" />
           </div>
 
           <div class="max-w-md">
@@ -100,7 +100,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
               :if={@views.valid?}
               module={Search}
               id="tableau_view_selector"
-              placeholder="View 이름으로 검색해주세요"
+              placeholder="Tableau View 이름으로 검색해주세요"
               position={:top}
               items={
                 @views.value |> Enum.map(fn %{id: id, full_name: full_name} -> {full_name, id} end)
@@ -114,8 +114,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
             />
             <.error :if={@views.error}><%= @views.error %></.error>
           </div>
-        </.card>
-        <.card>
+          <hr class="my-4" />
           <div class="space-y-8">
             <p :if={@selected_views |> Enum.empty?()}>Tablea View 를 선택해주세요</p>
             <.live_component

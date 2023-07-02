@@ -2,7 +2,7 @@
   <.card_container>
     <.card>
       <div>
-        <.card_title title="데이터 소스" />
+        <.card_title title={@title} />
       </div>
 
       <.simple_form for={%{}} phx-change="select_data_source" phx-target={@myself}>
@@ -24,6 +24,9 @@
           >
             새 데이터 소스 추가
           </.button>
+        </div>
+        <div class="text-landingDescription text-sm">
+          * 미리 설정되어 있는 Demo 데이터 소스를 이용하여 reflow를 체험해보세요.
         </div>
       </.simple_form>
     </.card>

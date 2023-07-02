@@ -62,100 +62,103 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <.live_component
-        module={RDBQuerier}
-        id="rdb_querier"
-        data_source={@data_source}
-        sql_template={@sql_template}
-        onchange={
-          fn sql_template, query_result ->
-            send_update(__MODULE__, id: @id, sql_template: sql_template, query_result: query_result)
-          end
-        }
-      />
-      <.card_container :if={@query_result} class="flex flex-col gap-4 lg:flex-row">
-        <.card class="basis-96">
-          <.card_title title="차트 설정하기" />
-          <div>
-            <.simple_form for={@rdb_form} phx-target={@myself} phx-change="validate_rdb">
-              <.input
-                type="checkgroup"
-                field={@rdb_form[:columns]}
-                multiple={true}
-                label="지표 선택"
-                options={data_columns(@query_result)}
-              />
-              <.input
-                type="radio-group"
-                field={@rdb_form[:window_size]}
-                label="그래프 값 옵션"
-                options={[{"당일 지표", 1}, {"7일 이동합계", 7}]}
-              />
-            </.simple_form>
-          </div>
-        </.card>
-        <.card class="flex-1">
-          <.card_title title="차트 미리보기" />
-          <div class="space-y-3">
-            <div :for={column <- @rdb_form[:columns].value}>
-              <section class="space-y-3 bg-slackImgLightGrey p-4">
-                <p class="font-bold text-base-dark text-sm">
-                  <%= RDBOld.title(column, @timezone) %>
-                </p>
-                <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
-                  <section>
-                    <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
-                    <p class="text-xl font-bold mt-2">
-                      <%= format_number(
-                        @query_result_by_columns[column].meta.current_period_last_tick_raw
-                      ) %>
-                    </p>
-                    <div class="flex space-x-2 mt-1">
-                      <SlackImgMetaData.card
-                        diff_value_raw={
-                          @query_result_by_columns[column].meta.diff_between_period_raws
-                        }
-                        diff_value_percentage={
-                          @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
-                        }
-                      />
-                    </div>
-                  </section>
-                  <section class="pl-5">
-                    <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
-                    <p class="text-xl font-bold mt-2">
-                      <%= format_number(@query_result_by_columns[column].meta.current_period_sum) %>
-                    </p>
-                    <div class="flex space-x-2 mt-1">
-                      <SlackImgMetaData.card
-                        diff_value_raw={
-                          @query_result_by_columns[column].meta.diff_between_period_sums
-                        }
-                        diff_value_percentage={
-                          @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
-                        }
-                      />
-                    </div>
-                  </section>
-                </div>
-                <section
-                  id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
-                  phx-update="ignore"
-                  class="h-[250px]"
-                >
-                  <canvas
-                    id={"chart-#{@query_result_by_columns[column].meta.label}"}
-                    class="rounded-lg shadow-slackImgSection"
-                    phx-hook="Chart"
-                  >
-                  </canvas>
-                </section>
-              </section>
+    <div class="card_container mt-4">
+      <div class="bg-background-light rounded-md border border-gray-200 p-8">
+        <.live_component
+          module={RDBQuerier}
+          id="rdb_querier"
+          data_source={@data_source}
+          sql_template={@sql_template}
+          onchange={
+            fn sql_template, query_result ->
+              send_update(__MODULE__, id: @id, sql_template: sql_template, query_result: query_result)
+            end
+          }
+        />
+        <hr class="my-8" />
+        <div :if={@query_result} class="flex flex-col gap-4 lg:flex-row">
+          <div class="basis-96 border-r">
+            <div class="mb-6 font-bold">차트 설정하기</div>
+            <div>
+              <.simple_form for={@rdb_form} phx-target={@myself} phx-change="validate_rdb">
+                <.input
+                  type="checkgroup"
+                  field={@rdb_form[:columns]}
+                  multiple={true}
+                  label="지표 선택"
+                  options={data_columns(@query_result)}
+                />
+                <.input
+                  type="radio-group"
+                  field={@rdb_form[:window_size]}
+                  label="그래프 값 옵션"
+                  options={[{"당일 지표", 1}, {"7일 이동합계", 7}]}
+                />
+              </.simple_form>
             </div>
           </div>
-        </.card>
-      </.card_container>
+          <div class="flex- w-max-[640px]">
+            <div class="mb-6 font-bold">차트 미리보기</div>
+            <div class="space-y-3">
+              <div :for={column <- @rdb_form[:columns].value}>
+                <section class="space-y-3 bg-slackImgLightGrey p-4">
+                  <p class="font-bold text-base-dark text-sm">
+                    <%= RDBOld.title(column, @timezone) %>
+                  </p>
+                  <div class="grid grid-cols-2 py-4 px-5 rounded-lg shadow-slackImgSection bg-white divide-x-2 divide-slackImgLightGrey">
+                    <section>
+                      <h4 class="text-xs font-bold text-slackImgGrey">어제</h4>
+                      <p class="text-xl font-bold mt-2">
+                        <%= format_number(
+                          @query_result_by_columns[column].meta.current_period_last_tick_raw
+                        ) %>
+                      </p>
+                      <div class="flex space-x-2 mt-1">
+                        <SlackImgMetaData.card
+                          diff_value_raw={
+                            @query_result_by_columns[column].meta.diff_between_period_raws
+                          }
+                          diff_value_percentage={
+                            @query_result_by_columns[column].meta.diff_between_period_raws_in_percentage
+                          }
+                        />
+                      </div>
+                    </section>
+                    <section class="pl-5">
+                      <h4 class="text-xs font-bold text-slackImgGrey">최근 7일 합계</h4>
+                      <p class="text-xl font-bold mt-2">
+                        <%= format_number(@query_result_by_columns[column].meta.current_period_sum) %>
+                      </p>
+                      <div class="flex space-x-2 mt-1">
+                        <SlackImgMetaData.card
+                          diff_value_raw={
+                            @query_result_by_columns[column].meta.diff_between_period_sums
+                          }
+                          diff_value_percentage={
+                            @query_result_by_columns[column].meta.diff_between_period_sums_in_percentage
+                          }
+                        />
+                      </div>
+                    </section>
+                  </div>
+                  <section
+                    id={"chart-container-#{@query_result_by_columns[column].meta.label}"}
+                    phx-update="ignore"
+                    class="h-[250px]"
+                  >
+                    <canvas
+                      id={"chart-#{@query_result_by_columns[column].meta.label}"}
+                      class="rounded-lg shadow-slackImgSection"
+                      phx-hook="Chart"
+                    >
+                    </canvas>
+                  </section>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     """
   end
