@@ -115,7 +115,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
             <.error :if={@views.error}><%= @views.error %></.error>
           </div>
         </.card>
-        <.card>
+        <.card class="!mt-4">
           <div class="space-y-8">
             <p :if={@selected_views |> Enum.empty?()}>Tablea View 를 선택해주세요</p>
             <.live_component

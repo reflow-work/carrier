@@ -170,7 +170,11 @@ input[type="checkbox"] {
 }
 
 .card {
-  @apply w-full drop-shadow-sm bg-background-light rounded-2xl;
+  @apply w-full drop-shadow-sm bg-background-light rounded-md border border-gray-200 ;
+}
+
+.card {
+  overflow: unset;
 }
 
 .menu-item {
@@ -220,8 +224,4 @@ input[type="checkbox"] {
 
 .badge.failed {
   @apply bg-red-300;
-}
-
-.card {
-  overflow: unset;
 }
