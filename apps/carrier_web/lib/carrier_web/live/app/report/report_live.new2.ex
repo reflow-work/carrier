@@ -100,6 +100,33 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     <section class="page-container">
       <.page_header icon="📊" title={@title} />
 
+      <ol class="mt-8 flex flex-row items-center w-full space-x-4 text-sm font-medium text-center">
+        <li class="flex items-center text-primary">
+          <span class="flex items-center justify-center w-5 h-5 text-sm mr-1">
+            1.
+          </span>
+          데이터 소스 선택 <.icon class="w-4 h-4 ml-4" name="hero-chevron-double-right-mini" />
+        </li>
+        <li class="flex items-center">
+          <span class="flex items-center justify-center w-5 h-5 text-sm mr-1">
+            2.
+          </span>
+          대시보드 데이터 설정 <.icon class="w-4 h-4 ml-4" name="hero-chevron-double-right-mini" />
+        </li>
+        <li class="flex items-center">
+          <span class="flex items-center justify-center w-5 h-5 text-sm mr-1">
+            3.
+          </span>
+          리포트 설정 <.icon class="w-4 h-4 ml-4" name="hero-chevron-double-right-mini" />
+        </li>
+        <li class="flex items-center">
+          <span class="flex items-center justify-center w-5 h-5 text-sm mr-1">
+            4.
+          </span>
+          슬랙 설정
+        </li>
+      </ol>
+
       <.live_component
         module={DataSourceSelectorNew}
         id="data_source_selector_new"
