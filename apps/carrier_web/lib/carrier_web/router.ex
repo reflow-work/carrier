@@ -58,6 +58,7 @@ defmodule CarrierWeb.Router do
       ] do
       live "/", HomeLive
       live "/login", LoginLive
+      live "/invite", InviteLive
       live "/blog", Blog.PostLive.Index
       live "/blog/:slug", Blog.PostLive.Show
     end
@@ -68,7 +69,6 @@ defmodule CarrierWeb.Router do
     pipe_through :browser
 
     get "/logout", AuthController, :logout
-    get "/invite", AuthController, :invite
   end
 
   scope "/", CarrierWeb do
