@@ -3,7 +3,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   use Carrier.{Integrations, Data, Reports, Setting}
   alias __MODULE__.Components
   alias __MODULE__.ReportParams
-  alias CarrierWeb.Components.DataSourceSelectorNew
+  alias CarrierWeb.Components.DataSourceSelector
   alias Carrier.Core.{Nillable, Async, TimeHelper, WeekdayHelper}
   alias Doumi.Phoenix.Params
 
@@ -128,8 +128,8 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       </ol>
 
       <.live_component
-        module={DataSourceSelectorNew}
-        id="data_source_selector_new"
+        module={DataSourceSelector}
+        id="data_source_selector"
         org={@org}
         selected_data_source_id={@selected_data_source_id}
         disabled={@live_action != :new}

@@ -1,4 +1,4 @@
-defmodule CarrierWeb.Components.DataSourceSelectorNew do
+defmodule CarrierWeb.Components.DataSourceSelector do
   use CarrierWeb, :live_component
   use Carrier.{Integrations}
   alias Carrier.Integrations.DataSource
