@@ -8,13 +8,6 @@ defmodule CarrierWeb.AnalyticsHook do
         {true, :prod} ->
           socket
           |> init_analytics()
-          |> attach_hook(:analytics_hook, :handle_params, fn
-            _params, uri, socket ->
-              page_name = AnalyticsHelper.get_page_name(uri)
-
-              socket = socket |> log_event("view_#{page_name}")
-              {:cont, socket}
-          end)
 
         _ ->
           socket
