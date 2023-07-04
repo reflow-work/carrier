@@ -44,7 +44,11 @@
               <td><%= DataTargetInfo.to_string(report.data_target_info) %></td>
               <td class="flex justify-end gap-x-2">
                 <.link navigate={~p"/app/report_logs/#{report}"} class="btn btn-sm">
-                  발송 기록
+                  <.icon
+                    :if={report.last_report_log |> Nillable.map(& &1.status) == :failed}
+                    name="hero-exclamation-circle-mini"
+                    class="mr-2 text-rose-500"
+                  /> 발송 기록
                 </.link>
                 <.link navigate={~p"/app/reports/#{report}/edit2"} class="btn btn-sm">
                   수정
