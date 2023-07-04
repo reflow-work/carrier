@@ -390,13 +390,13 @@ defmodule Carrier.BillingTest do
     end
 
     test "with invalid subscription_id" do
-      assert {:error, :subscription_can_not_be_expired} = Billing.expire_subscription(0)
+      assert {:error, :subscription_to_expire_not_exist} = Billing.expire_subscription(0)
     end
 
     test "with not active subscription", %{org: org} do
       subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :expired)
 
-      assert {:error, :subscription_can_not_be_expired} =
+      assert {:error, :subscription_to_expire_not_exist} =
                Billing.expire_subscription(subscription.id)
     end
   end

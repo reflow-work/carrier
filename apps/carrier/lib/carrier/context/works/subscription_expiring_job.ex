@@ -17,6 +17,13 @@ defmodule Carrier.Works.SubscriptionExpiringJob do
     with {:ok, %Subscription{}} <- Billing.expire_subscription(subscription_id) do
       :ok
     else
+      {:error, :subscription_to_expire_not_exist = reason} ->
+        Logger.warning(
+          "Failed to expire subscription: subscription_id: #{subscription_id}, #{inspect(reason)}"
+        )
+
+        {:cancel, :subscription_is_deleted}
+
       {:error, reason} ->
         Logger.error(
           "Failed to expire subscription: subscription_id: #{subscription_id}, #{inspect(reason)}"

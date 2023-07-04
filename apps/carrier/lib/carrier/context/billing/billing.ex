@@ -91,7 +91,7 @@ defmodule Carrier.Billing do
           :error,
           {:resource_not_found, %{target: Subscription, conditions: %{state: :active}}}
         } ->
-          {:error, :subscription_can_not_be_expired}
+          {:error, :subscription_to_expire_not_exist}
 
         {:error, reason} ->
           {:error, reason}
