@@ -1,11 +1,12 @@
 defmodule Carrier.Reports.Report do
   use Carrier.Schema
-  alias Carrier.Reports.{ReportInfo, DataTargetInfo, DataSourceInfo}
+  alias Carrier.Reports.{ReportInfo, DataTargetInfo, DataSourceInfo, ReportLog}
 
   @derive Carrier.Obfuscatable.Protocol
 
   schema "reports" do
     belongs_to :report_info, ReportInfo
+    has_one :last_report_log, ReportLog
 
     field :org_id, :id
     field :user_id, :id
@@ -87,6 +88,16 @@ defmodule Carrier.Reports.Report do
   def delete(%__MODULE__{} = struct, %DateTime{} = deleted_at) do
     struct
     |> changeset_for_delete(%{deleted_at: deleted_at})
+  end
+
+  def preload_last_report_log(query) do
+    preload_query =
+      ReportLog
+      |> order_by([rl], desc: rl.scheduled_at)
+      |> limit(1)
+
+    query
+    |> preload(last_report_log: ^preload_query)
   end
 
   def load_fields(%__MODULE__{} = struct) do
