@@ -250,4 +250,9 @@ defmodule Carrier.Reports do
     |> TenantRepo.all()
     |> then(&{:ok, &1})
   end
+
+  def list_report_logs_by_report_id(_report_id) do
+    # TODO: implement it
+    {:ok, []}
+  end
 end
