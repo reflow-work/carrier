@@ -34,7 +34,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
             <.card_title title="멤버 관리" />
             <button
               phx-click={
-                js_log_event("click_logout", %{page_name: "setting"})
+                js_log_event("click_invite", %{page_name: "setting"})
                 |> JS.push("toggle_modal")
               }
               phx-target={@myself}
