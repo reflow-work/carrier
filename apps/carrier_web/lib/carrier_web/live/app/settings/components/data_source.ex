@@ -36,7 +36,10 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
             <.button
               type="button"
               class={["ml-2", @is_disabled_to_create_new_data_source && "btn-disabled"]}
-              phx-click={show_modal("new_data_source_modal")}
+              phx-click={
+                js_log_event("click_new_data_source", %{page_name: "setting"})
+                |> show_modal("new_data_source_modal")
+              }
             >
               새 데이터 소스 추가
             </.button>

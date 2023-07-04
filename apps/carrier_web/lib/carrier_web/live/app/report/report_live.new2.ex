@@ -160,7 +160,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
                 style={:outline}
                 disabled={!@valid?}
                 phx-click={
-                  js_log_event("send_test_report", %{page_name: "report_new"})
+                  js_log_event("click_send_test_report", %{page_name: "report_new"})
                   |> JS.push("send_test_report")
                 }
               >
@@ -170,6 +170,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
                 type="submit"
                 disabled={!@valid? || @selected_data_source.demo}
                 phx-disable-with="생성 중"
+                phx-click={js_log_event("click_create_report", %{page_name: "report_new"})}
               >
                 리포트 저장 <span :if={@selected_data_source.demo}>(Demo 데이터 소스는 저장 불가)</span>
               </.button>

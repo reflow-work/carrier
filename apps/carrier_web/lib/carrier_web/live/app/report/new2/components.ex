@@ -70,7 +70,10 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                     |> Carrier.External.SlackAPI.OAuth.generate_url()
                   }
                   data-callback-event="data_target_created"
-                  phx-click={JS.dispatch("open_popup")}
+                  phx-click={
+                    js_log_event("click_connect_slack", %{page_name: "report_new"})
+                    |> JS.dispatch("open_popup")
+                  }
                   class="!bg-white text-black border w-lg flex items-center w-48 justify-center"
                 >
                   <svg

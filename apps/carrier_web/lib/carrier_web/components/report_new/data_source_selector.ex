@@ -72,6 +72,10 @@ defmodule CarrierWeb.Components.DataSourceSelector do
     data_source_id = data_source_id_str |> String.to_integer()
     selected_data_source = socket.assigns.data_sources |> Enum.find(&(&1.id == data_source_id))
 
+    socket =
+      socket
+      |> send_event(selected_data_source)
+
     send(self(), {:data_source_selected, selected_data_source})
 
     {:noreply, socket}
@@ -80,5 +84,20 @@ defmodule CarrierWeb.Components.DataSourceSelector do
   @impl true
   def handle_event("select_data_source", _, socket) do
     {:noreply, socket}
+  end
+
+  defp send_event(socket, data_source) do
+    case {data_source.source, data_source.demo} do
+      {:tableau, true} ->
+        socket
+        |> log_event("select_demo_tableau", %{page_name: "report_new"})
+
+      {:postgres, true} ->
+        socket
+        |> log_event("select_demo_postgres", %{page_name: "report_new"})
+
+      _ ->
+        socket
+    end
   end
 end

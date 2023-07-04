@@ -16,7 +16,14 @@ defmodule CarrierWeb.App.SettingsLive.Components.Account do
           <p><%= @user.email %></p>
         </.card>
         <.card>
-          <.link href={~p"/logout"} phx-click="smartlook_anonymize" class="btn">
+          <.link
+            href={~p"/logout"}
+            class="btn"
+            phx-click={
+              js_log_event("click_logout", %{page_name: "setting"})
+              |> JS.push("smartlook_anonymize")
+            }
+          >
             로그아웃
           </.link>
         </.card>
