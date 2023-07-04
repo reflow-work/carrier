@@ -504,4 +504,49 @@ defmodule Carrier.ReportsTest do
       assert same_records?(fetched_report_log0.report, report_log2.report)
     end
   end
+
+  describe "list_report_logs_by_report_id/1" do
+    setup do
+      now = DateTime.utc_now()
+
+      org = TenantFactory.insert(:org)
+      TenantRepo.put_org_id(org.org_id)
+
+      report0 = TenantFactory.insert(:report, org_id: org.org_id)
+      report1 = TenantFactory.insert(:report, org_id: org.org_id)
+
+      report_log0 =
+        TenantFactory.insert(:report_log,
+          report: report0,
+          status: :succeeded,
+          scheduled_at: now |> Timex.shift(days: -2)
+        )
+
+      _report_log_of_another_report =
+        TenantFactory.insert(:report_log,
+          report: report1,
+          status: :scheduled,
+          scheduled_at: now |> Timex.shift(days: -1)
+        )
+
+      report_log1 =
+        TenantFactory.insert(:report_log,
+          report: report0,
+          status: :scheduled,
+          scheduled_at: now |> Timex.shift(days: -1)
+        )
+
+      %{report: report0, report_logs: [report_log0, report_log1]}
+    end
+
+    test "test", %{report: report, report_logs: [report_log0, report_log1]} do
+      assert {:ok, [fetched_report_log0, fetched_report_log1]} =
+               Reports.list_report_logs_by_report_id(report.id)
+
+      assert same_records?(fetched_report_log0, report_log1)
+      assert same_records?(fetched_report_log1, report_log0)
+
+      assert same_records?(fetched_report_log0.report, report_log1.report)
+    end
+  end
 end

@@ -1,11 +1,15 @@
 defmodule CarrierWeb.App.ReportLogLive.Index do
   use CarrierWeb, :live_view
-
-  alias Carrier.Core.Crypto
+  use Carrier.Reports
+  alias Carrier.Core.{Crypto, Nillable}
 
   @impl true
-  def mount(_params, _session, socket) do
-    socket = socket |> assign(:report_logs, load_report_logs())
+  def mount(params, _session, socket) do
+    report_id = params["report_id"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, Report))
+
+    socket =
+      socket
+      |> load_report_logs(report_id)
 
     {:ok, socket}
   end
@@ -54,10 +58,18 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
     """
   end
 
-  defp load_report_logs() do
+  defp load_report_logs(socket, nil) do
     {:ok, report_logs} = Carrier.Reports.list_report_logs()
 
-    report_logs
+    socket
+    |> assign(:report_logs, report_logs)
+  end
+
+  defp load_report_logs(socket, report_id) do
+    {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
+
+    socket
+    |> assign(:report_logs, report_logs)
   end
 
   defp format_status(status) do
