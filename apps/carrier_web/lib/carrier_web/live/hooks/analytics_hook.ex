@@ -1,6 +1,5 @@
 defmodule CarrierWeb.AnalyticsHook do
   use CarrierWeb, :live_hook
-  alias Carrier.Core.AnalyticsHelper
 
   def on_mount(:default, _params, _session, socket) do
     socket =
