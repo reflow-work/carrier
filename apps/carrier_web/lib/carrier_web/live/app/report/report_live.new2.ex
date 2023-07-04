@@ -45,7 +45,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket =
       socket
       |> assign(:action, :new)
-      |> assign(:title, "레포트 생성하기")
+      |> assign(:title, "리포트 생성하기")
       |> assign(:selected_data_source_id, data_source_id)
       |> assign(:report_form, report_form)
 
@@ -85,7 +85,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     socket =
       socket
       |> assign(:action, :edit)
-      |> assign(:title, "레포트 수정하기")
+      |> assign(:title, "리포트 수정하기")
       |> assign(:selected_data_source_id, data_source_info.data_source_id)
       |> assign(:data_source_info, data_source_info)
       |> assign(:data_target_info, data_target_info)
@@ -244,13 +244,13 @@ defmodule CarrierWeb.App.ReportLive.New2 do
       |> case do
         {:ok, _report} ->
           socket
-          |> put_flash_for(:info, "\"#{report.name}\" 레포트가 저장되었습니다.", timeout: :timer.seconds(3))
+          |> put_flash_for(:info, "\"#{report.name}\" 리포트가 저장되었습니다.", timeout: :timer.seconds(3))
           |> push_navigate(to: ~p"/app/reports")
 
         {:error, error} ->
           Logger.error(inspect(error))
 
-          socket |> put_flash_for(:error, "레포트 저장에 실패하였습니다.", timeout: :timer.seconds(3))
+          socket |> put_flash_for(:error, "리포트 저장에 실패하였습니다.", timeout: :timer.seconds(3))
       end
 
     {:noreply, socket}
@@ -368,7 +368,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
       {:error, reason} ->
         socket
-        |> put_flash_for(:error, "레포트를 불러오는데 실패하였습니다. (#{inspect(reason)})",
+        |> put_flash_for(:error, "리포트를 불러오는데 실패하였습니다. (#{inspect(reason)})",
           timeout: :timer.seconds(3)
         )
         |> push_navigate(to: ~p"/app/reports")

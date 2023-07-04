@@ -156,7 +156,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
                   </p>
 
                   <p class="mt-2">
-                    - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 레포트 제목이 생성됩니다.
+                    - <code class="code">AS "표시할 이름"</code>을 통해 지정한 지표 컬럼의 이름대로 리포트 제목이 생성됩니다.
                   </p>
 
                   <p class="mt-2">

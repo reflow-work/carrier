@@ -1,11 +1,11 @@
 <section class="page-container" id="reports-index-container" phx-hook="Smartlook">
-  <.page_header icon="📑" title="레포트 목록">
+  <.page_header icon="📑" title="리포트 목록">
     <.link
       navigate={~p"/app/report_logs"}
       class="btn btn-outline"
       phx-click={js_log_event("click_report_history", %{page_name: "report_list"})}
     >
-      레포트 발송 기록
+      리포트 발송 기록
     </.link>
     <.link
       navigate={~p"/app/reports/new2"}
@@ -16,7 +16,7 @@
       ]}
       phx-click={js_log_event("click_new_report", %{page_name: "report_list"})}
     >
-      새 레포트 생성
+      새 리포트 생성
       <span :if={disabled_new_report_button(@active_subscription, @reports)}>
         (최대 개수 초과)
       </span>
@@ -61,7 +61,7 @@
 <%= if @live_action == :delete do %>
   <CarrierWeb.Components.Modal.confirm>
     <:title>
-      레포트를 정말로 삭제하시겠어요?
+      리포트를 정말로 삭제하시겠어요?
     </:title>
     <:actions>
       <%= live_patch("취소", to: ~p"/app/reports", class: "btn btn-sm") %>

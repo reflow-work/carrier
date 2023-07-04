@@ -14,7 +14,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   def render(assigns) do
     ~H"""
     <section class="page-container" id="reports-index-container" phx-hook="Smartlook">
-      <.page_header icon="💾" title="레포트 발송 기록" />
+      <.page_header icon="💾" title="리포트 발송 기록" />
 
       <section class="mt-6">
         <div class="overflow-x-auto">
@@ -22,7 +22,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
             <thead>
               <tr>
                 <th>ID</th>
-                <th>레포트 이름</th>
+                <th>리포트 이름</th>
                 <th>상태</th>
                 <th>발송 예약 시간</th>
                 <th>발송 성공 시간</th>
