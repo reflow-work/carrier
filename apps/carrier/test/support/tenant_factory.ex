@@ -312,6 +312,16 @@ defmodule Carrier.TenantFactory do
     })
   end
 
+  defp apply_status(%ReportLog{} = report_log, :failed) do
+    report_log
+    |> apply_status(:tried)
+    |> Map.merge(%{
+      status: :failed,
+      error_message: ":failed_to_record_tried_report_log",
+      failed_at: DateTime.utc_now()
+    })
+  end
+
   defp apply_status(%Plan{} = plan, :active) do
     plan
   end

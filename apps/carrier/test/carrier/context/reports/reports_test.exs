@@ -200,15 +200,30 @@ defmodule Carrier.ReportsTest do
 
       TenantFactory.insert(:report)
 
-      %{reports: [report]}
+      TenantFactory.insert(:report_log,
+        report: report,
+        status: :succeeded,
+        scheduled_at: now |> Timex.shift(days: -2)
+      )
+
+      last_report_log =
+        TenantFactory.insert(:report_log,
+          report: report,
+          status: :failed,
+          scheduled_at: now |> Timex.shift(days: -1)
+        )
+
+      %{report: report, last_report_log: last_report_log}
     end
 
-    test "with valid params", %{reports: [report]} do
+    test "with valid params", %{report: report, last_report_log: last_report_log} do
       assert {:ok, [fetched_report]} = Reports.list_reports()
       assert same_records?(fetched_report, report)
 
       assert %DataTargetInfo{params: data_target_info_params} = report.data_target_info
       assert %{} = data_target_info_params
+
+      assert same_records?(fetched_report.last_report_log, last_report_log)
     end
   end
 

@@ -51,6 +51,7 @@ defmodule Carrier.Reports do
 
   def list_reports() do
     Report.list()
+    |> Report.preload_last_report_log()
     |> TenantRepo.all()
     |> Enum.sort_by(& &1.created_at, {:desc, DateTime})
     |> then(&{:ok, &1 |> Enum.map(fn report -> report |> Report.load_fields() end)})
@@ -208,7 +209,8 @@ defmodule Carrier.Reports do
   end
 
   def notify_report_job_discarded(report_job_id) do
-    with {:ok, %ReportLog{report_id: report_id}} <- fetch_report_log_by_report_job_id(report_job_id),
+    with {:ok, %ReportLog{report_id: report_id}} <-
+           fetch_report_log_by_report_job_id(report_job_id),
          {:ok, %Report{} = report} <- fetch_report(report_id),
          :ok <- Data.send_failure_message(%{name: report.name}, report.data_target_info) do
       :ok
