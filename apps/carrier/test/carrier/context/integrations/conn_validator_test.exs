@@ -23,12 +23,12 @@ defmodule Carrier.Integrations.ConnValidatorTest do
     end
 
     test "postgres invalid info", %{info: info} do
-      assert {:error, :invalid_conn_info} =
+      assert {:error, {:invalid_conn_info, _}} =
                ConnValidator.validate(:postgres, %{info | port: 48000}, :source, @opts)
     end
 
     test "postgres invalid credentials", %{info: info} do
-      assert {:error, :invalid_conn_info} =
+      assert {:error, {:invalid_conn_info, _}} =
                ConnValidator.validate(
                  :postgres,
                  %{info | password: "invalid password"},
@@ -59,12 +59,12 @@ defmodule Carrier.Integrations.ConnValidatorTest do
     end
 
     test "mysql invalid info", %{info: info} do
-      assert {:error, :invalid_conn_info} =
+      assert {:error, {:invalid_conn_info, _}} =
                ConnValidator.validate(:mysql, %{info | port: 48000}, :source, @opts)
     end
 
     test "mysql invalid credentials", %{info: info} do
-      assert {:error, :invalid_conn_info} =
+      assert {:error, {:invalid_conn_info, _}} =
                ConnValidator.validate(
                  :mysql,
                  %{info | password: "invalid password"},

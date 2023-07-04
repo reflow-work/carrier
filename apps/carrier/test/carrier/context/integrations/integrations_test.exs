@@ -122,7 +122,8 @@ defmodule Carrier.IntegrationsTest do
     test "with invalid info", %{valid_params: valid_params} do
       invalid_params = valid_params |> put_in([:info, :database], "invalid_database")
 
-      assert {:error, :invalid_conn_info} = Integrations.create_conn_info(invalid_params, :source)
+      assert {:error, {:invalid_conn_info, _}} =
+               Integrations.create_conn_info(invalid_params, :source)
     end
   end
 
