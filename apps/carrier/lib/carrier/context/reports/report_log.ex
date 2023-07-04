@@ -118,6 +118,11 @@ defmodule Carrier.Reports.ReportLog do
     |> changeset_for_update(attrs)
   end
 
+  def fetch_by_report_job_id(report_job_id) do
+    __MODULE__
+    |> where([rl], rl.report_job_id == ^report_job_id)
+  end
+
   def list() do
     __MODULE__
     |> where([rl], rl.status != :cancelled)

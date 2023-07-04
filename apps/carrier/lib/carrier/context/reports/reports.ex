@@ -1,4 +1,5 @@
 defmodule Carrier.Reports do
+  use Carrier.Data
   require Logger
   alias Carrier.Reports.{ReportInfo, Report, ReportLog, ReportJob}
   alias Carrier.Works
@@ -204,6 +205,28 @@ defmodule Carrier.Reports do
         "next report job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}"
       )
     end)
+  end
+
+  def notify_report_job_discarded(report_job_id) do
+    with {:ok, %ReportLog{report_id: report_id} = report_log} <-
+           fetch_report_log_by_report_job_id(report_job_id),
+         {:ok, %Report{} = report} <- fetch_report(report_id),
+         :ok <- Data.send_failure_message(%{name: report.name}, report.data_target_info) do
+      :ok
+    end
+  end
+
+  defp fetch_report_log_by_report_job_id(report_job_id) do
+    ReportLog.fetch_by_report_job_id(report_job_id)
+    |> TenantRepo.one()
+    |> case do
+      %ReportLog{} = report_log ->
+        {:ok, report_log}
+
+      nil ->
+        {:error,
+         {:resource_not_found, %{target: ReportLog, conditions: %{report_job_id: report_job_id}}}}
+    end
   end
 
   defp calc_next_report_time(%Report{interval: :hourly}, base_datetime) do
