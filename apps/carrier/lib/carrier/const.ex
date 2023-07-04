@@ -14,7 +14,8 @@ defmodule Carrier.Const do
                      report_storage: %{
                        region: "ap-northeast-2",
                        bucket: "carrier-report-prod"
-                     }
+                     },
+                     host_url: "https://reflow.work"
                    }
 
                  _ ->
@@ -22,7 +23,8 @@ defmodule Carrier.Const do
                      report_storage: %{
                        region: "ap-northeast-2",
                        bucket: "carrier-report-test"
-                     }
+                     },
+                     host_url: "https://localhost:4001"
                    }
                end)
 
