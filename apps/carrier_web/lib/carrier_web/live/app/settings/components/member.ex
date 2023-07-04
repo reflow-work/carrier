@@ -33,7 +33,10 @@ defmodule CarrierWeb.App.SettingsLive.Components.Member do
           <div class="flex justify-between">
             <.card_title title="멤버 관리" />
             <button
-              phx-click="toggle_modal"
+              phx-click={
+                js_log_event("click_logout", %{page_name: "setting"})
+                |> JS.push("toggle_modal")
+              }
               phx-target={@myself}
               class={[
                 "btn",

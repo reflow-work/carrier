@@ -102,7 +102,10 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
           <div :if={Source.RDB.support_query_maker?(@data_source.source)}>
             <.button
               type="button"
-              phx-click={show_modal("query_maker_modal")}
+              phx-click={
+                js_log_event("click_query_maker", %{page_name: "report_new"})
+                |> show_modal("query_maker_modal")
+              }
               class="self-end flex items-center"
             >
               <.icon name="hero-wrench-screwdriver" class="w-4 h-4 mr-2" /> 간단한 쿼리 자동 입력기

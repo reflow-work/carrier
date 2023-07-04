@@ -130,6 +130,7 @@ defmodule CarrierWeb do
       # Core UI components and translation
       import CarrierWeb.{CoreComponents, MainComponents}
       import CarrierWeb.Gettext
+      import CarrierWeb.AnalyticsHelper
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
@@ -150,7 +151,7 @@ defmodule CarrierWeb do
 
   defp live_helpers() do
     quote do
-      import CarrierWeb.{AssignHelper, AnalyticsHelper}
+      import CarrierWeb.AssignHelper
 
       def put_flash_for(socket, kind, message, opts \\ []) do
         timeout = opts |> Keyword.get(:timeout, :infinity)
