@@ -214,8 +214,14 @@ defmodule Carrier.Reports do
     with {:ok, %ReportLog{report_id: report_id}} <-
            fetch_report_log_by_report_job_id(report_job_id),
          {:ok, %Report{} = report} <- fetch_report(report_id),
-         link = "#{Const.get(:host_url)}/app/reports/#{Obfuscatable.obfuscate(report.id, Report)}/report_logs",
-         :ok <- Data.send_failure_message(%{name: report.name, link: link, data_target_info: report.data_target_info}) do
+         link =
+           "#{Const.get(:host_url)}/app/reports/#{Obfuscatable.obfuscate(report.id, Report)}/report_logs?open_message=true",
+         :ok <-
+           Data.send_failure_message(%{
+             name: report.name,
+             link: link,
+             data_target_info: report.data_target_info
+           }) do
       :ok
     end
   end
