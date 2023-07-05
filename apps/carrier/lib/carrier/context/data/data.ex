@@ -1,7 +1,6 @@
 defmodule Carrier.Data do
   use Carrier.Integrations
   alias __MODULE__.{Source, Target, Block}
-  alias Carrier.Const
 
   defmacro __using__([]) do
     quote do
@@ -26,11 +25,11 @@ defmodule Carrier.Data do
     end
   end
 
-  def send_failure_message(%{name: name}, data_target_info) do
+  def send_failure_message(%{name: name, link: link, data_target_info: data_target_info}) do
     threads = [
       [
         Block.text("리포트 발송에 실패하였습니다. 아래 링크에서 확인해주세요."),
-        Block.link("reflow로 이동하기", "#{Const.get(:host_url)}/app/report_logs/")
+        Block.link("reflow로 이동하기", link)
       ]
     ]
 
