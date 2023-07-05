@@ -10,6 +10,11 @@ defmodule CarrierWeb.ChanneltalkHelper do
     })
   end
 
+  def open_channel_talk(socket) do
+    socket
+    |> push_event("channeltalk-open", %{})
+  end
+
   def js_open_channel_talk(js \\ %JS{}) do
     js
     |> JS.dispatch("phx:channeltalk-open")
