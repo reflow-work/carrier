@@ -1,6 +1,7 @@
 defmodule CarrierWeb.App.SettingsLive.Components.Billing do
   use CarrierWeb, :live_component
   use Carrier.{Billing, Payments}
+  import CarrierWeb.ChanneltalkHelper
 
   @impl true
   def mount(socket) do
@@ -107,7 +108,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
           </.table>
         </.card>
         <div :if={has_billing_payment_permission(@user)} class="text-right text-sm text-description">
-          <.link phx-click={JS.dispatch("phx:channeltalk-open")}>환불문의</.link>
+          <.link phx-click={js_open_channel_talk()}>환불문의</.link>
         </div>
       </.card_container>
     </div>
