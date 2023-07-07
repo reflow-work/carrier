@@ -1,6 +1,7 @@
 defmodule CarrierWeb.App.ReportLogLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
+  import CarrierWeb.ChanneltalkHelper
   alias Carrier.Core.{Crypto, Nillable}
 
   @impl true
@@ -10,6 +11,12 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
     socket =
       socket
       |> load_report_logs(report_id)
+
+    socket =
+      case params["open_message"] do
+        nil -> socket
+        _ -> socket |> open_channel_talk()
+      end
 
     {:ok, socket}
   end

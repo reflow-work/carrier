@@ -3,6 +3,12 @@ defmodule Carrier.Obfuscatable do
 
   defdelegate obfuscate(data), to: Carrier.Obfuscatable.Protocol
 
+  def obfuscate(id, module) do
+    module_key = hash_module(module)
+
+    Carrier.Core.Crypto.obfuscate([id, module_key])
+  end
+
   def deobfuscate!(obfuscated_key, module) when is_binary(obfuscated_key) do
     [key, module_key] = Carrier.Core.Crypto.deobfuscate!(obfuscated_key)
 
@@ -16,7 +22,7 @@ defmodule Carrier.Obfuscatable do
       raise ArgumentError, "invalid obfuscated key"
   end
 
-  def hash_module(module) do
+  defp hash_module(module) do
     module |> Atom.to_string() |> String.to_charlist() |> Enum.sum()
   end
 end
@@ -35,7 +41,6 @@ end
 
 defimpl Carrier.Obfuscatable.Protocol, for: Any do
   defmacro __deriving__(module, struct, options) do
-    module_key = Carrier.Obfuscatable.hash_module(module)
     key = Keyword.get(options, :key, :id)
 
     unless Map.has_key?(struct, key) do
@@ -54,7 +59,7 @@ defimpl Carrier.Obfuscatable.Protocol, for: Any do
         end
 
         def obfuscate(%{unquote(key) => key}) when is_integer(key) do
-          Carrier.Core.Crypto.obfuscate([key, unquote(module_key)])
+          Carrier.Obfuscatable.obfuscate(key, unquote(module))
         end
       end
 
@@ -71,9 +76,7 @@ defimpl Carrier.Obfuscatable.Protocol, for: Any do
   end
 
   def obfuscate(%module{id: id}) do
-    module_key = Carrier.Obfuscatable.hash_module(module)
-
-    Carrier.Core.Crypto.obfuscate([id, module_key])
+    Carrier.Obfuscatable.obfuscate(id, module)
   end
 
   def obfuscate(data) do

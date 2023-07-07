@@ -43,7 +43,7 @@
               <td><%= data_source(@data_sources, report).name %></td>
               <td><%= DataTargetInfo.to_string(report.data_target_info) %></td>
               <td class="flex justify-end gap-x-2">
-                <.link navigate={~p"/app/report_logs/#{report}"} class="btn btn-sm">
+                <.link navigate={~p"/app/reports/#{report}/report_logs"} class="btn btn-sm">
                   <.icon
                     :if={report.last_report_log |> Nillable.map(& &1.status) == :failed}
                     name="hero-exclamation-circle-mini"
