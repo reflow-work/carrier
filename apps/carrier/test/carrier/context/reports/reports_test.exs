@@ -176,54 +176,75 @@ defmodule Carrier.ReportsTest do
       org = TenantFactory.insert(:org)
       TenantRepo.put_org_id(org.org_id)
 
-      report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info0 = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info1 = TenantFactory.insert(:report_info, org_id: org.org_id)
 
       deleted_report_info =
         TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       now = DateTime.utc_now()
 
-      report =
+      report0 =
         TenantFactory.insert(:report,
           org_id: org.org_id,
-          report_info: report_info,
+          report_info: report_info0,
           created_at: now |> Timex.shift(days: -1)
         )
 
-      TenantFactory.insert(:report,
-        org_id: org.org_id,
-        report_info: report_info,
-        created_at: now |> Timex.shift(days: -2)
-      )
+      report1 =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: report_info1,
+          created_at: now
+        )
 
-      TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+      _old_report =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: report_info0,
+          created_at: now |> Timex.shift(days: -2)
+        )
 
-      TenantFactory.insert(:report)
+      _deleted_report =
+        TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+
+      _report_of_another_org = TenantFactory.insert(:report)
 
       TenantFactory.insert(:report_log,
-        report: report,
+        report: report0,
         status: :succeeded,
         scheduled_at: now |> Timex.shift(days: -2)
       )
 
-      last_report_log =
+      last_report_log0 =
         TenantFactory.insert(:report_log,
-          report: report,
+          report: report0,
           status: :failed,
           scheduled_at: now |> Timex.shift(days: -1)
         )
 
-      %{report: report, last_report_log: last_report_log}
+      last_report_log1 =
+        TenantFactory.insert(:report_log,
+          report: report1,
+          status: :failed
+        )
+
+      %{reports: [report0, report1], last_report_logs: [last_report_log0, last_report_log1]}
     end
 
-    test "with valid params", %{report: report, last_report_log: last_report_log} do
-      assert {:ok, [fetched_report]} = Reports.list_reports()
-      assert same_records?(fetched_report, report)
+    test "with valid params", %{
+      reports: [report0, report1],
+      last_report_logs: [last_report_log0, last_report_log1]
+    } do
+      assert {:ok, [fetched_report0, fetched_report1]} = Reports.list_reports()
+      assert same_records?(fetched_report0, report1)
+      assert same_records?(fetched_report1, report0)
 
-      assert %DataTargetInfo{params: data_target_info_params} = report.data_target_info
+      assert same_records?(fetched_report0.last_report_log, last_report_log1)
+      assert same_records?(fetched_report1.last_report_log, last_report_log0)
+
+      assert %DataTargetInfo{params: data_target_info_params} = report0.data_target_info
       assert %{} = data_target_info_params
-
-      assert same_records?(fetched_report.last_report_log, last_report_log)
     end
   end
 

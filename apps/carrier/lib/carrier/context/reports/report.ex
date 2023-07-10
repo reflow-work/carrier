@@ -90,16 +90,6 @@ defmodule Carrier.Reports.Report do
     |> changeset_for_delete(%{deleted_at: deleted_at})
   end
 
-  def preload_last_report_log(query) do
-    preload_query =
-      ReportLog
-      |> order_by([rl], desc: rl.scheduled_at)
-      |> limit(1)
-
-    query
-    |> preload(last_report_log: ^preload_query)
-  end
-
   def load_fields(%__MODULE__{} = struct) do
     struct
     |> load_data_source_info()

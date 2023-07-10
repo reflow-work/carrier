@@ -136,6 +136,13 @@ defmodule Carrier.Reports.ReportLog do
     |> order_by([rl], desc: rl.scheduled_at, asc: rl.report_id)
   end
 
+  def lasts_by_report_ids(report_ids) do
+    __MODULE__
+    |> where([rl], rl.report_id in ^report_ids)
+    |> distinct([rl], rl.report_id)
+    |> order_by([rl], desc: rl.scheduled_at)
+  end
+
   def preload_report(query) do
     query
     |> preload(:report)

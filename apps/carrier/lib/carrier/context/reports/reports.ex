@@ -53,10 +53,14 @@ defmodule Carrier.Reports do
 
   def list_reports() do
     Report.list()
-    |> Report.preload_last_report_log()
     |> TenantRepo.all()
     |> Enum.sort_by(& &1.created_at, {:desc, DateTime})
-    |> then(&{:ok, &1 |> Enum.map(fn report -> report |> Report.load_fields() end)})
+    |> then(
+      &{:ok,
+       &1
+       |> postload_last_report_logs()
+       |> Enum.map(fn report -> report |> Report.load_fields() end)}
+    )
   end
 
   def fetch_report(report_id) do
@@ -266,5 +270,22 @@ defmodule Carrier.Reports do
     |> ReportLog.preload_report()
     |> TenantRepo.all()
     |> then(&{:ok, &1})
+  end
+
+  defp postload_last_report_logs(reports) do
+    last_report_logs =
+      reports
+      |> Enum.map(& &1.id)
+      |> ReportLog.lasts_by_report_ids()
+      |> TenantRepo.all()
+
+    reports
+    |> Enum.map(fn %Report{id: report_id} = report ->
+      last_report_log =
+        last_report_logs
+        |> Enum.find(&(&1.report_id == report_id))
+
+      %Report{report | last_report_log: last_report_log}
+    end)
   end
 end
