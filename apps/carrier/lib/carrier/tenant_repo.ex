@@ -8,6 +8,7 @@ defmodule Carrier.TenantRepo do
     adapter: Ecto.Adapters.Postgres
 
   use Doumi.RepoHelper
+  use Carrier.Pagex
 
   require Ecto.Query
 

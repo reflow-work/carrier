@@ -494,7 +494,7 @@ defmodule Carrier.ReportsTest do
     end
   end
 
-  describe "list_report_logs/0" do
+  describe "list_report_logs/1" do
     setup do
       now = DateTime.utc_now()
 
@@ -529,8 +529,12 @@ defmodule Carrier.ReportsTest do
       %{report_logs: [report_log0, report_log1, report_log2]}
     end
 
-    test "test", %{report_logs: [report_log0, report_log1, report_log2]} do
-      assert {:ok, [fetched_report_log0, fetched_report_log1, fetched_report_log2]} =
+    test "without pagination_params", %{report_logs: [report_log0, report_log1, report_log2]} do
+      assert {:ok,
+              %{
+                entries: [fetched_report_log0, fetched_report_log1, fetched_report_log2],
+                meta: meta
+              }} =
                Reports.list_report_logs()
 
       assert same_records?(fetched_report_log0, report_log2)
@@ -538,6 +542,33 @@ defmodule Carrier.ReportsTest do
       assert same_records?(fetched_report_log2, report_log0)
 
       assert same_records?(fetched_report_log0.report, report_log2.report)
+
+      assert %{is_last: true, next_cursor: nil} = meta
+    end
+
+    test "with pagination_params", %{report_logs: [report_log0, report_log1, report_log2]} do
+      assert {:ok,
+              %{
+                entries: [fetched_report_log0, fetched_report_log1],
+                meta: meta0
+              }} =
+               Reports.list_report_logs(%{size: 2})
+
+      assert same_records?(fetched_report_log0, report_log2)
+      assert same_records?(fetched_report_log1, report_log1)
+
+      assert %{is_last: false, next_cursor: next_cursor} = meta0
+
+      assert {:ok,
+              %{
+                entries: [fetched_report_log2],
+                meta: meta1
+              }} =
+               Reports.list_report_logs(%{size: 1, next_cursor: next_cursor})
+
+      assert same_records?(fetched_report_log2, report_log0)
+
+      assert %{is_last: true, next_cursor: nil} = meta1
     end
   end
 

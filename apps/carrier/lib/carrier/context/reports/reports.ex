@@ -258,10 +258,14 @@ defmodule Carrier.Reports do
     DateTimeHelper.calc_next_with_weekday_time(base_datetime, trigger_weekday, trigger_time)
   end
 
-  def list_report_logs() do
+  def list_report_logs(pagination_params \\ %{}) do
     ReportLog.list()
     |> ReportLog.preload_report()
-    |> TenantRepo.all()
+    |> TenantRepo.paginate(
+      pagination_params
+      |> Map.merge(%{order_by: [desc: :created_at, asc: :report_id]})
+      |> Carrier.Pagex.Cursor.new()
+    )
     |> then(&{:ok, &1})
   end
 

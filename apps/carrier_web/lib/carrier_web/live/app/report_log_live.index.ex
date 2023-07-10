@@ -51,7 +51,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   end
 
   defp load_report_logs(socket, nil) do
-    {:ok, report_logs} = Carrier.Reports.list_report_logs()
+    {:ok, %{entries: report_logs}} = Carrier.Reports.list_report_logs()
 
     socket
     |> assign(:report_logs, report_logs)
