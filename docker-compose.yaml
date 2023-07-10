@@ -23,4 +23,4 @@ services:
     ports:
       - '48142:3306'
     volumes:
-      - ./docker/volumns/mysql:/var/lib/mysql
+      - ./.docker/volumns/mysql:/var/lib/mysql
