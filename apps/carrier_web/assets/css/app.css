@@ -2,7 +2,6 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import "components";
-@import "page";
 @import "landing";
 @import "trix_editor";
 

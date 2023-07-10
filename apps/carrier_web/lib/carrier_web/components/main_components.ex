@@ -1,6 +1,18 @@
 defmodule CarrierWeb.MainComponents do
   use Phoenix.Component
 
+  attr :rest, :global
+
+  slot :inner_block
+
+  def page_container(assigns) do
+    ~H"""
+    <div class="py-8 bg-base max-w-7xl px-6" {@rest}>
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
   attr :title, :string, required: true
   attr :icon, :any, required: true
 
@@ -8,9 +20,9 @@ defmodule CarrierWeb.MainComponents do
 
   def page_header(assigns) do
     ~H"""
-    <header class="page-header items-center">
-      <h1 class="page-title">
-        <span class="page-title-icon"><%= @icon %></span> <%= @title %>
+    <header class="flex justify-between items-center">
+      <h1 class="font-bold text-2xl">
+        <span class="mr-3"><%= @icon %></span> <%= @title %>
       </h1>
 
       <div>

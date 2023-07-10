@@ -97,7 +97,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="page-container">
+    <.page_container>
       <.page_header icon="📊" title={@title} />
 
       <ol class="mt-8 flex flex-row items-center w-full space-x-4 text-sm font-medium text-center">
@@ -178,7 +178,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
           </.simple_form>
         </div>
       </div>
-    </section>
+    </.page_container>
     """
   end
 

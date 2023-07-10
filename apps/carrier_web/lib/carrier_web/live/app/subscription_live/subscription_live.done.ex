@@ -23,7 +23,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="page-container">
+    <.page_container>
       <.page_header icon="💳" title="구독 완료" />
 
       <.card_container>
@@ -51,7 +51,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
           </div>
         </.card>
       </.card_container>
-    </section>
+    </.page_container>
     """
   end
 
