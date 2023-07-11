@@ -1,5 +1,14 @@
 defmodule Carrier.Core.DateTimeHelper do
   import Kernel, except: [max: 2, min: 2]
+  alias Carrier.Core.{Cldr, OkTuple}
+
+  def safe_format(maybe_datetime, opts \\ []) do
+    format = opts |> Keyword.get(:format, :short)
+    fallback = opts |> Keyword.get(:fallback, "-")
+
+    Cldr.DateTime.to_string(maybe_datetime, format: format)
+    |> OkTuple.unwrap(fallback)
+  end
 
   def get_next_with_time(%DateTime{utc_offset: 0} = utc_datetime, %Time{} = utc_time) do
     date = utc_datetime |> DateTime.to_date()
