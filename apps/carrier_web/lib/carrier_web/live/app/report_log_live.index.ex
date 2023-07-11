@@ -38,10 +38,10 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
               <span class={badge_class(report_log)}><%= transl_status(report_log) %></span>
             </:col>
             <:col :let={report_log} label="발송 예약 시각">
-              <%= report_log.scheduled_at |> format_datetime(@timezone) %>
+              <%= report_log.scheduled_at |> format_datetime() %>
             </:col>
             <:col :let={report_log} label="발송 성공 시각">
-              <%= report_log.succeeded_at |> format_datetime(@timezone) %>
+              <%= report_log.succeeded_at |> format_datetime() %>
             </:col>
           </.table>
         </div>
@@ -95,12 +95,4 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
         "발송 취소"
     end
   end
-
-  defp format_datetime(datetime, timezone) when not is_nil(datetime) and not is_nil(timezone) do
-    datetime
-    |> DateTime.shift_zone!(timezone)
-    |> Timex.format!("{YYYY}년 {M}월 {D}일 {h24}시 {m}분")
-  end
-
-  defp format_datetime(_datetime, _timezone), do: nil
 end
