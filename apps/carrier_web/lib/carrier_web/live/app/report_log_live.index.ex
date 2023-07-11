@@ -10,7 +10,8 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
 
     socket =
       socket
-      |> load_report_logs(report_id)
+      |> assign(report_id: report_id)
+      |> load_report_logs()
 
     socket =
       case params["open_message"] do
@@ -50,15 +51,17 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
     """
   end
 
-  defp load_report_logs(socket, nil) do
-    {:ok, %{entries: report_logs}} = Carrier.Reports.list_report_logs()
+  defp load_report_logs(socket) do
+    report_logs =
+      case socket.assigns.report_id do
+        nil ->
+          {:ok, %{entries: report_logs}} = Carrier.Reports.list_report_logs()
+          report_logs
 
-    socket
-    |> stream(:report_logs, report_logs)
-  end
-
-  defp load_report_logs(socket, report_id) do
-    {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
+        report_id ->
+          {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
+          report_logs
+      end
 
     socket
     |> stream(:report_logs, report_logs)
