@@ -658,13 +658,15 @@ defmodule CarrierWeb.CoreComponents do
         <thead class="text-sm text-left leading-6 text-zinc-500 bg-gray-100 text-xs">
           <tr>
             <th :for={col <- @col} class="p-0 pr-6 py-1 font-normal px-2"><%= col[:label] %></th>
-            <th class="relative px-2 pb-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
+            <th :if={slot_exist?(@action)} class="relative px-2 pb-4">
+              <span class="sr-only"><%= gettext("Actions") %></span>
+            </th>
           </tr>
         </thead>
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
+          class="relative bg-white divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
           <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
             <td

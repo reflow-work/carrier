@@ -29,36 +29,21 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
 
       <section class="mt-6">
         <div class="overflow-x-auto">
-          <table class="table w-full">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>리포트 이름</th>
-                <th>상태</th>
-                <th>발송 예약 시간</th>
-                <th>발송 성공 시간</th>
-              </tr>
-            </thead>
-            <tbody>
-              <%= for report_log <- @report_logs do %>
-                <tr>
-                  <td><%= report_log.report_info_id |> Crypto.obfuscate() %></td>
-                  <td><%= report_log.report.name %></td>
-                  <td>
-                    <span class={"badge #{report_log.status}"}>
-                      <%= report_log.status |> format_status %>
-                    </span>
-                  </td>
-                  <td>
-                    <%= report_log.scheduled_at |> format_datetime(@timezone) %>
-                  </td>
-                  <td>
-                    <%= report_log.succeeded_at |> format_datetime(@timezone) %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+          <.table id="report_logs" rows={@report_logs}>
+            <:col :let={report_log} label="ID">
+              <%= Crypto.obfuscate(report_log.report_info_id) %>
+            </:col>
+            <:col :let={report_log} label="리포트 이름"><%= report_log.report.name %></:col>
+            <:col :let={report_log} label="상태">
+              <span class={badge_class(report_log)}><%= transl_status(report_log) %></span>
+            </:col>
+            <:col :let={report_log} label="발송 예약 시각">
+              <%= report_log.scheduled_at |> format_datetime(@timezone) %>
+            </:col>
+            <:col :let={report_log} label="발송 성공 시각">
+              <%= report_log.succeeded_at |> format_datetime(@timezone) %>
+            </:col>
+          </.table>
         </div>
       </section>
     </.page_container>
@@ -79,7 +64,20 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
     |> assign(:report_logs, report_logs)
   end
 
-  defp format_status(status) do
+  defp badge_class(%ReportLog{status: status}) do
+    ["p-2 border-0 rounded text-sm"]
+    |> Kernel.++(
+      case status do
+        :scheduled -> ["bg-blue-300"]
+        :succeeded -> ["bg-green-200"]
+        :tried -> ["bg-amber-300"]
+        :failed -> ["bg-red-300"]
+        _ -> []
+      end
+    )
+  end
+
+  defp transl_status(%ReportLog{status: status}) do
     case status do
       :scheduled ->
         "발송 예약"
