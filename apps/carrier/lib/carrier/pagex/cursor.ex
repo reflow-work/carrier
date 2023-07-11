@@ -11,7 +11,7 @@ defmodule Carrier.Pagex.Cursor do
   end
 
   defmodule Meta do
-    @enforce_keys [:next_cursor, :is_last]
+    @enforce_keys [:next_cursor, :size, :last?]
     defstruct @enforce_keys
   end
 
@@ -31,7 +31,7 @@ defmodule Carrier.Pagex.Cursor do
 
   @impl true
   def generate_result(entries, %__MODULE__{size: size} = pagination) do
-    is_last =
+    last? =
       case size do
         size when is_integer(size) -> Enum.count(entries) < size + 1
         nil -> true
@@ -40,7 +40,7 @@ defmodule Carrier.Pagex.Cursor do
     entries = entries |> Nillable.run(size, &(&1 |> Enum.take(size)))
 
     next_cursor =
-      case is_last do
+      case last? do
         true ->
           nil
 
@@ -52,7 +52,7 @@ defmodule Carrier.Pagex.Cursor do
 
     %Pagex.Result{
       entries: entries,
-      meta: %__MODULE__.Meta{next_cursor: next_cursor, is_last: is_last}
+      meta: %__MODULE__.Meta{next_cursor: next_cursor, size: size, last?: last?}
     }
   end
 
@@ -94,7 +94,7 @@ defmodule Carrier.Pagex.Cursor do
   end
 
   defp paginate_size(query, size) when is_integer(size) do
-    # query 1 more for checking is_last
+    # query 1 more for checking last?
     from(query, limit: ^size + 1)
   end
 

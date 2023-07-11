@@ -4,12 +4,15 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   import CarrierWeb.ChanneltalkHelper
   alias Carrier.Core.{Crypto, Nillable}
 
+  @init_page_params %{next_cursor: nil, size: 5, last?: false}
+
   @impl true
   def mount(params, _session, socket) do
     report_id = params["report_id"] |> Nillable.map(&Obfuscatable.deobfuscate!(&1, Report))
 
     socket =
       socket
+      |> assign(page_params: @init_page_params)
       |> assign(report_id: report_id)
       |> load_report_logs()
 
@@ -52,19 +55,23 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   end
 
   defp load_report_logs(socket) do
-    report_logs =
+    {report_logs, page_params} =
       case socket.assigns.report_id do
         nil ->
-          {:ok, %{entries: report_logs}} = Carrier.Reports.list_report_logs()
-          report_logs
+          {:ok, %{entries: report_logs, meta: meta}} =
+            Carrier.Reports.list_report_logs(socket.assigns.page_params)
+
+          {report_logs, meta}
 
         report_id ->
           {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
-          report_logs
+
+          {report_logs, nil}
       end
 
     socket
     |> stream(:report_logs, report_logs)
+    |> assign(:page_params, page_params)
   end
 
   defp badge_class(%ReportLog{status: status}) do
