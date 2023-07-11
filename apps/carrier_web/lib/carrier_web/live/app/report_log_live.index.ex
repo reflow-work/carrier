@@ -29,7 +29,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
 
       <section class="mt-6">
         <div class="overflow-x-auto">
-          <.table id="report_logs" rows={@report_logs}>
+          <.table id="report_logs" rows={@streams.report_logs}>
             <:col :let={report_log} label="ID">
               <%= Crypto.obfuscate(report_log.report_info_id) %>
             </:col>
@@ -54,14 +54,14 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
     {:ok, %{entries: report_logs}} = Carrier.Reports.list_report_logs()
 
     socket
-    |> assign(:report_logs, report_logs)
+    |> stream(:report_logs, report_logs)
   end
 
   defp load_report_logs(socket, report_id) do
     {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
 
     socket
-    |> assign(:report_logs, report_logs)
+    |> stream(:report_logs, report_logs)
   end
 
   defp badge_class(%ReportLog{status: status}) do
@@ -79,20 +79,11 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
 
   defp transl_status(%ReportLog{status: status}) do
     case status do
-      :scheduled ->
-        "발송 예약"
-
-      :tried ->
-        "발송중"
-
-      :succeeded ->
-        "발송 성공"
-
-      :failed ->
-        "발송 실패"
-
-      :cancelled ->
-        "발송 취소"
+      :scheduled -> "발송 예약"
+      :tried -> "발송중"
+      :succeeded -> "발송 성공"
+      :failed -> "발송 실패"
+      :cancelled -> "발송 취소"
     end
   end
 end
