@@ -52,4 +52,14 @@ defmodule Carrier.Core.TimezoneHelperTest do
       assert TimezoneHelper.safe_timezone(nil) == "Etc/UTC"
     end
   end
+
+  describe "safe_format/1" do
+    test "with valid timezone" do
+      assert TimezoneHelper.safe_format("Asia/Seoul") == "KST(+09:00:00)"
+    end
+
+    test "with invalid timezone" do
+      assert TimezoneHelper.safe_format("invalid") == "-"
+    end
+  end
 end

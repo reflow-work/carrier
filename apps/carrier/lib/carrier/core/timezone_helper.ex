@@ -24,12 +24,28 @@ defmodule Carrier.Core.TimezoneHelper do
   end
 
   def get_utc_offset_s(timezone) do
-    timezone_info = Timex.Timezone.get(timezone)
+    timezone_info = get_timezone_info(timezone)
 
     timezone_info.offset_utc
   end
 
+  def safe_format(timezone) do
+    case get_timezone_info(timezone) do
+      {:error, _} ->
+        "-"
+
+      timezone_info ->
+        formatted_offset = Timex.TimezoneInfo.format_offset(timezone_info)
+
+        "#{timezone_info.abbreviation}(#{formatted_offset})"
+    end
+  end
+
   def timezone_key() do
     {__MODULE__, :timezone}
+  end
+
+  defp get_timezone_info(timezone) do
+    Timex.Timezone.get(timezone)
   end
 end
