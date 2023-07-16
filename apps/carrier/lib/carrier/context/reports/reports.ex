@@ -263,7 +263,7 @@ defmodule Carrier.Reports do
     |> ReportLog.preload_report()
     |> TenantRepo.paginate(
       pagination_params
-      |> Map.merge(%{order_by: [desc: :created_at, asc: :report_id]})
+      |> Map.merge(%{order_by: [desc: :created_at, asc: :report_id, desc: :id]})
       |> Carrier.Pagex.Cursor.new()
     )
     |> then(&{:ok, &1})

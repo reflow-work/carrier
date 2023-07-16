@@ -4,7 +4,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   import CarrierWeb.ChanneltalkHelper
   alias Carrier.Core.{Crypto, Nillable}
 
-  @init_page_params %{next_cursor: nil, size: 5, last?: false}
+  @init_page_params %{next_cursor: nil, size: 50, last?: false}
 
   @impl true
   def mount(params, _session, socket) do
@@ -32,7 +32,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
       <.page_header icon="💾" title="리포트 발송 기록" />
 
       <section class="mt-6">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto overflow-y-hidden">
           <.table id="report_logs" rows={@streams.report_logs}>
             <:col :let={report_log} label="ID">
               <%= Crypto.obfuscate(report_log.report_info_id) %>
@@ -48,10 +48,22 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
               <%= report_log.succeeded_at |> format_datetime() %>
             </:col>
           </.table>
+          <.infinite_scroll_loader last?={@page_params.last?} />
         </div>
       </section>
     </.page_container>
     """
+  end
+
+  @impl true
+  def handle_event("load_more", _params, socket) do
+    socket =
+      case socket.assigns.page_params do
+        %{last?: true} -> socket
+        _ -> socket |> load_report_logs()
+      end
+
+    {:noreply, socket}
   end
 
   defp load_report_logs(socket) do

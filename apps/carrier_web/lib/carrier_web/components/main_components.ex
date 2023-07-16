@@ -1,5 +1,6 @@
 defmodule CarrierWeb.MainComponents do
   use Phoenix.Component
+  alias CarrierWeb.CoreComponents
 
   attr :rest, :global
 
@@ -64,6 +65,16 @@ defmodule CarrierWeb.MainComponents do
   def card_title(assigns) do
     ~H"""
     <h2 class={["card-title mb-2 text-base text-black", @class]}><%= @title %></h2>
+    """
+  end
+
+  attr :last?, :boolean, required: true
+
+  def infinite_scroll_loader(assigns) do
+    ~H"""
+    <div id="infinite-scroll-marker" phx-hook="InfiniteScroll" class="w-full text-center">
+      <CoreComponents.loading :if={!@last?} />
+    </div>
     """
   end
 end

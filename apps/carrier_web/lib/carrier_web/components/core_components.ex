@@ -637,7 +637,6 @@ defmodule CarrierWeb.CoreComponents do
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
 
   attr :row_item, :any,
-    default: nil,
     doc: "the function for mapping each row before calling the :col and :action slots"
 
   slot :col, required: true do
@@ -651,9 +650,9 @@ defmodule CarrierWeb.CoreComponents do
       with %{rows: %Phoenix.LiveView.LiveStream{}} <- assigns do
         assigns
         |> assign(row_id: assigns.row_id || fn {id, _item} -> id end)
-        |> assign(row_item: assigns.row_item || fn {_id, item} -> item end)
+        |> assign(row_item: assigns[:row_item] || fn {_id, item} -> item end)
       end
-      |> assign_new(:row_item, &Function.identity/1)
+      |> assign_new(:row_item, fn -> &Function.identity/1 end)
 
     ~H"""
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
