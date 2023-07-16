@@ -37,6 +37,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     report_form =
       ReportParams.to_form(
         %{
+          timezone: socket.assigns.timezone,
           interval: :daily
         },
         validate: false
@@ -269,7 +270,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         data_source_info: data_source_info,
         data_target_info: data_target_info,
         datetime: DateTime.utc_now(),
-        timezone: socket.assigns.timezone
+        timezone: socket.report_timezone
       })
 
     Async.run(fn ->
@@ -380,8 +381,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
     report_input =
       %{
         "org_id" => socket.assigns.org.org_id,
-        "user_id" => socket.assigns.user.id,
-        "timezone" => socket.assigns.timezone
+        "user_id" => socket.assigns.user.id
       }
       |> Map.merge(report_input)
 
