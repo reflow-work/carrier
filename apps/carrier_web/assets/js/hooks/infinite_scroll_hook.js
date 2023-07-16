@@ -29,7 +29,7 @@ export default InfiniteScrollHook = {
     this.observer.unobserve(this.el);
   },
   loadMore() {
-    this.pushEvent("load_more")
+    this.pushEventTo("#infinite-scroll-marker", "load_more")
   },
   checkVisible(el) {
     var rect = el.getBoundingClientRect()

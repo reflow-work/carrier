@@ -2,9 +2,8 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
   import CarrierWeb.ChanneltalkHelper
+  alias CarrierWeb.Components.InfiniteScroll
   alias Carrier.Core.{Crypto, Nillable}
-
-  @init_page_params %{next_cursor: nil, size: 50, last?: false}
 
   @impl true
   def mount(params, _session, socket) do
@@ -12,9 +11,8 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
 
     socket =
       socket
-      |> assign(page_params: @init_page_params)
+      |> stream(:report_logs, [])
       |> assign(report_id: report_id)
-      |> load_report_logs()
 
     socket =
       case params["open_message"] do
@@ -48,7 +46,12 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
               <%= report_log.succeeded_at |> format_datetime() %>
             </:col>
           </.table>
-          <.infinite_scroll_loader last?={@page_params.last?} />
+          <.live_component
+            module={InfiniteScroll}
+            id="infinite_scroll"
+            loader={fn page_params -> load_report_logs(@report_id, page_params) end}
+            size={50}
+          />
         </div>
       </section>
     </.page_container>
@@ -56,34 +59,19 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   end
 
   @impl true
-  def handle_event("load_more", _params, socket) do
+  def handle_info({:loaded_more, report_logs}, socket) do
     socket =
-      case socket.assigns.page_params do
-        %{last?: true} -> socket
-        _ -> socket |> load_report_logs()
-      end
+      socket
+      |> stream(:report_logs, report_logs)
 
     {:noreply, socket}
   end
 
-  defp load_report_logs(socket) do
-    {report_logs, page_params} =
-      case socket.assigns.report_id do
-        nil ->
-          {:ok, %{entries: report_logs, meta: meta}} =
-            Carrier.Reports.list_report_logs(socket.assigns.page_params)
-
-          {report_logs, meta}
-
-        report_id ->
-          {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
-
-          {report_logs, nil}
-      end
-
-    socket
-    |> stream(:report_logs, report_logs)
-    |> assign(:page_params, page_params)
+  defp load_report_logs(report_id, page_params) do
+    case report_id do
+      nil -> Reports.list_report_logs(page_params)
+      report_id -> Reports.list_report_logs_by_report_id(report_id, page_params)
+    end
   end
 
   defp badge_class(%ReportLog{status: status}) do
