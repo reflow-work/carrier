@@ -4,6 +4,7 @@ import SmartlookHook from './smartlook_hook'
 import TrixEditorHook from './trix_editor_hook'
 import PopupHook from './popup_hook'
 import GoogleSignInHook from './google_signin'
+import InfiniteScrollHook from './infinite_scroll_hook'
 
 const Hooks = {
   Chart: ChartHook,
@@ -12,6 +13,7 @@ const Hooks = {
   TrixEditor: TrixEditorHook,
   Popup: PopupHook,
   GoogleSignIn: GoogleSignInHook,
+  InfiniteScroll: InfiniteScrollHook,
 }
 
 export default Hooks

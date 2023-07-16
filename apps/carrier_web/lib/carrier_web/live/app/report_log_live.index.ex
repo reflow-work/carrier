@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
   import CarrierWeb.ChanneltalkHelper
+  alias CarrierWeb.Components.InfiniteScroll
   alias Carrier.Core.{Crypto, Nillable}
 
   @impl true
@@ -10,7 +11,8 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
 
     socket =
       socket
-      |> load_report_logs(report_id)
+      |> stream(:report_logs, [])
+      |> assign(report_id: report_id)
 
     socket =
       case params["open_message"] do
@@ -28,81 +30,70 @@ defmodule CarrierWeb.App.ReportLogLive.Index do
       <.page_header icon="💾" title="리포트 발송 기록" />
 
       <section class="mt-6">
-        <div class="overflow-x-auto">
-          <table class="table w-full">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>리포트 이름</th>
-                <th>상태</th>
-                <th>발송 예약 시간</th>
-                <th>발송 성공 시간</th>
-              </tr>
-            </thead>
-            <tbody>
-              <%= for report_log <- @report_logs do %>
-                <tr>
-                  <td><%= report_log.report_info_id |> Crypto.obfuscate() %></td>
-                  <td><%= report_log.report.name %></td>
-                  <td>
-                    <span class={"badge #{report_log.status}"}>
-                      <%= report_log.status |> format_status %>
-                    </span>
-                  </td>
-                  <td>
-                    <%= report_log.scheduled_at |> format_datetime(@timezone) %>
-                  </td>
-                  <td>
-                    <%= report_log.succeeded_at |> format_datetime(@timezone) %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+        <div class="overflow-x-auto overflow-y-hidden">
+          <.table id="report_logs" rows={@streams.report_logs}>
+            <:col :let={report_log} label="ID">
+              <%= Crypto.obfuscate(report_log.report_info_id) %>
+            </:col>
+            <:col :let={report_log} label="리포트 이름"><%= report_log.report.name %></:col>
+            <:col :let={report_log} label="상태">
+              <span class={badge_class(report_log)}><%= transl_status(report_log) %></span>
+            </:col>
+            <:col :let={report_log} label="발송 예약 시각">
+              <%= report_log.scheduled_at |> format_datetime() %>
+            </:col>
+            <:col :let={report_log} label="발송 성공 시각">
+              <%= report_log.succeeded_at |> format_datetime() %>
+            </:col>
+          </.table>
+          <.live_component
+            module={InfiniteScroll}
+            id="infinite_scroll"
+            loader={fn page_params -> load_report_logs(@report_id, page_params) end}
+            size={50}
+          />
         </div>
       </section>
     </.page_container>
     """
   end
 
-  defp load_report_logs(socket, nil) do
-    {:ok, report_logs} = Carrier.Reports.list_report_logs()
+  @impl true
+  def handle_info({:loaded_more, report_logs}, socket) do
+    socket =
+      socket
+      |> stream(:report_logs, report_logs)
 
-    socket
-    |> assign(:report_logs, report_logs)
+    {:noreply, socket}
   end
 
-  defp load_report_logs(socket, report_id) do
-    {:ok, report_logs} = Carrier.Reports.list_report_logs_by_report_id(report_id)
-
-    socket
-    |> assign(:report_logs, report_logs)
-  end
-
-  defp format_status(status) do
-    case status do
-      :scheduled ->
-        "발송 예약"
-
-      :tried ->
-        "발송중"
-
-      :succeeded ->
-        "발송 성공"
-
-      :failed ->
-        "발송 실패"
-
-      :cancelled ->
-        "발송 취소"
+  defp load_report_logs(report_id, page_params) do
+    case report_id do
+      nil -> Reports.list_report_logs(page_params)
+      report_id -> Reports.list_report_logs_by_report_id(report_id, page_params)
     end
   end
 
-  defp format_datetime(datetime, timezone) when not is_nil(datetime) and not is_nil(timezone) do
-    datetime
-    |> DateTime.shift_zone!(timezone)
-    |> Timex.format!("{YYYY}년 {M}월 {D}일 {h24}시 {m}분")
+  defp badge_class(%ReportLog{status: status}) do
+    ["p-2 border-0 rounded text-sm"]
+    |> Kernel.++(
+      case status do
+        :scheduled -> ["bg-blue-300"]
+        :succeeded -> ["bg-green-200"]
+        :tried -> ["bg-amber-300"]
+        :failed -> ["bg-red-300"]
+        _ -> []
+      end
+    )
   end
 
-  defp format_datetime(_datetime, _timezone), do: nil
+  defp transl_status(%ReportLog{status: status}) do
+    case status do
+      :scheduled -> "발송 예약"
+      :tried -> "발송중"
+      :succeeded -> "발송 성공"
+      :failed -> "발송 실패"
+      :cancelled -> "발송 취소"
+    end
+  end
 end

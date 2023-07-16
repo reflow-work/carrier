@@ -258,17 +258,25 @@ defmodule Carrier.Reports do
     DateTimeHelper.calc_next_with_weekday_time(base_datetime, trigger_weekday, trigger_time)
   end
 
-  def list_report_logs() do
+  def list_report_logs(page_params \\ %{}) do
     ReportLog.list()
     |> ReportLog.preload_report()
-    |> TenantRepo.all()
+    |> TenantRepo.paginate(
+      page_params
+      |> Map.merge(%{order_by: [desc: :created_at, asc: :report_id, desc: :id]})
+      |> Carrier.Pagex.Cursor.new()
+    )
     |> then(&{:ok, &1})
   end
 
-  def list_report_logs_by_report_id(report_id) do
+  def list_report_logs_by_report_id(report_id, page_params \\ %{}) do
     ReportLog.list_by_report_id(report_id)
     |> ReportLog.preload_report()
-    |> TenantRepo.all()
+    |> TenantRepo.paginate(
+      page_params
+      |> Map.merge(%{order_by: [desc: :created_at, desc: :id]})
+      |> Carrier.Pagex.Cursor.new()
+    )
     |> then(&{:ok, &1})
   end
 

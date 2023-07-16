@@ -1,6 +1,21 @@
 defmodule Carrier.Core.DateTimeHelperTest do
   use Carrier.CommonCase, async: true
   alias Carrier.Core.DateTimeHelper
+  alias Carrier.Core.Cldr
+
+  describe "safe_format/2" do
+    setup do
+      Cldr.put_locale(:ko)
+
+      datetime = ~U[2023-07-11 23:24:00Z]
+
+      %{datetime: datetime}
+    end
+
+    test "with valid datetime", %{datetime: datetime} do
+      assert DateTimeHelper.safe_format(datetime) == "23. 7. 11. PM 11:24"
+    end
+  end
 
   describe "get_next_with_time/2" do
     test "with not passed time" do

@@ -1,6 +1,6 @@
 defmodule CarrierWeb.LiveHelpers do
   alias Phoenix.LiveView.JS
-  alias Carrier.Core.{TimezoneHelper, DateHelper}
+  alias Carrier.Core.{TimezoneHelper, DateHelper, DateTimeHelper}
 
   def format_number(s) do
     case Carrier.Core.Cldr.Number.to_string(s) do
@@ -9,10 +9,24 @@ defmodule CarrierWeb.LiveHelpers do
     end
   end
 
+  def format_date(nil) do
+    "-"
+  end
+
   def format_date(datetime) do
     datetime
     |> TimezoneHelper.apply_timezone()
     |> DateHelper.safe_format_date()
+  end
+
+  def format_datetime(nil) do
+    "-"
+  end
+
+  def format_datetime(datetime) do
+    datetime
+    |> TimezoneHelper.apply_timezone()
+    |> DateTimeHelper.safe_format()
   end
 
   def format_money(number, currency) do
