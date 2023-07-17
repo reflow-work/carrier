@@ -244,7 +244,7 @@ defmodule Carrier.Reports do
   end
 
   defp calc_next_report_time(%Report{interval: :hourly}, base_datetime) do
-    DateTimeHelper.calc_next_hourly(base_datetime)
+    DateTimeHelper.calc_next_hourly(base_datetime, 0)
   end
 
   defp calc_next_report_time(%Report{interval: :daily, trigger_time: trigger_time}, base_datetime) do

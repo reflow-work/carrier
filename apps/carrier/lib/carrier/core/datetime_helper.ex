@@ -50,10 +50,19 @@ defmodule Carrier.Core.DateTimeHelper do
     end
   end
 
-  def calc_next_hourly(%DateTime{} = datetime) do
-    datetime
-    |> truncate(:hour)
-    |> Timex.shift(hours: 1)
+  def calc_next_hourly(%DateTime{} = current_datetime, minute) when is_integer(minute) do
+    case current_datetime.minute < minute do
+      true ->
+        current_datetime
+        |> truncate(:hour)
+        |> Timex.set(minute: minute)
+
+      false ->
+        current_datetime
+        |> truncate(:hour)
+        |> Timex.shift(hours: 1)
+        |> Timex.set(minute: minute)
+    end
   end
 
   def max(%DateTime{} = datetime1, %DateTime{} = datetime2) do

@@ -107,15 +107,15 @@ defmodule Carrier.Core.DateTimeHelperTest do
   describe "calc_next_hourly" do
     test "with not sharp datetime" do
       assert same_values?(
-               DateTimeHelper.calc_next_hourly(~U[2023-01-31 09:11:50.123Z]),
-               ~U[2023-01-31 10:00:00Z]
+               DateTimeHelper.calc_next_hourly(~U[2023-01-31 09:31:50.123Z], 30),
+               ~U[2023-01-31 10:30:00Z]
              )
     end
 
     test "with sharp datetime" do
       assert same_values?(
-               DateTimeHelper.calc_next_hourly(~U[2023-01-31 09:00:00Z]),
-               ~U[2023-01-31 10:00:00Z]
+               DateTimeHelper.calc_next_hourly(~U[2023-01-31 09:30:00Z], 30),
+               ~U[2023-01-31 10:30:00Z]
              )
     end
   end
