@@ -123,6 +123,7 @@ defmodule Carrier.TenantFactory do
       report_info: report_info,
       name: seq(:report_name),
       interval: [:daily] |> Enum.random(),
+      trigger_minute: 0..59 |> Enum.random(),
       trigger_time: Time.utc_now(),
       timezone: "Asia/Seoul",
       data_target_info: %{

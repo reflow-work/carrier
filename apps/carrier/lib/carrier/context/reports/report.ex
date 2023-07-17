@@ -13,6 +13,8 @@ defmodule Carrier.Reports.Report do
     field :name, :string
     field :text, :string
     field :interval, Ecto.Enum, values: [:hourly, :daily, :weekly]
+    # TODO: remove read_after_writes option
+    field :trigger_minute, :integer, read_after_writes: true
     field :trigger_time, :time
     field :trigger_weekday, :integer
     field :timezone, :string
