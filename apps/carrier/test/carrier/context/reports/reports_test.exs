@@ -543,7 +543,7 @@ defmodule Carrier.ReportsTest do
 
       assert same_records?(fetched_report_log0.report, report_log2.report)
 
-      assert %{is_last: true, next_cursor: nil} = meta
+      assert %{last?: true, next_cursor: nil} = meta
     end
 
     test "with pagination_params", %{report_logs: [report_log0, report_log1, report_log2]} do
@@ -557,7 +557,7 @@ defmodule Carrier.ReportsTest do
       assert same_records?(fetched_report_log0, report_log2)
       assert same_records?(fetched_report_log1, report_log1)
 
-      assert %{is_last: false, next_cursor: next_cursor} = meta0
+      assert %{last?: false, next_cursor: next_cursor} = meta0
 
       assert {:ok,
               %{
@@ -568,7 +568,7 @@ defmodule Carrier.ReportsTest do
 
       assert same_records?(fetched_report_log2, report_log0)
 
-      assert %{is_last: true, next_cursor: nil} = meta1
+      assert %{last?: true, next_cursor: nil} = meta1
     end
   end
 
@@ -607,7 +607,7 @@ defmodule Carrier.ReportsTest do
     end
 
     test "test", %{report: report, report_logs: [report_log0, report_log1]} do
-      assert {:ok, [fetched_report_log0, fetched_report_log1]} =
+      assert {:ok, %{entries: [fetched_report_log0, fetched_report_log1]}} =
                Reports.list_report_logs_by_report_id(report.id)
 
       assert same_records?(fetched_report_log0, report_log1)
