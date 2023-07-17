@@ -13,6 +13,7 @@ defmodule Carrier.Reports.Report do
     field :name, :string
     field :text, :string
     field :interval, Ecto.Enum, values: [:hourly, :daily, :weekly]
+    field :trigger_minute, :integer
     field :trigger_time, :time
     field :trigger_weekday, :integer
     field :timezone, :string
