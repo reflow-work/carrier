@@ -133,6 +133,8 @@ defmodule Carrier.ReportsTest do
         user_id: user.id,
         name: "Hourly Report",
         interval: :hourly,
+        # TODO: enable it
+        # trigger_minute: 30,
         trigger_time: nil,
         timezone: "Asia/Seoul",
         data_target_info: %{
@@ -166,7 +168,8 @@ defmodule Carrier.ReportsTest do
 
       assert same_values?(
                job_scheduled_at,
-               created_report.created_at |> DateTimeHelper.calc_next_hourly()
+               created_report.created_at
+               |> DateTimeHelper.calc_next_hourly(created_report.trigger_minute)
              )
     end
   end
