@@ -28,7 +28,7 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
       case socket.assigns.credit_card do
         nil ->
           socket
-          |> TossPaymentsHelper.issue_billing_key(socket.assigns.plan.id)
+          |> TossPaymentsHelper.issue_billing_key(socket.assigns.plan)
 
         _ ->
           Billing.start_subscription(%{

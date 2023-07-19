@@ -3,6 +3,8 @@ defmodule Carrier.Billing.Plan do
   alias Carrier.Core.DateTimeHelper
   alias Carrier.Roles.Role
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "plans" do
     belongs_to :role, Role
 

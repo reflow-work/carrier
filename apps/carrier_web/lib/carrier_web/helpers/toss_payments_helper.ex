@@ -10,14 +10,14 @@ defmodule CarrierWeb.TossPaymentsHelper do
     })
   end
 
-  def issue_billing_key(socket, plan_id) do
+  def issue_billing_key(socket, plan) do
     customer_key = CreditCard.gen_customer_key(socket.assigns.org.org_id)
 
     socket
     |> push_event("toss-payments-request", %{
       customer_key: customer_key,
-      success_url: url(~p"/app/payment/callback/toss-payments?plan_id=#{plan_id}"),
-      fail_url: url(~p"/app/payment/callback/toss-payments")
+      success_url: url(~p"/app/payment/callback/toss-payments?plan_id=#{plan}"),
+      fail_url: url(~p"/app/payment/callback/toss-payments?plan_id=#{plan}")
     })
   end
 
