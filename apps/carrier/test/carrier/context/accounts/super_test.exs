@@ -114,13 +114,13 @@ defmodule Carrier.Accounts.SuperTest do
     setup do
       user = TenantFactory.insert(:user)
 
-      TenantRepo.put_org_id(user.org_id)
+      Tenant.put_org_id(user.org_id)
 
       %{user: user}
     end
 
     test "test", %{user: user} do
-      user_without_role = reload!(user, TenantRepo)
+      user_without_role = reload!(user)
       user_with_role = user_without_role |> Accounts.Super.postload_role()
 
       assert same_records?(user_with_role.role, user.role)

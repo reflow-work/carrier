@@ -2,13 +2,13 @@ defmodule CarrierWeb.UserHook do
   use CarrierWeb, :live_hook
   use Carrier.Accounts
   require Logger
-  alias Carrier.TenantRepo
+  alias Carrier.Tenant
   alias Carrier.Core.Nillable
 
   def on_mount(:default, _params, %{"org_id" => org_id, "user_id" => user_id}, socket) do
     Logger.metadata(org_id: org_id, user_id: user_id)
 
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
 
     socket = socket |> assign_new_user(user_id)
 

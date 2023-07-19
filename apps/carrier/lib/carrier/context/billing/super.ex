@@ -4,13 +4,13 @@ defmodule Carrier.Billing.Super do
 
   def list_subscribable_plans() do
     Plan.list_subscribable()
-    |> TenantRepo.all(skip_org_id: true)
+    |> TenantRepo.all(org_id: :skip)
     |> then(&{:ok, &1})
   end
 
   def fetch_plan(plan_id) do
     Plan.fetch(plan_id)
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
     |> case do
       %Plan{} = plan ->
         {:ok, plan}
@@ -22,16 +22,16 @@ defmodule Carrier.Billing.Super do
 
   def fetch_trial_plan!() do
     Plan.fetch_trial()
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
   end
 
   def postload_plan(%Subscription{} = subscription) do
     subscription
-    |> TenantRepo.preload([plan: :role], skip_org_id: true)
+    |> TenantRepo.preload([plan: :role], org_id: :skip)
   end
 
   def postload_role(%Plan{} = plan) do
     plan
-    |> TenantRepo.preload(:role, skip_org_id: true)
+    |> TenantRepo.preload(:role, org_id: :skip)
   end
 end

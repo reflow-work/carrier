@@ -4,7 +4,7 @@ defmodule Carrier.Roles.Super do
 
   def fetch_role_by_name(role_name) do
     Role.fetch_by_name(role_name)
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
     |> case do
       %Role{} = role ->
         {:ok, role}

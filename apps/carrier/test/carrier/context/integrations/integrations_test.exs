@@ -9,7 +9,7 @@ defmodule Carrier.IntegrationsTest do
   describe "create_data_target/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       valid_params = %{
         org_id: org.org_id,
@@ -37,7 +37,7 @@ defmodule Carrier.IntegrationsTest do
   describe "create_data_source/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       params = %{
         org_id: org.org_id,
@@ -131,7 +131,7 @@ defmodule Carrier.IntegrationsTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       data_target = TenantFactory.insert(:data_target, org_id: org.org_id, needs_update: true)
 
@@ -163,7 +163,7 @@ defmodule Carrier.IntegrationsTest do
       data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
       TenantFactory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      TenantRepo.put_org_id(data_target.org_id)
+      Tenant.put_org_id(data_target.org_id)
 
       %{data_target: data_target}
     end
@@ -183,7 +183,7 @@ defmodule Carrier.IntegrationsTest do
       deleted_data_target =
         TenantFactory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      TenantRepo.put_org_id(data_target.org_id)
+      Tenant.put_org_id(data_target.org_id)
 
       %{data_target: data_target, deleted_data_target: deleted_data_target}
     end
@@ -206,7 +206,7 @@ defmodule Carrier.IntegrationsTest do
       data_source = TenantFactory.insert(:data_source, org_id: org.org_id)
       TenantFactory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      TenantRepo.put_org_id(data_source.org_id)
+      Tenant.put_org_id(data_source.org_id)
 
       %{data_source: data_source}
     end
@@ -227,7 +227,7 @@ defmodule Carrier.IntegrationsTest do
       deleted_data_source =
         TenantFactory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      TenantRepo.put_org_id(data_source.org_id)
+      Tenant.put_org_id(data_source.org_id)
 
       %{data_source: data_source, deleted_data_source: deleted_data_source}
     end

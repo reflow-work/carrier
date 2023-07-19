@@ -67,9 +67,7 @@ defmodule Carrier.Billing.SuperTest do
     end
 
     test "test", %{plan: plan} do
-      TenantRepo.set_skip_org_id()
-
-      plan_without_role = reload!(plan, TenantRepo)
+      plan_without_role = reload!(plan)
       plan_with_role = plan_without_role |> Billing.Super.postload_role()
 
       assert same_records?(plan_with_role.role, plan.role)

@@ -6,13 +6,13 @@ defmodule Carrier.Works.SubscriptionExpiringJob do
 
   use Carrier.Billing
   require Logger
-  alias Carrier.TenantRepo
+  alias Carrier.Tenant
 
   @impl Oban.Worker
   def perform(%Oban.Job{
         args: %{"org_id" => org_id, "subscription_id" => subscription_id}
       }) do
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
 
     with {:ok, %Subscription{}} <- Billing.expire_subscription(subscription_id) do
       :ok

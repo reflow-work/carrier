@@ -12,10 +12,11 @@
 
 use Carrier.{Accounts, Integrations, Reports, Setting, Billing, Payments, Roles}
 alias Carrier.TenantRepo
+alias Carrier.Tenant
 
 now = DateTime.utc_now()
 
-TenantRepo.set_skip_org_id()
+Tenant.put_org_id(:skip)
 
 TenantRepo.transaction(fn ->
   {_, [org0, org1]} =

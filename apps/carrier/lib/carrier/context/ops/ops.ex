@@ -3,6 +3,7 @@ defmodule Carrier.Ops do
   require Logger
   import Ecto.Query, only: [from: 2]
   alias Carrier.{Repo, TenantRepo}
+  alias Carrier.Tenant
 
   def restart_failed_report(report_log_id) do
     Repo.wrap_transaction(fn ->
@@ -15,7 +16,7 @@ defmodule Carrier.Ops do
   end
 
   def delete_org(org_id, org_name) do
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
 
     now = DateTime.utc_now()
 
@@ -43,7 +44,7 @@ defmodule Carrier.Ops do
   end
 
   def hard_delete_org(org_id, org_name) do
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
 
     with {:ok, org} <-
            TenantRepo.wrap_transaction(fn ->
@@ -72,7 +73,7 @@ defmodule Carrier.Ops do
   end
 
   def create_trial_subscription(%{org_id: org_id, end_on: end_on}) do
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
 
     start_on = DateTime.utc_now()
 

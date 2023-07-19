@@ -47,7 +47,7 @@ defmodule CarrierWeb.AssignHelper do
     end
   end
 
-  @dictionary_keys [Carrier.TenantRepo.tenant_key(), Carrier.Core.TimezoneHelper.timezone_key()]
+  @dictionary_keys [Carrier.Tenant.tenant_key(), Carrier.Core.TimezoneHelper.timezone_key()]
   def assign_concurrent(socket, key_fun_map) when is_map(key_fun_map) do
     dictionary =
       @dictionary_keys

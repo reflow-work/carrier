@@ -63,3 +63,5 @@ config :carrier, :slack, base_url: "http://localhost:4103/api"
 config :carrier, Carrier.Core.Cache, force_ttl: 0
 
 config :google_certs, auto_start?: false
+
+config :doumi, :default_repo, Carrier.TenantRepo

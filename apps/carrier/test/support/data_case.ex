@@ -21,13 +21,14 @@ defmodule Carrier.DataCase do
   using do
     quote do
       alias Carrier.{Repo, TenantRepo}
+      alias Carrier.Tenant
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import unquote(__MODULE__)
       import Doumi.CaseHelper
-      import Doumi.EctoCaseHelper
+      import Doumi.EctoCaseHelper, except: [reload!: 1, reload!: 2]
 
       alias Carrier.{Factory, TenantFactory}
     end
@@ -72,5 +73,9 @@ defmodule Carrier.DataCase do
     struct
     |> Ecto.Changeset.change(deleted_at: DateTime.utc_now())
     |> repo.update!()
+  end
+
+  def reload!(struct, opts \\ []) do
+    Doumi.EctoCaseHelper.reload!(struct, opts |> Keyword.put(:org_id, :skip))
   end
 end

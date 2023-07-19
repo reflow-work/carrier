@@ -6,13 +6,13 @@ defmodule Carrier.Works.ReportJob do
 
   use Carrier.{Reports, Data}
   require Logger
-  alias Carrier.TenantRepo
+  alias Carrier.Tenant
 
   @impl Oban.Worker
   def perform(%Oban.Job{
         args: %{"org_id" => org_id, "report_id" => report_id, "datetime" => datetime_str}
       }) do
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
     Logger.metadata(org_id: org_id)
 
     {:ok, datetime, _} = datetime_str |> DateTime.from_iso8601()

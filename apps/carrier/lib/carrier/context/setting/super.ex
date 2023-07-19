@@ -27,11 +27,11 @@ defmodule Carrier.Setting.Super do
             )
   def get_feature_flag(key) do
     FeatureFlag.get_by_key(key)
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
   end
 
   defp get_property(key) do
     Property.get(key)
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
   end
 end

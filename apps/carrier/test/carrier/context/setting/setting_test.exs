@@ -24,7 +24,7 @@ defmodule Carrier.SettingTest do
         value: false
       )
 
-      TenantRepo.put_org_id(feature_flag_value.org_id)
+      Tenant.put_org_id(feature_flag_value.org_id)
 
       %{feature_flag_value: feature_flag_value}
     end
@@ -38,7 +38,7 @@ defmodule Carrier.SettingTest do
     end
 
     test "with not set org", %{feature_flag_value: feature_flag_value} do
-      TenantRepo.put_org_id(0)
+      Tenant.put_org_id(0)
 
       assert Setting.get_feature_flag_value(feature_flag_value.feature_flag_key) == false
     end

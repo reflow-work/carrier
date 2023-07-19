@@ -42,7 +42,7 @@ defmodule Carrier.Accounts.Super do
 
   def fetch_user_by_email(email) do
     User.get_by_email(email)
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
     |> case do
       %User{} = user -> {:ok, user}
       nil -> {:error, {:resource_not_found, %{target: User, conditions: %{email: email}}}}
@@ -67,12 +67,12 @@ defmodule Carrier.Accounts.Super do
 
   def postload_role(%User{} = user) do
     user
-    |> TenantRepo.preload(:role, skip_org_id: true)
+    |> TenantRepo.preload(:role, org_id: :skip)
   end
 
   def get_org(org_id) do
     Org.get(org_id)
-    |> TenantRepo.one(skip_org_id: true)
+    |> TenantRepo.one(org_id: :skip)
     |> case do
       %Org{} = org -> {:ok, org}
       nil -> {:error, {:resource_not_found, %{target: Org, conditions: %{org_id: org_id}}}}

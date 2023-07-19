@@ -12,7 +12,7 @@ defmodule Carrier.BillingTest do
       org = TenantFactory.insert(:org)
       admin_role = TenantFactory.insert(:role, name: "Admin")
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       billing_user = TenantFactory.insert(:user, org: org, role: admin_role)
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
@@ -71,8 +71,6 @@ defmodule Carrier.BillingTest do
       assert payment.status == :confirmed
 
       # SubscriptionExpiringJob is enqueued
-
-      TenantRepo.set_skip_org_id()
 
       assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
                all_enqueued(worker: Carrier.Works.SubscriptionExpiringJob)
@@ -158,8 +156,6 @@ defmodule Carrier.BillingTest do
 
       # SubscriptionExpiringJob is enqueued
 
-      TenantRepo.set_skip_org_id()
-
       assert [%{args: job_args, scheduled_at: job_scheduled_at}] =
                all_enqueued(worker: Carrier.Works.SubscriptionExpiringJob)
 
@@ -206,7 +202,7 @@ defmodule Carrier.BillingTest do
       org = TenantFactory.insert(:org)
       admin_role = TenantFactory.insert(:role, name: "Admin")
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       billing_user = TenantFactory.insert(:user, org: org, role: admin_role)
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
@@ -405,7 +401,7 @@ defmodule Carrier.BillingTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :active)
 
@@ -434,7 +430,7 @@ defmodule Carrier.BillingTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       plan = TenantFactory.insert(:plan)
 
@@ -493,7 +489,7 @@ defmodule Carrier.BillingTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       plan = TenantFactory.insert(:plan)
 
@@ -551,7 +547,7 @@ defmodule Carrier.BillingTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       trial_plan = TenantFactory.insert(:plan, type: :trial)
 
@@ -593,7 +589,7 @@ defmodule Carrier.BillingTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       %{org: org}
     end
@@ -621,7 +617,7 @@ defmodule Carrier.BillingTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       %{org: org}
     end

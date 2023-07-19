@@ -1,7 +1,7 @@
 defmodule Carrier.Context.Works.Telemetry do
   use Carrier.Reports
   alias Carrier.Core.Async
-  alias Carrier.TenantRepo
+  alias Carrier.Tenant
 
   def handle_event(
         [:oban, :job, :exception],
@@ -14,7 +14,7 @@ defmodule Carrier.Context.Works.Telemetry do
         } = _metadata,
         _config
       ) do
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
     Async.run(fn -> Reports.notify_report_job_discarded(job_id) end)
   end
 

@@ -10,7 +10,7 @@ defmodule Carrier.Reports.Super do
             )
   def get_report_log_count() do
     ReportLog
-    |> TenantRepo.aggregate(:count, :id, skip_org_id: true)
+    |> TenantRepo.aggregate(:count, :id, org_id: :skip)
     |> then(&{:ok, &1})
   end
 end

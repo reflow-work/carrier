@@ -2,13 +2,13 @@ defmodule CarrierWeb.App.DataTargetController do
   use CarrierWeb, :controller
   use Carrier.Integrations
   alias CarrierWeb.Helpers.SlackHelper
-  alias Carrier.TenantRepo
+  alias Carrier.Tenant
   alias Carrier.Obfuscatable
   alias Carrier.External.SlackAPI
 
   def slack_callback(conn, %{"code" => code} = params) do
     org_id = conn |> get_session(:org_id)
-    TenantRepo.put_org_id(org_id)
+    Tenant.put_org_id(org_id)
     obfuscated_data_target_id = params["data_target_id"]
 
     redirect_uri = SlackHelper.get_redirect_uri(obfuscated_data_target_id, params["popup"])

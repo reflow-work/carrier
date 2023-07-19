@@ -8,7 +8,7 @@ defmodule Carrier.AccountsTest do
   describe "update_org/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       %{org: org}
     end
@@ -33,7 +33,7 @@ defmodule Carrier.AccountsTest do
       role = TenantFactory.insert(:role)
       user = TenantFactory.insert(:user, role: role)
 
-      TenantRepo.put_org_id(user.org_id)
+      Tenant.put_org_id(user.org_id)
 
       %{user: user, role: role}
     end
@@ -60,7 +60,7 @@ defmodule Carrier.AccountsTest do
       _another_user_of_same_org = TenantFactory.insert(:user, org: admin_user.org)
       _user_of_another_org = TenantFactory.insert(:user)
 
-      TenantRepo.put_org_id(admin_user.org_id)
+      Tenant.put_org_id(admin_user.org_id)
 
       %{admin_user: admin_user}
     end
@@ -76,7 +76,7 @@ defmodule Carrier.AccountsTest do
     setup do
       user = TenantFactory.insert(:user)
 
-      TenantRepo.put_org_id(user.org_id)
+      Tenant.put_org_id(user.org_id)
 
       %{user: user}
     end
@@ -102,7 +102,7 @@ defmodule Carrier.AccountsTest do
       user2 = TenantFactory.insert(:user, org: user1.org)
       _user_of_another_org = TenantFactory.insert(:user)
 
-      TenantRepo.put_org_id(user1.org_id)
+      Tenant.put_org_id(user1.org_id)
 
       %{user1: user1, user2: user2}
     end

@@ -3,7 +3,7 @@ defmodule Carrier.Core.Async do
   alias Carrier.Core.{Traversable, OkTuple}
 
   @default_dictionary_keys [
-    Carrier.TenantRepo.tenant_key(),
+    Carrier.Tenant.tenant_key(),
     Carrier.Core.TimezoneHelper.timezone_key()
   ]
 

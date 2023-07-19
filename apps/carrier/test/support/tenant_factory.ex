@@ -104,7 +104,7 @@ defmodule Carrier.TenantFactory do
     {user, attrs} =
       attrs
       |> Map.pop_lazy(:user_id, fn ->
-        org = TenantRepo.get_by(Org, %{org_id: org_id}, skip_org_id: true)
+        org = TenantRepo.get_by(Org, %{org_id: org_id}, org_id: :skip)
         insert(:user, org: org)
       end)
 
@@ -267,7 +267,7 @@ defmodule Carrier.TenantFactory do
     {credit_card, attrs} =
       attrs
       |> Map.pop_lazy(:credit_card, fn ->
-        case TenantRepo.get_by(CreditCard, [org_id: org_id], skip_org_id: true) do
+        case TenantRepo.get_by(CreditCard, [org_id: org_id], org_id: :skip) do
           nil -> build(:credit_card, org_id: org_id)
           credit_card -> credit_card
         end

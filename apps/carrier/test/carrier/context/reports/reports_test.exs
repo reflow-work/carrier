@@ -11,7 +11,7 @@ defmodule Carrier.ReportsTest do
   describe "fetch_report_info/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
 
@@ -90,7 +90,7 @@ defmodule Carrier.ReportsTest do
       assert %DataTargetInfo{params: data_target_info_params} = created_report.data_target_info
       assert %{} = data_target_info_params
 
-      TenantRepo.set_skip_org_id()
+      Tenant.put_org_id(:skip)
 
       # ReportInfo
 
@@ -162,7 +162,7 @@ defmodule Carrier.ReportsTest do
 
       # ReportJob
 
-      TenantRepo.set_skip_org_id()
+      Tenant.put_org_id(:skip)
 
       assert [%{scheduled_at: job_scheduled_at}] = all_enqueued(worker: Carrier.Works.ReportJob)
 
@@ -177,7 +177,7 @@ defmodule Carrier.ReportsTest do
   describe "list_reports/0" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       report_info0 = TenantFactory.insert(:report_info, org_id: org.org_id)
       report_info1 = TenantFactory.insert(:report_info, org_id: org.org_id)
@@ -254,7 +254,7 @@ defmodule Carrier.ReportsTest do
   describe "fetch_report/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       report = TenantFactory.insert(:report, org_id: org.org_id)
 
@@ -291,7 +291,7 @@ defmodule Carrier.ReportsTest do
   describe "update_report/2" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       report = TenantFactory.insert(:report, org_id: org.org_id)
 
@@ -331,7 +331,7 @@ defmodule Carrier.ReportsTest do
       assert updated_report.report_info_id == report.report_info_id
       assert updated_report.name == "Updated Daily Report"
 
-      deleted_report = reload!(report, TenantRepo)
+      deleted_report = reload!(report)
 
       assert deleted_report.deleted_at != nil
     end
@@ -340,7 +340,7 @@ defmodule Carrier.ReportsTest do
   describe "delete_report/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       report = TenantFactory.insert(:report, org_id: org.org_id)
 
@@ -354,7 +354,7 @@ defmodule Carrier.ReportsTest do
 
       # ReportInfo
 
-      TenantRepo.set_skip_org_id()
+      Tenant.put_org_id(:skip)
 
       assert %ReportInfo{} =
                report_info = TenantRepo.get_by(ReportInfo, id: report.report_info_id)
@@ -399,7 +399,7 @@ defmodule Carrier.ReportsTest do
       report = TenantFactory.insert(:report)
       _report_log = TenantFactory.insert(:report_log, report: report, status: :scheduled)
 
-      TenantRepo.put_org_id(report.org_id)
+      Tenant.put_org_id(report.org_id)
 
       %{report: report}
     end
@@ -420,7 +420,7 @@ defmodule Carrier.ReportsTest do
       report = TenantFactory.insert(:report)
       _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
 
-      TenantRepo.put_org_id(report.org_id)
+      Tenant.put_org_id(report.org_id)
 
       %{report: report}
     end
@@ -441,7 +441,7 @@ defmodule Carrier.ReportsTest do
       report = TenantFactory.insert(:report)
       _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
 
-      TenantRepo.put_org_id(report.org_id)
+      Tenant.put_org_id(report.org_id)
 
       %{report: report}
     end
@@ -466,7 +466,7 @@ defmodule Carrier.ReportsTest do
       report = TenantFactory.insert(:report)
       _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
 
-      TenantRepo.put_org_id(report.org_id)
+      Tenant.put_org_id(report.org_id)
 
       %{report: report}
     end
@@ -527,7 +527,7 @@ defmodule Carrier.ReportsTest do
           scheduled_at: now |> Timex.shift(days: -1)
         )
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       %{report_logs: [report_log0, report_log1, report_log2]}
     end
@@ -580,7 +580,7 @@ defmodule Carrier.ReportsTest do
       now = DateTime.utc_now()
 
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       report0 = TenantFactory.insert(:report, org_id: org.org_id)
       report1 = TenantFactory.insert(:report, org_id: org.org_id)

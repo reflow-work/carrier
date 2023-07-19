@@ -45,7 +45,7 @@ defmodule Carrier.MixProject do
       {:oban, "~> 2.14"},
       {:cloak_ecto, "~> 1.2.0"},
       {:ex_machina, "~> 2.7"},
-      {:doumi, "~> 0.2.3"},
+      {:doumi, "~> 0.3.0"},
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.12"},
       {:table_rex, "~> 3.1"},

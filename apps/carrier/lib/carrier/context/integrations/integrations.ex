@@ -2,6 +2,7 @@ defmodule Carrier.Integrations do
   alias Carrier.Integrations.ConnValidator
   alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
   alias Carrier.TenantRepo
+  alias Carrier.Tenant
 
   defmacro __using__([]) do
     quote do
@@ -150,7 +151,7 @@ defmodule Carrier.Integrations do
   end
 
   defp list_demo_data_sources() do
-    org_id = TenantRepo.get_org_id()
+    org_id = Tenant.get_org_id()
 
     [
       %DataSource{

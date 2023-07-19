@@ -9,7 +9,7 @@ defmodule Carrier.PaymentsTest do
   describe "create_credit_card/1 with toss_payments" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       params = %{
         org_id: org.org_id,
@@ -58,7 +58,7 @@ defmodule Carrier.PaymentsTest do
   describe "fetch_default_credit_card/0" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
 
@@ -82,7 +82,7 @@ defmodule Carrier.PaymentsTest do
   describe "create_payment/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       params = %{
         org_id: org.org_id,
@@ -104,7 +104,7 @@ defmodule Carrier.PaymentsTest do
   describe "process_payment/1" do
     setup do
       org = TenantFactory.insert(:org)
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       payment = TenantFactory.insert(:payment, org_id: org.org_id, status: :pending)
 
@@ -178,7 +178,7 @@ defmodule Carrier.PaymentsTest do
     setup do
       org = TenantFactory.insert(:org)
 
-      TenantRepo.put_org_id(org.org_id)
+      Tenant.put_org_id(org.org_id)
 
       credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
 
