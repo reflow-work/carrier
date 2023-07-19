@@ -167,12 +167,12 @@ defmodule Carrier.TenantFactory do
 
   def plan_factory(attrs) do
     {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> build(:role) end)
-    {type, attrs} = attrs |> Map.pop(:type, Enum.random([:basic, :pro]))
+    {type, attrs} = attrs |> Map.pop(:type, :paid)
 
     {billing_cycle, subscribable} =
       case type do
         :trial -> {:none, false}
-        _ -> {attrs |> Map.get(:billing_cycle, Enum.random([:monthly, :yearly])), true}
+        :paid -> {attrs |> Map.get(:billing_cycle, Enum.random([:monthly, :yearly])), true}
       end
 
     {status, attrs} = attrs |> Map.pop(:status, :active)

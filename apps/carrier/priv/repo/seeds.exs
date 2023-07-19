@@ -232,7 +232,7 @@ TenantRepo.transaction(fn ->
       [
         %{
           billing_cycle: :none,
-          name: "Trial",
+          name: "Trial Plan",
           type: :trial,
           price: 0,
           currency: :KRW,
@@ -242,8 +242,8 @@ TenantRepo.transaction(fn ->
         },
         %{
           billing_cycle: :monthly,
-          name: "Basic",
-          type: :basic,
+          name: "Basic Montly Plan",
+          type: :paid,
           price: 150_000,
           currency: :KRW,
           description: [
@@ -258,8 +258,8 @@ TenantRepo.transaction(fn ->
         },
         %{
           billing_cycle: :yearly,
-          name: "Basic",
-          type: :basic,
+          name: "Basic Yearly Plan",
+          type: :paid,
           original_price: 1_800_000,
           price: 1_500_000,
           currency: :KRW,

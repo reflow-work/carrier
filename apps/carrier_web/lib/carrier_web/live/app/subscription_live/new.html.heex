@@ -1,100 +1,52 @@
 <.page_container>
-  <.page_header icon="💳" title="플랜 선택하기" />
-
-  <div class="text-sm mt-3">
-    베타 기간 동안 무료로 시작해보세요. <br /> 베타 기간 안에 언제든지 구독을 취소할 수 있습니다.
-  </div>
+  <.page_header icon="💳" title="구독 신청하기" />
 
   <.card_container class="grid grid-cols-12 gap-4">
     <.card class="col-span-7">
-      <div class="flex justify-end text-sm mb-4">
-        <%= for billing_cycle <- @billing_cycles do %>
-          <div
-            id={"billing-cycle-selector-#{billing_cycle}"}
-            class={[
-              "billing-cycle-selector",
-              "border border-black rounded-full px-3 py-1 mr-1 cursor-pointer",
-              if(@selected_billing_cycle == billing_cycle, do: "bg-black text-white")
-            ]}
-            phx-click="select_billing_cycle"
-            phx-value-billing-cycle={billing_cycle}
-          >
-            <%= billing_cycle |> to_string() |> String.capitalize() %>
-          </div>
-        <% end %>
-      </div>
-
-      <div>
-        <%= for {billing_cycle, plans} <- @plans_by_billing_cycle do %>
-          <div class={[
-            "plan plan-#{billing_cycle}",
-            "space-y-3",
-            if(@selected_billing_cycle == billing_cycle, do: "block", else: "hidden")
-          ]}>
-            <%= for plan <- plans do %>
+      <div class="border-2 border-black rounded-md p-4 flex flex-col justify-between cursor-pointer">
+        <div>
+          <div>
+            <div class="text-lg">
+              <%= @plan.name %>
+            </div>
+            <div class="mt-2">
               <div
-                class={[
-                  "plan-item plan-item-#{plan.type}",
-                  "border rounded-md p-4 flex flex-col justify-between cursor-pointer",
-                  if(@selected_type == plan.type, do: "border-2 border-black")
-                ]}
-                phx-click="select_type"
-                phx-value-type={plan.type}
+                :if={@plan.original_price != nil}
+                class="line-through text-landingDescription text-sm"
               >
-                <div>
-                  <div class="mb-4 flex items-center">
-                    <div class="text-lg w-16">
-                      <%= plan.name %>
-                    </div>
-                    <div>
-                      <%= if plan.original_price != nil do %>
-                        <div class="line-through text-landingDescription text-sm">
-                          <%= plan.original_price |> format_number() %>원
-                        </div>
-                      <% end %>
-                      <span class="font-bold text-xl">
-                        <%= plan |> Plan.month_price() |> format_number() %>
-                      </span>
-                      <span class="text-landingDescription text-sm">
-                        원 / 월
-                      </span>
-                    </div>
-                  </div>
-                  <div class="space-y-2 text-sm">
-                    <%= for description <- plan.description do %>
-                      <div class="flex items-center">
-                        <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
-                      </div>
-                    <% end %>
-                  </div>
-                </div>
+                <%= @plan.original_price |> format_number() %>원
               </div>
-            <% end %>
+              <span class="font-bold text-xl">
+                <%= @plan |> Plan.month_price() |> format_number() %>
+              </span>
+              <span class="text-landingDescription text-sm">
+                원 / 월
+              </span>
+            </div>
           </div>
-        <% end %>
+          <div class="mt-4 space-y-2 text-sm">
+            <div :for={description <- @plan.description} class="flex items-center">
+              <Icon.check class="w-4 h-4 mr-1.5" /> <%= description %>
+            </div>
+          </div>
+        </div>
       </div>
     </.card>
     <.card class="col-span-5 h-min">
       <.card_title title="결제 정보" />
       <div>
         <div class="text-xl font-bold mb-2">
-          월 <%= @selected_plan
-          |> Plan.month_price()
-          |> format_number() %>원
+          월 <%= @plan |> Plan.month_price() |> format_number() %>원
           <span class={[
             "text-description text-sm font-normal ml-1",
-            if(@selected_billing_cycle == :yearly, do: "inline", else: "hidden")
+            if(@plan.billing_cycle == :yearly, do: "inline", else: "hidden")
           ]}>
-            연 <%= @selected_plan.price
-            |> format_number() %>
+            연 <%= @plan.price |> format_number() %>
           </span>
         </div>
 
         <div>
-          결제 예정일: <%= @timezone |> current_datetime!() |> Timex.shift(days: 7) |> format_date() %>
-          <span class="text-sm">
-            (<%= @timezone |> current_datetime!() |> format_date() %> + 무료 7일)
-          </span>
+          결제 예정일: <%= @timezone |> current_datetime!() |> format_date() %>
         </div>
         <div :if={@credit_card}>
           결제 수단: <%= CreditCard.format_card_info(@credit_card) %>
@@ -115,7 +67,7 @@
         >
           구독하기
         </button>
-        <div class="text-landingDescription text-sm mt-2">
+        <div :if={false} class="text-landingDescription text-sm mt-2">
           결제 예정일 전까지 언제든지 구독을 취소할 수 있습니다.
         </div>
       </div>

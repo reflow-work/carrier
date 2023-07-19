@@ -29,7 +29,7 @@ defmodule Carrier.BillingTest do
            billing_user: billing_user,
            credit_card: credit_card
          } do
-      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :monthly)
       TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
       now = ~U[2023-04-10 09:00:00Z]
 
@@ -37,7 +37,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: "reflow #{Plan.get_full_name(plan)}",
+        order_name: "reflow #{plan.name}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -107,14 +107,14 @@ defmodule Carrier.BillingTest do
       billing_user: billing_user,
       credit_card: credit_card
     } do
-      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :yearly)
+      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :yearly)
       TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
       now = ~U[2023-04-10 09:00:00Z]
 
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: "reflow #{Plan.get_full_name(plan)}",
+        order_name: "reflow #{plan.name}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -214,12 +214,12 @@ defmodule Carrier.BillingTest do
       %{org: org, billing_user: billing_user, credit_card: credit_card}
     end
 
-    test "with valid params (basic, monthly)", %{
+    test "with valid params (paid, monthly)", %{
       org: org,
       billing_user: billing_user,
       credit_card: credit_card
     } do
-      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :monthly)
 
       subscription =
         TenantFactory.insert(:subscription,
@@ -246,7 +246,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: "reflow #{Plan.get_full_name(plan)}",
+        order_name: "reflow #{plan.name}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -311,7 +311,7 @@ defmodule Carrier.BillingTest do
       credit_card: credit_card
     } do
       trial_plan = TenantFactory.insert(:plan, type: :trial)
-      plan = TenantFactory.insert(:plan, type: :basic, billing_cycle: :monthly)
+      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :monthly)
 
       trial_subscription =
         TenantFactory.insert(:subscription,
@@ -336,7 +336,7 @@ defmodule Carrier.BillingTest do
       ExternalHelper.TossPayments.prepare_bill(%{
         billing_key: credit_card.billing_key,
         amount: plan.price,
-        order_name: "reflow #{Plan.get_full_name(plan)}",
+        order_name: "reflow #{plan.name}",
         customer_email: billing_user.email,
         customer_name: org.name
       })
@@ -607,8 +607,8 @@ defmodule Carrier.BillingTest do
       assert Billing.have_active_subscription?() == true
     end
 
-    test "with non-trial plan", %{org: org} do
-      plan = TenantFactory.insert(:plan, type: :basic)
+    test "with paid plan", %{org: org} do
+      plan = TenantFactory.insert(:plan, type: :paid)
 
       _subscription =
         TenantFactory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
@@ -635,8 +635,8 @@ defmodule Carrier.BillingTest do
       assert Billing.have_active_non_trial_subscription?() == false
     end
 
-    test "with non-trial plan", %{org: org} do
-      plan = TenantFactory.insert(:plan, type: :basic)
+    test "with paid plan", %{org: org} do
+      plan = TenantFactory.insert(:plan, type: :paid)
 
       _subscription =
         TenantFactory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)

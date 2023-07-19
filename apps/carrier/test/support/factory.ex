@@ -159,18 +159,18 @@ defmodule Carrier.Factory do
   end
 
   def plan_factory(attrs) do
-    type = attrs |> Map.get(:type, Enum.random([:trial, :basic, :pro]))
+    type = attrs |> Map.get(:type, Enum.random([:trial, :paid]))
 
     billing_cycle =
       case type do
         :trial -> :none
-        _ -> Enum.random([:monthly, :yearly])
+        :paid -> Enum.random([:monthly, :yearly])
       end
 
     subscribable =
       case billing_cycle do
-        :none -> false
-        _ -> true
+        :trial -> false
+        :paid -> true
       end
 
     %Plan{

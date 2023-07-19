@@ -259,7 +259,7 @@ defmodule Carrier.Billing do
          } = subscription
        )
        when not is_nil(payment_id) do
-    with {:ok, %Plan{subscribable: true, price: price, currency: currency} = plan} <-
+    with {:ok, %Plan{subscribable: true, name: name, price: price, currency: currency}} <-
            Super.fetch_plan(plan_id),
          {:ok, %User{org: %Org{name: billing_name}, email: billing_email}} <-
            Accounts.fetch_billing_user(),
@@ -269,7 +269,7 @@ defmodule Carrier.Billing do
              amount: price,
              currency: currency,
              order_id: Subscription.calc_unique_key(subscription),
-             order_name: "reflow #{Plan.get_full_name(plan)}",
+             order_name: "reflow #{name}",
              customer_email: billing_email,
              customer_name: billing_name
            }) do

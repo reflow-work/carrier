@@ -2,13 +2,14 @@ defmodule CarrierWeb.App.PaymentController do
   use CarrierWeb, :controller
   use Carrier.{Payments, Billing}
   require Logger
+  alias Carrier.Obfuscatable
 
   def toss_payments_callback(
         conn,
-        %{"customerKey" => customer_key, "authKey" => auth_key, "plan_id" => plan_id_str}
+        %{"customerKey" => customer_key, "authKey" => auth_key, "plan_id" => obfuscatable_plan_id}
       ) do
     org_id = conn |> get_session(:org_id)
-    plan_id = plan_id_str |> String.to_integer()
+    plan_id = obfuscatable_plan_id |> Obfuscatable.deobfuscate!(Plan)
 
     with {:ok, %CreditCard{}} <-
            Payments.create_credit_card(:toss_payments, %{
@@ -30,15 +31,19 @@ defmodule CarrierWeb.App.PaymentController do
 
         conn
         |> put_flash(:error, "구독 신청에 실패했습니다. 다시 시도해주세요.")
-        |> redirect(to: ~p"/app/subscriptions/new")
+        |> redirect(to: ~p"/app/subscriptions/new?plan_id=#{obfuscatable_plan_id}")
     end
   end
 
-  def toss_payments_callback(conn, %{"code" => code, "message" => message}) do
+  def toss_payments_callback(conn, %{
+        "code" => code,
+        "message" => message,
+        "plan_id" => obfuscatable_plan_id
+      }) do
     Logger.error("Failed to pay with toss payments: #{code}, #{message}")
 
     conn
     |> put_flash(:error, "구독 신청에 실패했습니다. 다시 시도해주세요. #{message}")
-    |> redirect(to: ~p"/app/subscriptions/new")
+    |> redirect(to: ~p"/app/subscriptions/new?plan_id=#{obfuscatable_plan_id}")
   end
 end
