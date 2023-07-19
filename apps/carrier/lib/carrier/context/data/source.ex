@@ -4,9 +4,9 @@ defmodule Carrier.Data.Source do
 
   @callback load_raw_data(params :: map(), data_source :: map()) ::
               {:ok, list()} | {:error, any()}
-  @callback transform_data(params :: map(), data_source :: map(), raw_data :: list()) ::
+  @callback transform_data(params :: map(), data_source :: map(), raw_data :: any()) ::
               {:ok, list()} | {:error, any()}
-  @callback data_to_threads(params :: map(), data_source :: map(), data :: list()) ::
+  @callback data_to_threads(params :: map(), data_source :: map(), data :: any()) ::
               {:ok, list()} | {:error, any()}
 
   use Carrier.Integrations
