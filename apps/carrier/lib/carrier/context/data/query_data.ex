@@ -2,55 +2,6 @@ defmodule Carrier.Data.QueryData do
   use Carrier.Integrations
   require Logger
   alias Carrier.Data.Source
-  alias Carrier.TenantRepo
-
-  @start_template_key "start"
-  @end_template_key "end"
-  @start_template "{{#{@start_template_key}}}"
-  @end_template "{{#{@end_template_key}}}"
-
-  def query(
-        %{
-          org_id: org_id,
-          data_source_id: data_source_id,
-          sql_template: sql_template,
-          datetime: utc_datetime,
-          timezone: timezone,
-          query_date_length: query_date_length
-        } = params
-      ) do
-    TenantRepo.put_org_id(org_id)
-
-    query_end_date =
-      utc_datetime
-      |> DateTime.shift_zone!(timezone)
-      |> DateTime.to_date()
-
-    query_start_date = query_end_date |> Date.add(-query_date_length)
-
-    query_params = %{"start" => query_start_date, "end" => query_end_date}
-
-    with :ok <- is_valid_sql?(sql_template),
-         {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
-         {:ok, %{columns: columns, data: data}} <-
-           Source.RDB.run_query(data_source, sql_template, query_params),
-         :ok <- validate_query_result(columns, data),
-         normalized_data = normalize_data(data),
-         filled_data =
-           fill_missing_dates(normalized_data, columns, query_start_date, query_end_date) do
-      {:ok, %{columns: columns, data: filled_data}}
-    else
-      {:error, reason} ->
-        Logger.error(inspect({reason, params}))
-
-        {:error, reason}
-    end
-  rescue
-    e ->
-      Logger.error(Exception.format(:error, e, __STACKTRACE__))
-
-      {:error, :query_failed}
-  end
 
   def refine_data_based_on_columns(%{columns: columns, data: data}, selected_columns, window_size) do
     [date_column | value_columns] = columns
@@ -77,14 +28,7 @@ defmodule Carrier.Data.QueryData do
     |> Enum.reverse()
   end
 
-  def fetch_table_names(
-        %{
-          org_id: org_id,
-          data_source_id: data_source_id
-        } = params
-      ) do
-    TenantRepo.put_org_id(org_id)
-
+  def fetch_table_names(%{data_source_id: data_source_id} = params) do
     with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
          source_module = Source.RDB.get_module(data_source),
          tables_query = source_module.tables_query(),
@@ -103,15 +47,7 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  def fetch_columns(
-        %{
-          org_id: org_id,
-          data_source_id: data_source_id,
-          table_name: table_name
-        } = params
-      ) do
-    TenantRepo.put_org_id(org_id)
-
+  def fetch_columns(%{data_source_id: data_source_id, table_name: table_name} = params) do
     with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
          source_module = Source.RDB.get_module(data_source),
          columns_query = source_module.columns_query(),
@@ -288,106 +224,6 @@ defmodule Carrier.Data.QueryData do
       |> Explorer.DataFrame.to_rows()
 
     {:ok, data}
-  end
-
-  # defp append_limit(sql) do
-  #   sql <> " LIMIT $3"
-  # end
-
-  defp is_valid_sql?(sql_template) do
-    with :ok <- is_select_query?(sql_template),
-         :ok <- is_contains_required_templates?(sql_template) do
-      :ok
-    else
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  defp is_select_query?(sql_template) do
-    case Regex.match?(~r/^\s*select\s*/i, sql_template) do
-      true -> :ok
-      false -> {:error, :sql_not_a_select_query}
-    end
-  end
-
-  defp is_contains_required_templates?(sql_template) do
-    case sql_template |> String.contains?([@start_template, @end_template]) do
-      true -> :ok
-      false -> {:error, :sql_missing_template_keys}
-    end
-  end
-
-  defp validate_query_result(_columns, []), do: :ok
-
-  defp validate_query_result(columns, [first_datum | _]) do
-    with :ok <- is_date_type_at_first_column(columns, first_datum),
-         :ok <- is_number_type_after_first_column(columns, first_datum) do
-      :ok
-    end
-  end
-
-  defp is_date_type_at_first_column([first_column | _], datum) do
-    case datum |> Map.get(first_column) do
-      %Date{} -> :ok
-      _ -> {:error, :first_column_is_not_date_type}
-    end
-  end
-
-  defp is_number_type_after_first_column([_ | rest_columns], datum) do
-    rest_columns
-    |> Enum.map(&Map.get(datum, &1))
-    |> Enum.all?(fn
-      value when is_number(value) -> true
-      %Decimal{} -> true
-      _ -> false
-    end)
-    |> case do
-      true -> :ok
-      false -> {:error, :not_number_type_after_first_column}
-    end
-  end
-
-  defp normalize_data(data) do
-    data
-    |> Enum.map(fn datum ->
-      datum
-      |> Map.new(fn
-        {key, %Decimal{} = value} -> {key, Decimal.to_float(value)}
-        {key, nil} -> {key, 0}
-        pair -> pair
-      end)
-    end)
-  end
-
-  defp fill_missing_dates(
-         data,
-         [date_column | value_columns],
-         %Date{} = start_date,
-         %Date{} = end_date
-       ) do
-    date_range = Date.range(start_date, end_date |> Date.add(-1))
-
-    date_datum_map =
-      data
-      |> Enum.map(fn datum -> {datum[date_column], datum} end)
-      |> Map.new()
-
-    _filled_data =
-      date_range
-      |> Enum.reduce([], fn date, acc ->
-        case Map.get(date_datum_map, date) do
-          nil -> [empty_datum(date, date_column, value_columns) | acc]
-          datum -> [datum | acc]
-        end
-      end)
-      |> Enum.reverse()
-  end
-
-  defp empty_datum(%Date{} = date, date_column, value_columns) do
-    value_columns
-    |> Enum.reduce(%{date_column => date}, fn value_column, datum ->
-      datum |> Map.put(value_column, 0)
-    end)
   end
 
   defp window_sum_column(column) do
