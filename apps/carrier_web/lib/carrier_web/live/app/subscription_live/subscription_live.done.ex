@@ -30,7 +30,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
         <.card>
           <.card_title title="구독 정보" />
           <div class="space-y-1">
-            <p class="text-lg font-bold"><%= Plan.get_full_name(@subscription.plan) %></p>
+            <p class="text-lg font-bold"><%= @subscription.plan.name %></p>
             <p>
               구독 기간: <%= format_date(@subscription.start_on) %> - <%= format_date(
                 @subscription.end_on

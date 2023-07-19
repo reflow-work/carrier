@@ -8,7 +8,7 @@ defmodule Carrier.Billing.Plan do
 
     field :billing_cycle, Ecto.Enum, values: [:none, :monthly, :yearly]
     field :name, :string
-    field :type, Ecto.Enum, values: [:trial, :basic, :pro]
+    field :type, Ecto.Enum, values: [:trial, :paid]
     field :price, :decimal
     field :original_price, :decimal
     field :currency, Ecto.Enum, values: [:KRW]
@@ -69,16 +69,5 @@ defmodule Carrier.Billing.Plan do
       )
       when type != :trial do
     DateTimeHelper.calc_next(origin_start_on, billing_cycle, extension_count + 1)
-  end
-
-  def get_full_name(%__MODULE__{type: :trial}) do
-    "Trial Plan"
-  end
-
-  def get_full_name(%__MODULE__{type: type, billing_cycle: billing_cycle}) do
-    type_str = type |> Atom.to_string() |> String.capitalize()
-    billing_cycle_str = billing_cycle |> Atom.to_string() |> String.capitalize()
-
-    "#{type_str} #{billing_cycle_str} Plan"
   end
 end

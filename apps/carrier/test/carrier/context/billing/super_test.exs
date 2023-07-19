@@ -7,9 +7,9 @@ defmodule Carrier.Billing.SuperTest do
   describe "list_subscribable/0" do
     setup do
       plan1 = TenantFactory.insert(:plan, type: :trial)
-      plan2 = TenantFactory.insert(:plan, type: :basic)
-      plan3 = TenantFactory.insert(:plan, type: :pro)
-      TenantFactory.insert(:plan, type: :pro, status: :deleted)
+      plan2 = TenantFactory.insert(:plan, type: :paid)
+      plan3 = TenantFactory.insert(:plan, type: :paid)
+      TenantFactory.insert(:plan, type: :paid, status: :deleted)
 
       %{plans: [plan1, plan2, plan3]}
     end
@@ -47,7 +47,7 @@ defmodule Carrier.Billing.SuperTest do
 
   describe "fetch_trial_plan!/0" do
     setup do
-      TenantFactory.insert(:plan, type: :basic)
+      TenantFactory.insert(:plan, type: :paid)
       trial_plan = TenantFactory.insert(:plan, type: :trial)
 
       %{trial_plan: trial_plan}

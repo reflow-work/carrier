@@ -30,7 +30,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
           <.card_title title="현재 플랜" />
           <div :if={@active_subscription} class="border p-4 rounded-md">
             <p class="text-xl font-bold">
-              <%= Plan.get_full_name(@active_subscription.plan) %>
+              <%= @active_subscription.plan.name %>
             </p>
             <div class="text-sm mt-6 flex">
               <div class="w-32 text-description">구독 기간</div>
@@ -45,7 +45,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
           <.card_title :if={@pending_subscription} title="예정된 플랜" class="mt-6" />
           <div :if={@pending_subscription} class="border p-4 rounded-md">
             <p class="text-xl font-bold">
-              <%= Plan.get_full_name(@pending_subscription.plan) %>
+              <%= @pending_subscription.plan.name %>
             </p>
             <div class="text-sm mt-6 flex">
               <div class="w-32 space-y-2 text-description">
