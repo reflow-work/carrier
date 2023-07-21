@@ -10,6 +10,8 @@ defmodule CarrierWeb.FlashHook do
       socket
       |> attach_hook(:flash, :handle_info, &handle_flash/2)
 
+    Process.send_after(self(), :clear_flash, :timer.seconds(3))
+
     {:cont, socket}
   end
 
