@@ -28,3 +28,5 @@ erl_crash.dump
 /config/*.secret.exs
 
 .docker
+
+.elixir_ls
