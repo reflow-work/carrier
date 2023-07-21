@@ -3,6 +3,8 @@ defmodule Carrier.Accounts.User do
   alias Carrier.Accounts.Org
   alias Carrier.Roles.Role
 
+  @derive Carrier.Obfuscatable.Protocol
+
   schema "users" do
     belongs_to :org, Org, references: :org_id
     belongs_to :role, Role
