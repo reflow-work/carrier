@@ -1,5 +1,5 @@
 defmodule Carrier.Billing do
-  use Carrier.{Payments, Accounts, Setting}
+  use Carrier.{Payments, Accounts, Setting, Reports}
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
@@ -77,14 +77,8 @@ defmodule Carrier.Billing do
   def expire_subscription(subscription_id) do
     Repo.wrap_transaction(fn ->
       with {:ok, active_subscription} <- fetch_subscription_with_state(subscription_id, :active),
-           {:ok, expired_subscription} <-
-             do_expire_subscription(active_subscription),
-           maybe_pending_subscription = get_pending_subscription(),
-           {:ok, _} <-
-             if(maybe_pending_subscription,
-               do: activate_subscription(maybe_pending_subscription),
-               else: {:ok, nil}
-             ) do
+           {:ok, expired_subscription} <- do_expire_subscription(active_subscription),
+           {:ok, _} <- post_process_expire_subscription() do
         {:ok, expired_subscription}
       else
         {
@@ -97,6 +91,16 @@ defmodule Carrier.Billing do
           {:error, reason}
       end
     end)
+  end
+
+  defp post_process_expire_subscription() do
+    case get_pending_subscription() do
+      %Subscription{} = subscription ->
+        activate_subscription(subscription)
+
+      nil ->
+        Reports.cancel_all_report_jobs()
+    end
   end
 
   def fetch_subscription(subscription_id) do
