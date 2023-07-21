@@ -11,11 +11,20 @@ defmodule Carrier.Reports.ReportJob do
 
     field :max_attempts, :integer
     field :discarded_at, :utc_datetime_usec
+    field :cancelled_at, :utc_datetime_usec
   end
 
   def list_by_org_id(query \\ __MODULE__, org_id) do
     query
     |> where([rj], rj.args["org_id"] == ^org_id)
+  end
+
+  def cancel_excutable(%{org_id: org_id, cancelled_at: cancelled_at}) do
+    __MODULE__
+    |> where([rj], rj.args["org_id"] == ^org_id)
+    |> where([rj], rj.state in [:executing, :available, :scheduled, :retryable])
+    |> update([rj], set: [state: :cancelled, cancelled_at: ^cancelled_at])
+    |> select([rj], rj)
   end
 
   def retry_discarded(%{report_job_id: report_job_id}) do

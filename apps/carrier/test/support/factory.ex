@@ -1,6 +1,7 @@
 defmodule Carrier.Factory do
   use ExMachina.Ecto, repo: Carrier.Repo
   use Carrier.{Accounts, Integrations, Reports, Setting, Payments, Billing, Roles}
+  alias Carrier.Works.ReportJob
   alias Carrier.Repo
   alias Carrier.Core.Crypto
 
@@ -165,6 +166,27 @@ defmodule Carrier.Factory do
     |> merge_attributes(attrs)
   end
 
+  def report_job_factory(attrs) do
+    {report, attrs} = attrs |> Map.pop!(:report)
+    {state, attrs} = attrs |> Map.pop(:state, :scheduled)
+    {scheduled_at, attrs} = attrs |> Map.pop(:scheduled_at, DateTime.utc_now())
+
+    %{
+      org_id: report.org_id,
+      report_id: report.id,
+      report_info_id: report.report_info_id,
+      datetime: scheduled_at
+    }
+    |> ReportJob.new(
+      scheduled_at: scheduled_at,
+      meta: %{org_id: report.org_id}
+    )
+    |> Oban.Job.to_map()
+    |> then(&struct(Oban.Job, &1))
+    |> apply_status(state)
+    |> merge_attributes(attrs)
+  end
+
   def plan_factory(attrs) do
     {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> build(:role) end)
     {type, attrs} = attrs |> Map.pop(:type, :paid)
@@ -321,6 +343,35 @@ defmodule Carrier.Factory do
       error_message: ":failed_to_record_tried_report_log",
       failed_at: DateTime.utc_now()
     })
+  end
+
+  defp apply_status(%Oban.Job{} = oban_job, :scheduled) do
+    oban_job
+    |> Map.merge(%{state: "scheduled"})
+  end
+
+  defp apply_status(%Oban.Job{} = oban_job, :executing) do
+    oban_job
+    |> apply_status(:scheduled)
+    |> Map.merge(%{state: "executing", attempt: 1, attempted_at: DateTime.utc_now()})
+  end
+
+  defp apply_status(%Oban.Job{} = oban_job, :completed) do
+    oban_job
+    |> apply_status(:executing)
+    |> Map.merge(%{state: "completed", completed_at: DateTime.utc_now()})
+  end
+
+  defp apply_status(%Oban.Job{} = oban_job, :discarded) do
+    oban_job
+    |> apply_status(:executing)
+    |> Map.merge(%{state: "discarded", discarded_at: DateTime.utc_now()})
+  end
+
+  defp apply_status(%Oban.Job{} = oban_job, :cancelled) do
+    oban_job
+    |> apply_status(:executing)
+    |> Map.merge(%{state: "cancelled", cancelled_at: DateTime.utc_now()})
   end
 
   defp apply_status(%Plan{} = plan, :active) do

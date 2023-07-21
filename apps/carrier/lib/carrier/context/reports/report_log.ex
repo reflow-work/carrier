@@ -103,6 +103,20 @@ defmodule Carrier.Reports.ReportLog do
     |> select([rl], rl)
   end
 
+  def record_all_cancelled(%{
+        report_job_ids: report_job_ids,
+        cancelled_at: cancelled_at,
+        error_message: error_message
+      }) do
+    __MODULE__
+    |> where([rl], rl.report_job_id in ^report_job_ids)
+    |> where([rl], rl.status == :scheduled)
+    |> update([rl],
+      set: [status: :cancelled, cancelled_at: ^cancelled_at, error_message: ^error_message]
+    )
+    |> select([rl], rl)
+  end
+
   def retry_failed(%{report_log_id: report_log_id}) do
     __MODULE__
     |> where(

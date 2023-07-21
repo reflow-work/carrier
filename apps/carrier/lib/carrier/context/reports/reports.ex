@@ -4,6 +4,7 @@ defmodule Carrier.Reports do
   alias Carrier.Reports.{ReportInfo, Report, ReportLog, ReportJob}
   alias Carrier.Works
   alias Carrier.Repo
+  alias Carrier.Tenant
   alias Carrier.Core.DateTimeHelper
   alias Carrier.Const
   alias Carrier.Obfuscatable
@@ -211,6 +212,28 @@ defmodule Carrier.Reports do
       Logger.debug(
         "next report job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}"
       )
+    end)
+  end
+
+  def cancel_all_report_jobs() do
+    org_id = Tenant.get_org_id()
+    cancelled_at = DateTime.utc_now()
+
+    Repo.wrap_transaction(fn ->
+      with {_, cancelled_report_jobs} <-
+             ReportJob.cancel_excutable(%{org_id: org_id, cancelled_at: cancelled_at})
+             |> Repo.update_all([], returning: true, org_id: :skip),
+           report_job_ids = cancelled_report_jobs |> Enum.map(& &1.id),
+           {_, cancelled_report_log} <-
+             ReportLog.record_all_cancelled(%{
+               report_job_ids: report_job_ids,
+               cancelled_at: cancelled_at,
+               error_message: "subscription expired"
+             })
+             |> Repo.update_all([]),
+           true <- Enum.count(cancelled_report_log) == Enum.count(cancelled_report_jobs) do
+        {:ok, cancelled_report_jobs}
+      end
     end)
   end
 
