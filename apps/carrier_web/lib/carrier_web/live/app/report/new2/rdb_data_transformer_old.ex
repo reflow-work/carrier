@@ -51,6 +51,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBDataTransformerOld do
 
         %{sql_template: sql_template} ->
           socket
+          |> assign(:rdb_form, data_source_info |> RDBParamsOld.to_form())
           |> assign(:sql_template, sql_template)
       end
 
