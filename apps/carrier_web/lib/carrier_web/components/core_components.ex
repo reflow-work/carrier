@@ -366,7 +366,7 @@ defmodule CarrierWeb.CoreComponents do
             class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
             {@rest}
           />
-          <.label for={@id}><%= label %></.label>
+          <.label for={"#{@name}-#{value}"} class="cursor-pointer"><%= label %></.label>
         </label>
         <.error :for={msg <- @errors}><%= msg %></.error>
       </div>
