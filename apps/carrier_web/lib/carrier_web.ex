@@ -62,6 +62,7 @@ defmodule CarrierWeb do
     quote do
       use Phoenix.LiveView
       require Logger
+      import CarrierWeb.FlashHook, only: [put_flash_for: 3, put_flash_for: 4]
       alias Carrier.Obfuscatable
 
       on_mount(CarrierWeb.FlashHook)
@@ -86,7 +87,7 @@ defmodule CarrierWeb do
       use Phoenix.LiveComponent
       import CarrierWeb.AssignHelper
 
-      import CarrierWeb.FlashHook, only: [push_flash: 4]
+      import CarrierWeb.FlashHook, only: [push_flash: 3, push_flash: 4]
 
       unquote(html_helpers())
       unquote(live_helpers())
@@ -152,26 +153,6 @@ defmodule CarrierWeb do
   defp live_helpers() do
     quote do
       import CarrierWeb.AssignHelper
-
-      def put_flash_for(socket, kind, message, opts \\ []) do
-        timeout = opts |> Keyword.get(:timeout, :infinity)
-
-        socket = Phoenix.LiveView.put_flash(socket, kind, message)
-
-        case timeout do
-          :infinity ->
-            nil
-
-          timeout when is_integer(timeout) ->
-            Process.send_after(self(), :clear_flash, timeout)
-        end
-
-        socket
-      end
-
-      def handle_info(:clear_flash, socket) do
-        {:noreply, clear_flash(socket)}
-      end
     end
   end
 

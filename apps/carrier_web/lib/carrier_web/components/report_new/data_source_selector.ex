@@ -51,7 +51,7 @@ defmodule CarrierWeb.Components.DataSourceSelector do
 
       _ ->
         socket
-        |> put_flash_for(:error, "데이터 소스를 불러오는데 실패하였습니다.", timeout: :timer.seconds(3))
+        |> push_flash(:error, "데이터 소스를 불러오는데 실패하였습니다.", timeout: :timer.seconds(3))
     end
   end
 
