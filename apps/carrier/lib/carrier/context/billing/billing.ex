@@ -4,7 +4,7 @@ defmodule Carrier.Billing do
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
   alias Carrier.Works
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
   alias Carrier.Core.Nillable
 
   defmacro __using__([]) do
@@ -17,7 +17,7 @@ defmodule Carrier.Billing do
   def start_subscription(%{org_id: org_id, plan_id: plan_id, start_on: start_on} = params) do
     maybe_end_on = params[:end_on]
 
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, %Plan{} = plan} <- Super.fetch_plan(plan_id),
            # TODO: expire active subscription?
            maybe_active_subscription <- get_active_subscription(),
@@ -42,7 +42,7 @@ defmodule Carrier.Billing do
   end
 
   def create_subscription(%{org_id: org_id, plan_id: plan_id} = params) do
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, %Plan{subscribable: subscribable, price: price, currency: currency}} <-
              Super.fetch_plan(plan_id),
            {:ok, maybe_payment} <-
@@ -55,18 +55,18 @@ defmodule Carrier.Billing do
                params
                |> Map.put(:payment_id, maybe_payment |> Nillable.map(& &1.id))
              )
-             |> TenantRepo.insert() do
+             |> Repo.insert() do
         {:ok, subscription}
       end
     end)
   end
 
   def activate_subscription(%Subscription{status: :pending} = pending_subscription) do
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, _maybe_payment} <- pay_subscription(pending_subscription),
            {:ok, %Subscription{} = activated_subscription} <-
              Subscription.activate(pending_subscription, %{activated_at: DateTime.utc_now()})
-             |> TenantRepo.update(),
+             |> Repo.update(),
            {:ok, _} <- create_subscription_expiring_job(activated_subscription),
            {:ok, _} <- create_next_subscription(activated_subscription) do
         {:ok, activated_subscription}
@@ -75,7 +75,7 @@ defmodule Carrier.Billing do
   end
 
   def expire_subscription(subscription_id) do
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, active_subscription} <- fetch_subscription_with_state(subscription_id, :active),
            {:ok, expired_subscription} <-
              do_expire_subscription(active_subscription),
@@ -102,7 +102,7 @@ defmodule Carrier.Billing do
   def fetch_subscription(subscription_id) do
     Subscription.fetch(subscription_id)
     |> Subscription.preload_payment()
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %Subscription{} = subscription ->
         subscription_with_plan = subscription |> Super.postload_plan()
@@ -119,7 +119,7 @@ defmodule Carrier.Billing do
   def fetch_active_subscription() do
     Subscription.fetch_active()
     |> Subscription.preload_payment()
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %Subscription{} = subscription ->
         subscription_with_plan = subscription |> Super.postload_plan()
@@ -134,7 +134,7 @@ defmodule Carrier.Billing do
   def fetch_pending_subscription() do
     Subscription.fetch_pending()
     |> Subscription.preload_payment()
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %Subscription{} = subscription ->
         subscription_with_plan = subscription |> Super.postload_plan()
@@ -148,22 +148,22 @@ defmodule Carrier.Billing do
 
   def get_active_trial_subscription() do
     Subscription.fetch_active_trial()
-    |> TenantRepo.one()
+    |> Repo.one()
   end
 
   def have_active_subscription?() do
     Subscription.fetch_active()
-    |> TenantRepo.exists?()
+    |> Repo.exists?()
   end
 
   def have_active_non_trial_subscription?() do
     Subscription.fetch_active_non_trial()
-    |> TenantRepo.exists?()
+    |> Repo.exists?()
   end
 
   defp fetch_subscription_with_state(subscription_id, state) do
     Subscription.fetch_with_state(subscription_id, state)
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %Subscription{} = subscription ->
         {:ok, subscription}
@@ -177,12 +177,12 @@ defmodule Carrier.Billing do
 
   defp get_pending_subscription() do
     Subscription.fetch_pending()
-    |> TenantRepo.one()
+    |> Repo.one()
   end
 
   defp get_active_subscription() do
     Subscription.fetch_active()
-    |> TenantRepo.one()
+    |> Repo.one()
   end
 
   defp create_subscription_expiring_job(%Subscription{
@@ -196,7 +196,7 @@ defmodule Carrier.Billing do
              scheduled_at: end_on,
              meta: %{org_id: org_id}
            )
-           |> TenantRepo.insert() do
+           |> Repo.insert() do
       {:ok, subscription_expiring_job}
     end
     |> tap(fn _ ->
@@ -210,7 +210,7 @@ defmodule Carrier.Billing do
          %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
            subscription
        ) do
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, %Plan{subscribable: true} = plan} <- Super.fetch_plan(plan_id),
            %{
              origin_subscription_id: origin_subscription_id
@@ -240,7 +240,7 @@ defmodule Carrier.Billing do
   defp do_expire_subscription(%Subscription{status: :active} = subscription) do
     with {:ok, %Subscription{} = expired_subscription} <-
            Subscription.expire(subscription, %{expired_at: DateTime.utc_now()})
-           |> TenantRepo.update() do
+           |> Repo.update() do
       {:ok, expired_subscription}
     end
   end

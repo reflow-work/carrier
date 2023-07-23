@@ -2,15 +2,13 @@ defmodule Carrier.Reports.SuperTest do
   use Carrier.DataCase, async: true
   use Carrier.Reports
 
-  @moduletag repo: TenantRepo
-
   describe "get_report_log_count/0" do
     setup do
-      org0 = TenantFactory.insert(:org)
-      org1 = TenantFactory.insert(:org)
+      org0 = Factory.insert(:org)
+      org1 = Factory.insert(:org)
 
-      TenantFactory.insert(:report_log, org_id: org0.org_id)
-      TenantFactory.insert(:report_log, org_id: org1.org_id)
+      Factory.insert(:report_log, org_id: org0.org_id)
+      Factory.insert(:report_log, org_id: org1.org_id)
 
       :ok
     end

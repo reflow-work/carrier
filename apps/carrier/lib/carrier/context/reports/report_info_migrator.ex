@@ -4,7 +4,7 @@ defmodule Carrier.Reports.ReportInfoMigrator do
   alias Carrier.Repo
 
   def run() do
-    reports = Report |> Repo.all()
+    reports = Report |> Repo.all(org_id: :skip)
 
     report_id_report_info_id_map =
       reports
@@ -22,7 +22,7 @@ defmodule Carrier.Reports.ReportInfoMigrator do
       end)
       |> Map.new()
 
-    report_logs = ReportLog |> Repo.all()
+    report_logs = ReportLog |> Repo.all(org_id: :skip)
 
     report_logs
     |> Enum.map(fn %ReportLog{report_id: report_id} = report_log ->

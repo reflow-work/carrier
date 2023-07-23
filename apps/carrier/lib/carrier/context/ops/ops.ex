@@ -2,7 +2,7 @@ defmodule Carrier.Ops do
   use Carrier.{Accounts, Integrations, Reports, Billing, Payments}
   require Logger
   import Ecto.Query, only: [from: 2]
-  alias Carrier.{Repo, TenantRepo}
+  alias Carrier.{Repo, Repo}
   alias Carrier.Tenant
 
   def restart_failed_report(report_log_id) do
@@ -20,7 +20,7 @@ defmodule Carrier.Ops do
 
     now = DateTime.utc_now()
 
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, %Org{name: ^org_name} = org} <- Accounts.fetch_org() do
         [
           Subscription,
@@ -47,25 +47,27 @@ defmodule Carrier.Ops do
     Tenant.put_org_id(org_id)
 
     with {:ok, org} <-
-           TenantRepo.wrap_transaction(fn ->
+           Repo.wrap_transaction(fn ->
              with {:ok, %Org{name: ^org_name} = org} <- Accounts.fetch_org() do
-               TenantRepo.delete_all(Subscription)
-               TenantRepo.delete_all(Payment)
-               TenantRepo.delete_all(CreditCard)
-               TenantRepo.delete_all(ReportLog)
-               TenantRepo.delete_all(Report)
-               TenantRepo.delete_all(ReportInfo)
-               TenantRepo.delete_all(DataSource)
-               TenantRepo.delete_all(DataTarget)
-               TenantRepo.delete_all(ConnInfo)
-               TenantRepo.delete_all(User)
-               TenantRepo.delete_all(Org)
+               Repo.delete_all(Subscription)
+               Repo.delete_all(Payment)
+               Repo.delete_all(CreditCard)
+               Repo.delete_all(ReportLog)
+               Repo.delete_all(Report)
+               Repo.delete_all(ReportInfo)
+               Repo.delete_all(DataSource)
+               Repo.delete_all(DataTarget)
+               Repo.delete_all(ConnInfo)
+               Repo.delete_all(User)
+               Repo.delete_all(Org)
 
                {:ok, org}
              else
                _ -> {:error, :invalid_org}
              end
            end) do
+      Tenant.put_org_id(:skip)
+
       ReportJob.list_by_org_id(org_id) |> Repo.delete_all()
 
       {:ok, org}
@@ -111,7 +113,7 @@ defmodule Carrier.Ops do
 
   defp delete_not_deleted(module, now) do
     from(x in module, where: is_nil(x.deleted_at), update: [set: [deleted_at: ^now]])
-    |> TenantRepo.update_all([])
+    |> Repo.update_all([])
   end
 
   defp retry_failed_report_log(report_log_id) do

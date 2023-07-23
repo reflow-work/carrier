@@ -10,7 +10,6 @@ defmodule Carrier.Application do
     children = [
       Carrier.Core.Cache.Local,
       Carrier.Repo,
-      Carrier.TenantRepo,
       {Phoenix.PubSub, name: Carrier.PubSub},
       {Oban, Application.fetch_env!(:carrier, Oban)},
       Carrier.Vault,

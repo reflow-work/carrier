@@ -14,7 +14,6 @@ config :carrier,
   ecto_repos: [Carrier.Repo]
 
 config :carrier, Carrier.Repo, timeout: :timer.seconds(30)
-config :carrier, Carrier.TenantRepo, timeout: :timer.seconds(30)
 
 config :carrier, env: config_env()
 
@@ -85,11 +84,11 @@ config :ecto_sql, migration_module: Carrier.Migration
 
 config :carrier, Oban,
   name: Carrier.Oban,
-  repo: Carrier.TenantRepo
+  repo: Carrier.Repo
 
 config :carrier_worker, Oban,
   name: CarrierWorker.Oban,
-  repo: Carrier.TenantRepo,
+  repo: Carrier.Repo,
   plugins: [
     {Oban.Plugins.Lifeline, interval: :timer.minutes(1), rescue_after: :timer.minutes(5)},
     Oban.Plugins.Reindexer

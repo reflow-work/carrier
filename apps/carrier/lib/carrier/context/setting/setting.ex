@@ -3,7 +3,7 @@ defmodule Carrier.Setting do
   require Logger
   alias Carrier.Setting.Super
   alias Carrier.Setting.{FeatureFlag, FeatureFlagValue}
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
   alias Carrier.Tenant
 
   defmacro __using__([]) do
@@ -35,6 +35,6 @@ defmodule Carrier.Setting do
 
   defp do_get_feature_flag_value(feature_flag_key) do
     FeatureFlagValue.get_by_feature_flag_key(feature_flag_key)
-    |> TenantRepo.one()
+    |> Repo.one()
   end
 end

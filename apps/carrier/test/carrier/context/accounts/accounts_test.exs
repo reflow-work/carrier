@@ -3,11 +3,9 @@ defmodule Carrier.AccountsTest do
   alias Carrier.Accounts
   alias Carrier.Accounts.{Org, User}
 
-  @moduletag repo: TenantRepo
-
   describe "update_org/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
       %{org: org}
@@ -30,8 +28,8 @@ defmodule Carrier.AccountsTest do
 
   describe "fetch_user/1" do
     setup do
-      role = TenantFactory.insert(:role)
-      user = TenantFactory.insert(:user, role: role)
+      role = Factory.insert(:role)
+      user = Factory.insert(:user, role: role)
 
       Tenant.put_org_id(user.org_id)
 
@@ -55,10 +53,10 @@ defmodule Carrier.AccountsTest do
 
   describe "fetch_billing_user/1" do
     setup do
-      admin_role = TenantFactory.insert(:role, name: "Admin")
-      admin_user = TenantFactory.insert(:user, role: admin_role)
-      _another_user_of_same_org = TenantFactory.insert(:user, org: admin_user.org)
-      _user_of_another_org = TenantFactory.insert(:user)
+      admin_role = Factory.insert(:role, name: "Admin")
+      admin_user = Factory.insert(:user, role: admin_role)
+      _another_user_of_same_org = Factory.insert(:user, org: admin_user.org)
+      _user_of_another_org = Factory.insert(:user)
 
       Tenant.put_org_id(admin_user.org_id)
 
@@ -74,7 +72,7 @@ defmodule Carrier.AccountsTest do
 
   describe "update_user/2" do
     setup do
-      user = TenantFactory.insert(:user)
+      user = Factory.insert(:user)
 
       Tenant.put_org_id(user.org_id)
 
@@ -98,9 +96,9 @@ defmodule Carrier.AccountsTest do
 
   describe "list_users/0" do
     setup do
-      user1 = TenantFactory.insert(:user)
-      user2 = TenantFactory.insert(:user, org: user1.org)
-      _user_of_another_org = TenantFactory.insert(:user)
+      user1 = Factory.insert(:user)
+      user2 = Factory.insert(:user, org: user1.org)
+      _user_of_another_org = Factory.insert(:user)
 
       Tenant.put_org_id(user1.org_id)
 

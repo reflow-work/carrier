@@ -11,16 +11,16 @@
 # and so on) as they will fail if something goes wrong.
 
 use Carrier.{Accounts, Integrations, Reports, Setting, Billing, Payments, Roles}
-alias Carrier.TenantRepo
+alias Carrier.Repo
 alias Carrier.Tenant
 
 now = DateTime.utc_now()
 
 Tenant.put_org_id(:skip)
 
-TenantRepo.transaction(fn ->
+Repo.transaction(fn ->
   {_, [org0, org1]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       Org,
       [
         %{name: "org0", industry: "IT 서비스", employee_count: "1~4명"},
@@ -30,20 +30,20 @@ TenantRepo.transaction(fn ->
     )
 
   {_, [admin_role, _, trial_plan_role, basic_plan_role]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       Role,
       Role.default_roles(),
       returning: true
     )
 
   {_, _} =
-    TenantRepo.insert_all(User, [
+    Repo.insert_all(User, [
       %{org_id: org0.org_id, email: "nallwhy@gmail.com", role_id: admin_role.id},
       %{org_id: org1.org_id, email: "wonny727@gmail.com", role_id: admin_role.id}
     ])
 
   {_, [conn_info0, conn_info1, conn_info2, conn_info3]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       ConnInfo,
       [
         %{
@@ -95,7 +95,7 @@ TenantRepo.transaction(fn ->
     )
 
   {_, [data_target0, data_target1]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       DataTarget,
       [
         %{
@@ -113,7 +113,7 @@ TenantRepo.transaction(fn ->
     )
 
   {_, [data_source0, data_source1]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       DataSource,
       [
         %{
@@ -133,7 +133,7 @@ TenantRepo.transaction(fn ->
     )
 
   {_, [report_info0, report_info1]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       ReportInfo,
       [
         %{org_id: org0.org_id},
@@ -143,7 +143,7 @@ TenantRepo.transaction(fn ->
     )
 
   {_, [report0, report1]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       Report,
       [
         %{
@@ -218,17 +218,17 @@ TenantRepo.transaction(fn ->
   {:ok, _} = Reports.create_job_from_report(report1, now)
 
   {3, _} =
-    TenantRepo.insert_all(FeatureFlag, [
+    Repo.insert_all(FeatureFlag, [
       %{key: "test", description: "for testing", value: false},
       %{key: "data_source_athena", description: "athena", value: true},
       %{key: "data_source_tableau", description: "tableau", value: true}
     ])
 
   {1, _} =
-    TenantRepo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
+    Repo.insert_all(Property, [%{key: "max_data_source_count", type: :integer, value: 100}])
 
   {_, [_trial_plan, _basic_monthly_plan, pro_monthly_plan | _]} =
-    TenantRepo.insert_all(
+    Repo.insert_all(
       Plan,
       [
         %{
@@ -278,7 +278,7 @@ TenantRepo.transaction(fn ->
       returning: true
     )
 
-  TenantRepo.insert_all(
+  Repo.insert_all(
     CreditCard,
     [
       %{
@@ -301,7 +301,7 @@ TenantRepo.transaction(fn ->
   )
 
   {_, _} =
-    TenantRepo.insert_all(Subscription, [
+    Repo.insert_all(Subscription, [
       %{
         org_id: org0.org_id,
         plan_id: pro_monthly_plan.id,

@@ -2,11 +2,9 @@ defmodule Carrier.Roles.RoleTest do
   use Carrier.DataCase, async: true
   alias Carrier.Roles.Role
 
-  @moduletag repo: TenantRepo
-
   describe "report_max_count/1" do
     test "with infinity permission" do
-      role = TenantFactory.insert(:role, permissions: ["reports.max-count.infinity"])
+      role = Factory.insert(:role, permissions: ["reports.max-count.infinity"])
 
       actual = role |> Role.report_max_count()
 
@@ -14,8 +12,8 @@ defmodule Carrier.Roles.RoleTest do
     end
 
     test "with count permission" do
-      max_count = TenantFactory.build(:integer)
-      role = TenantFactory.insert(:role, permissions: ["reports.max-count.#{max_count}"])
+      max_count = Factory.build(:integer)
+      role = Factory.insert(:role, permissions: ["reports.max-count.#{max_count}"])
 
       actual = role |> Role.report_max_count()
 
@@ -23,7 +21,7 @@ defmodule Carrier.Roles.RoleTest do
     end
 
     test "without permission" do
-      role = TenantFactory.insert(:role, permissions: [])
+      role = Factory.insert(:role, permissions: [])
 
       actual = role |> Role.report_max_count()
 
@@ -33,7 +31,7 @@ defmodule Carrier.Roles.RoleTest do
 
   describe "data_source_max_count/1" do
     test "with infinity permission" do
-      role = TenantFactory.insert(:role, permissions: ["data-source.max-count.infinity"])
+      role = Factory.insert(:role, permissions: ["data-source.max-count.infinity"])
 
       actual = role |> Role.data_source_max_count()
 
@@ -41,8 +39,8 @@ defmodule Carrier.Roles.RoleTest do
     end
 
     test "with count permission" do
-      max_count = TenantFactory.build(:integer)
-      role = TenantFactory.insert(:role, permissions: ["data-source.max-count.#{max_count}"])
+      max_count = Factory.build(:integer)
+      role = Factory.insert(:role, permissions: ["data-source.max-count.#{max_count}"])
 
       actual = role |> Role.data_source_max_count()
 
@@ -50,7 +48,7 @@ defmodule Carrier.Roles.RoleTest do
     end
 
     test "without permission" do
-      role = TenantFactory.insert(:role, permissions: [])
+      role = Factory.insert(:role, permissions: [])
 
       actual = role |> Role.data_source_max_count()
 

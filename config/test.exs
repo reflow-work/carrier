@@ -5,7 +5,8 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-repo_envs = [
+
+config :carrier, Carrier.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
@@ -13,10 +14,6 @@ repo_envs = [
   port: 48140,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
-]
-
-config :carrier, Carrier.Repo, repo_envs
-config :carrier, Carrier.TenantRepo, repo_envs
 
 config :carrier, Carrier.Dynamic.PostgresRepo,
   username: "postgres",
@@ -64,4 +61,4 @@ config :carrier, Carrier.Core.Cache, force_ttl: 0
 
 config :google_certs, auto_start?: false
 
-config :doumi, :default_repo, Carrier.TenantRepo
+config :doumi, :default_repo, Carrier.Repo

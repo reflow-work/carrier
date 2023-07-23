@@ -1,23 +1,21 @@
 defmodule Carrier.BillingTest do
   use Carrier.DataCase
   use Carrier.{Billing, Payments}
-  use Oban.Testing, repo: Carrier.TenantRepo
-  alias Carrier.TenantFactory
+  use Oban.Testing, repo: Carrier.Repo
+  alias Carrier.Factory
   alias Carrier.ExternalHelper
-
-  @moduletag repo: TenantRepo
 
   describe "start_subscription/1" do
     setup do
-      org = TenantFactory.insert(:org)
-      admin_role = TenantFactory.insert(:role, name: "Admin")
+      org = Factory.insert(:org)
+      admin_role = Factory.insert(:role, name: "Admin")
 
       Tenant.put_org_id(org.org_id)
 
-      billing_user = TenantFactory.insert(:user, org: org, role: admin_role)
-      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+      billing_user = Factory.insert(:user, org: org, role: admin_role)
+      credit_card = Factory.insert(:credit_card, org_id: org.org_id)
 
-      trial_plan = TenantFactory.insert(:plan, type: :trial)
+      trial_plan = Factory.insert(:plan, type: :trial)
 
       %{org: org, trial_plan: trial_plan, billing_user: billing_user, credit_card: credit_card}
     end
@@ -29,8 +27,8 @@ defmodule Carrier.BillingTest do
            billing_user: billing_user,
            credit_card: credit_card
          } do
-      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :monthly)
-      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
+      plan = Factory.insert(:plan, type: :paid, billing_cycle: :monthly)
+      Factory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
       now = ~U[2023-04-10 09:00:00Z]
 
       # prepare for activation
@@ -63,7 +61,7 @@ defmodule Carrier.BillingTest do
 
       # confirmed payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(created_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> Repo.get(created_subscription.payment_id)
 
       assert payment.org_id == created_subscription.org_id
       assert payment.credit_card_id == credit_card.id
@@ -85,7 +83,7 @@ defmodule Carrier.BillingTest do
       # created pending subscription
 
       assert %Subscription{} =
-               pending_subscription = Subscription |> TenantRepo.get_by(status: :pending)
+               pending_subscription = Subscription |> Repo.get_by(status: :pending)
 
       assert pending_subscription.org_id == created_subscription.org_id
       assert pending_subscription.plan_id == created_subscription.plan_id
@@ -105,8 +103,8 @@ defmodule Carrier.BillingTest do
       billing_user: billing_user,
       credit_card: credit_card
     } do
-      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :yearly)
-      TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
+      plan = Factory.insert(:plan, type: :paid, billing_cycle: :yearly)
+      Factory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :expired)
       now = ~U[2023-04-10 09:00:00Z]
 
       ExternalHelper.TossPayments.prepare_bill(%{
@@ -152,7 +150,7 @@ defmodule Carrier.BillingTest do
       assert created_subscription.expired_at == nil
 
       # no pending subscription is created
-      assert Subscription |> TenantRepo.all() |> Enum.count() == 1
+      assert Subscription |> Repo.all() |> Enum.count() == 1
 
       # SubscriptionExpiringJob is enqueued
 
@@ -184,7 +182,7 @@ defmodule Carrier.BillingTest do
     end
 
     test "with invalid plan_id", %{org: org} do
-      _plan = TenantFactory.insert(:plan)
+      _plan = Factory.insert(:plan)
       now = ~U[2023-04-10 09:00:00Z]
 
       params = %{
@@ -199,13 +197,13 @@ defmodule Carrier.BillingTest do
 
   describe "expire_subscription/1" do
     setup do
-      org = TenantFactory.insert(:org)
-      admin_role = TenantFactory.insert(:role, name: "Admin")
+      org = Factory.insert(:org)
+      admin_role = Factory.insert(:role, name: "Admin")
 
       Tenant.put_org_id(org.org_id)
 
-      billing_user = TenantFactory.insert(:user, org: org, role: admin_role)
-      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+      billing_user = Factory.insert(:user, org: org, role: admin_role)
+      credit_card = Factory.insert(:credit_card, org_id: org.org_id)
 
       %{org: org, billing_user: billing_user, credit_card: credit_card}
     end
@@ -215,10 +213,10 @@ defmodule Carrier.BillingTest do
       billing_user: billing_user,
       credit_card: credit_card
     } do
-      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :monthly)
+      plan = Factory.insert(:plan, type: :paid, billing_cycle: :monthly)
 
       subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           org_id: org.org_id,
           plan: plan,
           origin_subscription: nil,
@@ -229,7 +227,7 @@ defmodule Carrier.BillingTest do
         )
 
       pending_subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           org_id: org.org_id,
           plan: plan,
           origin_subscription: subscription,
@@ -257,7 +255,7 @@ defmodule Carrier.BillingTest do
       # activate pending subscription
 
       assert %Subscription{} =
-               activated_subscription = Subscription |> TenantRepo.get(pending_subscription.id)
+               activated_subscription = Subscription |> Repo.get(pending_subscription.id)
 
       assert activated_subscription.payment_id != nil
       assert activated_subscription.status == :active
@@ -265,7 +263,7 @@ defmodule Carrier.BillingTest do
 
       # confirmed payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(activated_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> Repo.get(activated_subscription.payment_id)
 
       assert payment.org_id == activated_subscription.org_id
       assert payment.credit_card_id == credit_card.id
@@ -274,7 +272,7 @@ defmodule Carrier.BillingTest do
       # created pending subscription
 
       assert %Subscription{} =
-               pending_subscription = Subscription |> TenantRepo.get_by(status: :pending)
+               pending_subscription = Subscription |> Repo.get_by(status: :pending)
 
       assert pending_subscription.org_id == activated_subscription.org_id
       assert pending_subscription.plan_id == activated_subscription.plan_id
@@ -292,7 +290,7 @@ defmodule Carrier.BillingTest do
 
       # pending payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(pending_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> Repo.get(pending_subscription.payment_id)
 
       assert payment.org_id == pending_subscription.org_id
       assert payment.credit_card_id == nil
@@ -306,11 +304,11 @@ defmodule Carrier.BillingTest do
       billing_user: billing_user,
       credit_card: credit_card
     } do
-      trial_plan = TenantFactory.insert(:plan, type: :trial)
-      plan = TenantFactory.insert(:plan, type: :paid, billing_cycle: :monthly)
+      trial_plan = Factory.insert(:plan, type: :trial)
+      plan = Factory.insert(:plan, type: :paid, billing_cycle: :monthly)
 
       trial_subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           org_id: org.org_id,
           plan: trial_plan,
           start_on: ~U[2023-03-20 15:00:00Z],
@@ -319,7 +317,7 @@ defmodule Carrier.BillingTest do
         )
 
       pending_subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           org_id: org.org_id,
           plan: plan,
           origin_subscription: nil,
@@ -343,7 +341,7 @@ defmodule Carrier.BillingTest do
       # activated pending subscription
 
       %Subscription{} =
-        activated_subscription = Subscription |> TenantRepo.get(pending_subscription.id)
+        activated_subscription = Subscription |> Repo.get(pending_subscription.id)
 
       assert activated_subscription.status == :active
       assert activated_subscription.activated_at != nil
@@ -351,7 +349,7 @@ defmodule Carrier.BillingTest do
 
       # created payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(activated_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> Repo.get(activated_subscription.payment_id)
 
       assert payment.org_id == activated_subscription.org_id
       assert payment.credit_card_id == credit_card.id
@@ -361,7 +359,7 @@ defmodule Carrier.BillingTest do
       # created pending subscription
 
       assert %Subscription{} =
-               pending_subscription = Subscription |> TenantRepo.get_by(status: :pending)
+               pending_subscription = Subscription |> Repo.get_by(status: :pending)
 
       assert pending_subscription.org_id == activated_subscription.org_id
       assert pending_subscription.plan_id == activated_subscription.plan_id
@@ -376,7 +374,7 @@ defmodule Carrier.BillingTest do
 
       # pending payment
 
-      assert %Payment{} = payment = Payment |> TenantRepo.get(pending_subscription.payment_id)
+      assert %Payment{} = payment = Payment |> Repo.get(pending_subscription.payment_id)
 
       assert payment.org_id == pending_subscription.org_id
       assert payment.credit_card_id == nil
@@ -390,7 +388,7 @@ defmodule Carrier.BillingTest do
     end
 
     test "with not active subscription", %{org: org} do
-      subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :expired)
+      subscription = Factory.insert(:subscription, org_id: org.org_id, status: :expired)
 
       assert {:error, :subscription_to_expire_not_exist} =
                Billing.expire_subscription(subscription.id)
@@ -399,11 +397,11 @@ defmodule Carrier.BillingTest do
 
   describe "fetch_subscription/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
-      subscription = TenantFactory.insert(:subscription, org_id: org.org_id, status: :active)
+      subscription = Factory.insert(:subscription, org_id: org.org_id, status: :active)
 
       %{subscription: subscription}
     end
@@ -428,21 +426,21 @@ defmodule Carrier.BillingTest do
 
   describe "fetch_active_subscription/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
-      plan = TenantFactory.insert(:plan)
+      plan = Factory.insert(:plan)
 
       %{org: org, plan: plan}
     end
 
     test "with valid subscription", %{org: org, plan: plan} do
-      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
-      payment = TenantFactory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
+      credit_card = Factory.insert(:credit_card, org_id: org.org_id)
+      payment = Factory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
 
       subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           status: :active,
           org_id: org.org_id,
           plan: plan,
@@ -460,7 +458,7 @@ defmodule Carrier.BillingTest do
 
     test "with deleted subscription", %{org: org, plan: plan} do
       subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           status: :active,
           org_id: org.org_id,
           plan: plan,
@@ -472,7 +470,7 @@ defmodule Carrier.BillingTest do
     end
 
     test "without payment", %{org: org, plan: plan} do
-      TenantFactory.insert(:subscription,
+      Factory.insert(:subscription,
         status: :active,
         org_id: org.org_id,
         plan: plan,
@@ -487,21 +485,21 @@ defmodule Carrier.BillingTest do
 
   describe "fetch_pending_subscription/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
-      plan = TenantFactory.insert(:plan)
+      plan = Factory.insert(:plan)
 
       %{org: org, plan: plan}
     end
 
     test "with valid subscription", %{org: org, plan: plan} do
-      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
-      payment = TenantFactory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
+      credit_card = Factory.insert(:credit_card, org_id: org.org_id)
+      payment = Factory.insert(:payment, org_id: org.org_id, credit_card: credit_card)
 
       subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           status: :pending,
           org_id: org.org_id,
           plan: plan,
@@ -518,7 +516,7 @@ defmodule Carrier.BillingTest do
 
     test "with deleted subscription", %{org: org, plan: plan} do
       subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           status: :pending,
           org_id: org.org_id,
           plan: plan,
@@ -530,7 +528,7 @@ defmodule Carrier.BillingTest do
     end
 
     test "without payment", %{org: org, plan: plan} do
-      TenantFactory.insert(:subscription,
+      Factory.insert(:subscription,
         status: :pending,
         org_id: org.org_id,
         plan: plan,
@@ -545,25 +543,25 @@ defmodule Carrier.BillingTest do
 
   describe "get_active_trial_subscription/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
-      trial_plan = TenantFactory.insert(:plan, type: :trial)
+      trial_plan = Factory.insert(:plan, type: :trial)
 
       %{org: org, trial_plan: trial_plan}
     end
 
     test "with active trial subscription", %{org: org, trial_plan: trial_plan} do
       subscription =
-        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+        Factory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
 
       assert %Subscription{} = fetched_subscription = Billing.get_active_trial_subscription()
       assert same_records?(fetched_subscription, subscription)
     end
 
     test "with deleted subscription", %{org: org, trial_plan: trial_plan} do
-      TenantFactory.insert(:subscription,
+      Factory.insert(:subscription,
         org_id: org.org_id,
         plan: trial_plan,
         status: :active,
@@ -575,7 +573,7 @@ defmodule Carrier.BillingTest do
 
     test "without active trial subscription", %{org: org, trial_plan: trial_plan} do
       _expired_trial_subscription =
-        TenantFactory.insert(:subscription,
+        Factory.insert(:subscription,
           org_id: org.org_id,
           plan: trial_plan,
           status: :expired
@@ -587,7 +585,7 @@ defmodule Carrier.BillingTest do
 
   describe "have_active_subscription/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
@@ -595,19 +593,19 @@ defmodule Carrier.BillingTest do
     end
 
     test "with trial plan", %{org: org} do
-      trial_plan = TenantFactory.insert(:plan, type: :trial)
+      trial_plan = Factory.insert(:plan, type: :trial)
 
       _subscription =
-        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+        Factory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
 
       assert Billing.have_active_subscription?() == true
     end
 
     test "with paid plan", %{org: org} do
-      plan = TenantFactory.insert(:plan, type: :paid)
+      plan = Factory.insert(:plan, type: :paid)
 
       _subscription =
-        TenantFactory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
+        Factory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
 
       assert Billing.have_active_subscription?() == true
     end
@@ -615,7 +613,7 @@ defmodule Carrier.BillingTest do
 
   describe "have_active_non_trial_subscription/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
@@ -623,19 +621,19 @@ defmodule Carrier.BillingTest do
     end
 
     test "with trial plan", %{org: org} do
-      trial_plan = TenantFactory.insert(:plan, type: :trial)
+      trial_plan = Factory.insert(:plan, type: :trial)
 
       _subscription =
-        TenantFactory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
+        Factory.insert(:subscription, org_id: org.org_id, plan: trial_plan, status: :active)
 
       assert Billing.have_active_non_trial_subscription?() == false
     end
 
     test "with paid plan", %{org: org} do
-      plan = TenantFactory.insert(:plan, type: :paid)
+      plan = Factory.insert(:plan, type: :paid)
 
       _subscription =
-        TenantFactory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
+        Factory.insert(:subscription, org_id: org.org_id, plan: plan, status: :active)
 
       assert Billing.have_active_non_trial_subscription?() == true
     end

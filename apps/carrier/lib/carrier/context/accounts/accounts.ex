@@ -1,7 +1,7 @@
 defmodule Carrier.Accounts do
   alias Carrier.Accounts.{Org, User, Super}
   alias Carrier.Roles.Super, as: RolesSuper
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
 
   defmacro __using__([]) do
     quote do
@@ -12,7 +12,7 @@ defmodule Carrier.Accounts do
 
   def fetch_org() do
     Org
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %Org{} = org -> {:ok, org}
       nil -> {:error, {:resource_not_found, %{target: Org}}}
@@ -21,7 +21,7 @@ defmodule Carrier.Accounts do
 
   def update_org(attrs) do
     with {:ok, %Org{} = org} <- fetch_org(),
-         {:ok, %Org{} = updated_org} <- Org.update(org, attrs) |> TenantRepo.update() do
+         {:ok, %Org{} = updated_org} <- Org.update(org, attrs) |> Repo.update() do
       {:ok, updated_org}
     end
   end
@@ -29,7 +29,7 @@ defmodule Carrier.Accounts do
   def fetch_user(user_id) do
     User.get(user_id)
     |> User.preload_org()
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %User{} = user ->
         user_with_role = user |> Super.postload_role()
@@ -47,7 +47,7 @@ defmodule Carrier.Accounts do
 
     User.fetch_billing(admin_role.id)
     |> User.preload_org()
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %User{} = user -> {:ok, user}
       nil -> {:error, {:resource_not_found, %{target: User, conditions: %{role: :billing}}}}
@@ -56,14 +56,14 @@ defmodule Carrier.Accounts do
 
   def update_user(user_id, attrs) do
     with {:ok, %User{} = user} <- fetch_user(user_id),
-         {:ok, %User{} = updated_user} <- User.update(user, attrs) |> TenantRepo.update() do
+         {:ok, %User{} = updated_user} <- User.update(user, attrs) |> Repo.update() do
       {:ok, updated_user}
     end
   end
 
   def list_users() do
     User.list()
-    |> TenantRepo.all()
+    |> Repo.all()
     |> then(&{:ok, &1})
   end
 end

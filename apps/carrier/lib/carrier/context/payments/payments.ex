@@ -2,7 +2,7 @@ defmodule Carrier.Payments do
   require Logger
   alias Carrier.Payments.{CreditCard, Payment}
   alias Carrier.External
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
   alias Carrier.Core.Crypto
 
   defmacro __using__(_opts) do
@@ -35,7 +35,7 @@ defmodule Carrier.Payments do
   # Assumption: There is only one CreditCard per Org.
   def fetch_default_credit_card() do
     CreditCard.fetch_default()
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %CreditCard{} = credit_card ->
         {:ok, credit_card}
@@ -47,7 +47,7 @@ defmodule Carrier.Payments do
 
   def create_payment(%{org_id: org_id, amount: amount, currency: currency}) do
     Payment.create(%{org_id: org_id, amount: amount, currency: currency})
-    |> TenantRepo.insert()
+    |> Repo.insert()
   end
 
   def process_payment(payment_id, %{
@@ -74,13 +74,13 @@ defmodule Carrier.Payments do
 
   def list_confirmed_payments() do
     Payment.list_confirmed()
-    |> TenantRepo.all()
+    |> Repo.all()
     |> then(&{:ok, &1})
   end
 
   defp do_create_credit_card(params) do
     CreditCard.create(params)
-    |> TenantRepo.insert()
+    |> Repo.insert()
   end
 
   defp request_credit_card_info(:toss_payments, %{
@@ -97,7 +97,7 @@ defmodule Carrier.Payments do
 
   defp fetch_payment(payment_id) do
     Payment.fetch(payment_id)
-    |> TenantRepo.one()
+    |> Repo.one()
     |> case do
       %Payment{} = payment ->
         {:ok, payment}
@@ -190,7 +190,7 @@ defmodule Carrier.Payments do
       item: item,
       payload: payload
     })
-    |> TenantRepo.update()
+    |> Repo.update()
   end
 
   defp fail_payment(%Payment{} = payment, reason) do
@@ -199,6 +199,6 @@ defmodule Carrier.Payments do
       failed_at: DateTime.utc_now(),
       payload: reason
     })
-    |> TenantRepo.update()
+    |> Repo.update()
   end
 end

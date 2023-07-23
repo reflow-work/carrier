@@ -1,7 +1,7 @@
 defmodule Carrier.Reports.Super do
   use Carrier.Core.Cache
   alias Carrier.Reports.ReportLog
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
 
   @decorate cacheable(
               cache: Cache.Local,
@@ -10,7 +10,7 @@ defmodule Carrier.Reports.Super do
             )
   def get_report_log_count() do
     ReportLog
-    |> TenantRepo.aggregate(:count, :id, org_id: :skip)
+    |> Repo.aggregate(:count, :id, org_id: :skip)
     |> then(&{:ok, &1})
   end
 end
