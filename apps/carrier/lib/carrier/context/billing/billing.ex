@@ -41,7 +41,7 @@ defmodule Carrier.Billing do
     end)
   end
 
-  def create_subscription(%{org_id: org_id, plan_id: plan_id} = params) do
+  defp create_subscription(%{org_id: org_id, plan_id: plan_id} = params) do
     Repo.wrap_transaction(fn ->
       with {:ok, %Plan{subscribable: subscribable, price: price, currency: currency}} <-
              Super.fetch_plan(plan_id),
@@ -68,6 +68,7 @@ defmodule Carrier.Billing do
              Subscription.activate(pending_subscription, %{activated_at: DateTime.utc_now()})
              |> Repo.update(),
            {:ok, _} <- create_subscription_expiring_job(activated_subscription),
+           {:ok, _} <- post_process_activate_subscription(activated_subscription),
            {:ok, _} <- create_next_subscription(activated_subscription) do
         {:ok, activated_subscription}
       end
@@ -208,6 +209,13 @@ defmodule Carrier.Billing do
         "next SubscriptionExpiringJob of subscription_id: #{subscription_id} is scheduled_at #{inspect(end_on)}"
       )
     end)
+  end
+
+  defp post_process_activate_subscription(%Subscription{extension_count: extension_count}) do
+    case extension_count do
+      0 -> Reports.restart_all_report_jobs()
+      _ -> {:ok, nil}
+    end
   end
 
   defp create_next_subscription(
