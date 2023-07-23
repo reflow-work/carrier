@@ -5,7 +5,7 @@ defmodule Carrier.Reports do
   alias Carrier.Works
   alias Carrier.Repo
   alias Carrier.Tenant
-  alias Carrier.Core.DateTimeHelper
+  alias Carrier.Core.{DateTimeHelper, Traversable}
   alias Carrier.Const
   alias Carrier.Obfuscatable
 
@@ -196,7 +196,7 @@ defmodule Carrier.Reports do
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
              )
-             |> Repo.insert(),
+             |> Repo.insert(returning: true),
            {:ok, %ReportLog{}} <-
              record_scheduled_report_log(%{
                org_id: report.org_id,
@@ -213,6 +213,18 @@ defmodule Carrier.Reports do
         "next report job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}"
       )
     end)
+  end
+
+  def restart_all_report_jobs() do
+    now = DateTime.utc_now()
+
+    with {:ok, reports} <- list_reports(),
+         {:ok, report_jobs} <-
+           reports
+           |> Enum.map(fn report -> create_job_from_report(report, now) end)
+           |> Traversable.traverse_all() do
+      {:ok, report_jobs}
+    end
   end
 
   def cancel_all_report_jobs() do

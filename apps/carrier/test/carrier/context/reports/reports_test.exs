@@ -618,6 +618,53 @@ defmodule Carrier.ReportsTest do
     end
   end
 
+  describe "restart_all_report_jobs/0" do
+    setup do
+      now = DateTime.utc_now()
+
+      org = TenantFactory.insert(:org)
+      Tenant.put_org_id(org.org_id)
+
+      report_info0 = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info1 = TenantFactory.insert(:report_info, org_id: org.org_id)
+
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: now)
+
+      report0 = TenantFactory.insert(:report, org_id: org.org_id, report_info: report_info0)
+
+      _deleted_report1 =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: report_info1,
+          deleted_at: now
+        )
+
+      report1 = TenantFactory.insert(:report, org_id: org.org_id, report_info: report_info1)
+
+      _deleted_report2 =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: deleted_report_info,
+          deleted_at: now
+        )
+
+      _others_report = TenantFactory.insert(:report)
+
+      %{reports: [report0, report1]}
+    end
+
+    test "test", %{reports: [report0, report1]} do
+      assert {:ok, restarted_report_jobs} = Reports.restart_all_report_jobs()
+
+      assert restarted_report_jobs |> Enum.count() == 2
+
+      restarted_report_ids = restarted_report_jobs |> Enum.map(& &1.args["report_id"])
+
+      assert restarted_report_ids -- [report0.id, report1.id] == []
+    end
+  end
+
   describe "cancel_all_report_jobs/0" do
     setup do
       org = TenantFactory.insert(:org)
