@@ -16,7 +16,13 @@ defmodule Carrier.External.SlackAPI.Format do
   end
 
   defp interpret_node({"div", _attrs, children}) do
-    nodes_to_mrkdwn(children, "")
+    missing_new_line =
+      case children |> List.last() do
+        {"br", _attrs, _children} -> ""
+        _ -> "\n"
+      end
+
+    nodes_to_mrkdwn(children, "") <> missing_new_line
   end
 
   defp interpret_node({"strong", _attrs, children}) do
