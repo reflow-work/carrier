@@ -1,6 +1,6 @@
 defmodule CarrierWeb.AuthPlug do
   use CarrierWeb, :plug
-  import Phoenix.Controller, only: [redirect: 2, current_path: 1]
+  import Phoenix.Controller, only: [redirect: 2]
 
   alias Carrier.Accounts
   alias Carrier.Tenant
@@ -17,7 +17,6 @@ defmodule CarrierWeb.AuthPlug do
       _ ->
         conn
         |> clear_session()
-        |> put_session(:user_return_to, current_path(conn))
         |> redirect(to: ~p"/login")
         |> halt()
     end

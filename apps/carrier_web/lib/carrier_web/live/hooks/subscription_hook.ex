@@ -1,31 +1,17 @@
 defmodule CarrierWeb.SubscriptionHook do
   use CarrierWeb, :live_hook
   alias Carrier.Billing
-  alias Carrier.Setting
 
-  def on_mount(:default, _params, session, socket) do
-    case Setting.get_feature_flag_value("subscription") do
-      true ->
-        case Billing.have_active_subscription?() do
-          true ->
-            {:cont, socket}
+  def on_mount(:default, _params, _session, socket) do
+    socket =
+      case Billing.fetch_active_subscription() do
+        {:ok, subscription} ->
+          socket |> assign(:active_subscription, subscription)
 
-          _ ->
-            to = get_redirect_path(session["user_return_to"])
-            socket = socket |> push_navigate(to: to)
-            {:halt, socket}
-        end
+        _ ->
+          socket |> assign(:active_subscription, nil)
+      end
 
-      false ->
-        {:cont, socket}
-    end
-  end
-
-  defp get_redirect_path(user_return_to) do
-    case user_return_to do
-      nil -> "/app/subscriptions/new"
-      "" -> "/app/subscriptions/new"
-      _ -> user_return_to
-    end
+    {:cont, socket}
   end
 end

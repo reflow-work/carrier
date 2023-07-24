@@ -40,7 +40,7 @@ defmodule CarrierWeb.AuthController do
       conn
       |> put_session(:user_id, user_id)
       |> put_session(:org_id, org_id)
-      |> redirect(to: get_session(conn, :user_return_to) || ~p"/app/reports?redirected=true")
+      |> redirect(to: ~p"/app/reports?redirected=true")
     else
       error ->
         Logger.error("Google OAuth error: #{inspect(error)}")

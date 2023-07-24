@@ -7,20 +7,16 @@
     >
       리포트 발송 기록
     </.link>
-    <.link
+    <.link_button
       navigate={~p"/app/reports/new2"}
-      class={[
-        "btn btn-primary",
-        disabled_new_report_button(@active_subscription, @reports) &&
-          "!btn-disabled"
-      ]}
+      disabled={disabled_new_report_button(@active_subscription, @reports)}
       phx-click={js_log_event("click_new_report", %{page_name: "report_list"})}
     >
       새 리포트 생성
-      <span :if={disabled_new_report_button(@active_subscription, @reports)}>
+      <span :if={over_report_max_count(@active_subscription, @reports)}>
         (최대 개수 초과)
       </span>
-    </.link>
+    </.link_button>
   </.page_header>
 
   <section class="mt-6">

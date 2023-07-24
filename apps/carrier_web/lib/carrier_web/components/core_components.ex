@@ -240,6 +240,21 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(navigate patch href replace method)
+
+  slot :inner_block, required: true
+
+  def link_button(assigns) do
+    ~H"""
+    <.link class={@disabled && "cursor-not-allowed active:pointer-events-none"} {@rest} >
+      <.button disabled={@disabled}>
+        <%= render_slot(@inner_block) %>
+      </.button>
+    </.link>
+    """
+  end
+
   @doc """
   Renders an input with label and error messages.
 

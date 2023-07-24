@@ -4,7 +4,6 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Core.{WeekdayHelper, TimeHelper, Nillable}
   alias Carrier.Roles.Role
 
-  # TODO: remove it
   on_mount(CarrierWeb.DataTargetHook)
   on_mount(CarrierWeb.SubscriptionHook)
 
@@ -13,8 +12,6 @@ defmodule CarrierWeb.App.ReportLive.Index do
     socket =
       socket
       |> assign(:reports, [])
-      |> assign(:active_subscription, nil)
-      |> load_active_subscription()
       |> load_data_sources()
 
     socket =
@@ -114,33 +111,24 @@ defmodule CarrierWeb.App.ReportLive.Index do
     |> Timex.format!("#{weekday_name} {0h24}:{0m}")
   end
 
-  defp load_active_subscription(socket) do
-    case Billing.fetch_active_subscription() do
-      {:ok, subscription} ->
-        socket |> assign(:active_subscription, subscription)
-
-      _ ->
-        socket
-    end
-  end
-
   defp load_data_sources(socket) do
-    case Integrations.list_data_sources() do
-      {:ok, data_sources} -> socket |> assign(:data_sources, data_sources)
-      _ -> socket
+    {:ok, data_sources} = Integrations.list_data_sources()
+
+    socket
+    |> assign(:data_sources, data_sources)
+  end
+
+  defp disabled_new_report_button(maybe_subscription, reports) do
+    case maybe_subscription do
+      nil -> true
+      subscription -> over_report_max_count(subscription, reports)
     end
   end
 
-  # TODO: remove nil case
-
-  defp disabled_new_report_button(nil, _reports), do: false
-
-  defp disabled_new_report_button(subscription, reports) do
-    role = subscription.plan.role
-
-    case role |> Role.report_max_count() do
+  defp over_report_max_count(maybe_subscription, reports) do
+    case maybe_subscription do
       nil -> false
-      report_max_count -> report_max_count <= Enum.count(reports)
+      subscription -> Enum.count(reports) >= Role.report_max_count(subscription.plan.role)
     end
   end
 
