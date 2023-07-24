@@ -89,10 +89,11 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
               <div>현재 구독 중인 플랜이 없습니다.</div>
               <.link
                 :if={has_billing_payment_permission(@user)}
-                navigate={~p"/app/subscriptions/new"}
+                href={Const.get(:subscription_call_url)}
+                target="_blank"
                 class="text-primary-red font-bold mt-6 w-full flex items-center"
               >
-                구독하러 가기 <.icon name="hero-arrow-small-right-mini" class="w-6 h-6" />
+                구독 문의하기 <.icon name="hero-arrow-small-right-mini" class="w-6 h-6" />
               </.link>
             </div>
           <% end %>
