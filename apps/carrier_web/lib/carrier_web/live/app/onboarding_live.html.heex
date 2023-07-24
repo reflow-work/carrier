@@ -29,6 +29,7 @@
       <div>
         <.input id="agreed_terms_of_service" type="checkbox" field={f[:agreed_terms_of_service]}>
           <:label_element>
+            (필수)
             <a href={Const.get(:terms_of_service_url)} target="_blank" class="underline">
               이용약관
             </a>
@@ -38,6 +39,7 @@
 
         <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
           <:label_element>
+            (필수)
             <a href={Const.get(:privacy_policy_url)} target="_blank" class="underline">
               개인정보 처리방침
             </a>
