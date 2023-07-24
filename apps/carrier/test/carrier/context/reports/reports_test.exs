@@ -1,19 +1,17 @@
 defmodule Carrier.ReportsTest do
   use Carrier.DataCase, async: true
   use Carrier.Reports
-  use Oban.Testing, repo: Carrier.TenantRepo
-  alias Carrier.TenantFactory
-  alias Carrier.TenantRepo
+  use Oban.Testing, repo: Carrier.Repo
+  alias Carrier.Factory
+  alias Carrier.Repo
   alias Carrier.Core.DateTimeHelper
-
-  @moduletag repo: TenantRepo
 
   describe "fetch_report_info/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report_info = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info = Factory.insert(:report_info, org_id: org.org_id)
 
       %{org: org, report_info: report_info}
     end
@@ -25,7 +23,7 @@ defmodule Carrier.ReportsTest do
 
     test "with deleted report_info_id", %{org: org} do
       deleted_report_info =
-        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        Factory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       assert {:error, {:resource_not_found, _}} =
                Reports.fetch_report_info(deleted_report_info.id)
@@ -34,10 +32,10 @@ defmodule Carrier.ReportsTest do
 
   describe "create_report/1" do
     setup do
-      org = TenantFactory.insert(:org)
-      user = TenantFactory.insert(:user, org: org)
-      data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
-      data_source = TenantFactory.insert(:data_source, org_id: org.org_id, source: :postgres)
+      org = Factory.insert(:org)
+      user = Factory.insert(:user, org: org)
+      data_target = Factory.insert(:data_target, org_id: org.org_id)
+      data_source = Factory.insert(:data_source, org_id: org.org_id, source: :postgres)
 
       %{org: org, user: user, data_target: data_target, data_source: data_source}
     end
@@ -95,7 +93,7 @@ defmodule Carrier.ReportsTest do
       # ReportInfo
 
       assert %ReportInfo{} =
-               report_info = TenantRepo.get_by(ReportInfo, id: created_report.report_info_id)
+               report_info = Repo.get_by(ReportInfo, id: created_report.report_info_id)
 
       assert report_info.org_id == org.org_id
 
@@ -116,7 +114,7 @@ defmodule Carrier.ReportsTest do
 
       # ReportLog
 
-      report_log = TenantRepo.get_by(ReportLog, report_id: created_report.id)
+      report_log = Repo.get_by(ReportLog, report_id: created_report.id)
 
       assert report_log.org_id == created_report.org_id
       assert report_log.report_id == created_report.id
@@ -176,58 +174,58 @@ defmodule Carrier.ReportsTest do
 
   describe "list_reports/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report_info0 = TenantFactory.insert(:report_info, org_id: org.org_id)
-      report_info1 = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info0 = Factory.insert(:report_info, org_id: org.org_id)
+      report_info1 = Factory.insert(:report_info, org_id: org.org_id)
 
       deleted_report_info =
-        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        Factory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       now = DateTime.utc_now()
 
       report0 =
-        TenantFactory.insert(:report,
+        Factory.insert(:report,
           org_id: org.org_id,
           report_info: report_info0,
           created_at: now |> Timex.shift(days: -1)
         )
 
       report1 =
-        TenantFactory.insert(:report,
+        Factory.insert(:report,
           org_id: org.org_id,
           report_info: report_info1,
           created_at: now
         )
 
       _old_report =
-        TenantFactory.insert(:report,
+        Factory.insert(:report,
           org_id: org.org_id,
           report_info: report_info0,
           created_at: now |> Timex.shift(days: -2)
         )
 
       _deleted_report =
-        TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+        Factory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
 
-      _report_of_another_org = TenantFactory.insert(:report)
+      _report_of_another_org = Factory.insert(:report)
 
-      TenantFactory.insert(:report_log,
+      Factory.insert(:report_log,
         report: report0,
         status: :succeeded,
         scheduled_at: now |> Timex.shift(days: -2)
       )
 
       last_report_log0 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           status: :failed,
           scheduled_at: now |> Timex.shift(days: -1)
         )
 
       last_report_log1 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report1,
           status: :failed
         )
@@ -253,10 +251,10 @@ defmodule Carrier.ReportsTest do
 
   describe "fetch_report/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report = TenantFactory.insert(:report, org_id: org.org_id)
+      report = Factory.insert(:report, org_id: org.org_id)
 
       %{org: org, report: report}
     end
@@ -274,14 +272,14 @@ defmodule Carrier.ReportsTest do
 
     test "with deleted report_id", %{org: org} do
       deleted_report_info =
-        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        Factory.insert(:report_info, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
-      report = TenantFactory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
+      report = Factory.insert(:report, org_id: org.org_id, report_info: deleted_report_info)
 
       assert {:error, {:resource_not_found, %{target: Report}}} = Reports.fetch_report(report.id)
 
       deleted_report =
-        TenantFactory.insert(:report, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        Factory.insert(:report, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       assert {:error, {:resource_not_found, %{target: Report}}} =
                Reports.fetch_report(deleted_report.id)
@@ -290,10 +288,10 @@ defmodule Carrier.ReportsTest do
 
   describe "update_report/2" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report = TenantFactory.insert(:report, org_id: org.org_id)
+      report = Factory.insert(:report, org_id: org.org_id)
 
       %{report: report}
     end
@@ -339,10 +337,10 @@ defmodule Carrier.ReportsTest do
 
   describe "delete_report/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report = TenantFactory.insert(:report, org_id: org.org_id)
+      report = Factory.insert(:report, org_id: org.org_id)
 
       %{report: report}
     end
@@ -357,7 +355,7 @@ defmodule Carrier.ReportsTest do
       Tenant.put_org_id(:skip)
 
       assert %ReportInfo{} =
-               report_info = TenantRepo.get_by(ReportInfo, id: report.report_info_id)
+               report_info = Repo.get_by(ReportInfo, id: report.report_info_id)
 
       assert report_info.deleted_at != nil
     end
@@ -365,7 +363,7 @@ defmodule Carrier.ReportsTest do
 
   describe "record_scheduled_report_log/1" do
     setup do
-      report = TenantFactory.insert(:report)
+      report = Factory.insert(:report)
 
       %{report: report}
     end
@@ -396,8 +394,8 @@ defmodule Carrier.ReportsTest do
 
   describe "record_tried_report_log/1" do
     setup do
-      report = TenantFactory.insert(:report)
-      _report_log = TenantFactory.insert(:report_log, report: report, status: :scheduled)
+      report = Factory.insert(:report)
+      _report_log = Factory.insert(:report_log, report: report, status: :scheduled)
 
       Tenant.put_org_id(report.org_id)
 
@@ -417,8 +415,8 @@ defmodule Carrier.ReportsTest do
 
   describe "record_succeeded_report_log/1" do
     setup do
-      report = TenantFactory.insert(:report)
-      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
+      report = Factory.insert(:report)
+      _report_log = Factory.insert(:report_log, report: report, status: :tried)
 
       Tenant.put_org_id(report.org_id)
 
@@ -438,8 +436,8 @@ defmodule Carrier.ReportsTest do
 
   describe "record_failed_report_log/1" do
     setup do
-      report = TenantFactory.insert(:report)
-      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
+      report = Factory.insert(:report)
+      _report_log = Factory.insert(:report_log, report: report, status: :tried)
 
       Tenant.put_org_id(report.org_id)
 
@@ -463,8 +461,8 @@ defmodule Carrier.ReportsTest do
 
   describe "record_cancelled_report_log/1" do
     setup do
-      report = TenantFactory.insert(:report)
-      _report_log = TenantFactory.insert(:report_log, report: report, status: :tried)
+      report = Factory.insert(:report)
+      _report_log = Factory.insert(:report_log, report: report, status: :tried)
 
       Tenant.put_org_id(report.org_id)
 
@@ -482,7 +480,7 @@ defmodule Carrier.ReportsTest do
 
   describe "update_report_log/1" do
     setup do
-      report_log = TenantFactory.insert(:report_log, status: :tried)
+      report_log = Factory.insert(:report_log, status: :tried)
 
       %{report_log: report_log}
     end
@@ -501,27 +499,27 @@ defmodule Carrier.ReportsTest do
     setup do
       now = DateTime.utc_now()
 
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
-      report0 = TenantFactory.insert(:report, org_id: org.org_id)
-      report1 = TenantFactory.insert(:report, org_id: org.org_id)
+      report0 = Factory.insert(:report, org_id: org.org_id)
+      report1 = Factory.insert(:report, org_id: org.org_id)
 
       report_log0 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           status: :succeeded,
           scheduled_at: now |> Timex.shift(days: -2)
         )
 
       report_log1 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report1,
           status: :scheduled,
           scheduled_at: now |> Timex.shift(days: -1)
         )
 
       report_log2 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           status: :scheduled,
           scheduled_at: now |> Timex.shift(days: -1)
@@ -579,28 +577,28 @@ defmodule Carrier.ReportsTest do
     setup do
       now = DateTime.utc_now()
 
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report0 = TenantFactory.insert(:report, org_id: org.org_id)
-      report1 = TenantFactory.insert(:report, org_id: org.org_id)
+      report0 = Factory.insert(:report, org_id: org.org_id)
+      report1 = Factory.insert(:report, org_id: org.org_id)
 
       report_log0 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           status: :succeeded,
           scheduled_at: now |> Timex.shift(days: -2)
         )
 
       _report_log_of_another_report =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report1,
           status: :scheduled,
           scheduled_at: now |> Timex.shift(days: -1)
         )
 
       report_log1 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           status: :scheduled,
           scheduled_at: now |> Timex.shift(days: -1)

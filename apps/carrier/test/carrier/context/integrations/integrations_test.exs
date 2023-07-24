@@ -4,11 +4,9 @@ defmodule Carrier.IntegrationsTest do
   alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
   alias Carrier.ExternalHelper
 
-  @moduletag repo: TenantRepo
-
   describe "create_data_target/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
       valid_params = %{
@@ -36,7 +34,7 @@ defmodule Carrier.IntegrationsTest do
 
   describe "create_data_source/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
       params = %{
@@ -86,7 +84,7 @@ defmodule Carrier.IntegrationsTest do
 
   describe "create_conn_info/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       valid_params = %{
         org_id: org.org_id,
@@ -112,7 +110,7 @@ defmodule Carrier.IntegrationsTest do
     end
 
     test "with not unique {org_id, name}", %{org: org, valid_params: valid_params} do
-      TenantFactory.insert(:conn_info, org_id: org.org_id, name: valid_params.name)
+      Factory.insert(:conn_info, org_id: org.org_id, name: valid_params.name)
 
       assert_changeset_error(:name, "has already been taken", fn ->
         Integrations.create_conn_info(valid_params, :source)
@@ -129,11 +127,11 @@ defmodule Carrier.IntegrationsTest do
 
   describe "update_conn_info_of_data_target/2" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
-      data_target = TenantFactory.insert(:data_target, org_id: org.org_id, needs_update: true)
+      data_target = Factory.insert(:data_target, org_id: org.org_id, needs_update: true)
 
       %{data_target: data_target}
     end
@@ -158,10 +156,10 @@ defmodule Carrier.IntegrationsTest do
 
   describe "list_data_targets/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
-      data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
-      TenantFactory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
+      data_target = Factory.insert(:data_target, org_id: org.org_id)
+      Factory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       Tenant.put_org_id(data_target.org_id)
 
@@ -176,12 +174,12 @@ defmodule Carrier.IntegrationsTest do
 
   describe "fetch_data_target/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
-      data_target = TenantFactory.insert(:data_target, org_id: org.org_id)
+      data_target = Factory.insert(:data_target, org_id: org.org_id)
 
       deleted_data_target =
-        TenantFactory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        Factory.insert(:data_target, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       Tenant.put_org_id(data_target.org_id)
 
@@ -202,9 +200,9 @@ defmodule Carrier.IntegrationsTest do
 
   describe "list_data_source/0" do
     setup do
-      org = TenantFactory.insert(:org)
-      data_source = TenantFactory.insert(:data_source, org_id: org.org_id)
-      TenantFactory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
+      org = Factory.insert(:org)
+      data_source = Factory.insert(:data_source, org_id: org.org_id)
+      Factory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       Tenant.put_org_id(data_source.org_id)
 
@@ -221,11 +219,11 @@ defmodule Carrier.IntegrationsTest do
 
   describe "fetch_data_source/1" do
     setup do
-      org = TenantFactory.insert(:org)
-      data_source = TenantFactory.insert(:data_source)
+      org = Factory.insert(:org)
+      data_source = Factory.insert(:data_source)
 
       deleted_data_source =
-        TenantFactory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
+        Factory.insert(:data_source, org_id: org.org_id, deleted_at: DateTime.utc_now())
 
       Tenant.put_org_id(data_source.org_id)
 

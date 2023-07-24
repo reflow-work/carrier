@@ -1,6 +1,12 @@
 defmodule Carrier.Factory do
   use ExMachina.Ecto, repo: Carrier.Repo
-  use Carrier.{Accounts, Integrations, Reports, Setting, Billing}
+  use Carrier.{Accounts, Integrations, Reports, Setting, Payments, Billing, Roles}
+  alias Carrier.Repo
+  alias Carrier.Core.Crypto
+
+  def integer_factory(_attrs) do
+    Enum.random(0..10_000_000)
+  end
 
   def org_factory() do
     %Org{
@@ -9,10 +15,12 @@ defmodule Carrier.Factory do
   end
 
   def user_factory(attrs) do
-    {org, attrs} = attrs |> Map.pop_lazy(:org, fn -> insert(:org) end)
+    {org, attrs} = attrs |> Map.pop_lazy(:org, fn -> build(:org) end)
+    {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> build(:role) end)
 
     %User{
-      org_id: org.org_id,
+      org: org,
+      role: role,
       email: seq(:user_email, &"user-#{&1}@email.com")
     }
     |> merge_attributes(attrs)
@@ -23,16 +31,22 @@ defmodule Carrier.Factory do
 
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
-    {conn_info_id, attrs} =
+    {conn_info, attrs} =
       attrs
-      |> Map.pop_lazy(:conn_info_id, fn ->
-        insert(:conn_info, org_id: org_id, source: service_name).id
+      |> Map.pop_lazy(:conn_info, fn ->
+        build(:conn_info,
+          org_id: org_id,
+          source: service_name,
+          info: %{
+            bot_scope: "chat:write,channels:read,chat:write.public,groups:read,users:read,im:read"
+          }
+        )
       end)
 
     %DataTarget{
       org_id: org_id,
       service_name: Enum.random([:slack]),
-      conn_info_id: conn_info_id
+      conn_info: conn_info
     }
     |> merge_attributes(attrs)
   end
@@ -44,9 +58,7 @@ defmodule Carrier.Factory do
 
     {conn_info, attrs} =
       attrs
-      |> Map.pop_lazy(:conn_info, fn ->
-        insert(:conn_info, org_id: org_id, source: source)
-      end)
+      |> Map.pop_lazy(:conn_info, fn -> build(:conn_info, org_id: org_id, source: source) end)
 
     %DataSource{
       org_id: org_id,
@@ -89,8 +101,15 @@ defmodule Carrier.Factory do
   def report_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
 
+    {user, attrs} =
+      attrs
+      |> Map.pop_lazy(:user_id, fn ->
+        org = Repo.get_by(Org, %{org_id: org_id}, org_id: :skip)
+        insert(:user, org: org)
+      end)
+
     {report_info, attrs} =
-      attrs |> Map.pop_lazy(:report_info, fn -> insert(:report_info, org_id: org_id) end)
+      attrs |> Map.pop_lazy(:report_info, fn -> build(:report_info, org_id: org_id) end)
 
     {data_target_id, attrs} =
       attrs |> Map.pop_lazy(:data_target_id, fn -> insert(:data_target, org_id: org_id).id end)
@@ -100,22 +119,31 @@ defmodule Carrier.Factory do
 
     %Report{
       org_id: org_id,
+      user_id: user.id,
       report_info: report_info,
       name: seq(:report_name),
+      interval: [:daily] |> Enum.random(),
+      trigger_minute: 0..59 |> Enum.random(),
       trigger_time: Time.utc_now(),
       timezone: "Asia/Seoul",
       data_target_info: %{
-        "data_target_id" => data_target_id,
-        "channel_id" => "channel_id"
+        data_target_id: data_target_id,
+        target: :slack,
+        params: %{
+          channel_id: "channel_id",
+          channel_name: "channe_name",
+          channel_type: "public_channel"
+        }
       },
       data_source_info: %{
-        "data_source_info" => data_source_id,
-        "sql_template" => @sql_template,
-        "timezone" => "Asia/Seoul",
-        "period" => 28,
-        "window_size" => 7,
-        "comparing_period" => 7,
-        "columns" => ["total_revenue"]
+        data_source_id: data_source_id,
+        source: :postgres,
+        sql_template: @sql_template,
+        timezone: "Asia/Seoul",
+        period: 28,
+        window_size: 7,
+        comparing_period: 7,
+        columns: ["total_revenue"]
       }
     }
     |> merge_attributes(attrs)
@@ -123,7 +151,7 @@ defmodule Carrier.Factory do
 
   def report_log_factory(attrs) do
     {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
-    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> insert(:report, org_id: org_id) end)
+    {report, attrs} = attrs |> Map.pop_lazy(:report, fn -> build(:report, org_id: org_id) end)
     {status, attrs} = attrs |> Map.pop(:status, :scheduled)
 
     %ReportLog{
@@ -134,6 +162,133 @@ defmodule Carrier.Factory do
       created_at: DateTime.utc_now()
     }
     |> apply_status(status)
+    |> merge_attributes(attrs)
+  end
+
+  def plan_factory(attrs) do
+    {role, attrs} = attrs |> Map.pop_lazy(:role, fn -> build(:role) end)
+    {type, attrs} = attrs |> Map.pop(:type, :paid)
+
+    {billing_cycle, subscribable} =
+      case type do
+        :trial -> {:none, false}
+        :paid -> {attrs |> Map.get(:billing_cycle, Enum.random([:monthly, :yearly])), true}
+      end
+
+    {status, attrs} = attrs |> Map.pop(:status, :active)
+
+    %Plan{
+      billing_cycle: billing_cycle,
+      name: seq(:plan_name),
+      type: type,
+      price: Enum.random(0..10_000_000) |> Decimal.new(),
+      currency: :KRW,
+      description: [seq(:plan_description), seq(:plan_description)],
+      subscribable: subscribable,
+      role: role
+    }
+    |> apply_status(status)
+    |> merge_attributes(attrs)
+  end
+
+  def subscription_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+    {plan, attrs} = attrs |> Map.pop_lazy(:plan, fn -> build(:plan) end)
+
+    {payment, attrs} =
+      attrs
+      |> Map.pop_lazy(:payment, fn ->
+        case plan.subscribable do
+          true -> build(:payment, org_id: org_id, amount: plan.price, currency: plan.currency)
+          false -> nil
+        end
+      end)
+
+    {start_on, attrs} = attrs |> Map.pop(:start_on, DateTime.utc_now())
+    end_on = Plan.calc_end_on(plan, start_on, 0)
+    {status, attrs} = attrs |> Map.pop(:status, :pending)
+
+    %Subscription{
+      org_id: org_id,
+      plan: plan,
+      payment: payment,
+      extension_count: 0,
+      start_on: start_on,
+      end_on: end_on
+    }
+    |> apply_status(status, attrs)
+    |> merge_attributes(attrs)
+  end
+
+  def property_factory() do
+    %Property{
+      key: sequence(:property_key, &"key-#{&1}")
+    }
+  end
+
+  def feature_flag_factory(attrs) do
+    %FeatureFlag{
+      key: seq(:feature_flag_key),
+      description: seq(:feature_flag_description)
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def feature_flag_value_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+    {feature_flag, attrs} = attrs |> Map.pop_lazy(:feature_flag, fn -> build(:feature_flag) end)
+
+    %FeatureFlagValue{
+      org_id: org_id,
+      feature_flag: feature_flag,
+      feature_flag_key: feature_flag.key,
+      value: true
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def credit_card_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    %CreditCard{
+      org_id: org_id,
+      provider: Enum.random([:toss_payments]),
+      billing_key: seq(:credit_card_billing_key),
+      customer_key: org_id |> Crypto.obfuscate(),
+      card_company: Enum.random(["현대"]),
+      card_number: seq(:credit_card_card_number)
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def payment_factory(attrs) do
+    {org_id, attrs} = attrs |> Map.pop_lazy(:org_id, fn -> insert(:org).org_id end)
+
+    {credit_card, attrs} =
+      attrs
+      |> Map.pop_lazy(:credit_card, fn ->
+        case Repo.get_by(CreditCard, [org_id: org_id], org_id: :skip) do
+          nil -> build(:credit_card, org_id: org_id)
+          credit_card -> credit_card
+        end
+      end)
+
+    {status, attrs} = attrs |> Map.pop(:status, :confirmed)
+
+    %Payment{
+      org_id: org_id,
+      amount: Decimal.new(100_000),
+      currency: :KRW
+    }
+    |> apply_status(status, %{credit_card: credit_card})
+    |> merge_attributes(attrs)
+  end
+
+  def role_factory(attrs) do
+    %Role{
+      name: seq(:role_name),
+      permissions: [seq(:role_permission), seq(:role_permission)]
+    }
     |> merge_attributes(attrs)
   end
 
@@ -158,45 +313,74 @@ defmodule Carrier.Factory do
     })
   end
 
-  def plan_factory(attrs) do
-    type = attrs |> Map.get(:type, Enum.random([:trial, :paid]))
-
-    billing_cycle =
-      case type do
-        :trial -> :none
-        :paid -> Enum.random([:monthly, :yearly])
-      end
-
-    subscribable =
-      case billing_cycle do
-        :trial -> false
-        :paid -> true
-      end
-
-    %Plan{
-      billing_cycle: billing_cycle,
-      name: seq(:plan_name),
-      type: type,
-      price: Enum.random(0..10_000_000) |> Decimal.new(),
-      currency: :KRW,
-      description: [seq(:plan_description), seq(:plan_description)],
-      subscribable: subscribable
-    }
-    |> merge_attributes(attrs)
+  defp apply_status(%ReportLog{} = report_log, :failed) do
+    report_log
+    |> apply_status(:tried)
+    |> Map.merge(%{
+      status: :failed,
+      error_message: ":failed_to_record_tried_report_log",
+      failed_at: DateTime.utc_now()
+    })
   end
 
-  def property_factory() do
-    %Property{
-      key: sequence(:property_key, &"key-#{&1}")
-    }
+  defp apply_status(%Plan{} = plan, :active) do
+    plan
   end
 
-  def feature_flag_factory(attrs) do
-    %FeatureFlag{
-      key: seq(:feature_flag_key),
-      description: seq(:feature_flag_description)
-    }
-    |> merge_attributes(attrs)
+  defp apply_status(%Plan{} = plan, :deleted) do
+    plan
+    |> apply_status(:active)
+    |> Map.merge(%{deleted_at: DateTime.utc_now()})
+  end
+
+  defp apply_status(%Subscription{} = subscription, :pending, _attrs) do
+    subscription
+  end
+
+  defp apply_status(%Subscription{} = subscription, :active, attrs) do
+    subscription
+    |> apply_status(:pending, attrs)
+    |> Map.merge(%{
+      status: :active,
+      activated_at: DateTime.utc_now()
+    })
+  end
+
+  defp apply_status(%Subscription{} = subscription, :expired, attrs) do
+    subscription
+    |> apply_status(:active, attrs)
+    |> Map.merge(%{
+      status: :expired,
+      expired_at: DateTime.utc_now()
+    })
+  end
+
+  defp apply_status(%Payment{} = payment, :pending, _attrs) do
+    payment
+  end
+
+  defp apply_status(%Payment{} = payment, :confirmed, %{credit_card: credit_card} = attrs) do
+    payment
+    |> apply_status(:pending, attrs)
+    |> Map.merge(%{
+      status: :confirmed,
+      credit_card: credit_card,
+      confirmed_at: DateTime.utc_now(),
+      provider: credit_card.provider,
+      provider_key: seq(:payment_provider_key),
+      item: seq(:payment_item),
+      payload: %{}
+    })
+  end
+
+  defp apply_status(%Payment{} = payment, :failed, attrs) do
+    payment
+    |> apply_status(:pending, attrs)
+    |> Map.merge(%{
+      status: :failed,
+      failed_at: DateTime.utc_now(),
+      payload: %{}
+    })
   end
 
   defp seq(name) when is_atom(name) do

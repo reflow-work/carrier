@@ -1,7 +1,7 @@
 import Config
 
 # Configure your database
-repo_envs = [
+config :carrier, Carrier.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
@@ -9,10 +9,6 @@ repo_envs = [
   port: 48140,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
-]
-
-config :carrier, Carrier.Repo, repo_envs
-config :carrier, Carrier.TenantRepo, repo_envs
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

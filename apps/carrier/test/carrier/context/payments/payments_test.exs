@@ -4,11 +4,9 @@ defmodule Carrier.PaymentsTest do
   alias Carrier.ExternalHelper
   alias Carrier.Core.Crypto
 
-  @moduletag repo: Carrier.TenantRepo
-
   describe "create_credit_card/1 with toss_payments" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
       params = %{
@@ -57,10 +55,10 @@ defmodule Carrier.PaymentsTest do
 
   describe "fetch_default_credit_card/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+      credit_card = Factory.insert(:credit_card, org_id: org.org_id)
 
       %{credit_card: credit_card}
     end
@@ -81,7 +79,7 @@ defmodule Carrier.PaymentsTest do
 
   describe "create_payment/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
       params = %{
@@ -103,10 +101,10 @@ defmodule Carrier.PaymentsTest do
 
   describe "process_payment/1" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      payment = TenantFactory.insert(:payment, org_id: org.org_id, status: :pending)
+      payment = Factory.insert(:payment, org_id: org.org_id, status: :pending)
 
       params = %{
         order_id: "2MsAs0Bk0wKML",
@@ -120,7 +118,7 @@ defmodule Carrier.PaymentsTest do
 
     test "with valid params", %{payment: payment, params: params} do
       credit_card =
-        TenantFactory.insert(:credit_card, org_id: payment.org_id, provider: :toss_payments)
+        Factory.insert(:credit_card, org_id: payment.org_id, provider: :toss_payments)
 
       resp =
         ExternalHelper.TossPayments.prepare_bill(%{
@@ -149,7 +147,7 @@ defmodule Carrier.PaymentsTest do
 
     test "with expired credit_card", %{payment: payment, params: params} do
       credit_card =
-        TenantFactory.insert(:credit_card, org_id: payment.org_id, provider: :toss_payments)
+        Factory.insert(:credit_card, org_id: payment.org_id, provider: :toss_payments)
 
       ExternalHelper.TossPayments.prepare_bill(
         %{
@@ -176,23 +174,23 @@ defmodule Carrier.PaymentsTest do
 
   describe "list_confirmed_payments/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
 
       Tenant.put_org_id(org.org_id)
 
-      credit_card = TenantFactory.insert(:credit_card, org_id: org.org_id)
+      credit_card = Factory.insert(:credit_card, org_id: org.org_id)
 
       now = DateTime.utc_now()
 
       _pending_payment =
-        TenantFactory.insert(:payment,
+        Factory.insert(:payment,
           org_id: org.org_id,
           credit_card: credit_card,
           status: :pending
         )
 
       confirmed_payment0 =
-        TenantFactory.insert(:payment,
+        Factory.insert(:payment,
           org_id: org.org_id,
           credit_card: credit_card,
           status: :confirmed,
@@ -200,7 +198,7 @@ defmodule Carrier.PaymentsTest do
         )
 
       confirmed_payment1 =
-        TenantFactory.insert(:payment,
+        Factory.insert(:payment,
           org_id: org.org_id,
           credit_card: credit_card,
           status: :confirmed,
@@ -208,7 +206,7 @@ defmodule Carrier.PaymentsTest do
         )
 
       _deleted_payment =
-        TenantFactory.insert(:payment,
+        Factory.insert(:payment,
           org_id: org.org_id,
           credit_card: credit_card,
           status: :confirmed,
@@ -217,13 +215,13 @@ defmodule Carrier.PaymentsTest do
         )
 
       _failed_payment =
-        TenantFactory.insert(:payment,
+        Factory.insert(:payment,
           org_id: org.org_id,
           credit_card: credit_card,
           status: :failed
         )
 
-      _others_confirmed_payment = TenantFactory.insert(:payment, status: :confirmed)
+      _others_confirmed_payment = Factory.insert(:payment, status: :confirmed)
 
       %{payment: [confirmed_payment0, confirmed_payment1]}
     end

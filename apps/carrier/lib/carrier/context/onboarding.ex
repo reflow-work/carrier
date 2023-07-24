@@ -1,6 +1,6 @@
 defmodule Carrier.Context.Onboarding do
   use Carrier.{Accounts, Integrations, Billing}
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
 
   def onboard(%{
         org_id: org_id,
@@ -12,7 +12,7 @@ defmodule Carrier.Context.Onboarding do
       }) do
     now = DateTime.utc_now()
 
-    TenantRepo.wrap_transaction(fn ->
+    Repo.wrap_transaction(fn ->
       with {:ok, %Org{}} <-
              Accounts.update_org(%{
                name: name,

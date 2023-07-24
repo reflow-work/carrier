@@ -15,12 +15,11 @@ defmodule Carrier.DataCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Carrier.TenantRepo
-  alias Carrier.Core.Nillable
+  alias Carrier.Repo
 
   using do
     quote do
-      alias Carrier.{Repo, TenantRepo}
+      alias Carrier.Repo
       alias Carrier.Tenant
 
       import Ecto
@@ -30,25 +29,14 @@ defmodule Carrier.DataCase do
       import Doumi.CaseHelper
       import Doumi.EctoCaseHelper, except: [reload!: 1, reload!: 2]
 
-      alias Carrier.{Factory, TenantFactory}
+      alias Carrier.{Factory, Factory}
     end
   end
 
   setup tags do
-    repos = tags[:repos] || tags[:repo] |> Nillable.map(&[&1]) || [Carrier.TenantRepo]
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Carrier.Repo, shared: not tags[:async])
 
-    pids =
-      repos
-      |> Enum.map(fn repo ->
-        Ecto.Adapters.SQL.Sandbox.start_owner!(repo, shared: not tags[:async])
-      end)
-
-    on_exit(fn ->
-      pids
-      |> Enum.map(fn pid ->
-        Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
-      end)
-    end)
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
 
     :ok
   end
@@ -69,7 +57,7 @@ defmodule Carrier.DataCase do
     end)
   end
 
-  def soft_delete!(struct, repo \\ TenantRepo) do
+  def soft_delete!(struct, repo \\ Repo) do
     struct
     |> Ecto.Changeset.change(deleted_at: DateTime.utc_now())
     |> repo.update!()

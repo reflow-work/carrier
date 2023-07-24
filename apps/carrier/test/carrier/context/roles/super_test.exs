@@ -2,11 +2,9 @@ defmodule Carrier.Roles.SuperTest do
   use Carrier.DataCase, async: true
   use Carrier.Roles
 
-  @moduletag repo: TenantRepo
-
   describe "fetch_role_by_name/1" do
     setup do
-      role = TenantFactory.insert(:role)
+      role = Factory.insert(:role)
 
       %{role: role}
     end

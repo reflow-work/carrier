@@ -10,7 +10,7 @@ defmodule Carrier.Reports.ReportLogMigrator do
       |> join(:left, [j], rl in ReportLog, on: rl.report_job_id == j.id)
       |> where([j, rl], is_nil(rl.id))
       |> where([j], j.worker == "Carrier.Works.ReportJob")
-      |> Repo.all()
+      |> Repo.all(org_id: :skip)
 
     # 현재 status 와 맞는 ReportLog 생성
     report_logs =

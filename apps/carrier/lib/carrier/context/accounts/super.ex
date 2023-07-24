@@ -2,7 +2,7 @@ defmodule Carrier.Accounts.Super do
   alias Carrier.Accounts.{Org, User}
   alias Carrier.Roles.Role
   alias Carrier.Roles.Super
-  alias Carrier.TenantRepo
+  alias Carrier.Repo
 
   def auth(email, org_id) do
     case fetch_user_by_email(email) do
@@ -14,7 +14,7 @@ defmodule Carrier.Accounts.Super do
           nil ->
             org_name = "organization"
 
-            TenantRepo.wrap_transaction(fn ->
+            Repo.wrap_transaction(fn ->
               with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
                    {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Admin"),
                    {:ok, %User{} = user} <-
@@ -24,7 +24,7 @@ defmodule Carrier.Accounts.Super do
             end)
 
           _ ->
-            TenantRepo.wrap_transaction(fn ->
+            Repo.wrap_transaction(fn ->
               with {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Member"),
                    {:ok, %User{} = user} <-
                      signup(%{org_id: org_id, email: email, role_id: role_id}) do
@@ -37,12 +37,12 @@ defmodule Carrier.Accounts.Super do
 
   def create_org(%{name: name}) do
     Org.create(%{name: name})
-    |> TenantRepo.insert()
+    |> Repo.insert()
   end
 
   def fetch_user_by_email(email) do
     User.get_by_email(email)
-    |> TenantRepo.one(org_id: :skip)
+    |> Repo.one(org_id: :skip)
     |> case do
       %User{} = user -> {:ok, user}
       nil -> {:error, {:resource_not_found, %{target: User, conditions: %{email: email}}}}
@@ -62,17 +62,17 @@ defmodule Carrier.Accounts.Super do
       signed_at: now,
       role_id: role_id
     })
-    |> TenantRepo.insert()
+    |> Repo.insert()
   end
 
   def postload_role(%User{} = user) do
     user
-    |> TenantRepo.preload(:role, org_id: :skip)
+    |> Repo.preload(:role, org_id: :skip)
   end
 
   def get_org(org_id) do
     Org.get(org_id)
-    |> TenantRepo.one(org_id: :skip)
+    |> Repo.one(org_id: :skip)
     |> case do
       %Org{} = org -> {:ok, org}
       nil -> {:error, {:resource_not_found, %{target: Org, conditions: %{org_id: org_id}}}}
