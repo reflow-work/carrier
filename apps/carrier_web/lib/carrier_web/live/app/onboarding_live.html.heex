@@ -29,6 +29,7 @@
       <div>
         <.input id="agreed_terms_of_service" type="checkbox" field={f[:agreed_terms_of_service]}>
           <:label_element>
+            (필수)
             <a href={Const.get(:terms_of_service_url)} target="_blank" class="underline">
               이용약관
             </a>
@@ -38,6 +39,7 @@
 
         <.input id="agreed_privacy_policy" type="checkbox" field={f[:agreed_privacy_policy]}>
           <:label_element>
+            (필수)
             <a href={Const.get(:privacy_policy_url)} target="_blank" class="underline">
               개인정보 처리방침
             </a>
@@ -47,13 +49,16 @@
       </div>
 
       <:actions>
-        <.button
-          class="w-full"
-          phx-disable-with="가입중"
-          phx-click={js_log_event("click_submit_onboarding", %{page_name: "onboarding"})}
-        >
-          무료로 시작하기
-        </.button>
+        <div class="w-full">
+          <.button
+            class="w-full"
+            phx-disable-with="가입중"
+            phx-click={js_log_event("click_submit_onboarding", %{page_name: "onboarding"})}
+          >
+            7일 무료 트라이얼 시작하기
+          </.button>
+          <p class="mt-2 text-sm text-center">필요 시 문의주시면 트라이얼 연장이 가능합니다.</p>
+        </div>
       </:actions>
     </.simple_form>
   </div>
