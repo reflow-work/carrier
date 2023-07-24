@@ -233,6 +233,19 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 options={trigger_time_options()}
                 value={@report_form[:trigger_time].value}
               />
+              <.input
+                type="select"
+                name="timezone_disabled"
+                label="타임존"
+                label_align={:left}
+                options={[
+                  {format_timezone(@report_form[:timezone].value),
+                   @report_form[:timezone].value}
+                ]}
+                value={@report_form[:timezone].value}
+                disabled
+              />
+              <.input type="hidden" field={@report_form[:timezone]} />
             </.simple_form>
           </div>
         </.card>

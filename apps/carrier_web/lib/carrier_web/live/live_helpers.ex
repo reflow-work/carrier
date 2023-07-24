@@ -33,6 +33,10 @@ defmodule CarrierWeb.LiveHelpers do
     Carrier.Core.NumberHelper.safe_format_money(number, currency)
   end
 
+  def format_timezone(timezone) do
+    TimezoneHelper.safe_format(timezone)
+  end
+
   def current_datetime!(timezone) do
     DateTime.now!(timezone)
   end
