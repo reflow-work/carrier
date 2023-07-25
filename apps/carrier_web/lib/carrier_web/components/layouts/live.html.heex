@@ -2,6 +2,11 @@
   <.flash flash={@flash} />
 
   <nav class="fixed top-0 left-0 right-0 bg-background-dark z-50">
+    <.banner :if={!@active_subscription} class="py-2 text-center bg-red-500 text-white">
+      <.link href={Const.get(:subscription_call_url)} target="_blank">
+        구독 문의하기 <.icon name="hero-arrow-small-right-mini" class="w-6 h-6" />
+      </.link>
+    </.banner>
     <div class="max-w-7xl px-6 flex mx-auto py-1 justify-between">
       <.link navigate={~p"/app/reports"}>
         <div class="cursor-pointer py-4 px-1">
@@ -27,7 +32,7 @@
     </div>
   </nav>
 
-  <div class="max-w-7xl mx-auto mt-16">
+  <div class={["max-w-7xl mx-auto pt-16", !@active_subscription && "pt-24"]}>
     <%= @inner_content %>
   </div>
 </main>
