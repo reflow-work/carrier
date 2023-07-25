@@ -247,7 +247,7 @@ defmodule CarrierWeb.CoreComponents do
 
   def link_button(assigns) do
     ~H"""
-    <.link class={@disabled && "cursor-not-allowed active:pointer-events-none"} {@rest} >
+    <.link class={@disabled && "cursor-not-allowed active:pointer-events-none"} {@rest}>
       <.button disabled={@disabled}>
         <%= render_slot(@inner_block) %>
       </.button>

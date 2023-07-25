@@ -239,8 +239,7 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 label="타임존"
                 label_align={:left}
                 options={[
-                  {format_timezone(@report_form[:timezone].value),
-                   @report_form[:timezone].value}
+                  {format_timezone(@report_form[:timezone].value), @report_form[:timezone].value}
                 ]}
                 value={@report_form[:timezone].value}
                 disabled
