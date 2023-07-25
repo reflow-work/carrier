@@ -1,6 +1,5 @@
 defmodule CarrierWeb.Components.SlackImgMetaData do
   use CarrierWeb, :component
-  alias CarrierWeb.Components.Icon
 
   def card(assigns) do
     ~H"""

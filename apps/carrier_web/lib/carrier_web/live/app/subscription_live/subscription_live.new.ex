@@ -2,7 +2,6 @@ defmodule CarrierWeb.App.SubscriptionLive.New do
   use CarrierWeb, :live_view
   use Carrier.{Billing, Payments}
   alias CarrierWeb.TossPaymentsHelper
-  alias CarrierWeb.Components.Icon
 
   on_mount(CarrierWeb.SubscriptionRedirectionHook)
 

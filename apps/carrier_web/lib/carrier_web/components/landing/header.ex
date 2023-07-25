@@ -15,7 +15,7 @@ defmodule LandingHeaderComponent do
             |> JS.navigate(~p"/")
           }
         >
-          <CarrierWeb.Components.Icon.logo_with_beta class="w-32" />
+          <Icon.logo_with_beta class="w-32" />
         </a>
 
         <div class="flex items-center">
@@ -58,7 +58,7 @@ defmodule LandingHeaderComponent do
           </.link>
 
           <label class="cursor-pointer pl-3 md:hidden" for="hamburger-button">
-            <CarrierWeb.Components.Icon.menu class="w-8" />
+            <Icon.menu class="w-8" />
           </label>
         </div>
       </div>

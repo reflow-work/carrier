@@ -8,7 +8,7 @@ defmodule LandingFooterComponent do
     <footer class="bg-primary text-white py-6 md:py-20">
       <div class="landing-container flex flex-col md:flex-row justify-between">
         <div class="flex flex-col items-start">
-          <CarrierWeb.Components.Icon.logo_white class="w-40 h-auto mb-4" />
+          <Icon.logo_white class="w-40 h-auto mb-4" />
           <div class="text-white">지표보는 문화를 만드는 가장 쉬운 툴, reflow</div>
           <.link
             class="button button-lg mt-8"
