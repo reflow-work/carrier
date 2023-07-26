@@ -81,10 +81,11 @@ defmodule CarrierWeb.Router do
   scope "/app", CarrierWeb.App, as: :app do
     pipe_through [:browser, :auth_user]
 
-    live_session :user,
+    live_session :app,
       layout: {CarrierWeb.Layouts, :live},
       on_mount: [
         CarrierWeb.UserHook,
+        CarrierWeb.SubscriptionHook,
         CarrierWeb.TimezoneHook,
         CarrierWeb.AnalyticsHook,
         CarrierWeb.ChanneltalkHook,

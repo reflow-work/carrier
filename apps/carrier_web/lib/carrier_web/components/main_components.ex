@@ -66,4 +66,16 @@ defmodule CarrierWeb.MainComponents do
     <h2 class={["card-title mb-2 text-base text-black", @class]}><%= @title %></h2>
     """
   end
+
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def banner(assigns) do
+    ~H"""
+    <div {@rest}>
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
 end

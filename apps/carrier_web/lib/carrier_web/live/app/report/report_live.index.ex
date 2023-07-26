@@ -5,7 +5,6 @@ defmodule CarrierWeb.App.ReportLive.Index do
   alias Carrier.Roles.Role
 
   on_mount(CarrierWeb.DataTargetHook)
-  on_mount(CarrierWeb.SubscriptionHook)
 
   @impl true
   def mount(params, session, socket) do
