@@ -45,7 +45,7 @@
                   size={:sm}
                 >
                   <.icon
-                    :if={report.last_report_log |> Nillable.map(& &1.status) == :failed}
+                    :if={Report.failed?(report)}
                     name="hero-exclamation-circle-mini"
                     class=" text-rose-500"
                   /> 발송 기록
