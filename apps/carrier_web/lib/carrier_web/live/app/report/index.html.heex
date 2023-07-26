@@ -47,13 +47,14 @@
                   <.icon
                     :if={Report.failed?(report)}
                     name="hero-exclamation-circle-mini"
-                    class=" text-rose-500"
+                    class="text-rose-500"
                   /> 발송 기록
                 </.link_button>
                 <.link_button
                   navigate={~p"/app/reports/#{report}/edit2"}
                   style={:normal}
                   size={:sm}
+                  disabled={!@active_subscription}
                 >
                   수정
                 </.link_button>

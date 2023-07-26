@@ -232,7 +232,7 @@ defmodule CarrierWeb.CoreComponents do
           "bg-zinc-900 hover:bg-zinc-700 text-white active:text-white/80 disabled:bg-zinc-700",
         @style == :outline &&
           "bg-white text-zinc-900 border border-zinc-700 hover:bg-zinc-700 hover:text-white disabled:bg-zinc-300 disabled:text-zinc-500 disabled:border-0",
-        @style == :normal && "bg-zinc-200 hover:bg-zinc-400",
+        @style == :normal && "bg-zinc-200 hover:bg-zinc-400 disabled:bg-zinc-200",
         @size == :sm && "h-8 px-3 py-0",
         @class
       ]}
