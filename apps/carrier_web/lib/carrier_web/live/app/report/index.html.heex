@@ -39,19 +39,28 @@
               <td><%= data_source(@data_sources, report).name %></td>
               <td><%= DataTargetInfo.to_string(report.data_target_info) %></td>
               <td class="flex justify-end gap-x-2">
-                <.link navigate={~p"/app/reports/#{report}/report_logs"} class="btn btn-sm">
+                <.link_button
+                  navigate={~p"/app/reports/#{report}/report_logs"}
+                  style={:normal}
+                  size={:sm}
+                >
                   <.icon
-                    :if={report.last_report_log |> Nillable.map(& &1.status) == :failed}
+                    :if={Report.failed?(report)}
                     name="hero-exclamation-circle-mini"
-                    class="mr-2 text-rose-500"
+                    class="text-rose-500"
                   /> 발송 기록
-                </.link>
-                <.link navigate={~p"/app/reports/#{report}/edit2"} class="btn btn-sm">
+                </.link_button>
+                <.link_button
+                  navigate={~p"/app/reports/#{report}/edit2"}
+                  style={:normal}
+                  size={:sm}
+                  disabled={!@active_subscription}
+                >
                   수정
-                </.link>
-                <.link patch={~p"/app/reports/#{report}/delete"} class="btn btn-sm">
+                </.link_button>
+                <.link_button patch={~p"/app/reports/#{report}/delete"} style={:normal} size={:sm}>
                   삭제
-                </.link>
+                </.link_button>
               </td>
             </tr>
           <% end %>

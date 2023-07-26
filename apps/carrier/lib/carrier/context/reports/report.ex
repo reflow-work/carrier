@@ -98,6 +98,9 @@ defmodule Carrier.Reports.Report do
     |> load_data_target_info()
   end
 
+  def failed?(%__MODULE__{last_report_log: %ReportLog{status: :failed}}), do: true
+  def failed?(_), do: false
+
   defp load_data_source_info(%__MODULE__{data_source_info: data_source_info} = struct) do
     data_source_info =
       data_source_info
