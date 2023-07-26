@@ -270,7 +270,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         data_source_info: data_source_info,
         data_target_info: data_target_info,
         datetime: DateTime.utc_now(),
-        timezone: socket.report_timezone
+        timezone: report.timezone
       })
 
     Async.run(fn ->
