@@ -1,7 +1,7 @@
 defmodule CarrierWeb.App.ReportLive.Index do
   use CarrierWeb, :live_view
   use Carrier.{Integrations, Billing, Reports}
-  alias Carrier.Core.{WeekdayHelper, TimeHelper, Nillable}
+  alias Carrier.Core.{WeekdayHelper, TimeHelper}
   alias Carrier.Roles.Role
 
   on_mount(CarrierWeb.DataTargetHook)
