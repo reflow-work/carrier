@@ -134,4 +134,15 @@ defmodule Carrier.Billing.Subscription do
       start_on |> DateTime.to_unix(:millisecond)
     ])
   end
+
+  def remain_days_for_alert(%__MODULE__{end_on: end_on}) do
+    case Timex.diff(end_on, DateTime.utc_now(), :days) do
+      days when days >= 0 and days <= 3 -> days
+      _ -> nil
+    end
+  end
+
+  def remain_days_for_alert(nil) do
+    nil
+  end
 end
