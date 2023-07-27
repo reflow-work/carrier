@@ -10,6 +10,7 @@ defmodule Carrier.Core.Async do
   def map(enumerable, fun, opts \\ []) when is_function(fun, 1) do
     {dictionary_keys, opts} = opts |> Keyword.pop(:dictionary_keys, @default_dictionary_keys)
     dictionary_for_copy = get_dictionary(dictionary_keys)
+    metadata = Logger.metadata()
 
     async_stream_opts = [timeout: :timer.minutes(5)] |> Keyword.merge(opts)
 
@@ -18,6 +19,7 @@ defmodule Carrier.Core.Async do
       enumerable,
       fn item ->
         put_dictionary(dictionary_for_copy)
+        Logger.metadata(metadata)
 
         fun.(item)
       end,
@@ -43,9 +45,11 @@ defmodule Carrier.Core.Async do
   def run(fun, opts \\ []) when is_function(fun, 0) do
     dictionary_keys = opts |> Keyword.get(:dictionary_keys, @default_dictionary_keys)
     dictionary_for_copy = get_dictionary(dictionary_keys)
+    metadata = Logger.metadata()
 
     Task.Supervisor.start_child(TaskSupervisor, fn ->
       put_dictionary(dictionary_for_copy)
+      Logger.metadata(metadata)
 
       fun.()
     end)
