@@ -27,6 +27,8 @@ defmodule Carrier.Billing do
              create_subscription(%{
                org_id: org_id,
                plan_id: plan_id,
+               origin_subscription_id: nil,
+               prev_subscription_id: maybe_active_subscription |> Nillable.map(& &1.id),
                extension_count: 0,
                start_on: start_on,
                end_on: end_on
@@ -211,15 +213,24 @@ defmodule Carrier.Billing do
     end)
   end
 
-  defp post_process_activate_subscription(%Subscription{extension_count: extension_count}) do
-    case extension_count do
-      0 -> Reports.restart_all_report_jobs()
+  defp post_process_activate_subscription(%Subscription{
+         prev_subscription_id: prev_subscription_id
+       }) do
+    case prev_subscription_id do
+      # 구독이 새로 activate 된 경우
+      nil -> Reports.restart_all_report_jobs()
+      # 구독이 연장되어 activate 된 경우
       _ -> {:ok, nil}
     end
   end
 
   defp create_next_subscription(
-         %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
+         %Subscription{
+           id: subscription_id,
+           org_id: org_id,
+           plan_id: plan_id,
+           extension_count: extension_count
+         } =
            subscription
        ) do
     Repo.wrap_transaction(fn ->
@@ -237,6 +248,7 @@ defmodule Carrier.Billing do
                org_id: org_id,
                plan_id: plan_id,
                origin_subscription_id: origin_subscription_id,
+               prev_subscription_id: subscription_id,
                extension_count: new_extension_count,
                start_on: start_on,
                end_on: end_on
