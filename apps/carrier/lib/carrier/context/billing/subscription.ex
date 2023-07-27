@@ -9,6 +9,7 @@ defmodule Carrier.Billing.Subscription do
     belongs_to :plan, Plan
     belongs_to :payment, Payment
     belongs_to :origin_subscription, __MODULE__
+    belongs_to :prev_subscription, __MODULE__
 
     field :org_id, :id
     field :extension_count, :integer
@@ -25,7 +26,7 @@ defmodule Carrier.Billing.Subscription do
   end
 
   @required_for_create [:org_id, :plan_id, :start_on, :end_on, :extension_count]
-  @optional_for_create [:payment_id, :origin_subscription_id]
+  @optional_for_create [:payment_id, :origin_subscription_id, :prev_subscription_id]
   defp changeset_for_create(%__MODULE__{} = struct, attrs) do
     struct
     |> cast(attrs, @required_for_create ++ @optional_for_create)
