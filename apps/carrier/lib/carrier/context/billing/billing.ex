@@ -1,5 +1,5 @@
 defmodule Carrier.Billing do
-  use Carrier.{Payments, Accounts, Setting}
+  use Carrier.{Payments, Accounts, Setting, Reports}
   require Logger
   alias Carrier.Billing.{Plan, Subscription}
   alias Carrier.Billing.Super
@@ -27,6 +27,8 @@ defmodule Carrier.Billing do
              create_subscription(%{
                org_id: org_id,
                plan_id: plan_id,
+               origin_subscription_id: nil,
+               prev_subscription_id: maybe_active_subscription |> Nillable.map(& &1.id),
                extension_count: 0,
                start_on: start_on,
                end_on: end_on
@@ -41,7 +43,7 @@ defmodule Carrier.Billing do
     end)
   end
 
-  def create_subscription(%{org_id: org_id, plan_id: plan_id} = params) do
+  defp create_subscription(%{org_id: org_id, plan_id: plan_id} = params) do
     Repo.wrap_transaction(fn ->
       with {:ok, %Plan{subscribable: subscribable, price: price, currency: currency}} <-
              Super.fetch_plan(plan_id),
@@ -68,6 +70,7 @@ defmodule Carrier.Billing do
              Subscription.activate(pending_subscription, %{activated_at: DateTime.utc_now()})
              |> Repo.update(),
            {:ok, _} <- create_subscription_expiring_job(activated_subscription),
+           {:ok, _} <- post_process_activate_subscription(activated_subscription),
            {:ok, _} <- create_next_subscription(activated_subscription) do
         {:ok, activated_subscription}
       end
@@ -77,14 +80,8 @@ defmodule Carrier.Billing do
   def expire_subscription(subscription_id) do
     Repo.wrap_transaction(fn ->
       with {:ok, active_subscription} <- fetch_subscription_with_state(subscription_id, :active),
-           {:ok, expired_subscription} <-
-             do_expire_subscription(active_subscription),
-           maybe_pending_subscription = get_pending_subscription(),
-           {:ok, _} <-
-             if(maybe_pending_subscription,
-               do: activate_subscription(maybe_pending_subscription),
-               else: {:ok, nil}
-             ) do
+           {:ok, expired_subscription} <- do_expire_subscription(active_subscription),
+           {:ok, _} <- post_process_expire_subscription() do
         {:ok, expired_subscription}
       else
         {
@@ -97,6 +94,16 @@ defmodule Carrier.Billing do
           {:error, reason}
       end
     end)
+  end
+
+  defp post_process_expire_subscription() do
+    case get_pending_subscription() do
+      %Subscription{} = subscription ->
+        activate_subscription(subscription)
+
+      nil ->
+        Reports.cancel_all_report_jobs()
+    end
   end
 
   def fetch_subscription(subscription_id) do
@@ -206,8 +213,24 @@ defmodule Carrier.Billing do
     end)
   end
 
+  defp post_process_activate_subscription(%Subscription{
+         prev_subscription_id: prev_subscription_id
+       }) do
+    case prev_subscription_id do
+      # 구독이 새로 activate 된 경우
+      nil -> Reports.restart_all_report_jobs()
+      # 구독이 연장되어 activate 된 경우
+      _ -> {:ok, nil}
+    end
+  end
+
   defp create_next_subscription(
-         %Subscription{org_id: org_id, plan_id: plan_id, extension_count: extension_count} =
+         %Subscription{
+           id: subscription_id,
+           org_id: org_id,
+           plan_id: plan_id,
+           extension_count: extension_count
+         } =
            subscription
        ) do
     Repo.wrap_transaction(fn ->
@@ -225,6 +248,7 @@ defmodule Carrier.Billing do
                org_id: org_id,
                plan_id: plan_id,
                origin_subscription_id: origin_subscription_id,
+               prev_subscription_id: subscription_id,
                extension_count: new_extension_count,
                start_on: start_on,
                end_on: end_on

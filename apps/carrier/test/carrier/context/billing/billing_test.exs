@@ -52,6 +52,7 @@ defmodule Carrier.BillingTest do
       assert created_subscription.plan_id == plan.id
       assert created_subscription.payment_id != nil
       assert created_subscription.origin_subscription_id == nil
+      assert created_subscription.prev_subscription_id == nil
       assert created_subscription.extension_count == 0
       assert same_values?(created_subscription.start_on, now)
       assert same_values?(created_subscription.end_on, ~U[2023-05-10 09:00:00Z])
@@ -89,6 +90,7 @@ defmodule Carrier.BillingTest do
       assert pending_subscription.plan_id == created_subscription.plan_id
       assert pending_subscription.payment_id != nil
       assert pending_subscription.origin_subscription_id == created_subscription.id
+      assert pending_subscription.prev_subscription_id == created_subscription.id
       assert pending_subscription.extension_count == 1
       assert same_values?(pending_subscription.start_on, created_subscription.end_on)
       assert same_values?(pending_subscription.end_on, ~U[2023-06-10 09:00:00Z])
@@ -142,6 +144,7 @@ defmodule Carrier.BillingTest do
       assert created_subscription.plan_id == trial_plan.id
       assert created_subscription.payment_id == nil
       assert created_subscription.origin_subscription_id == nil
+      assert created_subscription.prev_subscription_id == nil
       assert created_subscription.extension_count == 0
       assert same_values?(created_subscription.start_on, now)
       assert same_values?(created_subscription.end_on, ~U[2023-04-17 09:00:00Z])
@@ -281,6 +284,9 @@ defmodule Carrier.BillingTest do
       assert pending_subscription.origin_subscription_id ==
                activated_subscription.origin_subscription_id
 
+      assert pending_subscription.prev_subscription_id ==
+               activated_subscription.id
+
       assert pending_subscription.extension_count == 2
       assert same_values?(pending_subscription.start_on, activated_subscription.end_on)
       assert same_values?(pending_subscription.end_on, ~U[2023-04-30 09:00:00Z])
@@ -321,6 +327,7 @@ defmodule Carrier.BillingTest do
           org_id: org.org_id,
           plan: plan,
           origin_subscription: nil,
+          prev_subscription: trial_subscription,
           extension_count: 0,
           start_on: ~U[2023-03-25 15:00:00Z],
           end_on: ~U[2023-04-25 15:00:00Z],
@@ -365,6 +372,7 @@ defmodule Carrier.BillingTest do
       assert pending_subscription.plan_id == activated_subscription.plan_id
       assert pending_subscription.payment_id != nil
       assert pending_subscription.origin_subscription_id == activated_subscription.id
+      assert pending_subscription.prev_subscription_id == activated_subscription.id
       assert pending_subscription.extension_count == 1
       assert same_values?(pending_subscription.start_on, activated_subscription.end_on)
       assert same_values?(pending_subscription.end_on, ~U[2023-05-25 15:00:00Z])

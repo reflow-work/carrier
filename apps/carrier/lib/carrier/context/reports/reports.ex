@@ -4,7 +4,8 @@ defmodule Carrier.Reports do
   alias Carrier.Reports.{ReportInfo, Report, ReportLog, ReportJob}
   alias Carrier.Works
   alias Carrier.Repo
-  alias Carrier.Core.DateTimeHelper
+  alias Carrier.Tenant
+  alias Carrier.Core.{DateTimeHelper, Traversable}
   alias Carrier.Const
   alias Carrier.Obfuscatable
 
@@ -195,7 +196,7 @@ defmodule Carrier.Reports do
                scheduled_at: scheduled_at,
                meta: %{org_id: report.org_id}
              )
-             |> Repo.insert(),
+             |> Repo.insert(returning: true),
            {:ok, %ReportLog{}} <-
              record_scheduled_report_log(%{
                org_id: report.org_id,
@@ -211,6 +212,40 @@ defmodule Carrier.Reports do
       Logger.debug(
         "next report job of report_id: #{report.id} is scheduled_at #{inspect(scheduled_at)}"
       )
+    end)
+  end
+
+  def restart_all_report_jobs() do
+    now = DateTime.utc_now()
+
+    with {:ok, reports} <- list_reports(),
+         {:ok, report_jobs} <-
+           reports
+           |> Enum.map(fn report -> create_job_from_report(report, now) end)
+           |> Traversable.traverse_all() do
+      {:ok, report_jobs}
+    end
+  end
+
+  def cancel_all_report_jobs() do
+    org_id = Tenant.get_org_id()
+    cancelled_at = DateTime.utc_now()
+
+    Repo.wrap_transaction(fn ->
+      with {_, cancelled_report_jobs} <-
+             ReportJob.cancel_excutable(%{org_id: org_id, cancelled_at: cancelled_at})
+             |> Repo.update_all([], returning: true, org_id: :skip),
+           report_job_ids = cancelled_report_jobs |> Enum.map(& &1.id),
+           {_, cancelled_report_log} <-
+             ReportLog.record_all_cancelled(%{
+               report_job_ids: report_job_ids,
+               cancelled_at: cancelled_at,
+               error_message: "subscription expired"
+             })
+             |> Repo.update_all([]),
+           true <- Enum.count(cancelled_report_log) == Enum.count(cancelled_report_jobs) do
+        {:ok, cancelled_report_jobs}
+      end
     end)
   end
 

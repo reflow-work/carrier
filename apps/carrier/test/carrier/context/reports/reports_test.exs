@@ -617,4 +617,118 @@ defmodule Carrier.ReportsTest do
       assert same_records?(fetched_report_log0.report, report_log1.report)
     end
   end
+
+  describe "restart_all_report_jobs/0" do
+    setup do
+      now = DateTime.utc_now()
+
+      org = TenantFactory.insert(:org)
+      Tenant.put_org_id(org.org_id)
+
+      report_info0 = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info1 = TenantFactory.insert(:report_info, org_id: org.org_id)
+
+      deleted_report_info =
+        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: now)
+
+      report0 = TenantFactory.insert(:report, org_id: org.org_id, report_info: report_info0)
+
+      _deleted_report1 =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: report_info1,
+          deleted_at: now
+        )
+
+      report1 = TenantFactory.insert(:report, org_id: org.org_id, report_info: report_info1)
+
+      _deleted_report2 =
+        TenantFactory.insert(:report,
+          org_id: org.org_id,
+          report_info: deleted_report_info,
+          deleted_at: now
+        )
+
+      _others_report = TenantFactory.insert(:report)
+
+      %{reports: [report0, report1]}
+    end
+
+    test "test", %{reports: [report0, report1]} do
+      assert {:ok, restarted_report_jobs} = Reports.restart_all_report_jobs()
+
+      assert restarted_report_jobs |> Enum.count() == 2
+
+      restarted_report_ids = restarted_report_jobs |> Enum.map(& &1.args["report_id"])
+
+      assert restarted_report_ids -- [report0.id, report1.id] == []
+    end
+  end
+
+  describe "cancel_all_report_jobs/0" do
+    setup do
+      org = TenantFactory.insert(:org)
+      Tenant.put_org_id(org.org_id)
+
+      report0 = TenantFactory.insert(:report, org_id: org.org_id)
+      report1 = TenantFactory.insert(:report, org_id: org.org_id)
+      others_report = TenantFactory.insert(:report)
+
+      completed_report_job =
+        TenantFactory.insert(:report_job, report: report0, state: :completed)
+
+      report_job0 = TenantFactory.insert(:report_job, report: report0, state: :scheduled)
+      report_job1 = TenantFactory.insert(:report_job, report: report1, state: :scheduled)
+
+      others_report_job =
+        TenantFactory.insert(:report_job, report: others_report, state: :scheduled)
+
+      _succeeded_report_log =
+        TenantFactory.insert(:report_log,
+          report: report0,
+          report_job_id: completed_report_job.id,
+          status: :succeeded
+        )
+
+      report_log0 =
+        TenantFactory.insert(:report_log,
+          report: report0,
+          report_job_id: report_job0.id,
+          status: :scheduled
+        )
+
+      report_log1 =
+        TenantFactory.insert(:report_log,
+          report: report1,
+          report_job_id: report_job1.id,
+          status: :scheduled
+        )
+
+      _others_report_log =
+        TenantFactory.insert(:report_log,
+          report: others_report,
+          report_job_id: others_report_job.id,
+          status: :scheduled
+        )
+
+      %{report_logs: [report_log0, report_log1], report_jobs: [report_job0, report_job1]}
+    end
+
+    test "test", %{
+      report_logs: [report_log0, report_log1],
+      report_jobs: [report_job0, report_job1]
+    } do
+      assert {:ok, cancelled_report_jobs} = Reports.cancel_all_report_jobs()
+
+      cancelled_report_job_ids = cancelled_report_jobs |> Enum.map(& &1.id)
+      assert cancelled_report_job_ids |> Enum.count() == 2
+      assert cancelled_report_job_ids -- [report_job0.id, report_job1.id] == []
+
+      report_log0 = reload!(report_log0)
+      report_log1 = reload!(report_log1)
+
+      assert report_log0.status == :cancelled
+      assert report_log1.status == :cancelled
+    end
+  end
 end
