@@ -299,16 +299,4 @@ Repo.transaction(fn ->
       }
     ]
   )
-
-  {_, _} =
-    Repo.insert_all(Subscription, [
-      %{
-        org_id: org0.org_id,
-        plan_id: pro_monthly_plan.id,
-        start_on: now,
-        end_on: Plan.calc_end_on(pro_monthly_plan, now, 0),
-        status: :active,
-        activated_at: now
-      }
-    ])
 end)
