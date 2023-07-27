@@ -1,13 +1,14 @@
 defmodule CarrierWeb.AssignHelper do
   import Phoenix.LiveView, only: [connected?: 1, send_update: 2]
   import Phoenix.Component, only: [assign: 3]
+  alias Carrier.Core.Async
 
   def assign_async(socket, key, fun, live_component_module \\ nil)
       when is_atom(key) and (is_function(fun, 0) or is_function(fun, 1)) do
     if connected?(socket) do
       pid = self()
 
-      Task.start(fn ->
+      Async.run(fn ->
         result = call_function(socket, fun)
 
         live_component_info =
@@ -54,7 +55,7 @@ defmodule CarrierWeb.AssignHelper do
       |> Enum.map(&{&1, Process.get(&1)})
 
     key_fun_map
-    |> Task.async_stream(fn {key, fun} ->
+    |> Async.map(fn {key, fun} ->
       dictionary
       |> Enum.each(fn {key, value} -> Process.put(key, value) end)
 
