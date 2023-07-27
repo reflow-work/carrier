@@ -287,15 +287,15 @@ Repo.transaction(fn ->
         billing_key: "c0c1Z3PWQC3brMKcwvl7Q7Nw1IOzoWk2OnhaoeNVE-I=",
         customer_key: CreditCard.gen_customer_key(org0.org_id),
         card_company: "현대",
-        card_number: "413526******000"
+        card_number: "41352680****000*"
       },
       %{
         org_id: org1.org_id,
         provider: :toss_payments,
-        billing_key: "c0c1Z3PWQC3brMKcwvl7Q7Nw1IOzoWk2OnhaoeNVE-I=",
+        billing_key: "Z1XZr4tl1RZIuk_OrbOqaw7EPMAugCpVEtKdjqhuImQ=",
         customer_key: CreditCard.gen_customer_key(org1.org_id),
         card_company: "현대",
-        card_number: "413526******000"
+        card_number: "41352680****000*"
       }
     ]
   )
