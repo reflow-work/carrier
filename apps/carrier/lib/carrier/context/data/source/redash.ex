@@ -1,6 +1,8 @@
 defmodule Carrier.Data.Source.Redash do
   @behaviour Carrier.Data.Source
 
+  alias Carrier.External.RedashAPI
+
   defmodule Pagination do
     defstruct [:page, :page_size, :total]
 
@@ -20,7 +22,10 @@ defmodule Carrier.Data.Source.Redash do
   ### behaviors
 
   @impl true
-  def validate_conn(:redash, _credentials, _opts) do
-    :ok
+  def validate_conn(:redash, credentials, _opts) do
+    case RedashAPI.list_dashboards(credentials) do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, {:invalid_conn_info, reason}}
+    end
   end
 end
