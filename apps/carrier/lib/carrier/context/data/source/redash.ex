@@ -1,6 +1,7 @@
 defmodule Carrier.Data.Source.Redash do
   @behaviour Carrier.Data.Source
 
+  use Carrier.Integrations
   alias Carrier.External.RedashAPI
 
   defmodule Pagination do
@@ -27,5 +28,29 @@ defmodule Carrier.Data.Source.Redash do
       {:ok, _} -> :ok
       {:error, reason} -> {:error, {:invalid_conn_info, reason}}
     end
+  end
+
+  def list_dashboards(%DataSource{source: :redash} = data_source) do
+    credentials = data_source |> DataSource.to_credentials()
+
+    Stream.unfold(1, fn
+      nil ->
+        nil
+
+      page ->
+        {:ok,
+         %{dashboards: dashboards, pagination: %Pagination{page: page, page_size: page_size, total: total}}} =
+          RedashAPI.list_dashboards(credentials)
+
+        last_page = div(total, page_size) + 1
+
+        case last_page == page do
+          true -> {dashboards, nil}
+          false -> {dashboards, page + 1}
+        end
+    end)
+    |> Enum.to_list()
+    |> List.flatten()
+    |> then(&{:ok, &1})
   end
 end
