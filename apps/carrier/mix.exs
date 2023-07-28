@@ -23,7 +23,7 @@ defmodule Carrier.MixProject do
   def application do
     [
       mod: {Carrier.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon]
+      extra_applications: [:logger, :runtime_tools, :os_mon, :wallaby]
     ]
   end
 
@@ -80,7 +80,8 @@ defmodule Carrier.MixProject do
       {:floki, ">= 0.30.0"},
       {:earmark, "~> 1.4"},
       {:makeup, "~> 1.1"},
-      {:makeup_elixir, "~> 0.16.1"}
+      {:makeup_elixir, "~> 0.16.1"},
+      {:wallaby, "~> 0.30.5"}
     ]
   end
 
