@@ -15,30 +15,45 @@ defmodule Carrier.Core.Browser do
   defp do_screenshot(session, url) do
     session = session |> Wallaby.Browser.visit(url)
 
-    body_element =
-      session
-      |> Wallaby.Browser.find(Wallaby.Query.css("body"))
-
-    width =
-      body_element
-      |> Wallaby.Element.attr("scrollWidth")
-      |> String.to_integer()
-
-    height =
-      body_element
-      |> Wallaby.Element.attr("scrollHeight")
-      |> String.to_integer()
-
-    session =
-      session
-      |> Wallaby.Browser.resize_window(width, height)
-
     screenshot =
-      session
-      |> Wallaby.WebdriverClient.take_screenshot()
+      run_after_ready(session, fn ->
+        body_element =
+          session
+          |> Wallaby.Browser.find(Wallaby.Query.css("body"))
+
+        width =
+          body_element
+          |> Wallaby.Element.attr("scrollWidth")
+          |> String.to_integer()
+
+        height =
+          body_element
+          |> Wallaby.Element.attr("scrollHeight")
+          |> String.to_integer()
+
+        session =
+          session
+          |> Wallaby.Browser.resize_window(width, height)
+
+        _screenshot =
+          session
+          |> Wallaby.WebdriverClient.take_screenshot()
+      end)
 
     {:ok, screenshot}
   after
     Wallaby.end_session(session)
+  end
+
+  defp run_after_ready(session, fun) do
+    Process.sleep(:timer.seconds(1))
+
+    case Wallaby.WebdriverClient.execute_script(session, "return document.readyState", []) do
+      {:ok, "complete"} ->
+        fun.()
+
+      _ ->
+        run_after_ready(session, fun)
+    end
   end
 end
