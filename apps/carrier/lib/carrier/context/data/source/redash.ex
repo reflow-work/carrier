@@ -3,6 +3,7 @@ defmodule Carrier.Data.Source.Redash do
 
   use Carrier.Integrations
   alias Carrier.External.RedashAPI
+  alias Carrier.Uploader
   alias Carrier.Core.Async
 
   defmodule Pagination do
@@ -42,6 +43,19 @@ defmodule Carrier.Data.Source.Redash do
          {:ok, dashboards} <- dashboard_ids |> do_list_dashboards_async(credentials),
          {:ok, dashboard_image_binaries} <- dashboards |> do_list_dashboard_image_binaries_async() do
       {:ok, %{dashboards: dashboards, dashboard_image_binaries: dashboard_image_binaries}}
+    end
+  end
+
+  @impl true
+  def transform_data(%{org_id: org_id}, %DataSource{source: :redash}, %{
+        dashboards: dashboards,
+        dashboard_image_binaries: dashboard_image_binaries
+      }) do
+    with {:ok, dashboard_image_urls} <-
+           dashboard_image_binaries
+           |> Async.map(&Uploader.upload(:report_storage, org_id, &1, :png))
+           |> Async.unwrap_map_ok_results() do
+      {:ok, %{dashboards: dashboards, dashboard_image_urls: dashboard_image_urls}}
     end
   end
 
