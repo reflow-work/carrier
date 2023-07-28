@@ -23,7 +23,7 @@ defmodule Carrier.MixProject do
   def application do
     [
       mod: {Carrier.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
