@@ -218,6 +218,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
 
     socket =
       socket
+      |> assign(:query_errors, [])
       |> assign(:sql_template, sql_template)
       |> run_query()
 
