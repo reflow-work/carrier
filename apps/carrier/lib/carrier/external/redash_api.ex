@@ -1,6 +1,7 @@
 defmodule Carrier.External.RedashAPI do
   require Logger
   alias Carrier.Data.Source.Redash.{Pagination, Dashboard}
+  alias Carrier.Core.Browser
 
   def list_dashboards(page, %{host: host, api_key: api_key}) do
     query = [
@@ -31,6 +32,10 @@ defmodule Carrier.External.RedashAPI do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  def get_dashboard_screenshot(dashboard_url) do
+    Browser.screenshot(dashboard_url)
   end
 
   defp handle_response({:ok, %Tesla.Env{status: 200, body: body}}) do
