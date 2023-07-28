@@ -19,7 +19,7 @@ defmodule Carrier.Data.Source.Redash do
     defstruct [:id, :name, :slug, :public_url]
 
     def new(%{"id" => id, "name" => name, "slug" => slug} = params) do
-      %__MODULE__{id: id, name: name, slug: slug, public_url: params["public_url"]}
+      %__MODULE__{id: id |> to_string(), name: name, slug: slug, public_url: params["public_url"]}
     end
 
     def url(%__MODULE__{id: id, slug: slug}, host) do
