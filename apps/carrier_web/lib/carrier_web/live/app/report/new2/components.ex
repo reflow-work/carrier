@@ -21,6 +21,9 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
 
             :tableau ->
               CarrierWeb.App.ReportLive.New2.TableauDataTransformer
+
+            :redash ->
+              CarrierWeb.App.ReportLive.New2.RedashDataTransformer
           end
 
         assigns =
