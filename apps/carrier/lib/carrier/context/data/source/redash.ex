@@ -3,6 +3,7 @@ defmodule Carrier.Data.Source.Redash do
 
   use Carrier.Integrations
   alias Carrier.External.RedashAPI
+  alias Carrier.Core.Async
 
   defmodule Pagination do
     defstruct [:page, :page_size, :total]
@@ -30,6 +31,21 @@ defmodule Carrier.Data.Source.Redash do
     end
   end
 
+  @impl true
+  def load_raw_data(
+        %{data_source_info: %{params: %{dashboards: dashboard_params}}},
+        %DataSource{source: :redash} = data_source
+      ) do
+    credentials = DataSource.to_credentials(data_source)
+
+    with dashboard_ids = dashboard_params |> Enum.map(& &1.id),
+         {:ok, dashboards} <- dashboard_ids |> do_list_dashboards_async(credentials) |> IO.inspect(),
+         {:ok, dashboard_image_binaries} <-
+           dashboards |> do_list_dashboard_image_binaries_async(credentials) do
+      {:ok, %{dashboards: dashboards, dashboard_image_binaries: dashboard_image_binaries}}
+    end
+  end
+
   def list_dashboards(%DataSource{source: :redash} = data_source) do
     credentials = data_source |> DataSource.to_credentials()
 
@@ -39,7 +55,10 @@ defmodule Carrier.Data.Source.Redash do
 
       page ->
         {:ok,
-         %{dashboards: dashboards, pagination: %Pagination{page: page, page_size: page_size, total: total}}} =
+         %{
+           dashboards: dashboards,
+           pagination: %Pagination{page: page, page_size: page_size, total: total}
+         }} =
           RedashAPI.list_dashboards(page, credentials)
 
         last_page = div(total, page_size) + 1
@@ -52,5 +71,20 @@ defmodule Carrier.Data.Source.Redash do
     |> Enum.to_list()
     |> List.flatten()
     |> then(&{:ok, &1})
+  end
+
+  defp do_list_dashboards_async(dashboard_ids, credentials) do
+    with {:ok, results} <-
+           dashboard_ids
+           |> Async.map(fn dashboard_id -> RedashAPI.get_dashboard(dashboard_id, credentials) end)
+           |> Async.unwrap_map_ok_results() do
+      {:ok, results}
+    end
+  end
+
+  defp do_list_dashboard_image_binaries_async(_dashboards, _credentials) do
+    # TODO: implement it
+
+    {:ok, []}
   end
 end
