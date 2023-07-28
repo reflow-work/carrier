@@ -2,6 +2,7 @@ defmodule Carrier.Data.Source.Redash do
   @behaviour Carrier.Data.Source
 
   use Carrier.Integrations
+  alias Carrier.Data.Block
   alias Carrier.External.RedashAPI
   alias Carrier.Uploader
   alias Carrier.Core.Async
@@ -15,10 +16,14 @@ defmodule Carrier.Data.Source.Redash do
   end
 
   defmodule Dashboard do
-    defstruct [:id, :name, :public_url]
+    defstruct [:id, :name, :slug, :public_url]
 
-    def new(%{"id" => id, "name" => name} = params) do
-      %__MODULE__{id: id, name: name, public_url: params["public_url"]}
+    def new(%{"id" => id, "name" => name, "slug" => slug} = params) do
+      %__MODULE__{id: id, name: name, slug: slug, public_url: params["public_url"]}
+    end
+
+    def url(%__MODULE__{id: id, slug: slug}, host) do
+      "#{host}/dashboards/#{id}-#{slug}"
     end
   end
 
@@ -57,6 +62,26 @@ defmodule Carrier.Data.Source.Redash do
            |> Async.unwrap_map_ok_results() do
       {:ok, %{dashboards: dashboards, dashboard_image_urls: dashboard_image_urls}}
     end
+  end
+
+  @impl true
+  def data_to_threads(_params, %DataSource{source: :redash} = data_source, %{
+        dashboards: dashboards,
+        dashboard_image_urls: dashboard_image_urls
+      }) do
+    %{host: host} = DataSource.to_credentials(data_source)
+
+    threads =
+      [dashboards, dashboard_image_urls]
+      |> Enum.zip_with(fn [%Dashboard{name: name} = dashboard, dashboard_image_url] ->
+        [
+          Block.link(name, Dashboard.url(dashboard, host)),
+          Block.image(name, dashboard_image_url, name),
+          Block.button("Open Original Image", dashboard_image_url)
+        ]
+      end)
+
+    {:ok, threads}
   end
 
   def list_dashboards(%DataSource{source: :redash} = data_source) do
