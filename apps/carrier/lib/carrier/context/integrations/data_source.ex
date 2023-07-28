@@ -9,7 +9,7 @@ defmodule Carrier.Integrations.DataSource do
 
     field :org_id, :id
 
-    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :tableau]
+    field :source, Ecto.Enum, values: [:postgres, :mysql, :bigquery, :athena, :tableau, :redash]
 
     field :name, :string
     field :demo, :boolean, virtual: true, default: false
@@ -65,6 +65,7 @@ defmodule Carrier.Integrations.DataSource do
       :bigquery -> "Google BigQuery"
       :athena -> "AWS Athena"
       :tableau -> "Tableau"
+      :redash -> "Redash"
     end
   end
 end

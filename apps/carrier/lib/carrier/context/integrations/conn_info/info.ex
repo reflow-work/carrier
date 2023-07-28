@@ -36,6 +36,7 @@ defmodule Carrier.Integrations.ConnInfo.Info do
       :athena -> ConnInfo.Athena
       :slack -> ConnInfo.Slack
       :tableau -> ConnInfo.Tableau
+      :redash -> ConnInfo.Redash
       :demo -> ConnInfo.Demo
     end
   end
