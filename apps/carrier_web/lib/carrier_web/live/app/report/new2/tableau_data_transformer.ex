@@ -116,7 +116,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
           </div>
           <hr class="my-4" />
           <div class="space-y-8">
-            <p :if={@selected_views |> Enum.empty?()}>Tablea View 를 선택해주세요</p>
+            <p :if={@selected_views |> Enum.empty?()}>Tableau View 를 선택해주세요</p>
             <.live_component
               :for={%Tableau.View{id: id} = selected_view <- @selected_views}
               module={TableauView}
