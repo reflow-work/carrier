@@ -2,8 +2,14 @@ defmodule Carrier.External.RedashAPI do
   require Logger
   alias Carrier.Data.Source.Redash.{Pagination, Dashboard}
 
-  def list_dashboards(%{host: host, api_key: api_key}) do
-    Tesla.get(client(host), "/api/dashboards", query: %{api_key: api_key})
+  def list_dashboards(page, %{host: host, api_key: api_key}) do
+    query = [
+      {"page", page},
+      {"page_size", 250},
+      {"api_key", api_key}
+    ]
+
+    Tesla.get(client(host), "/api/dashboards", query: query)
     |> handle_response()
     |> case do
       {:ok, %{"results" => results} = body} ->

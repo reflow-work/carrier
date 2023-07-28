@@ -24,7 +24,7 @@ defmodule Carrier.Data.Source.Redash do
 
   @impl true
   def validate_conn(:redash, credentials, _opts) do
-    case RedashAPI.list_dashboards(credentials) do
+    case RedashAPI.list_dashboards(1, credentials) do
       {:ok, _} -> :ok
       {:error, reason} -> {:error, {:invalid_conn_info, reason}}
     end
@@ -40,7 +40,7 @@ defmodule Carrier.Data.Source.Redash do
       page ->
         {:ok,
          %{dashboards: dashboards, pagination: %Pagination{page: page, page_size: page_size, total: total}}} =
-          RedashAPI.list_dashboards(credentials)
+          RedashAPI.list_dashboards(page, credentials)
 
         last_page = div(total, page_size) + 1
 
