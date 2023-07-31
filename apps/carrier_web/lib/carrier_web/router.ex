@@ -43,6 +43,10 @@ defmodule CarrierWeb.Router do
     plug :fetch_live_flash
   end
 
+  pipeline :auth_admin do
+    plug :admin_basic_auth
+  end
+
   get "/health", CarrierWeb.HealthController, :index
 
   # Without Auth
@@ -120,14 +124,12 @@ defmodule CarrierWeb.Router do
   # If your application does not have an admins-only section yet,
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
-  if Mix.env() in [:dev, :test] do
-    import Phoenix.LiveDashboard.Router
+  import Phoenix.LiveDashboard.Router
 
-    scope "/" do
-      pipe_through :browser
+  scope "/" do
+    pipe_through [:browser, :auth_admin]
 
-      live_dashboard "/dashboard", metrics: CarrierWeb.Telemetry
-    end
+    live_dashboard "/dashboard", metrics: CarrierWeb.Telemetry
   end
 
   # Enables the Swoosh mailbox preview in development.
@@ -146,5 +148,13 @@ defmodule CarrierWeb.Router do
 
   if Mix.env() == :prod do
     forward "/", CarrierWeb.FallbackPlug
+  end
+
+  defp admin_basic_auth(conn, _opts) do
+    auth = Application.get_env(:carrier_web, :basic_auth)
+    username = auth[:username]
+    password = auth[:password]
+
+    Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 end

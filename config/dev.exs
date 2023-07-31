@@ -96,4 +96,6 @@ config :carrier, :toss_payments,
 
 config :carrier_worker, Oban, queues: [report: 1, subscription_expiring: 1]
 
+config :carrier_web, :basic_auth, username: "admin", password: "password"
+
 import_config "#{config_env()}.secret.exs"
