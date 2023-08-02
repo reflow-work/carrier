@@ -8,8 +8,10 @@ defmodule Carrier.Core.Browser.Lambda do
     |> case do
       {:ok, %{"body" => body}, _} ->
         %{"screenshotBase64" => screenshot_base64} = body |> Jason.decode!()
+        screenshot_binary = screenshot_base64 |> Base.decode64!()
 
-        {:ok, screenshot_base64}
+        {:ok, screenshot_binary}
+
       {:error, reason} ->
         {:error, reason}
     end
