@@ -212,7 +212,7 @@ defmodule CarrierWeb.Components.DataSourceNew do
       {:bigquery, "logo-bigquery.png"},
       {:athena, "logo-athena.png"},
       {:tableau, "logo-tableau.png"},
-      {:redash, "logo-tableau.png"}
+      {:redash, "logo-redash.png"}
     ]
   end
 end
