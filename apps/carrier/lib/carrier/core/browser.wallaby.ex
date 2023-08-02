@@ -1,4 +1,4 @@
-defmodule Carrier.Core.Browser do
+defmodule Carrier.Core.Browser.Wallaby do
   def screenshot(url) do
     with {:ok, session} <- start_session(),
          {:ok, screenshot} <- do_screenshot(session, url) do

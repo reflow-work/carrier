@@ -35,7 +35,7 @@ defmodule Carrier.External.RedashAPI do
   end
 
   def get_dashboard_screenshot(dashboard_url) do
-    Browser.screenshot(dashboard_url)
+    Browser.Lambda.screenshot(dashboard_url)
   end
 
   defp handle_response({:ok, %Tesla.Env{status: 200, body: body}}) do
