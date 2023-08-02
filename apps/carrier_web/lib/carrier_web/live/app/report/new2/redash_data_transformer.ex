@@ -1,7 +1,7 @@
 defmodule CarrierWeb.App.ReportLive.New2.RedashDataTransformer do
   use CarrierWeb, :live_component
   use Carrier.Integrations
-  alias CarrierWeb.App.ReportLive.New2.DataSourceInfoParams
+  alias CarrierWeb.App.ReportLive.New2.{DataSourceInfoParams, RedashDashboard}
   alias Carrier.Data.Source.Redash
 
   @impl true
@@ -113,6 +113,17 @@ defmodule CarrierWeb.App.ReportLive.New2.RedashDataTransformer do
               }
             />
             <.error :if={@dashboards.error}><%= @dashboards.error %></.error>
+          </div>
+          <hr class="my-4" />
+          <div class="space-y-8">
+            <p :if={@selected_dashboards |> Enum.empty?()}>Redash Dashboard 를 선택해주세요</p>
+            <.live_component
+              :for={%Redash.Dashboard{id: id} = selected_dashboard <- @selected_dashboards}
+              module={RedashDashboard}
+              id={id}
+              data_source={@data_source}
+              dashboard={selected_dashboard}
+            />
           </div>
         </.card>
       </.card_container>

@@ -111,6 +111,16 @@ defmodule Carrier.Data.Source.Redash do
     |> then(&{:ok, &1})
   end
 
+  def get_dashboard_image_binary(%DataSource{source: :redash} = data_source, dashboard_id) do
+    credentials = data_source |> DataSource.to_credentials()
+
+    with {:ok, %Dashboard{public_url: public_url}} <-
+           RedashAPI.get_dashboard(dashboard_id, credentials),
+         {:ok, image_binary} <- RedashAPI.get_dashboard_screenshot(public_url) do
+      {:ok, image_binary}
+    end
+  end
+
   defp do_list_dashboards_async(dashboard_ids, credentials) do
     dashboard_ids
     |> Async.map(fn dashboard_id -> RedashAPI.get_dashboard(dashboard_id, credentials) end)
