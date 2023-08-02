@@ -70,7 +70,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
         </.card>
       </.card_container>
 
-      <.modal id="new_data_source_modal">
+      <.modal id="new_data_source_modal" title="데이터 소스 추가">
         <.live_component
           module={DataSourceNew}
           id="data_source_new"

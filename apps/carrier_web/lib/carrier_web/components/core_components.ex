@@ -36,11 +36,12 @@ defmodule CarrierWeb.CoreComponents do
       </.modal>
 
   """
-  attr :id, :string, required: true
-  attr :show, :boolean, default: false
-  attr :on_cancel, JS, default: %JS{}
-  attr :is_show_close_button, :boolean, default: true
-  slot :inner_block, required: true
+  attr(:id, :string, required: true)
+  attr(:show, :boolean, default: false)
+  attr(:on_cancel, JS, default: %JS{})
+  attr(:is_show_close_button, :boolean, default: true)
+  attr(:title, :string, required: true)
+  slot(:inner_block, required: true)
 
   def modal(assigns) do
     ~H"""
@@ -62,7 +63,7 @@ defmodule CarrierWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-5xl p-4 sm:p-6 lg:py-8">
+          <div class="w-full max-w-5xl p-3 sm:p-5 lg:py-8">
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
@@ -70,15 +71,18 @@ defmodule CarrierWeb.CoreComponents do
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
               class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-8 shadow-lg ring-1 transition"
             >
-              <div :if={@is_show_close_button} class="absolute top-4 right-5">
-                <button
-                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
-                  type="button"
-                  class="-m-3 flex-none p-2 opacity-20 hover:opacity-40"
-                  aria-label={gettext("close")}
-                >
-                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
-                </button>
+              <div class="flex justify-between pb-5 border-b mb-8">
+                <div class="font-bold"><%= @title %></div>
+                <div :if={@is_show_close_button} class="">
+                  <button
+                    phx-click={JS.exec("data-cancel", to: "##{@id}")}
+                    type="button"
+                    class="-m-3 flex-none p-2 opacity-20 hover:opacity-40"
+                    aria-label={gettext("close")}
+                  >
+                    <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+                  </button>
+                </div>
               </div>
               <div id={"#{@id}-content"}>
                 <%= render_slot(@inner_block) %>
@@ -173,18 +177,19 @@ defmodule CarrierWeb.CoreComponents do
         </:actions>
       </.simple_form>
   """
-  attr :for, :any, required: true, doc: "the datastructure for the form"
-  attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
-  attr :errors, :any, default: []
+  attr(:for, :any, required: true, doc: "the datastructure for the form")
+  attr(:as, :any, default: nil, doc: "the server side parameter to collect all input under")
+  attr(:errors, :any, default: [])
 
-  attr :class, :any, default: nil
+  attr(:class, :any, default: nil)
 
-  attr :rest, :global,
+  attr(:rest, :global,
     include: ~w(autocomplete name rel action enctype method novalidate target),
     doc: "the arbitrary HTML attributes to apply to the form tag"
+  )
 
-  slot :inner_block, required: true
-  slot :actions, doc: "the slot for form actions, such as a submit button"
+  slot(:inner_block, required: true)
+  slot(:actions, doc: "the slot for form actions, such as a submit button")
 
   def simple_form(assigns) do
     assigns =
@@ -212,13 +217,13 @@ defmodule CarrierWeb.CoreComponents do
       <.button>Send!</.button>
       <.button phx-click="go" class="ml-2">Send!</.button>
   """
-  attr :type, :string, default: nil
-  attr :class, :any, default: nil
-  attr :style, :atom, values: ~w(primary outline normal)a, default: :primary
-  attr :size, :atom, values: ~w(md sm)a, default: :md
-  attr :rest, :global, include: ~w(disabled form name value)
+  attr(:type, :string, default: nil)
+  attr(:class, :any, default: nil)
+  attr(:style, :atom, values: ~w(primary outline normal)a, default: :primary)
+  attr(:size, :atom, values: ~w(md sm)a, default: :md)
+  attr(:rest, :global, include: ~w(disabled form name value))
 
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def button(assigns) do
     ~H"""
@@ -243,12 +248,12 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
-  attr :disabled, :boolean, default: false
-  attr :style, :atom, values: ~w(primary outline normal)a, default: :primary
-  attr :size, :atom, values: ~w(md sm)a, default: :md
-  attr :rest, :global, include: ~w(navigate patch href replace method)
+  attr(:disabled, :boolean, default: false)
+  attr(:style, :atom, values: ~w(primary outline normal)a, default: :primary)
+  attr(:size, :atom, values: ~w(md sm)a, default: :md)
+  attr(:rest, :global, include: ~w(navigate patch href replace method))
 
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def link_button(assigns) do
     ~H"""
@@ -272,36 +277,39 @@ defmodule CarrierWeb.CoreComponents do
       <.input field={@form[:email]} type="email" />
       <.input name="my-input" errors={["oh no!"]} />
   """
-  attr :id, :any, default: nil
-  attr :name, :any
-  attr :label, :string, default: nil
-  attr :value, :any
+  attr(:id, :any, default: nil)
+  attr(:name, :any)
+  attr(:label, :string, default: nil)
+  attr(:value, :any)
 
-  attr :type, :string,
+  attr(:type, :string,
     default: "text",
     values:
       ~w(checkbox checkgroup color date datetime-local email file hidden month number password
                range radio radio-group search select tel text textarea time url week)
+  )
 
-  attr :field, Phoenix.HTML.FormField,
+  attr(:field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
+  )
 
-  attr :errors, :list, default: []
-  attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
-  attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
-  attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
-  attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr(:errors, :list, default: [])
+  attr(:checked, :boolean, doc: "the checked flag for checkbox inputs")
+  attr(:prompt, :string, default: nil, doc: "the prompt for select inputs")
+  attr(:options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2")
+  attr(:multiple, :boolean, default: false, doc: "the multiple flag for select inputs")
 
-  attr :label_align, :atom, default: :top, values: ~w(top left)a
-  attr :class, :any, default: nil
-  attr :input_class, :any, default: nil
+  attr(:label_align, :atom, default: :top, values: ~w(top left)a)
+  attr(:class, :any, default: nil)
+  attr(:input_class, :any, default: nil)
 
-  attr :rest, :global,
+  attr(:rest, :global,
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
                 pattern placeholder readonly required rows size step)
+  )
 
-  slot :label_element, doc: "the slot for the label element"
-  slot :icon
+  slot(:label_element, doc: "the slot for the label element")
+  slot(:icon)
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns
@@ -531,8 +539,8 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
-  attr :name, :string, required: true
-  attr :label, :string, default: nil
+  attr(:name, :string, required: true)
+  attr(:label, :string, default: nil)
 
   def field_adder(assigns) do
     ~H"""
@@ -543,8 +551,8 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
-  attr :for, :any, required: true
-  attr :name, :string, required: true
+  attr(:for, :any, required: true)
+  attr(:name, :string, required: true)
 
   def field_adder_hidden(assigns) do
     ~H"""
@@ -552,9 +560,9 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
-  attr :for, :any, required: true
-  attr :name, :string, required: true
-  attr :label, :string, default: nil
+  attr(:for, :any, required: true)
+  attr(:name, :string, required: true)
+  attr(:label, :string, default: nil)
 
   def field_remover(assigns) do
     assigns =
@@ -581,11 +589,11 @@ defmodule CarrierWeb.CoreComponents do
   @doc """
   Renders a label.
   """
-  attr :for, :string, default: nil
-  attr :align, :atom, default: :top, values: [:top, :left]
-  attr :class, :any, default: nil
+  attr(:for, :string, default: nil)
+  attr(:align, :atom, default: :top, values: [:top, :left])
+  attr(:class, :any, default: nil)
 
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def label(assigns) do
     ~H"""
@@ -605,7 +613,7 @@ defmodule CarrierWeb.CoreComponents do
   @doc """
   Generates a generic error message.
   """
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def error(assigns) do
     ~H"""
@@ -619,11 +627,11 @@ defmodule CarrierWeb.CoreComponents do
   @doc """
   Renders a header with title.
   """
-  attr :class, :any, default: nil
+  attr(:class, :any, default: nil)
 
-  slot :inner_block, required: true
-  slot :subtitle
-  slot :actions
+  slot(:inner_block, required: true)
+  slot(:subtitle)
+  slot(:actions)
 
   def header(assigns) do
     ~H"""
@@ -651,19 +659,20 @@ defmodule CarrierWeb.CoreComponents do
         <:col :let={user} label="username"><%= user.username %></:col>
       </.table>
   """
-  attr :id, :string, required: true
-  attr :rows, :list, required: true
-  attr :row_id, :any, default: nil, doc: "the function for generating the row id"
-  attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+  attr(:id, :string, required: true)
+  attr(:rows, :list, required: true)
+  attr(:row_id, :any, default: nil, doc: "the function for generating the row id")
+  attr(:row_click, :any, default: nil, doc: "the function for handling phx-click on each row")
 
-  attr :row_item, :any,
+  attr(:row_item, :any,
     doc: "the function for mapping each row before calling the :col and :action slots"
+  )
 
   slot :col, required: true do
-    attr :label, :string
+    attr(:label, :string)
   end
 
-  slot :action, doc: "the slot for showing user actions in the last table column"
+  slot(:action, doc: "the slot for showing user actions in the last table column")
 
   def table(assigns) do
     assigns =
@@ -732,7 +741,7 @@ defmodule CarrierWeb.CoreComponents do
       </.list>
   """
   slot :item, required: true do
-    attr :title, :string, required: true
+    attr(:title, :string, required: true)
   end
 
   def list(assigns) do
@@ -755,8 +764,8 @@ defmodule CarrierWeb.CoreComponents do
 
       <.back navigate={~p"/posts"}>Back to posts</.back>
   """
-  attr :navigate, :any, required: true
-  slot :inner_block, required: true
+  attr(:navigate, :any, required: true)
+  slot(:inner_block, required: true)
 
   def back(assigns) do
     ~H"""
@@ -772,8 +781,8 @@ defmodule CarrierWeb.CoreComponents do
     """
   end
 
-  attr :class, :any, default: nil
-  attr :rest, :global
+  attr(:class, :any, default: nil)
+  attr(:rest, :global)
 
   def loading(assigns) do
     ~H"""
@@ -799,9 +808,9 @@ defmodule CarrierWeb.CoreComponents do
       <.icon name="hero-x-mark-solid" />
       <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
   """
-  attr :name, :string, required: true
-  attr :class, :any, default: nil
-  attr :rest, :global
+  attr(:name, :string, required: true)
+  attr(:class, :any, default: nil)
+  attr(:rest, :global)
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
