@@ -183,7 +183,11 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQuerier do
         </div>
       </div>
 
-      <.modal :if={Source.RDB.support_query_maker?(@data_source.source)} id="query_maker_modal">
+      <.modal
+        :if={Source.RDB.support_query_maker?(@data_source.source)}
+        id="query_maker_modal"
+        title="쿼리 자동 입력기"
+      >
         <.live_component
           module={RDBQueryMaker}
           id="query_maker"

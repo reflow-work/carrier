@@ -1,128 +1,134 @@
 <div>
-  <div class="divide-y">
-    <div>
-      <div class="callout">
-        <div class="callout-icon">
-          <Icon.alert_circle class="w-4 h-4 mt-0.5" />
-        </div>
+  <div class="grid grid-cols-12">
+    <div class="col-span-6">
+      <div class="rounded-md">
         <div>
-          reflow는 데이터 소스의 <span class="font-bold text-primary-red">데이터를 일체 저장하지 않습니다.</span>
-          <br /> 데이터 소스 연결 정보와 리포트만 높은 수준의 암호화를 통해 저장됩니다.
+          <div class="flex">
+            <a
+              phx-target={@myself}
+              phx-click="change_step"
+              phx-value-step="step-1"
+              class="text-sm cursor-pointer"
+            >
+              <div class={"p-2 pt-0 border-b-2 hover:text-primary-200 #{if @step == "step-1" do
+                  "border-primary font-bold"
+                end}"}>
+                1. 데이터 소스 선택
+              </div>
+            </a>
+
+            <a
+              phx-target={@myself}
+              phx-click="change_step"
+              phx-value-step="step-2"
+              class="text-sm cursor-pointer"
+            >
+              <div class={"ml-4 p-2 pt-0 border-b-2 #{if @step == "step-2" do
+                  "border-primary font-bold"
+                end}"}>
+                2. 연결 정보 설정
+              </div>
+            </a>
+          </div>
+
+          <div :if={@step == "step-1"} class="mt-10 space-y-4">
+            <div
+              :for={{source, image_filename} <- data_sources()}
+              phx-target={@myself}
+              phx-click={
+                js_log_event("click_data_source_type", %{
+                  page_name: "data_source_new",
+                  type: source
+                })
+                |> JS.push("select_source", value: %{source: source})
+              }
+              class={[
+                "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex items-center justify-between",
+                if @source == source do
+                  "bg-black text-white"
+                else
+                  "bg-white text-black"
+                end
+              ]}
+            >
+              <div class="flex items-center">
+                <img src={~p"/images/#{image_filename}"} class="w-6 mr-4" />
+                <%= DataSource.transl_source(source) %>
+              </div>
+              <Icon.arrow_right class="w-4" />
+            </div>
+          </div>
+
+          <div :if={@step == "step-2"} class="mt-8">
+            <div :if={@source == :tableau} class="callout mb-6 max-w-fit">
+              <div class="callout-icon">
+                <Icon.alert_circle class="w-4 h-4 mt-0.5" />
+              </div>
+              <div>
+                Tableau의 각 정보를 확인하는 방법은 <a
+                  href={Const.get(:tableau_guide_url)}
+                  target="_blank"
+                  class="underline text-sky-500"
+                >가이드</a>에서 보실 수 있습니다.
+              </div>
+            </div>
+
+            <.simple_form
+              for={@form}
+              phx-target={@myself}
+              phx-change="validate_data_source"
+              phx-submit="create_data_source"
+            >
+              <.input
+                type="text"
+                field={@form[:name]}
+                label="데이터 소스 이름"
+                placeholder="데이터 마트"
+                autofocus
+                class="max-w-xs"
+              />
+
+              <Components.source_inputs
+                source={@source}
+                form={@form}
+                uploads={@uploads}
+                file_name={@file_name}
+              />
+
+              <:actions>
+                <.button
+                  type="submit"
+                  disabled={!@form.source.valid?}
+                  phx-disable-with="연결중"
+                >
+                  연결하기
+                </.button>
+              </:actions>
+              <.error :if={@error}><%= @error %></.error>
+            </.simple_form>
+          </div>
         </div>
       </div>
+    </div>
 
+    <div class="col-span-6">
       <div class="callout mt-2">
         <div class="callout-icon">
           <Icon.alert_circle class="w-4 h-4 mt-0.5" />
         </div>
-        데이터 소스에 방화벽이 설정되어 있는 경우
-        <code class="mx-1 bg-red-100 rounded text-primary-red px-1 border border-primary-red">
-          15.165.126.27
-        </code>
-        IP를 화이트 리스트에 설정해주세요.
+        <div>데이터 소스 연동 정보를 모르시는 경우에는 개발자에게 <b>2. 연결 정보 설정</b>에 보이는 입력폼을 캡쳐하여 필요한 정보를 요청해주세요.</div>
+      </div>
+      <div class="callout mt-2">
+        <div class="callout-icon">
+          <Icon.alert_circle class="w-4 h-4 mt-0.5" />
+        </div>
+        <div>데이터 소스에 방화벽이 설정되어 있는 경우 아래 IP를 화이트 리스트에 추가해주세요.<br />
+          <b>IP: 15.165.126.27</b></div>
       </div>
     </div>
   </div>
 
-  <div class="rounded-md">
-    <div class="mt-8">
-      <div class="flex">
-        <a
-          phx-target={@myself}
-          phx-click="change_step"
-          phx-value-step="step-1"
-          class="text-sm cursor-pointer"
-        >
-          <div class={"p-2 pt-0 border-b-2 hover:text-primary-200 #{if @step == "step-1" do
-                  "border-primary font-bold"
-                end}"}>
-            1. 데이터 소스 선택
-          </div>
-        </a>
-
-        <a
-          phx-target={@myself}
-          phx-click="change_step"
-          phx-value-step="step-2"
-          class="text-sm cursor-pointer"
-        >
-          <div class={"ml-4 p-2 pt-0 border-b-2 #{if @step == "step-2" do
-                  "border-primary font-bold"
-                end}"}>
-            2. 연결 정보 설정
-          </div>
-        </a>
-      </div>
-
-      <div :if={@step == "step-1"} class="mt-10 space-y-4">
-        <div
-          :for={{source, image_filename} <- data_sources()}
-          phx-target={@myself}
-          phx-click={
-            js_log_event("click_data_source_type", %{page_name: "data_source_new", type: source})
-            |> JS.push("select_source", value: %{source: source})
-          }
-          class={[
-            "p-4 cursor-pointer rounded w-80 border hover:bg-black hover:text-white flex items-center justify-between",
-            if @source == source do
-              "bg-black text-white"
-            else
-              "bg-white text-black"
-            end
-          ]}
-        >
-          <div class="flex items-center">
-            <img src={~p"/images/#{image_filename}"} class="w-6 mr-4" />
-            <%= DataSource.transl_source(source) %>
-          </div>
-          <Icon.arrow_right class="w-4" />
-        </div>
-      </div>
-
-      <div :if={@step == "step-2"} class="mt-8">
-        <div :if={@source == :tableau} class="callout mb-6 max-w-fit">
-          <div class="callout-icon">
-            <Icon.alert_circle class="w-4 h-4 mt-0.5" />
-          </div>
-          <div>
-            Tableau의 각 정보를 확인하는 방법은 <a
-              href={Const.get(:tableau_guide_url)}
-              target="_blank"
-              class="underline text-sky-500"
-            >가이드</a>에서 보실 수 있습니다.
-          </div>
-        </div>
-
-        <.simple_form
-          for={@form}
-          phx-target={@myself}
-          phx-change="validate_data_source"
-          phx-submit="create_data_source"
-        >
-          <.input
-            type="text"
-            field={@form[:name]}
-            label="데이터 소스 이름"
-            placeholder="데이터 마트"
-            autofocus
-            class="max-w-xs"
-          />
-
-          <Components.source_inputs
-            source={@source}
-            form={@form}
-            uploads={@uploads}
-            file_name={@file_name}
-          />
-
-          <:actions>
-            <.button type="submit" disabled={!@form.source.valid?} phx-disable-with="연결중">
-              연결하기
-            </.button>
-          </:actions>
-          <.error :if={@error}><%= @error %></.error>
-        </.simple_form>
-      </div>
-    </div>
+  <div class="divide-y">
+    <div></div>
   </div>
 </div>
