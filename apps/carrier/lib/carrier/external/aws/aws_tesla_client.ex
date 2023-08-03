@@ -38,7 +38,7 @@ defmodule Carrier.External.Aws.TeslaClient do
          {:ok, %{status: 200}} -> false
          _ -> true
        end},
-      {Tesla.Middleware.Timeout, timeout: :timer.seconds(90)}
+      {Tesla.Middleware.Timeout, timeout: :timer.minutes(3)}
     ])
   end
 end

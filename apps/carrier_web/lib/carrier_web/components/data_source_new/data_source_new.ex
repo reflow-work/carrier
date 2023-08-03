@@ -49,6 +49,7 @@ defmodule CarrierWeb.Components.DataSourceNew do
         :bigquery -> ConnInfoParams.BigQuery
         :athena -> ConnInfoParams.Athena
         :tableau -> ConnInfoParams.Tableau
+        :redash -> ConnInfoParams.Redash
       end
 
     form =
@@ -210,7 +211,8 @@ defmodule CarrierWeb.Components.DataSourceNew do
       {:postgres, "logo-postgresql.png"},
       {:bigquery, "logo-bigquery.png"},
       {:athena, "logo-athena.png"},
-      {:tableau, "logo-tableau.png"}
+      {:tableau, "logo-tableau.png"},
+      {:redash, "logo-redash.png"}
     ]
   end
 end

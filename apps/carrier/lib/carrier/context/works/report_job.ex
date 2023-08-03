@@ -46,7 +46,7 @@ defmodule Carrier.Works.ReportJob do
   end
 
   @impl Oban.Worker
-  def timeout(_job), do: :timer.minutes(3)
+  def timeout(_job), do: :timer.minutes(5)
 
   defp send_report(
          %Report{data_target_info: data_target_info} = report,

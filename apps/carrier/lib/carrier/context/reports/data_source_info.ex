@@ -22,6 +22,8 @@ defmodule Carrier.Reports.DataSourceInfo do
       source when source in ["postgres", "mysql", "bigquery", "athena"] -> __MODULE__.RDB
       :tableau -> __MODULE__.Tableau
       "tableau" -> __MODULE__.Tableau
+      :redash -> __MODULE__.Redash
+      "redash" -> __MODULE__.Redash
     end
   end
 end

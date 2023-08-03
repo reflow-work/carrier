@@ -3,12 +3,12 @@ defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
   use Doumi.Phoenix.Params, as: :data_source_info
   import Ecto.Changeset
   import Carrier.Data.Source.RDB.Guard
-  alias CarrierWeb.App.ReportLive.New2.{RDBParams, TableauParams}
+  alias CarrierWeb.App.ReportLive.New2.{RDBParams, TableauParams, RedashParams}
 
   @primary_key false
   embedded_schema do
     field :data_source_id, :id
-    field :source, Ecto.Enum, values: [:tableau]
+    field :source, Ecto.Enum, values: [:tableau, :redash]
     field :params, :map
   end
 
@@ -27,6 +27,7 @@ defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
         case source do
           source when is_rdb_source(source) -> RDBParams
           :tableau -> TableauParams
+          :redash -> RedashParams
         end
 
       params_changeset = params_module.changeset(struct(params_module), params)
