@@ -158,10 +158,14 @@ defmodule Carrier.Data.Source.Redash do
   def get_dashboard_image_binary(%DataSource{source: :redash} = data_source, dashboard_id) do
     credentials = data_source |> DataSource.to_credentials()
 
-    with {:ok, %Dashboard{public_url: public_url}} <-
+    with {:ok, %Dashboard{public_url: public_url}} when not is_nil(public_url) <-
            RedashAPI.get_dashboard(dashboard_id, credentials),
          {:ok, image_binary} <- RedashAPI.get_dashboard_screenshot(public_url) do
       {:ok, image_binary}
+    else
+      # TODO: change error message
+      {:ok, %Dashboard{public_url: nil}} -> {:error, "Dashboard public URL 을 설정 후 다시 시도해주세요"}
+      {:error, reason} -> {:error, reason}
     end
   end
 
