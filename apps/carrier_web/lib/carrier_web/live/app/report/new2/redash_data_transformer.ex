@@ -117,6 +117,10 @@ defmodule CarrierWeb.App.ReportLive.New2.RedashDataTransformer do
           <hr class="my-4" />
           <div class="space-y-8">
             <p :if={@selected_dashboards |> Enum.empty?()}>Redash Dashboard 를 선택해주세요</p>
+            <div :if={@selected_dashboards |> Enum.any?()}>
+              <p>Redash 정책으로 인해 Dashboard 미리보기를 가져오는데 몇 분의 시간이 소요될 수 있습니다.</p>
+              <p>미리보기 로딩이 끝나지 않아도 리포트 테스트 발송 및 저장할 수 있습니다.</p>
+            </div>
             <.live_component
               :for={%Redash.Dashboard{id: id} = selected_dashboard <- @selected_dashboards}
               module={RedashDashboard}
