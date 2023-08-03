@@ -1,14 +1,14 @@
 defmodule Carrier.External.RedashAPI do
   require Logger
-  alias Carrier.Data.Source.Redash.{Pagination, Dashboard}
+  alias Carrier.Data.Source.Redash.{Pagination, Dashboard, Query}
   alias Carrier.Core.Browser
 
   def list_dashboards(page, %{host: host, api_key: api_key}) do
-    query = [
-      {"page", page},
-      {"page_size", 250},
-      {"api_key", api_key}
-    ]
+    query = %{
+      "page" => page,
+      "page_size" => 250,
+      "api_key" => api_key
+    }
 
     Tesla.get(client(host), "/api/dashboards", query: query)
     |> handle_response()
@@ -23,7 +23,11 @@ defmodule Carrier.External.RedashAPI do
   end
 
   def get_dashboard(id, %{host: host, api_key: api_key}) do
-    Tesla.get(client(host), "/api/dashboards/#{id}", query: %{api_key: api_key})
+    query = %{
+      "api_key" => api_key
+    }
+
+    Tesla.get(client(host), "/api/dashboards/#{id}", query: query)
     |> handle_response()
     |> case do
       {:ok, body} ->
@@ -36,6 +40,53 @@ defmodule Carrier.External.RedashAPI do
 
   def get_dashboard_screenshot(dashboard_url) do
     Browser.Lambda.screenshot(dashboard_url)
+  end
+
+  def get_query(query_id, %{host: host, api_key: api_key}) do
+    query = %{
+      "api_key" => api_key
+    }
+
+    Tesla.get(client(host), "/api/queries/#{query_id}", query: query)
+    |> handle_response()
+    |> case do
+      {:ok, body} -> {:ok, Query.new(body)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def run_query(query_id, %{parameters: parameters}, %{host: host, api_key: api_key}) do
+    query = %{
+      "api_key" => api_key
+    }
+
+    body = %{
+      "parameters" => parameters,
+      "max_age" => 0
+    }
+
+    Tesla.post(client(host), "/api/queries/#{query_id}/results", body, query: query)
+    |> handle_response()
+    |> case do
+      {:ok, body} -> {:ok, body}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def refresh_query(query_id, %{parameters: parameters}, %{host: host, api_key: api_key}) do
+    query =
+      parameters
+      |> Map.new(fn {k, v} -> {"p_#{k}", v} end)
+      |> Map.merge(%{
+        "api_key" => api_key
+      })
+
+    Tesla.post(client(host), "/api/queries/#{query_id}/refresh", nil, query: query)
+    |> handle_response()
+    |> case do
+      {:ok, body} -> {:ok, body}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   defp handle_response({:ok, %Tesla.Env{status: 200, body: body}}) do

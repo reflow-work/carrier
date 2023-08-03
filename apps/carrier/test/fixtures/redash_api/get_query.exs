@@ -21,7 +21,8 @@
     "is_email_verified" => true,
     "is_invitation_pending" => false,
     "name" => "json",
-    "profile_image_url" => "https://www.gravatar.com/avatar/60666dc6d6dcacd03fe979d24fe0a713?s=40&d=identicon",
+    "profile_image_url" =>
+      "https://www.gravatar.com/avatar/60666dc6d6dcacd03fe979d24fe0a713?s=40&d=identicon",
     "updated_at" => "2023-08-02T11:01:59.508Z"
   },
   "latest_query_data_id" => nil,
@@ -75,7 +76,8 @@
       }
     ]
   },
-  "query" => "SELECT\n  order_date as date,\n  SUM(amount) AS total_amount,\n  SUM(revenue) AS total_revenue,\n  '{{ date }}',\n  '{{ text }}',\n  '{{ testtest }}',\n  '{{ tests }}',\n  '{{ daterange.start }}',\n  '{{ daterange.end }}',\n  '{{ dtr.start }}',\n  '{{ dtr.end }}',\n  '{{ dtrs.start }}',\n  '{{ dtrs.end }}'\nFROM\n  sample_data\nWHERE\n  order_date >= '2023-01-01'\n  AND order_date < '2023-07-28'\nGROUP BY\n  order_date\nORDER BY\n  order_date;",
+  "query" =>
+    "SELECT\n  order_date as date,\n  SUM(amount) AS total_amount,\n  SUM(revenue) AS total_revenue,\n  '{{ date }}',\n  '{{ text }}',\n  '{{ testtest }}',\n  '{{ tests }}',\n  '{{ daterange.start }}',\n  '{{ daterange.end }}',\n  '{{ dtr.start }}',\n  '{{ dtr.end }}',\n  '{{ dtrs.start }}',\n  '{{ dtrs.end }}'\nFROM\n  sample_data\nWHERE\n  order_date >= '2023-01-01'\n  AND order_date < '2023-07-28'\nGROUP BY\n  order_date\nORDER BY\n  order_date;",
   "query_hash" => "facd966fe63663ee9382f79ef3db710c",
   "schedule" => %{"day_of_week" => nil, "interval" => 86400, "time" => "15:15", "until" => nil},
   "tags" => [],
@@ -92,7 +94,8 @@
     "is_email_verified" => true,
     "is_invitation_pending" => false,
     "name" => "json",
-    "profile_image_url" => "https://www.gravatar.com/avatar/60666dc6d6dcacd03fe979d24fe0a713?s=40&d=identicon",
+    "profile_image_url" =>
+      "https://www.gravatar.com/avatar/60666dc6d6dcacd03fe979d24fe0a713?s=40&d=identicon",
     "updated_at" => "2023-08-02T11:01:59.508Z"
   },
   "version" => 1,

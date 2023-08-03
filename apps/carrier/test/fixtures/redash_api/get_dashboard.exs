@@ -10,7 +10,8 @@
   "layout" => [],
   "name" => "내 퍼킹한 대시보드",
   "options" => %{},
-  "public_url" => "http://localhost:5001/public/dashboards/c9XyGunZiDxlvDUQXQuRXnOFyletEcDe9GOZtoyM?org_slug=default",
+  "public_url" =>
+    "http://localhost:5001/public/dashboards/c9XyGunZiDxlvDUQXQuRXnOFyletEcDe9GOZtoyM?org_slug=default",
   "slug" => "-",
   "tags" => [],
   "updated_at" => "2023-08-02T01:48:19.696Z",
@@ -18,7 +19,8 @@
     "email" => "nallwhy@gmail.com",
     "id" => 1,
     "name" => "json",
-    "profile_image_url" => "https://www.gravatar.com/avatar/60666dc6d6dcacd03fe979d24fe0a713?s=40&d=identicon"
+    "profile_image_url" =>
+      "https://www.gravatar.com/avatar/60666dc6d6dcacd03fe979d24fe0a713?s=40&d=identicon"
   },
   "user_id" => 1,
   "version" => 4,
@@ -93,7 +95,8 @@
           "latest_query_data_id" => 2,
           "name" => "New Query",
           "options" => %{"apply_auto_limit" => true, "parameters" => []},
-          "query" => "SELECT\n  order_date as date,\n  SUM(amount) AS total_amount,\n  SUM(revenue) AS total_revenue\nFROM\n  sample_data\nWHERE\n  order_date >= '2023-01-01'\n  AND order_date < '2023-07-28'\nGROUP BY\n  order_date\nORDER BY\n  order_date;",
+          "query" =>
+            "SELECT\n  order_date as date,\n  SUM(amount) AS total_amount,\n  SUM(revenue) AS total_revenue\nFROM\n  sample_data\nWHERE\n  order_date >= '2023-01-01'\n  AND order_date < '2023-07-28'\nGROUP BY\n  order_date\nORDER BY\n  order_date;",
           "query_hash" => "f26758ac6d78d52bee88763b57f83c36",
           "schedule" => nil,
           "tags" => [],
