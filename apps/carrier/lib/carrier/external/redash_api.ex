@@ -39,7 +39,7 @@ defmodule Carrier.External.RedashAPI do
   end
 
   def get_dashboard_screenshot(dashboard_url) do
-    Browser.Lambda.screenshot(dashboard_url)
+    Browser.Lambda.screenshot(dashboard_url, :redash)
   end
 
   def get_query(query_id, %{host: host, api_key: api_key}) do
