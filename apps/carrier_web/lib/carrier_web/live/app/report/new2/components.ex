@@ -24,6 +24,9 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
 
             :redash ->
               CarrierWeb.App.ReportLive.New2.RedashDataTransformer
+
+            :amplitude ->
+              CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer
           end
 
         assigns =

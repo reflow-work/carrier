@@ -1,6 +1,10 @@
 defmodule Carrier.Data.Source.Amplitude do
   @behaviour Carrier.Data.Source
 
+  defmodule Dashboard do
+    defstruct [:url]
+  end
+
   ### behaviors
 
   @impl true
