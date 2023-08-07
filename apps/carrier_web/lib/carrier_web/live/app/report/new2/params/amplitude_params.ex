@@ -7,6 +7,7 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeParams do
   @primary_key false
   embedded_schema do
     embeds_many :dashboards, Dashboard, primary_key: false, on_replace: :delete do
+      field :name, :string
       field :url, :string
     end
   end
@@ -24,7 +25,7 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeParams do
     |> validate_length(:dashboards, min: 1)
   end
 
-  @required_dashboard [:url]
+  @required_dashboard [:name, :url]
   defp changeset_dashboard(%__MODULE__.Dashboard{} = struct, attrs) do
     struct
     |> cast(attrs, @required_dashboard)

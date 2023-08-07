@@ -56,6 +56,12 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
                 <.field_adder_hidden for={dashboard} name="amplitude[dashboard_order][]" />
                 <.input
                   type="text"
+                  field={dashboard[:name]}
+                  label="대시보드 이름"
+                  label_align={:left}
+                />
+                <.input
+                  type="text"
                   field={dashboard[:url]}
                   label="대시보드 URL"
                   label_align={:left}
