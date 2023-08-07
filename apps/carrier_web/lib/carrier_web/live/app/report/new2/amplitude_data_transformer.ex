@@ -17,7 +17,7 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
   # init
   @impl true
   def update(
-        %{data_source: %DataSource{} = _data_source, data_source_info: _data_source_info} =
+        %{data_source: %DataSource{} = _data_source, data_source_info: data_source_info} =
           assigns,
         socket
       ) do
@@ -25,17 +25,15 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
       socket
       |> assign(assigns)
 
-    validate_and_send_data_source_info_form(socket)
-
-    {:ok, socket}
-  end
-
-  # update by async update
-  @impl true
-  def update(%{dashboards: dashboards}, socket) do
     socket =
-      socket
-      |> assign(:dashboards, dashboards)
+      case data_source_info do
+        nil ->
+          socket
+
+        %{params: params} ->
+          socket
+          |> assign(:amplitude_form, AmplitudeParams.to_form(params |> Params.struct_to_map()))
+      end
 
     validate_and_send_data_source_info_form(socket)
 
