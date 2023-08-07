@@ -17,6 +17,7 @@ defmodule CarrierWeb.Components.DataSourceNew.Components do
       :athena -> athena_inputs(assigns)
       :tableau -> tableau_inputs(assigns)
       :redash -> redash_inputs(assigns)
+      :amplitude -> amplitude_inputs(assigns)
       # demos
       _ -> ~H()
     end

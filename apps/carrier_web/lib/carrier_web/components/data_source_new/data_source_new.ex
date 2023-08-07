@@ -50,6 +50,7 @@ defmodule CarrierWeb.Components.DataSourceNew do
         :athena -> ConnInfoParams.Athena
         :tableau -> ConnInfoParams.Tableau
         :redash -> ConnInfoParams.Redash
+        :amplitude -> ConnInfoParams.Amplitude
       end
 
     form =
@@ -212,7 +213,8 @@ defmodule CarrierWeb.Components.DataSourceNew do
       {:bigquery, "logo-bigquery.png"},
       {:athena, "logo-athena.png"},
       {:tableau, "logo-tableau.png"},
-      {:redash, "logo-redash.png"}
+      {:redash, "logo-redash.png"},
+      {:amplitude, "logo-amplitude.png"}
     ]
   end
 end
