@@ -24,6 +24,8 @@ defmodule Carrier.Reports.DataSourceInfo do
       "tableau" -> __MODULE__.Tableau
       :redash -> __MODULE__.Redash
       "redash" -> __MODULE__.Redash
+      :amplitude -> __MODULE__.Amplitude
+      "amplitude" -> __MODULE__.Amplitude
     end
   end
 end

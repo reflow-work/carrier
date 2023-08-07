@@ -2,7 +2,9 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeParams do
   use Ecto.Schema
   use Doumi.Phoenix.Params, as: :amplitude
   import Ecto.Changeset
+  alias Carrier.Data.Source.Amplitude
 
+  @primary_key false
   embedded_schema do
     embeds_many :dashboards, Dashboard, primary_key: false, on_replace: :delete do
       field :url, :string
@@ -27,5 +29,6 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeParams do
     struct
     |> cast(attrs, @required_dashboard)
     |> validate_required(@required_dashboard)
+    |> validate_format(:url, Amplitude.dashboard_url_format())
   end
 end

@@ -20,7 +20,7 @@ defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
     |> validate_params()
   end
 
-  defp validate_params(%Ecto.Changeset{changes: %{source: source}, valid?: true} = changeset) do
+  defp validate_params(%Ecto.Changeset{changes: %{source: source}} = changeset) do
     changeset
     |> validate_change(:params, fn :params, params ->
       params_module =
@@ -35,10 +35,8 @@ defmodule CarrierWeb.App.ReportLive.New2.DataSourceInfoParams do
 
       case params_changeset.valid? do
         true -> []
-        false -> params_changeset.errors
+        false -> [params: "invalid values"]
       end
     end)
   end
-
-  defp validate_params(changeset), do: changeset
 end

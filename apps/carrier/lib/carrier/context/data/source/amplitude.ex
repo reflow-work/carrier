@@ -23,6 +23,10 @@ defmodule Carrier.Data.Source.Amplitude do
   end
 
   def validate_dashboard_url(dashboard_url) do
-    String.starts_with?(dashboard_url, "https://app.amplitude.com/analytics/share")
+    Regex.match?(dashboard_url_format(), dashboard_url)
+  end
+
+  def dashboard_url_format() do
+    ~r(^https://app.amplitude.com/analytics/share)
   end
 end

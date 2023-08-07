@@ -92,6 +92,8 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
       socket
       |> assign(:amplitude_form, amplitude_form)
 
+    validate_and_send_data_source_info_form(socket)
+
     {:noreply, socket}
   end
 

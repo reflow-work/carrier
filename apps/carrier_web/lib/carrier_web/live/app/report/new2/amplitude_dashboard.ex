@@ -2,7 +2,6 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDashboard do
   use CarrierWeb, :live_component
   use Carrier.Integrations
   alias Carrier.Data.Source.Amplitude
-  alias Carrier.Core.Nillable
 
   @impl true
   def mount(socket) do
@@ -34,13 +33,10 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDashboard do
             socket
             |> assign(:dashboard_url, dashboard_url)
 
-          valid_dashboard_url = Amplitude.validate_dashboard_url(dashboard_url)
-
           socket =
-            case valid_dashboard_url do
+            case Amplitude.validate_dashboard_url(dashboard_url) do
               true ->
                 socket
-                |> update(:image_binary, &(&1 |> Map.put(:error, nil)))
                 |> assign_async(
                   :image_binary,
                   fn -> Amplitude.get_dashboard_image_binary(data_source, dashboard_url) end,
@@ -49,7 +45,6 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDashboard do
 
               false ->
                 socket
-                |> update(:image_binary, &(&1 |> Map.put(:error, "대시보드 URL 이 올바르지 않습니다.")))
             end
 
           socket
