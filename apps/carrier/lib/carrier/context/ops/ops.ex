@@ -6,6 +6,8 @@ defmodule Carrier.Ops do
   alias Carrier.Tenant
 
   def restart_failed_report(report_log_id) do
+    Tenant.put_org_id(:skip)
+
     Repo.wrap_transaction(fn ->
       with {:ok, %ReportLog{report_job_id: report_job_id} = report_log} <-
              retry_failed_report_log(report_log_id),
