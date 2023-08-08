@@ -1,5 +1,12 @@
 import Config
 
+# We don't run a server during test. If one is required,
+# you can enable the server option below.
+config :carrier_webhook, CarrierWebhook.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4101],
+  secret_key_base: "mhUhV+0yOGWyoAdBunjwDM6Wm8piZ3QBBWDRrSE1OdaqzJA1oETzwDj6Gn3j6ma/",
+  server: false
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
@@ -27,7 +34,7 @@ config :carrier, Carrier.Dynamic.PostgresRepo,
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :carrier_web, CarrierWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4002],
+  http: [ip: {127, 0, 0, 1}, port: 4100],
   secret_key_base: "q7iAfxLO7aidEvcZ4Rrarxj0J6LkDZhQ5weri1yKCLAvjhhT/DdNtNAVZ+7ajNCb",
   server: false
 
