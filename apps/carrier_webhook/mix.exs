@@ -51,7 +51,8 @@ defmodule CarrierWebhook.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      "release.setup": []
+      "assets.deploy": ["phx.digest"],
+      "release.setup": ["assets.deploy"]
     ]
   end
 end
