@@ -5,8 +5,10 @@ defmodule CarrierWebhook.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", CarrierWebhook do
+  scope "/", CarrierWebhook do
     pipe_through :api
+
+    post "/webhooks/:webhook_id", WebhookController, :receive
   end
 
   # Enable LiveDashboard in development
