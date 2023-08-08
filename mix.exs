@@ -43,7 +43,8 @@ defmodule Carrier.Umbrella.MixProject do
         applications: [
           carrier: :permanent,
           carrier_worker: :permanent,
-          carrier_web: :permanent
+          carrier_web: :permanent,
+          carrier_webhook: :permanent
         ],
         include_executables_for: [:unix],
         steps: [:assemble, :tar],
