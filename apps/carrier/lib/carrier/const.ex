@@ -5,6 +5,8 @@ defmodule Carrier.Const do
     refund_policy_url: "https://reflow-work.notion.site/14781220fe5b4b4b89be2db5eb7cccf4",
     tableau_guide_url:
       "https://reflow-work.notion.site/Tableau-Cloud-dafbcc3df3a34ed197ff449a21059551",
+    amplitude_guide_url:
+      "https://reflow-work.notion.site/Amplitude-57238599ff6442538ef6757d08bb81a7",
     demo_call_url: "https://whattime.co.kr/wonny727/30min-demo-call",
     subscription_call_url: "https://whattime.co.kr/wonny727/subscribe"
   }

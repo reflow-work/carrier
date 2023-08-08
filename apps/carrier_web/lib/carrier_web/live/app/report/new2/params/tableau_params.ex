@@ -2,6 +2,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauParams do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key false
   embedded_schema do
     embeds_many :views, View, primary_key: false, on_replace: :delete do
       field :id, :string

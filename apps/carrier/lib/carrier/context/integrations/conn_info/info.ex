@@ -37,6 +37,7 @@ defmodule Carrier.Integrations.ConnInfo.Info do
       :slack -> ConnInfo.Slack
       :tableau -> ConnInfo.Tableau
       :redash -> ConnInfo.Redash
+      :amplitude -> ConnInfo.Amplitude
       :demo -> ConnInfo.Demo
     end
   end

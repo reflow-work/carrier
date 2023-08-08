@@ -239,7 +239,6 @@ defmodule Carrier.Data.Source.Redash do
       RedashAPI.run_query(query_id, params, credentials)
     end)
     |> Async.unwrap_map_ok_results()
-    |> IO.inspect()
   end
 
   defp do_list_queries_async(query_ids, credentials) do
