@@ -7,7 +7,8 @@ import Config
 # before starting your production server.
 config :carrier_webhook, CarrierWebhook.Endpoint,
   url: [scheme: "https", host: "webhook.reflow.work", port: 443],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  server: true
 
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
