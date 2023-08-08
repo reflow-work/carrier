@@ -11,6 +11,8 @@ defmodule CarrierWebhook.Router do
     post "/webhooks/:webhook_id", WebhookController, :receive
   end
 
+  get "/health", CarrierWebhook.HealthController, :index
+
   # Enable LiveDashboard in development
   if Application.compile_env(:carrier_webhook, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
