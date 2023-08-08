@@ -1,6 +1,6 @@
 defmodule Carrier.Integrations do
   alias Carrier.Integrations.ConnValidator
-  alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
+  alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo, Webhook}
   alias Carrier.Repo
   alias Carrier.Tenant
 
@@ -8,7 +8,7 @@ defmodule Carrier.Integrations do
     quote do
       alias Carrier.Integrations
       alias Carrier.Integrations.ConnValidator
-      alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo}
+      alias Carrier.Integrations.{DataTarget, DataSource, ConnInfo, Webhook}
     end
   end
 
@@ -137,6 +137,14 @@ defmodule Carrier.Integrations do
            ConnInfo.create(%{org_id: org_id, name: name, source: source, info: info})
            |> Repo.insert() do
       {:ok, conn_info}
+    end
+  end
+
+  def create_webhook(%{org_id: org_id, data_source_id: data_source_id, key: key}) do
+    with {:ok, %Webhook{} = webhook} <-
+           Webhook.create(%{org_id: org_id, data_source_id: data_source_id, key: key})
+           |> Repo.insert() do
+      {:ok, webhook}
     end
   end
 

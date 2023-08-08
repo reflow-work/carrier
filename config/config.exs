@@ -9,6 +9,19 @@
 # move said applications out of the umbrella.
 import Config
 
+config :carrier_webhook,
+  generators: [context_app: false]
+
+# Configures the endpoint
+config :carrier_webhook, CarrierWebhook.Endpoint,
+  url: [host: "localhost"],
+  render_errors: [
+    formats: [json: CarrierWebhook.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: CarrierWebhook.PubSub,
+  live_view: [signing_salt: "UvrBr0xh"]
+
 # Configure Mix tasks and generators
 config :carrier,
   ecto_repos: [Carrier.Repo]

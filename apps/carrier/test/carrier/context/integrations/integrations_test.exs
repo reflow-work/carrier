@@ -243,4 +243,28 @@ defmodule Carrier.IntegrationsTest do
                Integrations.fetch_data_source(deleted_data_source.id)
     end
   end
+
+  describe "create_webhook/1" do
+    setup do
+      org = Factory.insert(:org)
+      Tenant.put_org_id(org.org_id)
+
+      data_source = Factory.insert(:data_source, org_id: org.org_id)
+
+      %{org: org, data_source: data_source}
+    end
+
+    test "with valid params", %{org: org, data_source: data_source} do
+      assert {:ok, webhook} =
+               Integrations.create_webhook(%{
+                 org_id: org.org_id,
+                 data_source_id: data_source.id,
+                 key: "key"
+               })
+
+      assert webhook.org_id == org.org_id
+      assert webhook.data_source_id == data_source.id
+      assert webhook.key == "key"
+    end
+  end
 end
