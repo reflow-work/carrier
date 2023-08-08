@@ -50,9 +50,11 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
             <.card_title title="2. 대시보드 데이터 설정" />
           </div>
 
-          <div class="max-w-md">
+          <div>
             <.simple_form for={@amplitude_form} phx-target={@myself} phx-change="validate_form">
               <.inputs_for :let={dashboard} field={@amplitude_form[:dashboards]}>
+                <div class="p-4 rounded border-2 border-zinc-300">
+                <div class="max-w-md space-y-4">
                 <.field_adder_hidden for={dashboard} name="amplitude[dashboard_order][]" />
                 <.input
                   type="text"
@@ -65,6 +67,7 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
                   field={dashboard[:url]}
                   label="대시보드 URL"
                   label_align={:left}
+                  placeholder="https://app.amplitude.com/analytics/share/..."
                 />
                 <.live_component
                   module={AmplitudeDashboard}
@@ -77,7 +80,8 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
                   name="amplitude[dashboard_delete][]"
                   label="대시보드 삭제"
                 />
-                <hr />
+                </div>
+                </div>
               </.inputs_for>
               <.field_adder name="amplitude[dashboard_order][]" label="대시보드 추가" />
             </.simple_form>

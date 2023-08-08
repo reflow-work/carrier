@@ -69,7 +69,6 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDashboard do
   def render(assigns) do
     ~H"""
     <div>
-      <p :if={!@dashboard_url}>대시보드 URL 을 입력해주세요.</p>
       <.loading :if={@image_binary.loading?} />
       <div :if={@image_binary.valid?} class="max-h-40 max-w-md overflow-hidden border rounded mt-2">
         <img src={"data:image/png;base64,#{@image_binary.value |> Base.encode64()}"} />
