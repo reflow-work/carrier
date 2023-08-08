@@ -48,39 +48,48 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDataTransformer do
         <.card class="z-10">
           <div>
             <.card_title title="2. 대시보드 데이터 설정" />
+            <p>대시보드 Public Link 를 사용할 수 있습니다.</p>
+            <p>TV 모드를 사용하는 경우 더 자연스러운 대시보드를 볼 수 있습니다.</p>
+            <.link
+              href={Const.get(:amplitude_guide_url)}
+              target="_blank"
+              class="underline text-sky-500"
+            >
+              Amplitude 대시보드 Public Link 및 TV 모드 설정 가이드
+            </.link>
           </div>
 
           <div>
             <.simple_form for={@amplitude_form} phx-target={@myself} phx-change="validate_form">
               <.inputs_for :let={dashboard} field={@amplitude_form[:dashboards]}>
                 <div class="p-4 rounded border-2 border-zinc-300">
-                <div class="max-w-md space-y-4">
-                <.field_adder_hidden for={dashboard} name="amplitude[dashboard_order][]" />
-                <.input
-                  type="text"
-                  field={dashboard[:name]}
-                  label="대시보드 이름"
-                  label_align={:left}
-                />
-                <.input
-                  type="text"
-                  field={dashboard[:url]}
-                  label="대시보드 URL"
-                  label_align={:left}
-                  placeholder="https://app.amplitude.com/analytics/share/..."
-                />
-                <.live_component
-                  module={AmplitudeDashboard}
-                  id={dashboard.id}
-                  data_source={@data_source}
-                  dashboard={struct(Amplitude.Dashboard, dashboard |> Params.to_map())}
-                />
-                <.field_remover
-                  for={dashboard}
-                  name="amplitude[dashboard_delete][]"
-                  label="대시보드 삭제"
-                />
-                </div>
+                  <div class="max-w-md space-y-4">
+                    <.field_adder_hidden for={dashboard} name="amplitude[dashboard_order][]" />
+                    <.input
+                      type="text"
+                      field={dashboard[:name]}
+                      label="대시보드 이름"
+                      label_align={:left}
+                    />
+                    <.input
+                      type="text"
+                      field={dashboard[:url]}
+                      label="대시보드 URL"
+                      label_align={:left}
+                      placeholder="https://app.amplitude.com/analytics/share/..."
+                    />
+                    <.live_component
+                      module={AmplitudeDashboard}
+                      id={dashboard.id}
+                      data_source={@data_source}
+                      dashboard={struct(Amplitude.Dashboard, dashboard |> Params.to_map())}
+                    />
+                    <.field_remover
+                      for={dashboard}
+                      name="amplitude[dashboard_delete][]"
+                      label="대시보드 삭제"
+                    />
+                  </div>
                 </div>
               </.inputs_for>
               <.field_adder name="amplitude[dashboard_order][]" label="대시보드 추가" />

@@ -21,7 +21,6 @@ defmodule Carrier.Data.Source.Amplitude do
     :ok
   end
 
-
   @impl true
   def load_raw_data(
         %{
@@ -31,7 +30,8 @@ defmodule Carrier.Data.Source.Amplitude do
       ) do
     with dashboards = dashboard_params |> Enum.map(&Dashboard.new/1),
          dashboard_urls = dashboards |> Enum.map(& &1.url),
-         {:ok, dashboard_image_binaries} <- dashboard_urls |> do_list_dashboard_image_binaries_async() do
+         {:ok, dashboard_image_binaries} <-
+           dashboard_urls |> do_list_dashboard_image_binaries_async() do
       {:ok, %{dashboards: dashboards, dashboard_image_binaries: dashboard_image_binaries}}
     end
   end

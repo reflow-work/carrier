@@ -581,7 +581,7 @@ defmodule CarrierWeb.CoreComponents do
       }
     />
     <button type="button" phx-click={JS.exec("data-delete", to: "##{@id}")}>
-      <.icon name="hero-trash" class="mr-1 align-text-bottom"/><%= @label %>
+      <.icon name="hero-trash" class="mr-1 align-text-bottom" /><%= @label %>
     </button>
     """
   end
