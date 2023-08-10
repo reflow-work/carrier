@@ -16,24 +16,39 @@ defmodule CarrierWeb.Blog.PostLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex justify-between items-baseline">
-      <h1 class="text-2xl mb-4 font-bold">Posts</h1>
-    </div>
+    <div class="max-w-7xl px-4 md:px-8 mx-auto">
+      <div class="my-8">
+        <div>
+          <h1 class="text-4xl font-bold">Blog</h1>
+        </div>
+      </div>
 
-    <div>
-      <%= for %Post{} = post <- @posts do %>
-        <.link navigate={~p"/blog/#{post}"}>
-          <article class="py-4 border-b-2 cursor-pointer">
-            <h2 class="text-xl"><%= post.title %></h2>
-            <%= if post.description do %>
-              <p class="mt-2"><%= post.description %></p>
-            <% end %>
-            <div class="mt-6">
-              Date created: <time><%= post.date_created %></time>
-            </div>
-          </article>
-        </.link>
-      <% end %>
+      <div class="my-10 divide-y">
+        <%= for %Post{} = post <- @posts do %>
+          <div class="py-6">
+            <.link navigate={~p"/blog/#{post}"}>
+              <article class="py-4 cursor-pointer">
+                <h2 class="text-xl font-bold"><%= post.title %></h2>
+                <p class="mt-2">
+                  <%= if post.description do %>
+                    <span class="text-sm mt-2 font-bold"><%= post.description %></span>
+                    <span class="text-xs">|</span>
+                  <% end %>
+                  <%= if post.body do %>
+                    <span class="text-sm mt-2"><%= post.body %></span>
+                  <% end %>
+                </p>
+                <div class="mt-4 text-sm text-description flex items-center">
+                  <img class="border rounded-full" src={~p"/images/avatar-1.png"} width="20px" />
+                  <span class="ml-2">Wonny</span>
+                  <span class="mx-2 text-xs">|</span>
+                  <time><%= post.date_created %></time>
+                </div>
+              </article>
+            </.link>
+          </div>
+        <% end %>
+      </div>
     </div>
     """
   end
