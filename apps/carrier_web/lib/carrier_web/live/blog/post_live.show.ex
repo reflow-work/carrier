@@ -15,28 +15,42 @@ defmodule CarrierWeb.Blog.PostLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="pb-4">
-      <div class="prose">
-        <h1><%= @post.title %></h1>
-        <p><%= @post.description %></p>
-        <div><time>Date created: <%= @post.date_created %></time></div>
-      </div>
-      <%= if @post.tags do %>
-        <div class="mt-2">
-          <%= for tag <- @post.tags do %>
-            <.link navigate={~p"/blog?tag=#{tag}"}>
-              <span class="mr-2 tag">#<%= tag %></span>
-            </.link>
-          <% end %>
+    <div class="max-w-7xl px-4 md:px-8 mx-auto">
+      <div class="my-8">
+        <div>
+          <h1 class="text-4xl font-bold"><%= @post.title %></h1>
+          <p class="mt-2"><%= @post.description %></p>
+
+          <div class="mt-4 text-sm text-description flex items-center">
+            <img class="border rounded-full" src={~p"/images/avatar-1.png"} width="20px" />
+            <span class="ml-2">Wonny</span>
+            <span class="mx-2 text-xs">|</span>
+            <time><%= @post.date_created %></time>
+          </div>
         </div>
-      <% end %>
-    </div>
-    <hr class="prose" />
-    <div class="prose pt-4">
-      <%= if @post.cover_url do %>
-        <img src={@post.cover_url} alt={@post.title} class="w-full" />
-      <% end %>
-      <%= @post.body |> MarkdownRenderer.html() |> raw() %>
+      </div>
+
+      <hr class="my-10" />
+
+      <div class="mb-12 pt-4">
+        <%= if @post.cover_url do %>
+          <img src={@post.cover_url} alt={@post.title} />
+        <% end %>
+        <div class="mt-8"><%= @post.body |> MarkdownRenderer.html() |> raw() %></div>
+
+        <hr class="my-10" />
+
+        <%= if @post.tags do %>
+          <div class="mt-2 text-sm">
+            Tags:
+            <%= for tag <- @post.tags do %>
+              <.link navigate={~p"/blog?tag=#{tag}"}>
+                <span class="mr-2 tag">#<%= tag %></span>
+              </.link>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     </div>
     """
   end
