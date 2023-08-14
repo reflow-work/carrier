@@ -53,11 +53,15 @@ defmodule Carrier.Blog do
     {meta_map, _binding} = meta_str |> Code.eval_string()
 
     title = meta_map |> Map.fetch!(:title)
+    author = meta_map |> Map.fetch!(:author)
+    author_thumbnail_url = meta_map |> Map.fetch!(:author_thumbnail_url)
     category = meta_map |> Map.fetch!(:category)
 
     %Post{
       title: title,
       description: meta_map[:description],
+      author: author,
+      author_thumbnail_url: author_thumbnail_url,
       category: category,
       slug: slug,
       body: body,
