@@ -103,7 +103,14 @@ defmodule Carrier.Data.Source.Redash do
     credentials = DataSource.to_credentials(data_source)
 
     with dashboard_ids = dashboard_params |> Enum.map(& &1.id),
-         {:ok, dashboards} <- dashboard_ids |> do_list_dashboards_async(credentials),
+         {:ok, dashboards} <- do_list_dashboards(credentials),
+         dashboards =
+           dashboards
+           |> Enum.filter(
+             &(&1.is_draft == false and &1.is_archived == false and &1.id in dashboard_ids)
+           ),
+         dashboard_slugs = dashboards |> Enum.map(& &1.slug),
+         {:ok, dashboards} <- dashboard_slugs |> do_list_dashboards_async(credentials),
          {:ok, _} <- dashboards |> do_refresh_dashboards(utc_datetime, timezone, credentials),
          {:ok, dashboard_image_binaries} <- dashboards |> do_list_dashboard_image_binaries_async() do
       {:ok, %{dashboards: dashboards, dashboard_image_binaries: dashboard_image_binaries}}
@@ -194,9 +201,9 @@ defmodule Carrier.Data.Source.Redash do
     |> then(&{:ok, &1})
   end
 
-  defp do_list_dashboards_async(dashboard_ids, credentials) do
-    dashboard_ids
-    |> Async.map(fn dashboard_id -> RedashAPI.get_dashboard(dashboard_id, credentials) end)
+  defp do_list_dashboards_async(dashboard_slugs, credentials) do
+    dashboard_slugs
+    |> Async.map(fn dashboard_slug -> RedashAPI.get_dashboard(dashboard_slug, credentials) end)
     |> Async.unwrap_map_ok_results()
   end
 

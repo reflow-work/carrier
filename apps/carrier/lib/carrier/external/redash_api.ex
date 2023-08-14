@@ -22,12 +22,12 @@ defmodule Carrier.External.RedashAPI do
     end
   end
 
-  def get_dashboard(id, %{host: host, api_key: api_key}) do
+  def get_dashboard(slug, %{host: host, api_key: api_key}) do
     query = %{
       "api_key" => api_key
     }
 
-    Tesla.get(client(host), "/api/dashboards/#{id}", query: query)
+    Tesla.get(client(host), "/api/dashboards/#{slug}", query: query)
     |> handle_response()
     |> case do
       {:ok, body} ->
