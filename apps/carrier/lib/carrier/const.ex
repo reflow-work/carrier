@@ -7,7 +7,7 @@ defmodule Carrier.Const do
       "https://reflow-work.notion.site/Tableau-Cloud-dafbcc3df3a34ed197ff449a21059551",
     amplitude_guide_url:
       "https://reflow-work.notion.site/Amplitude-57238599ff6442538ef6757d08bb81a7",
-    demo_call_url: "https://whattime.co.kr/wonny727/30min-demo-call",
+    demo_call_url: "https://reflow.recatch.cc/admin/ordhsacubi",
     subscription_call_url: "https://whattime.co.kr/wonny727/subscribe"
   }
 
