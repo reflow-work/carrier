@@ -14,7 +14,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RedashDashboard do
   def update(
         %{
           data_source: %DataSource{} = data_source,
-          dashboard: %Redash.Dashboard{id: dashboard_id}
+          dashboard: %Redash.Dashboard{slug: dashboard_slug}
         } = assigns,
         socket
       ) do
@@ -25,7 +25,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RedashDashboard do
         socket
         |> assign_async(
           :image_binary,
-          fn -> Redash.get_dashboard_image_binary(data_source, dashboard_id) end,
+          fn -> Redash.get_dashboard_image_binary(data_source, dashboard_slug) end,
           __MODULE__
         )
       end)
