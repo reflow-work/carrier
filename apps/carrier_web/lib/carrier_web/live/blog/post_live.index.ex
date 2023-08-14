@@ -33,7 +33,6 @@ defmodule CarrierWeb.Blog.PostLive.Index do
                 <p class="mt-2">
                   <%= if post.description do %>
                     <span class="text-sm mt-2 font-bold"><%= post.description %></span>
-                    <span class="text-xs">|</span>
                   <% end %>
                   <%= if post.body do %>
                     <span class="text-sm line-clamp-2 mt-2">
