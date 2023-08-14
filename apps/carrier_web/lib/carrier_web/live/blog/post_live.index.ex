@@ -36,7 +36,7 @@ defmodule CarrierWeb.Blog.PostLive.Index do
                     <span class="text-xs">|</span>
                   <% end %>
                   <%= if post.body do %>
-                    <span class="text-sm mt-2">
+                    <span class="text-sm line-clamp-2 mt-2">
                       <%= post.body |> MarkdownRenderer.plain_text() %>
                     </span>
                   <% end %>
