@@ -13,10 +13,10 @@ defmodule CarrierWeb.LiveHelpers do
     "-"
   end
 
-  def format_date(datetime) do
+  def format_date(datetime, opts \\ []) do
     datetime
     |> TimezoneHelper.apply_timezone()
-    |> DateHelper.safe_format_date()
+    |> DateHelper.safe_format_date(opts)
   end
 
   def format_datetime(nil) do

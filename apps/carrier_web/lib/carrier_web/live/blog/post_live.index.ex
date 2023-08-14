@@ -42,7 +42,7 @@ defmodule CarrierWeb.Blog.PostLive.Index do
                   <img class="border rounded-full" src={~p"/images/avatar-1.png"} width="20px" />
                   <span class="ml-2">Wonny</span>
                   <span class="mx-2 text-xs">|</span>
-                  <time><%= post.date_created %></time>
+                  <time><%= post.date_created |> format_date() %></time>
                 </div>
               </article>
             </.link>

@@ -14,6 +14,10 @@ defmodule Carrier.Core.TimezoneHelper do
     |> DateTime.shift_zone!(get_timezone())
   end
 
+  def apply_timezone(%Date{} = date) do
+    date
+  end
+
   def safe_timezone(timezone) do
     case Timex.is_valid_timezone?(timezone) do
       true -> timezone
