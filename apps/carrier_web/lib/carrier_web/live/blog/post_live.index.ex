@@ -2,6 +2,7 @@ defmodule CarrierWeb.Blog.PostLive.Index do
   use CarrierWeb, :live_view
   alias Carrier.Blog
   alias Carrier.Blog.Post
+  alias Carrier.Blog.MarkdownRenderer
 
   @impl true
   def mount(_params, _session, socket) do
@@ -35,7 +36,9 @@ defmodule CarrierWeb.Blog.PostLive.Index do
                     <span class="text-xs">|</span>
                   <% end %>
                   <%= if post.body do %>
-                    <span class="text-sm mt-2"><%= post.body %></span>
+                    <span class="text-sm mt-2">
+                      <%= post.body |> MarkdownRenderer.plain_text() %>
+                    </span>
                   <% end %>
                 </p>
                 <div class="mt-4 text-sm text-description flex items-center">
