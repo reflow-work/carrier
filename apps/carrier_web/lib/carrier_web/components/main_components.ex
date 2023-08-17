@@ -1,9 +1,9 @@
 defmodule CarrierWeb.MainComponents do
   use Phoenix.Component
 
-  attr :rest, :global
+  attr(:rest, :global)
 
-  slot :inner_block
+  slot(:inner_block)
 
   def page_container(assigns) do
     ~H"""
@@ -13,10 +13,10 @@ defmodule CarrierWeb.MainComponents do
     """
   end
 
-  attr :title, :string, required: true
-  attr :icon, :any, required: true
+  attr(:title, :string, required: true)
+  attr(:icon, :any, required: true)
 
-  slot :inner_block
+  slot(:inner_block)
 
   def page_header(assigns) do
     ~H"""
@@ -25,16 +25,16 @@ defmodule CarrierWeb.MainComponents do
         <span class="mr-3"><%= @icon %></span> <%= @title %>
       </h1>
 
-      <div>
+      <div class="flex justify-between items-center">
         <%= render_slot(@inner_block) %>
       </div>
     </header>
     """
   end
 
-  attr :class, :string, default: "space-y-8"
+  attr(:class, :string, default: "space-y-8")
 
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def card_container(assigns) do
     ~H"""
@@ -44,9 +44,9 @@ defmodule CarrierWeb.MainComponents do
     """
   end
 
-  attr :class, :string, default: nil
+  attr(:class, :string, default: nil)
 
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def card(assigns) do
     ~H"""
@@ -58,8 +58,8 @@ defmodule CarrierWeb.MainComponents do
     """
   end
 
-  attr :class, :any, default: nil
-  attr :title, :string, required: true
+  attr(:class, :any, default: nil)
+  attr(:title, :string, required: true)
 
   def card_title(assigns) do
     ~H"""
@@ -67,9 +67,9 @@ defmodule CarrierWeb.MainComponents do
     """
   end
 
-  attr :rest, :global
+  attr(:rest, :global)
 
-  slot :inner_block, required: true
+  slot(:inner_block, required: true)
 
   def banner(assigns) do
     ~H"""

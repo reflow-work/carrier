@@ -220,7 +220,7 @@ defmodule CarrierWeb.CoreComponents do
   attr(:type, :string, default: nil)
   attr(:class, :any, default: nil)
   attr(:style, :atom, values: ~w(primary outline normal)a, default: :primary)
-  attr(:size, :atom, values: ~w(md sm)a, default: :md)
+  attr(:size, :atom, values: ~w(lg md sm)a, default: :md)
   attr(:rest, :global, include: ~w(disabled form name value))
 
   slot(:inner_block, required: true)
@@ -233,11 +233,13 @@ defmodule CarrierWeb.CoreComponents do
         "phx-submit-loading:opacity-75 rounded-lg py-3 px-4",
         "text-sm font-semibold leading-6",
         "disabled:cursor-not-allowed disabled:opacity-75",
+        "flex items-center justify-center",
         @style == :primary &&
           "bg-zinc-900 hover:bg-zinc-700 text-white active:text-white/80 disabled:bg-zinc-700",
         @style == :outline &&
           "bg-white text-zinc-900 border border-zinc-700 hover:bg-zinc-700 hover:text-white disabled:bg-zinc-300 disabled:text-zinc-500 disabled:border-0",
         @style == :normal && "bg-zinc-200 hover:bg-zinc-400 disabled:bg-zinc-200",
+        @size == :lg && "w-48",
         @size == :sm && "h-8 px-3 !py-0",
         @class
       ]}
@@ -252,12 +254,13 @@ defmodule CarrierWeb.CoreComponents do
   attr(:style, :atom, values: ~w(primary outline normal)a, default: :primary)
   attr(:size, :atom, values: ~w(md sm)a, default: :md)
   attr(:rest, :global, include: ~w(navigate patch href replace method))
+  attr(:class, :any, default: nil)
 
   slot(:inner_block, required: true)
 
   def link_button(assigns) do
     ~H"""
-    <.link class={@disabled && "cursor-not-allowed active:pointer-events-none"} {@rest}>
+    <.link class={[@disabled && "cursor-not-allowed active:pointer-events-none", @class]} {@rest}>
       <.button style={@style} size={@size} disabled={@disabled}>
         <%= render_slot(@inner_block) %>
       </.button>

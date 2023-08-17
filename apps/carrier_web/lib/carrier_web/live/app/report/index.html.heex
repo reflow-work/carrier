@@ -1,16 +1,17 @@
 <.page_container id="reports-index-container" phx-hook="Smartlook">
   <.page_header icon="📑" title="리포트 목록">
-    <.link
+    <.link_button
       navigate={~p"/app/report_logs"}
-      class="btn btn-outline"
       phx-click={js_log_event("click_report_history", %{page_name: "report_list"})}
+      style={:outline}
     >
       리포트 발송 기록
-    </.link>
+    </.link_button>
     <.link_button
       navigate={~p"/app/reports/new2"}
       disabled={disabled_new_report_button(@active_subscription, @reports)}
       phx-click={js_log_event("click_new_report", %{page_name: "report_list"})}
+      class="ml-2"
     >
       새 리포트 생성
       <span :if={over_report_max_count(@active_subscription, @reports)}>

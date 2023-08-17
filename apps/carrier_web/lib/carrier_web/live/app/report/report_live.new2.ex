@@ -155,7 +155,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
         />
         <div>
           <.simple_form for={%{}} phx-submit="create_report">
-            <div class="mt-8 space-x-4">
+            <div class="flex mt-8 space-x-4">
               <.button
                 type="button"
                 style={:outline}

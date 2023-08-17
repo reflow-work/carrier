@@ -3,10 +3,10 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   use Carrier.Integrations
   import Carrier.Data.Source.RDB.Guard
 
-  embed_templates "*"
+  embed_templates("*")
 
-  attr :data_source, :any, required: true
-  attr :data_source_info, :any
+  attr(:data_source, :any, required: true)
+  attr(:data_source_info, :any)
 
   def data_transformer(assigns) do
     case assigns.data_source do
@@ -49,10 +49,10 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     end
   end
 
-  attr :data_targets, :list, required: true
-  attr :selected_data_target, :any
-  attr :onselect, :any, required: true
-  attr :disabled, :boolean, required: true
+  attr(:data_targets, :list, required: true)
+  attr(:selected_data_target, :any)
+  attr(:onselect, :any, required: true)
+  attr(:disabled, :boolean, required: true)
 
   def data_target_selector(assigns) do
     case assigns.selected_data_target do
@@ -80,7 +80,8 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                     js_log_event("click_connect_slack", %{page_name: "report_new"})
                     |> JS.dispatch("open_popup")
                   }
-                  class="!bg-white text-black border w-lg flex items-center w-48 justify-center"
+                  style={:outline}
+                  size={:lg}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -165,8 +166,8 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
   #   |> Enum.map(fn %DataTarget{id: id, service_name: service_name} -> {service_name, id} end)
   # end
 
-  attr :data_target, :any
-  attr :data_target_info, :any
+  attr(:data_target, :any)
+  attr(:data_target_info, :any)
 
   def data_target_configurer(assigns) do
     case assigns.data_target do
@@ -187,8 +188,8 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
     end
   end
 
-  attr :report_form, :any, required: true
-  attr :valid?, :boolean, required: true
+  attr(:report_form, :any, required: true)
+  attr(:valid?, :boolean, required: true)
 
   def report_configurer(assigns) do
     ~H"""

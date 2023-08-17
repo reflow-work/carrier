@@ -2,7 +2,7 @@ defmodule CarrierWeb.Components.Slack do
   use CarrierWeb, :component
   alias Carrier.External.SlackAPI
 
-  attr :redirect_uri, :string, required: true
+  attr(:redirect_uri, :string, required: true)
 
   def button(assigns) do
     ~H"""
