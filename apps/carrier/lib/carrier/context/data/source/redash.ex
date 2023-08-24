@@ -40,8 +40,8 @@ defmodule Carrier.Data.Source.Redash do
       }
     end
 
-    def url(%__MODULE__{id: id, slug: slug}, host) do
-      "#{host}/dashboards/#{id}-#{slug}"
+    def url(%__MODULE__{id: id}, host) do
+      "#{host}/dashboard/#{id}"
     end
   end
 
