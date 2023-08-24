@@ -54,7 +54,8 @@ defmodule CarrierWeb.MixProject do
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
       {:doumi_phoenix_svg, "~> 0.3.0"},
       {:sentry, "~> 8.0"},
-      {:plug_canonical_host, "~> 2.0"}
+      {:plug_canonical_host, "~> 2.0"},
+      {:sitemapper, "~> 0.7"}
     ]
   end
 
@@ -71,7 +72,7 @@ defmodule CarrierWeb.MixProject do
         "esbuild default --minify",
         "phx.digest"
       ],
-      "release.setup": ["assets.deploy"]
+      "release.setup": ["assets.deploy", "gen.sitemap"]
     ]
   end
 end
