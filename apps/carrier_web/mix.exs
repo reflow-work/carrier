@@ -70,9 +70,10 @@ defmodule CarrierWeb.MixProject do
         "cmd npm install --prefix assets",
         "tailwind default --postcss --minify",
         "esbuild default --minify",
+        "gen.sitemap",
         "phx.digest"
       ],
-      "release.setup": ["assets.deploy", "gen.sitemap"]
+      "release.setup": ["assets.deploy"]
     ]
   end
 end
