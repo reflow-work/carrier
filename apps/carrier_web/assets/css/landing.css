@@ -25,7 +25,7 @@
 .landing-container {
   @apply max-w-7xl px-4 md:px-8 mx-auto;
 
-  .h1 {
+  .headline {
     @apply font-extrabold text-4xl lg:text-5xl leading-tight lg:leading-snug;
   }
 
