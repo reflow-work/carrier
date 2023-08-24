@@ -27,7 +27,7 @@ defmodule LandingHeaderComponent do
                   phx-target={@myself}
                   phx-click={
                     js_log_event("blog_on_header", %{page_name: "landing"})
-                    |> JS.navigate(~p"/blog")
+                    |> JS.navigate(~p"/blog/ko")
                   }
                 >
                   블로그

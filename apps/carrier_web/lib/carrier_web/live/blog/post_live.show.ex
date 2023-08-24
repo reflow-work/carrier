@@ -4,10 +4,12 @@ defmodule CarrierWeb.Blog.PostLive.Show do
   alias Carrier.Blog.MarkdownRenderer
 
   @impl true
-  def mount(%{"slug" => slug}, _session, socket) do
+  def mount(%{"language" => language, "slug" => slug}, _session, socket) do
     socket =
       socket
-      |> load_post(slug)
+      |> assign(:language, language)
+      |> assign(:slug, slug)
+      |> load_post()
 
     {:ok, socket}
   end
@@ -22,8 +24,8 @@ defmodule CarrierWeb.Blog.PostLive.Show do
           <p class="mt-2"><%= @post.description %></p>
 
           <div class="mt-4 text-sm text-description flex items-center">
-            <img class="border rounded-full" src={~p"/images/avatar-1.png"} width="20px" />
-            <span class="ml-2">Wonny</span>
+            <img class="border rounded-full" src={@post.author_thumbnail_url} width="20px" />
+            <span class="ml-2"><%= @post.author %></span>
             <span class="mx-2 text-xs">|</span>
             <time><%= @post.date_created |> format_date() %></time>
           </div>
@@ -33,37 +35,22 @@ defmodule CarrierWeb.Blog.PostLive.Show do
       <hr class="my-10" />
 
       <div class="mb-12 pt-4">
-        <%= if @post.cover_url do %>
-          <img src={@post.cover_url} alt={@post.title} />
-        <% end %>
+        <img :if={@post.cover_url} src={@post.cover_url} alt={@post.title} />
         <div class="mt-8"><%= @post.body |> MarkdownRenderer.html() |> raw() %></div>
-
-        <hr class="my-10" />
-
-        <%= if @post.tags do %>
-          <div class="mt-2 text-sm">
-            Tags:
-            <%= for tag <- @post.tags do %>
-              <.link navigate={~p"/blog?tag=#{tag}"}>
-                <span class="mr-2 tag">#<%= tag %></span>
-              </.link>
-            <% end %>
-          </div>
-        <% end %>
       </div>
     </div>
     """
   end
 
-  defp load_post(socket, slug) do
-    case Blog.fetch_post(slug) do
+  defp load_post(socket) do
+    case Blog.fetch_post(socket.assigns.language, socket.assigns.slug) do
       {:ok, post} ->
         socket
         |> assign(:post, post)
 
       _ ->
         socket
-        |> push_navigate(to: ~p"/blog")
+        |> push_navigate(to: ~p"/blog/ko")
     end
   end
 end

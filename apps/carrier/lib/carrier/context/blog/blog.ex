@@ -4,9 +4,17 @@ defmodule Carrier.Blog do
 
   @decorate cacheable(
               cache: Cache.Local,
-              key: {Blog, :list_posts, [posts_path]},
+              key: {Blog, :list_posts_by_language, [language, posts_path]},
               opts: cache_opts()
             )
+  @spec list_posts_by_language(language :: String.t()) :: {:ok, [Post.t()]}
+  def list_posts_by_language(language, posts_path \\ posts_path()) do
+    list_posts(posts_path)
+    |> then(fn {:ok, posts} -> posts |> Enum.group_by(& &1.language) end)
+    |> Map.get(language, [])
+    |> then(&{:ok, &1})
+  end
+
   @spec list_posts() :: [Post.t()]
   def list_posts(posts_path \\ posts_path()) do
     list_post_paths(posts_path)
@@ -17,12 +25,12 @@ defmodule Carrier.Blog do
 
   @decorate cacheable(
               cache: Cache.Local,
-              key: {Blog, :fetch_post, [slug, posts_path]},
+              key: {Blog, :fetch_post, [language, slug, posts_path]},
               opts: cache_opts()
             )
-  @spec fetch_post(slug :: String.t()) :: {:ok, %Post{}} | :error
-  def fetch_post(slug, posts_path \\ posts_path()) do
-    with {:ok, posts} <- list_posts(posts_path) do
+  @spec fetch_post(language :: String.t(), slug :: String.t()) :: {:ok, %Post{}} | :error
+  def fetch_post(language, slug, posts_path \\ posts_path()) do
+    with {:ok, posts} <- list_posts_by_language(language, posts_path) do
       posts
       |> Enum.find(fn %Post{slug: post_slug} -> post_slug == slug end)
       |> case do
@@ -45,7 +53,7 @@ defmodule Carrier.Blog do
     |> parse_post(post_meta)
   end
 
-  defp parse_post(raw_post, %{slug: slug, date_created: date_created}) do
+  defp parse_post(raw_post, %{language: language, slug: slug, date_created: date_created}) do
     [meta_str, body] =
       raw_post
       |> String.split("---", parts: 2, trim: true)
@@ -60,6 +68,7 @@ defmodule Carrier.Blog do
     %Post{
       title: title,
       description: meta_map[:description],
+      language: language,
       author: author,
       author_thumbnail_url: author_thumbnail_url,
       category: category,
@@ -72,12 +81,15 @@ defmodule Carrier.Blog do
   end
 
   defp extract_post_meta(post_path) do
-    %{"date_created" => date_created_str, "slug" => slug} =
-      Regex.named_captures(~r/\/(?<date_created>\d{8})_(?<slug>.+)\.(md|livemd)$/, post_path)
+    %{"language" => language, "date_created" => date_created_str, "slug" => slug} =
+      Regex.named_captures(
+        ~r/\/(?<language>[^\/]+)\/[^\/]+\/(?<date_created>\d{8})_(?<slug>.+)\.(md|livemd)$/,
+        post_path
+      )
 
     date_created = date_created_str |> Timex.parse!("{YYYY}{0M}{0D}") |> NaiveDateTime.to_date()
 
-    %{slug: slug, date_created: date_created}
+    %{language: language, slug: slug, date_created: date_created}
   end
 
   defp posts_path() do

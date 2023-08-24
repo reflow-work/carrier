@@ -51,7 +51,7 @@ defmodule CarrierWeb.Router do
 
   # Without Auth
   scope "/", CarrierWeb do
-    pipe_through [:browser, :landing]
+    pipe_through([:browser, :landing])
 
     live_session :router,
       layout: {CarrierWeb.Layouts, :landing},
@@ -60,30 +60,30 @@ defmodule CarrierWeb.Router do
         CarrierWeb.AnalyticsHook,
         CarrierWeb.ChanneltalkHook
       ] do
-      live "/", HomeLive
-      live "/login", LoginLive
-      live "/invite", InviteLive
-      live "/blog", Blog.PostLive.Index
-      live "/blog/:slug", Blog.PostLive.Show
+      live("/", HomeLive)
+      live("/login", LoginLive)
+      live("/invite", InviteLive)
+      live("/blog/:language", Blog.PostLive.Index)
+      live("/blog/:language/:slug", Blog.PostLive.Show)
     end
   end
 
   # Auth
   scope "/", CarrierWeb do
-    pipe_through :browser
+    pipe_through(:browser)
 
     get "/logout", AuthController, :logout
   end
 
   scope "/", CarrierWeb do
-    pipe_through :auth_api
+    pipe_through(:auth_api)
 
     post "/auth/google/callback", AuthController, :google_callback
   end
 
   # With Auth
   scope "/app", CarrierWeb.App, as: :app do
-    pipe_through [:browser, :auth_user]
+    pipe_through([:browser, :auth_user])
 
     live_session :app,
       layout: {CarrierWeb.Layouts, :live},
@@ -95,17 +95,17 @@ defmodule CarrierWeb.Router do
         CarrierWeb.ChanneltalkHook,
         CarrierWeb.OnboardingHook
       ] do
-      live "/onboarding", OnboardingLive
-      live "/subscriptions/new", SubscriptionLive.New
-      live "/subscriptions/done", SubscriptionLive.Done
-      live "/data-targets/:data_target_id/edit", DataTargetLive.New, :edit
-      live "/reports", ReportLive.Index, :index
-      live "/reports/:id/delete", ReportLive.Index, :delete
-      live "/reports/new2", ReportLive.New2, :new
-      live "/reports/:report_id/edit2", ReportLive.New2, :edit
-      live "/reports/:report_id/report_logs", ReportLogLive.Index
-      live "/report_logs", ReportLogLive.Index
-      live "/settings", SettingsLive, :index
+      live("/onboarding", OnboardingLive)
+      live("/subscriptions/new", SubscriptionLive.New)
+      live("/subscriptions/done", SubscriptionLive.Done)
+      live("/data-targets/:data_target_id/edit", DataTargetLive.New, :edit)
+      live("/reports", ReportLive.Index, :index)
+      live("/reports/:id/delete", ReportLive.Index, :delete)
+      live("/reports/new2", ReportLive.New2, :new)
+      live("/reports/:report_id/edit2", ReportLive.New2, :edit)
+      live("/reports/:report_id/report_logs", ReportLogLive.Index)
+      live("/report_logs", ReportLogLive.Index)
+      live("/settings", SettingsLive, :index)
     end
 
     get "/data-targets/callback/slack", DataTargetController, :slack_callback
@@ -127,9 +127,9 @@ defmodule CarrierWeb.Router do
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
-    pipe_through [:browser, :auth_admin]
+    pipe_through([:browser, :auth_admin])
 
-    live_dashboard "/dashboard", metrics: CarrierWeb.Telemetry
+    live_dashboard("/dashboard", metrics: CarrierWeb.Telemetry)
   end
 
   # Enables the Swoosh mailbox preview in development.
@@ -138,7 +138,7 @@ defmodule CarrierWeb.Router do
   # node running the Phoenix server.
   if Mix.env() == :dev do
     scope "/dev" do
-      pipe_through :browser
+      pipe_through(:browser)
 
       get "/test", CarrierWeb.TestController, :index
 

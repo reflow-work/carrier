@@ -2,6 +2,7 @@ defmodule Carrier.Blog.Post do
   @type t :: %__MODULE__{
           title: String.t(),
           description: String.t(),
+          language: String.t(),
           author: String.t(),
           author_thumbnail_url: String.t(),
           category: String.t(),
@@ -16,6 +17,7 @@ defmodule Carrier.Blog.Post do
   @enforce_keys [
     :title,
     :description,
+    :language,
     :author,
     :author_thumbnail_url,
     :category,
