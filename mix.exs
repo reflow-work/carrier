@@ -4,7 +4,7 @@ defmodule Carrier.Umbrella.MixProject do
   def project do
     [
       apps_path: "apps",
-      version: "1.3.8",
+      version: "1.3.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
