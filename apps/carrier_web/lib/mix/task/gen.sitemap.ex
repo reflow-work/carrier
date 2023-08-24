@@ -21,7 +21,8 @@ defmodule Mix.Tasks.Gen.Sitemap do
       |> Enum.map(fn path ->
         %Sitemapper.URL{
           loc: "#{url}#{path}",
-          changefreq: :weekly
+          changefreq: :weekly,
+          lastmod: DateTime.utc_now()
         }
       end)
 
