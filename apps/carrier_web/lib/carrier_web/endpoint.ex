@@ -14,7 +14,7 @@ defmodule CarrierWeb.Endpoint do
     max_age: 365 * 24 * 60 * 60
   ]
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
 
   @canocial_host Application.compile_env(:carrier_web, :canonical_host)
   plug PlugCanonicalHost, canonical_host: @canocial_host
@@ -27,12 +27,12 @@ defmodule CarrierWeb.Endpoint do
     at: "/",
     from: :carrier_web,
     gzip: true,
-    only: CarrierWeb.static_paths()
+    only_matching: CarrierWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
-    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
+    socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :carrier_web
