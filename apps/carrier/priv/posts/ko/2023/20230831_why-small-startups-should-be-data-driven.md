@@ -2,10 +2,19 @@
 title: "작은 스타트업일 때부터 데이터 드리븐하게 일해야 하는 이유 (feat. 데이터에 관한 오해 4가지)",
 description: "60팀을 만나보면서 발견하게 된 데이터에 관한 오해들",
 category: "data",
-cover_url: "/images/blog/20230831_why-small-startups-should-be-data-driven_thumbnail.png", 
+cover_url: "/images/blog/20230831_why-small-startups-should-be-data-driven_thumbnail.png",
 tags: ["data, data-driven, startup"],
 author: "Wonny",
-author_thumbnail_url: "/images/blog/author_wonny.png"
+author_thumbnail_url: "/images/blog/author_wonny.png",
+cta: %{
+text: """
+reflow 팀은 서로의 고민을 나누고 경험을 공유할 팀을 꾸준히 만나고 있습니다.
+
+같이 이야기 해보고 싶으시다면 언제든 아래 버튼으로 티타임 신청해주세요! ☕️
+""",
+button_text: "티타임 신청하기",
+button_url: "https://reflow.recatch.cc/"
+}
 }
 
 ---
@@ -55,7 +64,7 @@ author_thumbnail_url: "/images/blog/author_wonny.png"
 
 규모가 작은 팀일수록 데이터가 적어서 볼 데이터가 없다고 말하는 경우가 많았다. 그러나 데이터는 양보다는 질이 중요하다 [책 <아이디어 불패의 법칙>](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=236350317&start=slayer)에서도 같은 이야기를 한다.₁₎ 그렇기에 소량이더라도 질 좋은 데이터를 수집해서 확인해버릇하는 문화가 필요하다.
 
-> ₁₎  이 책은 의미없는 대량의 데이터인 ‘그들의 데이터’가 아닌 소량이더라도 질 좋은 ‘나만의 데이터’를 확보 해야 한다는 이야기를 하며 나만의 데이터를 쉽고 빠르게 수집하는 방법에 대해 설명한다. 이 책의 3장 이름은 ‘생각은 접어두고 데이터를 모으라’이다.
+> ₁₎ 이 책은 의미없는 대량의 데이터인 ‘그들의 데이터’가 아닌 소량이더라도 질 좋은 ‘나만의 데이터’를 확보 해야 한다는 이야기를 하며 나만의 데이터를 쉽고 빠르게 수집하는 방법에 대해 설명한다. 이 책의 3장 이름은 ‘생각은 접어두고 데이터를 모으라’이다.
 
 특히 규모가 작은 팀은 정성적인 피드백을 수집하는 경우가 많다. 그 과정에서 생긴 정성적인 감을 데이터로 검증할 수 있는 방안을 마련하면서 데이터를 확인해나가야 한다.
 
@@ -67,7 +76,7 @@ author_thumbnail_url: "/images/blog/author_wonny.png"
 
 **아니다. 데이터로 일하는 방식과 마인드셋, 문화, 프로세스를 갖추려는 노력이 먼저고, 기술이나 도구는 그 다음이다.**
 
-좋은 기술이나 도구를 갖출 수 있다면 좋기는 하겠지만 반드시 필요한 건 아니다. 오히려 복잡한 기술이나 도구를 도입하는 것에만 집중하는 경우에 데이터 드리븐하게 일하는 데에 실패한다.₂₎ 
+좋은 기술이나 도구를 갖출 수 있다면 좋기는 하겠지만 반드시 필요한 건 아니다. 오히려 복잡한 기술이나 도구를 도입하는 것에만 집중하는 경우에 데이터 드리븐하게 일하는 데에 실패한다.₂₎
 
 > ₂₎ A narrow focus on technology and tools rather than staff and processes is another common failing.
 > [Five facts: How customer analytics boosts corporate performance](https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/five-facts-how-customer-analytics-boosts-corporate-performance#/) - 맥킨지
@@ -88,7 +97,7 @@ author_thumbnail_url: "/images/blog/author_wonny.png"
 
 ### 팀이 커지고 데이터 팀을 채용한 후부터 데이터로 일하면 된다?
 
-**아니다. 작은 팀일 때부터 데이터로 일하는 습관을 들이는 게 훨씬 유리하다.** 
+**아니다. 작은 팀일 때부터 데이터로 일하는 습관을 들이는 게 훨씬 유리하다.**
 
 첫 번째 이유는 데이터를 통해 올바른 방향으로 의사결정을 내려 귀한 시간을 절약하기 위해서다. [많은 스타트업들이 실패하는 이유는 PMF를 찾지 못해서다.](https://startupdevkit.com/chapter-1-no-market-need-product-market-fit/) 또 나중에 가서 시장이 작다는 걸 발견하기도 한다. 이를 사전에 빠르게 확인해 보았다면 회사를 세우고, 사람을 채용하고, 제품을 개발하여 런칭하고, 확장한 후에서야 아차 하는 일을 피할 수 있을 것이다.
 
@@ -101,13 +110,3 @@ author_thumbnail_url: "/images/blog/author_wonny.png"
 위 4가지 오해들로 데이터 드리븐이라는 단어가 대단하고 어려운 것처럼 느껴지고, 나중에 해결할 일로 생각되지만 그렇지 않다. 얼마든지 지금 당장 데이터 드리븐하게 일할 수 있는 게 많고, [우리 단계에 맞는 적정 기술과 방법으로 필요한 만큼의 데이터를 활용하여](https://mode.com/blog/evolution-of-a-data-driven-startup/) 일해야 한다.
 
 우리팀 또한 규모에 맞게 데이터를 수집하고 활용하기 시작하면서 팀의 자신감 레벨이 높아졌고, 실행속도가 점점 빨라지고 있다. 고생한 시간이 있긴 했지만 이제라도 레슨을 쌓고 더 나은 방식으로 일할 수 있게 되어 다행이다 싶다. 혹여 우리와 비슷한 상황에 놓인 팀이 있다면 이 글을 통해 조금이라도 시행착오를 줄일 수 있으면 좋겠다. 🙏
-
----
-
-(CTA 영역)
-
-reflow 팀은 서로의 고민을 나누고 경험을 공유할 팀을 꾸준히 만나고 있습니다.
-
-같이 이야기 해보고 싶으시다면 언제든 [티타임](https://reflow.recatch.cc/) 신청해주세요! ☕️
-
-[티타임 신청하기]
