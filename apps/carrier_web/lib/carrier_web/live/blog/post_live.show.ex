@@ -17,7 +17,7 @@ defmodule CarrierWeb.Blog.PostLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-7xl px-4 md:px-8 mx-auto">
+    <div class="max-w-3xl px-4 md:px-8 mx-auto">
       <div class="my-8">
         <div>
           <h1 class="text-4xl font-bold"><%= @post.title %></h1>
@@ -34,7 +34,7 @@ defmodule CarrierWeb.Blog.PostLive.Show do
 
       <hr class="my-10" />
 
-      <div class="mb-12 pt-4">
+      <div class="mb-12 pt-4 post-body">
         <img :if={@post.cover_url} src={@post.cover_url} alt={@post.title} />
         <div class="mt-8"><%= @post.body |> MarkdownRenderer.html() |> raw() %></div>
       </div>
