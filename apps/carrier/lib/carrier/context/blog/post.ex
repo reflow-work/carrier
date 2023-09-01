@@ -10,8 +10,15 @@ defmodule Carrier.Blog.Post do
           body: String.t(),
           date_created: Date.t(),
           cover_url: String.t(),
-          tags: [String.t()]
+          tags: [String.t()],
+          cta: map()
         }
+
+  defmodule CTA do
+    @enforce_keys [:text, :button_text, :button_url]
+
+    defstruct @enforce_keys
+  end
 
   @derive {Phoenix.Param, key: :slug}
   @enforce_keys [
@@ -25,7 +32,8 @@ defmodule Carrier.Blog.Post do
     :body,
     :date_created,
     :cover_url,
-    :tags
+    :tags,
+    :cta
   ]
   defstruct @enforce_keys
 
