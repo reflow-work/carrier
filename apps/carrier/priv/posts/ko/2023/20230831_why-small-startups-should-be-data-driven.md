@@ -12,8 +12,8 @@ reflow 팀은 서로의 고민을 나누고 경험을 공유할 팀을 꾸준히
 
 같이 이야기 해보고 싶으시다면 언제든 아래 버튼으로 티타임 신청해주세요! ☕️
 """,
-button_text: "티타임 신청하기",
-button_url: "https://reflow.recatch.cc/"
+button_text: "티타임 신청하기 ☕️",
+button_url: "https://whattime.co.kr/wonny727/tea-time"
 }
 }
 

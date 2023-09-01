@@ -37,11 +37,19 @@ defmodule CarrierWeb.Blog.PostLive.Show do
       <div class="mb-12 pt-4 post-body">
         <img :if={@post.cover_url} src={@post.cover_url} alt={@post.title} />
         <div class="mt-8"><%= @post.body |> MarkdownRenderer.html() |> raw() %></div>
-        <hr class="my-10" />
-        <div>
-          <%= @post.cta.text |> MarkdownRenderer.html() |> raw() %>
-          <.link href={@post.cta.button_url}><%= @post.cta.button_text %></.link>
-        </div>
+      </div>
+
+      <hr class="my-20" />
+      <div class="text-center mb-10">
+        <%= @post.cta.text |> MarkdownRenderer.html() |> raw() %>
+        <.link_button
+          class="inline-block mt-4"
+          href={@post.cta.button_url}
+          phx-click={js_log_event("click_post_cta", %{page_name: "post_detail"})}
+          target="_blank"
+        >
+          <%= @post.cta.button_text %>
+        </.link_button>
       </div>
     </div>
     """
