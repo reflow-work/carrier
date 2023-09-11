@@ -94,8 +94,10 @@ defmodule CarrierWeb.MainComponents do
 
     ~H"""
     <.live_title suffix={@title_suffix}><%= @page_meta.title %></.live_title>
-    <meta name="title" property="og:title" content={@page_meta.title} />
-    <meta name="description" property="og:description" content={@page_meta.description} />
+    <meta name="title" content={@page_meta.title} />
+    <meta property="og:title" content={@page_meta.title} />
+    <meta name="description" content={@page_meta.description} />
+    <meta property="og:description" content={@page_meta.description} />
     <meta name="keyword" content={@page_meta.keyword} />
     <meta property="og:image" content={normalize_image(@page_meta.image)} />
     <meta property="og:type" content="website" />
