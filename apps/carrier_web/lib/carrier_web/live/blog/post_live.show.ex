@@ -9,7 +9,11 @@ defmodule CarrierWeb.Blog.PostLive.Show do
       socket
       |> assign(:language, language)
       |> assign(:slug, slug)
+      |> assign(:post, nil)
       |> load_post()
+      |> assign_new(:page_meta, fn %{post: post} ->
+        %{title: post.title, description: post.description, image: post.cover_url}
+      end)
 
     {:ok, socket}
   end

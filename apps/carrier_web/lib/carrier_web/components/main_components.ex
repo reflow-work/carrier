@@ -78,4 +78,36 @@ defmodule CarrierWeb.MainComponents do
     </div>
     """
   end
+
+  attr(:page_meta, :map, required: true)
+  attr(:title_suffix, :string)
+  attr(:default, :map, required: true)
+
+  def head_meta_tags(assigns) do
+    page_meta =
+      [:title, :description, :keyword, :image]
+      |> Map.new(fn key -> {key, assigns.page_meta[key] || assigns.default[key]} end)
+
+    assigns =
+      assigns
+      |> assign(:page_meta, page_meta)
+
+    ~H"""
+    <.live_title suffix={@title_suffix}><%= @page_meta.title %></.live_title>
+    <meta name="title" property="og:title" content={@page_meta.title} />
+    <meta name="description" property="og:description" content={@page_meta.description} />
+    <meta name="keyword" content={@page_meta.keyword} />
+    <meta property="og:image" content={normalize_image(@page_meta.image)} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    """
+  end
+
+  defp normalize_image(image) do
+    cond do
+      image == nil -> nil
+      String.starts_with?(image, "http") -> image
+      true -> CarrierWeb.Endpoint.url() <> image
+    end
+  end
 end
