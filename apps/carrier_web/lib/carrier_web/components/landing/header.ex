@@ -79,6 +79,20 @@ defmodule LandingHeaderComponent do
               로그인
             </a>
           </li>
+          <%= if Carrier.Setting.get_feature_flag_value("blog") do %>
+            <li>
+              <a
+                class="w-full block font-bold cursor-pointer px-4 py-4 text-sm"
+                phx-target={@myself}
+                phx-click={
+                  js_log_event("blog_on_header", %{page_name: "landing"})
+                  |> JS.navigate(~p"/blog/ko")
+                }
+              >
+                블로그
+              </a>
+            </li>
+          <% end %>
         </ul>
       </div>
     </header>
