@@ -45,7 +45,13 @@ defmodule CarrierWeb.Blog.PostLive.Show do
         <.link_button
           class="inline-block mt-4"
           href={@post.cta.button_url}
-          phx-click={js_log_event("click_post_cta", %{page_name: "post_detail"})}
+          phx-click={
+            js_log_event("click_post_cta", %{
+              page_name: "post_detail",
+              title: @post.title,
+              slug: @post.slug
+            })
+          }
           target="_blank"
         >
           <%= @post.cta.button_text %>
