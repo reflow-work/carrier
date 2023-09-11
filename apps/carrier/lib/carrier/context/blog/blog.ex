@@ -77,7 +77,7 @@ defmodule Carrier.Blog do
       date_created: date_created,
       cover_url: meta_map[:cover_url],
       tags: meta_map[:tags],
-      cta: struct(Post.CTA, meta_map[:cta] |> IO.inspect())
+      cta: struct(Post.CTA, meta_map[:cta])
     }
   end
 
