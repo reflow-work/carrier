@@ -5,6 +5,8 @@ defmodule CarrierWeb.Blog.PostLive.Show do
 
   @impl true
   def mount(%{"language" => language, "slug" => slug}, _session, socket) do
+    socket = socket |> log_event("view_post_detail", %{"slug" => slug})
+
     socket =
       socket
       |> assign(:language, language)
