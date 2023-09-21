@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.head_meta_tags page_meta={assigns[:page_meta]} default={%{
+    <.head_meta_tags page_meta={assigns[:page_meta] || %{}} default={%{
       title: "reflow",
       description: "reflow는 매출, 유저 등 사업 성장관리에 가장 중요한 지표를 5분만에 시각화하여 매일 모니터링 할 수 있는 환경을 구축하는 툴입니다. 태블로 대시보드를 좀 더 편하게 볼 수 있게 도와줍니다. 성장이 빠른 스타트업에서 많이 사용하고 있습니다.",
       keyword: "데이터,reflow,태블로,슬랙,대시보드,성장,스타트업,모니터링,강남언니,손진규,정원희,워니",

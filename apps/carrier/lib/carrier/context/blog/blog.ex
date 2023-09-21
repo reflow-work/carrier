@@ -2,6 +2,13 @@ defmodule Carrier.Blog do
   use Carrier.Core.Cache
   alias Carrier.Blog.Post
 
+  defmacro __using__([]) do
+    quote do
+      alias Carrier.Blog
+      alias Carrier.Blog.Post
+    end
+  end
+
   @decorate cacheable(
               cache: Cache.Local,
               key: {Blog, :list_posts_by_language, [language, posts_path]},
@@ -15,7 +22,7 @@ defmodule Carrier.Blog do
     |> then(&{:ok, &1})
   end
 
-  @spec list_posts() :: [Post.t()]
+  @spec list_posts() :: {:ok, [Post.t()]}
   def list_posts(posts_path \\ posts_path()) do
     list_post_paths(posts_path)
     |> Enum.map(&read_post/1)

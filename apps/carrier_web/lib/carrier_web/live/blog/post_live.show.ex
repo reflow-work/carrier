@@ -1,6 +1,6 @@
 defmodule CarrierWeb.Blog.PostLive.Show do
   use CarrierWeb, :live_view
-  alias Carrier.Blog
+  use Carrier.Blog
   alias Carrier.Blog.MarkdownRenderer
 
   @impl true
@@ -13,8 +13,12 @@ defmodule CarrierWeb.Blog.PostLive.Show do
       |> assign(:slug, slug)
       |> assign(:post, nil)
       |> load_post()
-      |> assign_new(:page_meta, fn %{post: post} ->
-        %{title: post.title, description: post.description, image: post.cover_url}
+      |> assign_new(:page_meta, fn
+        %{post: %Post{} = post} ->
+          %{title: post.title, description: post.description, image: post.cover_url}
+
+        _ ->
+          %{}
       end)
 
     {:ok, socket}
