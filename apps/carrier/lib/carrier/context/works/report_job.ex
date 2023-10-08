@@ -2,7 +2,7 @@ defmodule Carrier.Works.ReportJob do
   use Oban.Worker,
     queue: :report,
     priority: 2,
-    max_attempts: 2
+    max_attempts: 3
 
   use Carrier.{Reports, Data}
   require Logger
