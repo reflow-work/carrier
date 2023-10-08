@@ -2,7 +2,7 @@ defmodule Carrier.External.TableauAPI do
   require Logger
   alias Carrier.Data.Source.Tableau.{Pagination, View}
 
-  @api_version 3.21
+  @api_version 3.18
 
   def signin(%{type: :user, host: host, name: name, password: password, site: site}) do
     body = %{
