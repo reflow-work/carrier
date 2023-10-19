@@ -36,8 +36,24 @@ defmodule Carrier.External.TableauAPI do
     Tesla.post(client(host), "/auth/signin", body)
     |> handle_response()
     |> case do
-      {:ok, %{"credentials" => %{"token" => token, "site" => %{"id" => site_id}}}} ->
-        {:ok, %{token: token, site_id: site_id}}
+      {:ok,
+       %{
+         "credentials" => %{"token" => token, "site" => %{"id" => site_id}} = credentials
+       }} ->
+        expired_at =
+          case credentials["estimatedTimeToExpiration"] do
+            nil ->
+              nil
+
+            expiration ->
+              [m, s, _hs] = expiration |> String.split(":") |> Enum.map(&String.to_integer/1)
+
+              DateTime.utc_now()
+              |> DateTime.add(m, :minute)
+              |> DateTime.add(s, :second)
+          end
+
+        {:ok, %{host: host, token: token, site_id: site_id, expired_at: expired_at}}
 
       {:error, reason} ->
         {:error, reason}

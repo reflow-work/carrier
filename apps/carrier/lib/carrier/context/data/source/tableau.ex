@@ -8,6 +8,7 @@ defmodule Carrier.Data.Source.Tableau do
   alias Carrier.Core.{Async, Tmp}
   alias Carrier.{Uploader, PDF}
   alias Carrier.PrivLoader
+  alias Carrier.TableauClient
 
   ### models
 
@@ -81,7 +82,7 @@ defmodule Carrier.Data.Source.Tableau do
 
   @impl true
   def validate_conn(:tableau, credentials, _opts) do
-    case signin(credentials) do
+    case TableauClient.signin(credentials) do
       {:ok, _} ->
         :ok
 
@@ -103,11 +104,10 @@ defmodule Carrier.Data.Source.Tableau do
         %DataSource{source: :tableau, demo: false} = data_source
       ) do
     with %{host: host, site: site} = credentials = DataSource.to_credentials(data_source),
-         {:ok, auth} <- signin(credentials),
          view_ids = views |> Enum.map(& &1.id),
-         {:ok, views} <- view_ids |> do_list_views_async(auth),
-         {:ok, view_image_binaries} <- view_ids |> do_list_view_image_binaries_async(auth),
-         {:ok, view_pdf_binaries} <- view_ids |> do_list_view_pdf_binaries_async(auth) do
+         {:ok, views} <- view_ids |> do_list_views_async(credentials),
+         {:ok, view_image_binaries} <- view_ids |> do_list_view_image_binaries_async(credentials),
+         {:ok, view_pdf_binaries} <- view_ids |> do_list_view_pdf_binaries_async(credentials) do
       views =
         views
         |> Enum.map(&(&1 |> Map.put(:view_url, View.view_url(&1, host, site))))
@@ -190,17 +190,10 @@ defmodule Carrier.Data.Source.Tableau do
 
   ### raw functions
 
-  def signin(%{host: host} = credentials) do
-    with {:ok, %{token: token, site_id: site_id}} <- do_signin(credentials) do
-      {:ok, %{host: host, token: token, site_id: site_id}}
-    end
-  end
-
   def list_views(%DataSource{source: :tableau, demo: false} = data_source) do
     credentials = data_source |> DataSource.to_credentials()
 
-    with {:ok, auth} <- signin(credentials),
-         {:ok, views} <- do_list_views(auth) do
+    with {:ok, views} <- do_list_views(credentials) do
       {:ok, views}
     end
   end
@@ -221,9 +214,8 @@ defmodule Carrier.Data.Source.Tableau do
       ) do
     credentials = data_source |> DataSource.to_credentials()
 
-    with {:ok, auth} <- signin(credentials),
-         {:ok, view_preview_image_binary} <-
-           do_get_preview_image_binary(workbook_id, view_id, auth) do
+    with {:ok, view_preview_image_binary} <-
+           do_get_preview_image_binary(workbook_id, view_id, credentials) do
       {:ok, view_preview_image_binary}
     end
   end
@@ -240,8 +232,7 @@ defmodule Carrier.Data.Source.Tableau do
   def get_view_image_binary(view_id, %DataSource{source: :tableau} = data_source) do
     credentials = data_source |> DataSource.to_credentials()
 
-    with {:ok, auth} <- signin(credentials),
-         {:ok, view_image_binary} <- do_get_view_image_binary(view_id, auth) do
+    with {:ok, view_image_binary} <- do_get_view_image_binary(view_id, credentials) do
       {:ok, view_image_binary}
     end
   end
@@ -249,40 +240,30 @@ defmodule Carrier.Data.Source.Tableau do
   def get_view_pdf_binary(view_id, %DataSource{source: :tableau} = data_source) do
     credentials = data_source |> DataSource.to_credentials()
 
-    with {:ok, auth} <- signin(credentials),
-         {:ok, view_pdf_binary} <- do_get_view_pdf_binary(view_id, auth) do
+    with {:ok, view_pdf_binary} <- do_get_view_pdf_binary(view_id, credentials) do
       {:ok, view_pdf_binary}
     end
   end
 
-  defp do_signin(%{type: :user, host: host, email: email, password: password, site: site}) do
-    TableauAPI.signin(%{type: :user, host: host, name: email, password: password, site: site})
-  end
-
-  defp do_signin(%{type: :pat, host: host, pat_name: pat_name, pat_secret: pat_secret, site: site}) do
-    TableauAPI.signin(%{
-      type: :pat,
-      host: host,
-      pat_name: pat_name,
-      pat_secret: pat_secret,
-      site: site
-    })
-  end
-
-  defp do_list_views(%{host: host, site_id: site_id, token: token}) do
+  defp do_list_views(credentials) do
     Stream.unfold(1, fn
       nil ->
         nil
 
       page ->
         {:ok,
-         %{views: views, pagination: %Pagination{page: page, page_size: page_size, total: total}}} =
-          TableauAPI.query_views_for_site(%{
-            host: host,
-            site_id: site_id,
-            page: page,
-            token: token
-          })
+         %{
+           views: views,
+           pagination: %Pagination{page: page, page_size: page_size, total: total}
+         }} =
+          TableauClient.request(credentials, fn %{host: host, site_id: site_id, token: token} ->
+            TableauAPI.query_views_for_site(%{
+              host: host,
+              site_id: site_id,
+              page: page,
+              token: token
+            })
+          end)
 
         last_page = div(total, page_size) + 1
 
@@ -296,67 +277,71 @@ defmodule Carrier.Data.Source.Tableau do
     |> then(&{:ok, &1})
   end
 
-  defp do_list_views_async(view_ids, auth) do
+  defp do_list_views_async(view_ids, credentials) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view(view_id, auth) end)
+           |> Async.map(fn view_id -> do_get_view(view_id, credentials) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
   end
 
-  defp do_list_view_image_binaries_async(view_ids, auth) do
+  defp do_list_view_image_binaries_async(view_ids, credentials) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, auth) end)
+           |> Async.map(fn view_id -> do_get_view_image_binary(view_id, credentials) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
   end
 
-  defp do_list_view_pdf_binaries_async(view_ids, auth) do
+  defp do_list_view_pdf_binaries_async(view_ids, credentials) do
     with {:ok, results} <-
            view_ids
-           |> Async.map(fn view_id -> do_get_view_pdf_binary(view_id, auth) end)
+           |> Async.map(fn view_id -> do_get_view_pdf_binary(view_id, credentials) end)
            |> Async.unwrap_map_ok_results() do
       {:ok, results}
     end
   end
 
-  defp do_get_view(view_id, %{host: host, site_id: site_id, token: token}) do
-    TableauAPI.get_view(%{host: host, site_id: site_id, view_id: view_id, token: token})
+  defp do_get_view(view_id, credentials) do
+    TableauClient.request(credentials, fn %{host: host, site_id: site_id, token: token} ->
+      TableauAPI.get_view(%{host: host, site_id: site_id, view_id: view_id, token: token})
+    end)
   end
 
-  defp do_get_preview_image_binary(workbook_id, view_id, %{
-         host: host,
-         site_id: site_id,
-         token: token
-       }) do
-    TableauAPI.query_view_preview_image(%{
-      host: host,
-      site_id: site_id,
-      workbook_id: workbook_id,
-      view_id: view_id,
-      token: token
-    })
+  defp do_get_preview_image_binary(workbook_id, view_id, credentials) do
+    TableauClient.request(credentials, fn %{host: host, site_id: site_id, token: token} ->
+      TableauAPI.query_view_preview_image(%{
+        host: host,
+        site_id: site_id,
+        workbook_id: workbook_id,
+        view_id: view_id,
+        token: token
+      })
+    end)
   end
 
-  defp do_get_view_image_binary(view_id, %{host: host, site_id: site_id, token: token}) do
-    TableauAPI.query_view_image(%{
-      host: host,
-      site_id: site_id,
-      view_id: view_id,
-      token: token
-    })
+  defp do_get_view_image_binary(view_id, credentials) do
+    TableauClient.request(credentials, fn %{host: host, site_id: site_id, token: token} ->
+      TableauAPI.query_view_image(%{
+        host: host,
+        site_id: site_id,
+        view_id: view_id,
+        token: token
+      })
+    end)
   end
 
-  defp do_get_view_pdf_binary(view_id, %{host: host, site_id: site_id, token: token}) do
-    TableauAPI.query_view_pdf(%{
-      host: host,
-      site_id: site_id,
-      view_id: view_id,
-      token: token
-    })
+  defp do_get_view_pdf_binary(view_id, credentials) do
+    TableauClient.request(credentials, fn %{host: host, site_id: site_id, token: token} ->
+      TableauAPI.query_view_pdf(%{
+        host: host,
+        site_id: site_id,
+        view_id: view_id,
+        token: token
+      })
+    end)
   end
 
   defp merge_pdf_binaries(pdf_binaries) do
