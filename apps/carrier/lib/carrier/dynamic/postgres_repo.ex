@@ -8,7 +8,7 @@ defmodule Carrier.Dynamic.PostgresRepo do
     pool_size: 1,
     max_restarts: 1,
     queue_interval: :timer.seconds(2),
-    timeout: :timer.seconds(60)
+    timeout: :timer.minutes(2)
   ]
   def with_dynamic_repo(credentials, opts \\ [], callback) when is_function(callback, 0) do
     default_dynamic_repo = get_dynamic_repo()
