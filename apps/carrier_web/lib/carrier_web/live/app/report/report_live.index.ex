@@ -90,8 +90,8 @@ defmodule CarrierWeb.App.ReportLive.Index do
     end
   end
 
-  defp triggered_at(%Report{interval: :hourly}, _timezone) do
-    "매시간"
+  defp triggered_at(%Report{interval: :hourly, trigger_minute: trigger_minute}, _timezone) do
+    "매시간 #{trigger_minute}분"
   end
 
   defp triggered_at(%Report{interval: :daily, trigger_time: trigger_time}, timezone) do

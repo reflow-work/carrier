@@ -241,6 +241,15 @@ defmodule CarrierWeb.App.ReportLive.New2.Components do
                 value={@report_form[:trigger_time].value}
               />
               <.input
+                class={@report_form[:interval].value != :hourly && "hidden"}
+                type="select"
+                field={@report_form[:trigger_minute]}
+                label="발송 분"
+                label_align={:left}
+                options={0..59}
+                value={@report_form[:trigger_minute].value}
+              />
+              <.input
                 type="select"
                 name="timezone_disabled"
                 label="타임존"
