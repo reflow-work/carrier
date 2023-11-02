@@ -622,34 +622,34 @@ defmodule Carrier.ReportsTest do
     setup do
       now = DateTime.utc_now()
 
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report_info0 = TenantFactory.insert(:report_info, org_id: org.org_id)
-      report_info1 = TenantFactory.insert(:report_info, org_id: org.org_id)
+      report_info0 = Factory.insert(:report_info, org_id: org.org_id)
+      report_info1 = Factory.insert(:report_info, org_id: org.org_id)
 
       deleted_report_info =
-        TenantFactory.insert(:report_info, org_id: org.org_id, deleted_at: now)
+        Factory.insert(:report_info, org_id: org.org_id, deleted_at: now)
 
-      report0 = TenantFactory.insert(:report, org_id: org.org_id, report_info: report_info0)
+      report0 = Factory.insert(:report, org_id: org.org_id, report_info: report_info0)
 
       _deleted_report1 =
-        TenantFactory.insert(:report,
+        Factory.insert(:report,
           org_id: org.org_id,
           report_info: report_info1,
           deleted_at: now
         )
 
-      report1 = TenantFactory.insert(:report, org_id: org.org_id, report_info: report_info1)
+      report1 = Factory.insert(:report, org_id: org.org_id, report_info: report_info1)
 
       _deleted_report2 =
-        TenantFactory.insert(:report,
+        Factory.insert(:report,
           org_id: org.org_id,
           report_info: deleted_report_info,
           deleted_at: now
         )
 
-      _others_report = TenantFactory.insert(:report)
+      _others_report = Factory.insert(:report)
 
       %{reports: [report0, report1]}
     end
@@ -667,45 +667,45 @@ defmodule Carrier.ReportsTest do
 
   describe "cancel_all_report_jobs/0" do
     setup do
-      org = TenantFactory.insert(:org)
+      org = Factory.insert(:org)
       Tenant.put_org_id(org.org_id)
 
-      report0 = TenantFactory.insert(:report, org_id: org.org_id)
-      report1 = TenantFactory.insert(:report, org_id: org.org_id)
-      others_report = TenantFactory.insert(:report)
+      report0 = Factory.insert(:report, org_id: org.org_id)
+      report1 = Factory.insert(:report, org_id: org.org_id)
+      others_report = Factory.insert(:report)
 
       completed_report_job =
-        TenantFactory.insert(:report_job, report: report0, state: :completed)
+        Factory.insert(:report_job, report: report0, state: :completed)
 
-      report_job0 = TenantFactory.insert(:report_job, report: report0, state: :scheduled)
-      report_job1 = TenantFactory.insert(:report_job, report: report1, state: :scheduled)
+      report_job0 = Factory.insert(:report_job, report: report0, state: :scheduled)
+      report_job1 = Factory.insert(:report_job, report: report1, state: :scheduled)
 
       others_report_job =
-        TenantFactory.insert(:report_job, report: others_report, state: :scheduled)
+        Factory.insert(:report_job, report: others_report, state: :scheduled)
 
       _succeeded_report_log =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           report_job_id: completed_report_job.id,
           status: :succeeded
         )
 
       report_log0 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report0,
           report_job_id: report_job0.id,
           status: :scheduled
         )
 
       report_log1 =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: report1,
           report_job_id: report_job1.id,
           status: :scheduled
         )
 
       _others_report_log =
-        TenantFactory.insert(:report_log,
+        Factory.insert(:report_log,
           report: others_report,
           report_job_id: others_report_job.id,
           status: :scheduled
