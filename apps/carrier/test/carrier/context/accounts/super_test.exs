@@ -35,6 +35,15 @@ defmodule Carrier.Accounts.SuperTest do
       assert signed_up_user.org_id == org.org_id
       assert signed_up_user.role_id == member_role.id
     end
+
+    test "with not signed up user, with already exist org domain", %{member_role: member_role} do
+      org = Factory.insert(:org, domain: "reflow.work")
+      email = "json@reflow.work"
+
+      assert {:ok, {:signed_up, signed_up_user}} = Accounts.Super.auth(email, nil)
+      assert signed_up_user.org_id == org.org_id
+      assert signed_up_user.role_id == member_role.id
+    end
   end
 
   describe "create_org/1" do

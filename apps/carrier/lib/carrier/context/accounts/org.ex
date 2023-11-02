@@ -48,6 +48,12 @@ defmodule Carrier.Accounts.Org do
     |> where_not_deleted()
   end
 
+  def get_by_domain(domain) do
+    __MODULE__
+    |> where([u], u.domain == ^domain)
+    |> where_not_deleted()
+  end
+
   def industries do
     [
       "IT 서비스",

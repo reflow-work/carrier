@@ -7,31 +7,19 @@ defmodule Carrier.Accounts.Super do
   def auth(email, org_id) do
     case fetch_user_by_email(email) do
       {:ok, %User{} = user} ->
+        # sign in
         {:ok, {:signed_in, user}}
 
       _ ->
-        case org_id do
-          nil ->
-            org_name = "organization"
-
-            Repo.wrap_transaction(fn ->
-              with {:ok, %Org{org_id: org_id}} <- create_org(%{name: org_name}),
-                   {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Admin"),
-                   {:ok, %User{} = user} <-
-                     signup(%{org_id: org_id, email: email, role_id: role_id}) do
-                {:ok, {:signed_up, user}}
-              end
-            end)
-
-          _ ->
-            Repo.wrap_transaction(fn ->
-              with {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name("Member"),
-                   {:ok, %User{} = user} <-
-                     signup(%{org_id: org_id, email: email, role_id: role_id}) do
-                {:ok, {:signed_up, user}}
-              end
-            end)
-        end
+        # sign up
+        Repo.wrap_transaction(fn ->
+          with {:ok, {org_id, role_name}} <- ensure_org_id_role_name_for_signup(email, org_id),
+               {:ok, %Role{id: role_id}} <- Super.fetch_role_by_name(role_name),
+               {:ok, %User{} = user} <-
+                 signup(%{org_id: org_id, email: email, role_id: role_id}) do
+            {:ok, {:signed_up, user}}
+          end
+        end)
     end
   end
 
@@ -77,5 +65,22 @@ defmodule Carrier.Accounts.Super do
       %Org{} = org -> {:ok, org}
       nil -> {:error, {:resource_not_found, %{target: Org, conditions: %{org_id: org_id}}}}
     end
+  end
+
+  defp ensure_org_id_role_name_for_signup(email, nil) do
+    user_domain = String.split(email, "@") |> List.last()
+
+    case Org.get_by_domain(user_domain) |> Repo.one(org_id: :skip) do
+      %Org{org_id: org_id} ->
+        {:ok, {org_id, "Member"}}
+
+      nil ->
+        {:ok, %Org{org_id: org_id}} = create_org(%{name: "organization"})
+        {:ok, {org_id, "Admin"}}
+    end
+  end
+
+  defp ensure_org_id_role_name_for_signup(_email, org_id) do
+    {:ok, {org_id, "Member"}}
   end
 end
