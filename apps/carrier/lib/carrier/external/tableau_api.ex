@@ -36,22 +36,8 @@ defmodule Carrier.External.TableauAPI do
     Tesla.post(client(host), "/auth/signin", body)
     |> handle_response()
     |> case do
-      {:ok,
-       %{
-         "credentials" => %{"token" => token, "site" => %{"id" => site_id}} = credentials
-       }} ->
-        expired_at =
-          case credentials["estimatedTimeToExpiration"] do
-            nil ->
-              nil
-
-            expiration ->
-              [m, s, _hs] = expiration |> String.split(":") |> Enum.map(&String.to_integer/1)
-
-              DateTime.utc_now()
-              |> DateTime.add(m, :minute)
-              |> DateTime.add(s, :second)
-          end
+      {:ok, %{"credentials" => %{"token" => token, "site" => %{"id" => site_id}}}} ->
+        expired_at = DateTime.utc_now() |> DateTime.add(1, :hour)
 
         {:ok, %{host: host, token: token, site_id: site_id, expired_at: expired_at}}
 
@@ -147,6 +133,7 @@ defmodule Carrier.External.TableauAPI do
     case code do
       "403004" -> {:tableau_api_forbidden, detail}
       "401001" -> {:tableau_api_invalid_access_token, detail}
+      "401002" -> {:tableau_api_invalid_auth_credentials, detail}
       _ -> {:tableau_api_unknown_error, detail}
     end
   end
