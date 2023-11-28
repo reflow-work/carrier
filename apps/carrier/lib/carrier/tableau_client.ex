@@ -17,7 +17,11 @@ defmodule Carrier.TableauClient do
     {:ok, auth} = GenServer.call(__MODULE__, {:get_auth, credentials})
 
     case fun.(auth) do
-      {:error, {:tableau_api_invalid_access_token, _}} ->
+      {:error, {error_code, _}}
+      when error_code in [
+             :tableau_api_invalid_access_token,
+             :tableau_api_invalid_auth_credentials
+           ] ->
         :ok = GenServer.call(__MODULE__, {:expire_auth, credentials})
 
         # retry once
