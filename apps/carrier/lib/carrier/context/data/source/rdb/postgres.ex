@@ -6,7 +6,9 @@ defmodule Carrier.Data.Source.RDB.Postgres do
 
   @impl Carrier.Data.Source.RDB
   def validate_conn(credentials) do
-    opts = Keyword.new(credentials) ++ [types: Postgrex.DefaultTypes, timeout: 3000, pool_size: 1]
+    opts =
+      Keyword.new(handle_ssl_credentials(credentials)) ++
+        [types: Postgrex.DefaultTypes, timeout: 3000, pool_size: 1]
 
     case Postgrex.Protocol.connect(opts) do
       {:ok, state} ->
@@ -47,7 +49,7 @@ defmodule Carrier.Data.Source.RDB.Postgres do
   @impl Carrier.Data.Source.RDB
   def run_query(credentials, sql, sql_params \\ [], opts \\ []) do
     %{columns: columns, rows: rows} =
-      PostgresRepo.with_dynamic_repo(credentials, opts, fn ->
+      PostgresRepo.with_dynamic_repo(handle_ssl_credentials(credentials), opts, fn ->
         PostgresRepo.query!(sql, sql_params)
       end)
 
@@ -107,6 +109,13 @@ defmodule Carrier.Data.Source.RDB.Postgres do
       type == "date" -> true
       type |> String.starts_with?("timestamp") -> true
       true -> false
+    end
+  end
+
+  defp handle_ssl_credentials(credentials) do
+    case credentials[:ssl] do
+      true -> credentials |> Map.merge(%{ssl_opts: [verify: :verify_none]})
+      false -> credentials
     end
   end
 end
