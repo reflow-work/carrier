@@ -28,14 +28,21 @@ defmodule Carrier.Context.Works.Telemetry do
          _measurements,
          %{
            worker: "Carrier.Works.ReportJob",
-           state: :discard,
+           state: state,
            id: job_id,
-           args: %{"org_id" => org_id}
+           args: %{"org_id" => org_id, "report_id" => report_id},
+           reason: reason
          } = _metadata,
          _config
        ) do
     Tenant.put_org_id(org_id)
-    Async.run(fn -> Reports.notify_report_job_discarded(job_id) end)
+
+    {:ok, _} =
+      Reports.record_failed_report_log(%{report_id: report_id, error_message: inspect(reason)})
+
+    if state == :discard do
+      Async.run(fn -> Reports.notify_report_job_discarded(job_id) end)
+    end
   end
 
   defp do_handle_event([:oban, :job, :exception], _measurements, _metadata, _config) do
