@@ -87,7 +87,7 @@ defmodule Carrier.Reports.ReportLog do
     __MODULE__
     |> where(
       [rl],
-      rl.report_id == ^report_id and rl.status == :tried
+      rl.report_id == ^report_id and rl.status in [:scheduled, :tried, :failed]
     )
     |> update([rl], set: [status: :failed, failed_at: ^failed_at, error_message: ^error_message])
     |> select([rl], rl)
