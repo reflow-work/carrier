@@ -66,7 +66,6 @@ config :logger,
   ]
 
 config :sentry,
-  dsn: "https://c94313df23b240a39507b208558bff09@o1427109.ingest.sentry.io/6776380",
   environment_name: :prod,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!(),
