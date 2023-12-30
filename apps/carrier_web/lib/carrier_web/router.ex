@@ -63,6 +63,7 @@ defmodule CarrierWeb.Router do
       live("/", HomeLive)
       live("/login", LoginLive)
       live("/invite", InviteLive)
+      live("/blog", Blog.PostLive.Index)
       live("/blog/:language", Blog.PostLive.Index)
       live("/blog/:language/:slug", Blog.PostLive.Show)
     end

@@ -15,6 +15,15 @@ defmodule CarrierWeb.Blog.PostLive.Index do
   end
 
   @impl true
+  def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> push_navigate(to: ~p"/blog/ko", replace: true)
+
+    {:ok, socket}
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="max-w-7xl px-4 md:px-8 mx-auto">
