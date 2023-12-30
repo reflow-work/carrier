@@ -14,7 +14,7 @@ defmodule Carrier.TableauClient do
   end
 
   def request(credentials, fun) when is_function(fun, 1) do
-    {:ok, auth} = GenServer.call(__MODULE__, {:get_auth, credentials})
+    {:ok, auth} = GenServer.call(__MODULE__, {:get_auth, credentials}, :timer.seconds(10))
 
     case fun.(auth) do
       {:error, {error_code, _}}
