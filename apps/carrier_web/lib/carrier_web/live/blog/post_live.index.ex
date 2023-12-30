@@ -34,22 +34,29 @@ defmodule CarrierWeb.Blog.PostLive.Index do
       </div>
 
       <div id="posts" class="my-10 divide-y" phx-update="stream">
-        <div :for={{dom_id, post} <- @streams.posts} id={dom_id} class="py-6">
+        <div
+          :for={{dom_id, post} <- @streams.posts}
+          id={dom_id}
+          class="py-6 grid lg:grid-cols-2 xl:grid-cols-3 gap-5"
+        >
           <.link navigate={~p"/blog/#{post.language}/#{post}"}>
-            <article class="py-4 cursor-pointer">
-              <h2 class="text-xl font-bold"><%= post.title %></h2>
-              <p class="mt-2">
-                <%= if post.description do %>
-                  <span class="text-sm mt-2 font-bold"><%= post.description %></span>
-                <% end %>
-                <%= if post.body do %>
-                  <span class="text-sm line-clamp-2 mt-2">
-                    <%= post.body |> MarkdownRenderer.plain_text() %>
-                  </span>
-                <% end %>
-              </p>
-              <div class="mt-4 text-sm text-description flex items-center">
-                <time><%= post.date_created |> format_date() %></time>
+            <article class="p-2 cursor-pointer border rounded-lg shadow hover:shadow-md">
+              <img src={post.cover_url} alt={post.title} class="rounded-lg" />
+              <div class="p-4">
+                <h2 class="text-xl font-bold"><%= post.title %></h2>
+                <p class="mt-2">
+                  <%= if post.description do %>
+                    <span class="text-sm mt-2 font-bold"><%= post.description %></span>
+                  <% end %>
+                  <%= if post.body do %>
+                    <span class="text-sm line-clamp-2 mt-2">
+                      <%= post.body |> MarkdownRenderer.plain_text() %>
+                    </span>
+                  <% end %>
+                </p>
+                <div class="mt-4 text-sm text-description flex items-center">
+                  <time><%= post.date_created |> format_date() %></time>
+                </div>
               </div>
             </article>
           </.link>
