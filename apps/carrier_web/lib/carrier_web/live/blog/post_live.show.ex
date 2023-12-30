@@ -34,9 +34,6 @@ defmodule CarrierWeb.Blog.PostLive.Show do
           <p class="mt-2"><%= @post.description %></p>
 
           <div class="mt-4 text-sm text-description flex items-center">
-            <img class="border rounded-full" src={@post.author_thumbnail_url} width="20px" />
-            <span class="ml-2"><%= @post.author %></span>
-            <span class="mx-2 text-xs">|</span>
             <time><%= @post.date_created |> format_date() %></time>
           </div>
         </div>
