@@ -114,7 +114,7 @@ config :tesla,
   adapter: {Tesla.Adapter.Finch, name: Carrier.Finch, receive_timeout: :timer.minutes(5)}
 
 config :tailwind,
-  version: "3.3.3",
+  version: "3.4.0",
   default: [
     args: ~w(
       --config=tailwind.config.js
