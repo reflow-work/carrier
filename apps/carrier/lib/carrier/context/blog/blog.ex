@@ -39,11 +39,16 @@ defmodule Carrier.Blog do
   def fetch_post(language, slug, posts_path \\ posts_path()) do
     with {:ok, posts} <- list_posts_by_language(language, posts_path) do
       posts
-      |> Enum.find(fn %Post{slug: post_slug} -> post_slug == slug end)
-      |> case do
-        %Post{} = post -> {:ok, post}
-        nil -> {:error, :resource_not_found}
-      end
+      |> Enum.find_value(fn
+        %Post{slug: ^slug} = post ->
+          {:ok, post}
+
+        %Post{aliases: aliases} = post ->
+          case slug in aliases do
+            true -> {:redirect, post}
+            false -> {:error, :resource_not_found}
+          end
+      end)
     end
   end
 
@@ -80,6 +85,7 @@ defmodule Carrier.Blog do
       author_thumbnail_url: author_thumbnail_url,
       category: category,
       slug: slug,
+      aliases: meta_map[:aliases] || [],
       body: body,
       date_created: date_created,
       cover_url: meta_map[:cover_url],

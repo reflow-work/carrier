@@ -77,9 +77,13 @@ defmodule CarrierWeb.Blog.PostLive.Show do
         socket
         |> assign(:post, post)
 
+      {:redirect, post} ->
+        socket
+        |> push_navigate(to: ~p"/blog/#{socket.assigns.language}/#{post}", replace: true)
+
       _ ->
         socket
-        |> push_navigate(to: ~p"/blog/ko")
+        |> push_navigate(to: ~p"/blog/#{socket.assigns.language}", replace: true)
     end
   end
 end

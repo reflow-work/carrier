@@ -65,7 +65,6 @@ defmodule CarrierWeb.Blog.PostLive.Index do
   defp load_posts(socket) do
     case Blog.list_posts_by_language(socket.assigns.language) do
       {:ok, posts} -> socket |> stream(:posts, posts)
-      _ -> socket
     end
   end
 end
