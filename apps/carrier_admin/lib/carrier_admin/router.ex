@@ -1,4 +1,5 @@
 defmodule CarrierAdmin.Router do
+  alias Carrier.Reports.ReportLog
   use CarrierAdmin, :router
 
   pipeline :browser do
@@ -18,6 +19,8 @@ defmodule CarrierAdmin.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/report_logs", ReportLogLive.Index
   end
 
   # Other scopes may use custom stacks.
