@@ -4,7 +4,7 @@ defmodule Carrier.Umbrella.MixProject do
   def project do
     [
       apps_path: "apps",
-      version: "1.5.6",
+      version: "1.6.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -44,6 +44,7 @@ defmodule Carrier.Umbrella.MixProject do
           carrier: :permanent,
           carrier_worker: :permanent,
           carrier_web: :permanent,
+          carrier_admin: :permanent,
           carrier_webhook: :permanent
         ],
         include_executables_for: [:unix],

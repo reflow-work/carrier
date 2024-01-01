@@ -9,19 +9,6 @@
 # move said applications out of the umbrella.
 import Config
 
-config :carrier_webhook,
-  generators: [context_app: false]
-
-# Configures the endpoint
-config :carrier_webhook, CarrierWebhook.Endpoint,
-  url: [host: "localhost"],
-  render_errors: [
-    formats: [json: CarrierWebhook.ErrorJSON],
-    layout: false
-  ],
-  pubsub_server: CarrierWebhook.PubSub,
-  live_view: [signing_salt: "UvrBr0xh"]
-
 # Configure Mix tasks and generators
 config :carrier,
   ecto_repos: [Carrier.Repo]
@@ -56,10 +43,36 @@ config :carrier_web, CarrierWeb.Endpoint,
   pubsub_server: Carrier.PubSub,
   live_view: [signing_salt: "dUjWwWYP"]
 
+config :carrier_admin,
+  generators: [context_app: false]
+
+# Configures the endpoint
+config :carrier_admin, CarrierAdmin.Endpoint,
+  url: [host: "localhost"],
+  render_errors: [
+    formats: [html: CarrierAdmin.ErrorHTML, json: CarrierAdmin.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Carrier.PubSub,
+  live_view: [signing_salt: "Hr+pe0UV"]
+
+config :carrier_webhook,
+  generators: [context_app: false]
+
+# Configures the endpoint
+config :carrier_webhook, CarrierWebhook.Endpoint,
+  url: [host: "localhost"],
+  render_errors: [
+    formats: [json: CarrierWebhook.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Carrier.PubSub,
+  live_view: [signing_salt: "UvrBr0xh"]
+
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.14.0",
-  default: [
+  version: "0.17.11",
+  web: [
     args: ~w(
       js/app.js
       --loader:.woff2=file
@@ -73,6 +86,32 @@ config :esbuild,
     ),
     cd: Path.expand("../apps/carrier_web/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ],
+  admin: [
+    args:
+      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../apps/carrier_admin/assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+
+config :tailwind,
+  version: "3.4.0",
+  web: [
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+      --postcss
+    ),
+    cd: Path.expand("../apps/carrier_web/assets", __DIR__)
+  ],
+  admin: [
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../apps/carrier_admin/assets", __DIR__)
   ]
 
 # Configures Elixir's Logger
@@ -112,18 +151,6 @@ config :carrier, Carrier.Vault, json_library: Jason
 
 config :tesla,
   adapter: {Tesla.Adapter.Finch, name: Carrier.Finch, receive_timeout: :timer.minutes(5)}
-
-config :tailwind,
-  version: "3.4.0",
-  default: [
-    args: ~w(
-      --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
-      --postcss
-    ),
-    cd: Path.expand("../apps/carrier_web/assets", __DIR__)
-  ]
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :tzdata, :autoupdate, :disabled

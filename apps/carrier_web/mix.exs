@@ -64,12 +64,14 @@ defmodule CarrierWeb.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get"],
+      setup: ["deps.get", "assets.setup", "assets.build"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.build": ["tailwind web", "esbuild web"],
       "assets.deploy": [
         "cmd npm install --prefix assets",
-        "tailwind default --postcss --minify",
-        "esbuild default --minify",
+        "tailwind web --postcss --minify",
+        "esbuild web --minify",
         "gen.sitemap",
         "phx.digest"
       ],
