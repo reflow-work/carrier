@@ -1,4 +1,5 @@
 defmodule Carrier.Blog do
+  alias Carrier.Core.Nillable
   use Carrier.Core.Cache
   alias Carrier.Blog.Post
 
@@ -46,9 +47,10 @@ defmodule Carrier.Blog do
         %Post{aliases: aliases} = post ->
           case slug in aliases do
             true -> {:redirect, post}
-            false -> {:error, :resource_not_found}
+            false -> nil
           end
       end)
+      |> Nillable.fallback({:error, :resource_not_found})
     end
   end
 
@@ -97,7 +99,7 @@ defmodule Carrier.Blog do
   defp extract_post_meta(post_path) do
     %{"language" => language, "date_created" => date_created_str, "slug" => slug} =
       Regex.named_captures(
-        ~r/\/(?<language>[^\/]+)\/[^\/]+\/(?<date_created>\d{8})_(?<slug>.+)\.(md|livemd)$/,
+        ~r/\/(?<language>[^\/]+)\/(?<date_created>\d{8})_(?<slug>.+)\.(md|livemd)$/,
         post_path
       )
 

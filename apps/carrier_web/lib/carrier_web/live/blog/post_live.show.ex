@@ -41,7 +41,7 @@ defmodule CarrierWeb.Blog.PostLive.Show do
 
       <hr class="my-10" />
 
-      <div class="mb-12 pt-4 post-body">
+      <div class="mb-12 pt-4 post-body prose">
         <img :if={@post.cover_url} src={@post.cover_url} alt={@post.title} />
         <div class="mt-8"><%= @post.body |> MarkdownRenderer.html() |> raw() %></div>
       </div>

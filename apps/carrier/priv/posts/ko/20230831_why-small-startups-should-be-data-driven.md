@@ -1,6 +1,6 @@
 %{
-title: "작은 스타트업일 때부터 데이터 드리븐하게 일해야 하는 이유 (feat. 데이터에 관한 오해 4가지)",
-description: "60팀을 만나보면서 발견하게 된 데이터에 관한 오해들",
+title: "데이터에 관한 오해 4가지",
+description: "60팀을 만나보면서 발견하게 된 데이터에 관한 오해 4가지",
 category: "data",
 cover_url: "/images/blog/20230831_why-small-startups-should-be-data-driven_thumbnail.png",
 tags: ["data, data-driven, startup"],

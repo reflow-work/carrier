@@ -4,6 +4,7 @@
 @import "components";
 @import "landing";
 @import "trix_editor";
+@import "blog";
 
 /* Alerts and form errors used by phx.new */
 .toast {

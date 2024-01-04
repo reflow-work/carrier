@@ -1,0 +1,15 @@
+.prose figure {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .prose figure {
+    width: 80%;
+  }
+}
+
+.prose figure figcaption {
+  text-align: center;
+}
