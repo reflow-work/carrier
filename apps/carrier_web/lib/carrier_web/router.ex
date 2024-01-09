@@ -113,6 +113,16 @@ defmodule CarrierWeb.Router do
     get "/payment/callback/toss-payments", PaymentController, :toss_payments_callback
   end
 
+  scope "/admin", CarrierWeb.Admin, as: :admin do
+    pipe_through([:browser])
+
+    live_session :admin,
+      layout: {CarrierWeb.Layouts, :admin},
+      on_mount: [] do
+      live "/report_logs", ReportLogLive.Index
+    end
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", CarrierWeb do
   #   pipe_through :api
