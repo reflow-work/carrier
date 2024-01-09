@@ -71,6 +71,15 @@ defmodule Carrier.External.SlackAPI.Format do
     {leading_spaces, inner_text} = inner_text |> StringHelper.split_leading(" ")
     {trailing_spaces, inner_text} = inner_text |> StringHelper.split_trailing(" ")
 
-    leading_spaces <> fun.(inner_text) <> trailing_spaces
+    (leading_spaces <> fun.(inner_text) <> trailing_spaces)
+    |> extract_new_line_to_trail()
+  end
+
+  defp extract_new_line_to_trail(str) do
+    new_line_count = str |> String.graphemes() |> Enum.filter(&(&1 == "\n")) |> Enum.count()
+
+    str
+    |> String.replace("\n", "")
+    |> Kernel.<>(String.duplicate("\n", new_line_count))
   end
 end
