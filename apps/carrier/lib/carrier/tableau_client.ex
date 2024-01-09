@@ -53,11 +53,14 @@ defmodule Carrier.TableauClient do
           {:ok, auth}
 
         :error ->
-          {:ok, auth} = do_signin(credentials)
+          case do_signin(credentials) do
+            {:ok, auth} ->
+              put_auth_token_to_ets(credentials, auth)
+              {:ok, auth}
 
-          put_auth_token_to_ets(credentials, auth)
-
-          {:ok, auth}
+            {:error, reason} ->
+              {:error, reason}
+          end
       end
 
     {:reply, response, state}
