@@ -1,6 +1,7 @@
 defmodule CarrierWeb.Admin.ReportLogLive.Index do
   use CarrierWeb, :live_view
   use Carrier.Reports
+  alias Carrier.Ops
 
   @impl true
   def mount(_params, _session, socket) do
@@ -32,7 +33,11 @@ defmodule CarrierWeb.Admin.ReportLogLive.Index do
 
   @impl true
   def handle_event("retry", %{"report_log_id" => report_log_id}, socket) do
-    report_log_id |> IO.inspect()
+    {:ok, _} = Ops.restart_failed_report(report_log_id)
+
+    socket =
+      socket
+      |> load_error_report_logs()
 
     {:noreply, socket}
   end
