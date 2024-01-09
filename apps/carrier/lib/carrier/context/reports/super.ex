@@ -13,4 +13,10 @@ defmodule Carrier.Reports.Super do
     |> Repo.aggregate(:count, :id, org_id: :skip)
     |> then(&{:ok, &1})
   end
+
+  def list_error_report_logs() do
+    ReportLog.list_error()
+    |> Repo.all(org_id: :skip)
+    |> then(&{:ok, &1})
+  end
 end

@@ -148,6 +148,16 @@ defmodule Carrier.Reports.ReportLog do
     |> where([rl], rl.status != :cancelled)
   end
 
+  def list_error() do
+    __MODULE__
+    |> where([rl], rl.status == :failed)
+    |> or_where(
+      [rl],
+      rl.status == :tried and fragment("NOW() - ? > interval '10 minute'", rl.tried_at)
+    )
+    |> order_by([rl], desc: rl.scheduled_at)
+  end
+
   def lasts_by_report_ids(report_ids) do
     __MODULE__
     |> where([rl], rl.report_id in ^report_ids)
