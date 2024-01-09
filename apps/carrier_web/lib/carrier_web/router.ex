@@ -114,7 +114,7 @@ defmodule CarrierWeb.Router do
   end
 
   scope "/admin", CarrierWeb.Admin, as: :admin do
-    pipe_through([:browser])
+    pipe_through([:browser, :admin_basic_auth])
 
     live_session :admin,
       layout: {CarrierWeb.Layouts, :admin},
