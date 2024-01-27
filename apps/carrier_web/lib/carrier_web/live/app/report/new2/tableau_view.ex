@@ -57,7 +57,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
       <div :if={@image_binary.valid?} class="max-h-40 max-w-md overflow-hidden border rounded mt-2">
         <img src={"data:image/png;base64,#{@image_binary.value |> Base.encode64()}"} />
       </div>
-      <.error :if={@image_binary.error}><%= @image_binary.error %></.error>
+      <.error :if={@image_binary.error}><%= inspect(@image_binary.error) %></.error>
     </div>
     """
   end
