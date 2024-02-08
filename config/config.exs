@@ -43,22 +43,6 @@ config :carrier_web, CarrierWeb.Endpoint,
   pubsub_server: Carrier.PubSub,
   live_view: [signing_salt: "dUjWwWYP"]
 
-config :carrier_admin,
-  generators: [context_app: false]
-
-# Configures the endpoint
-config :carrier_admin, CarrierAdmin.Endpoint,
-  url: [host: "localhost"],
-  render_errors: [
-    formats: [html: CarrierAdmin.ErrorHTML, json: CarrierAdmin.ErrorJSON],
-    layout: false
-  ],
-  pubsub_server: Carrier.PubSub,
-  live_view: [signing_salt: "Hr+pe0UV"]
-
-config :carrier_webhook,
-  generators: [context_app: false]
-
 # Configures the endpoint
 config :carrier_webhook, CarrierWebhook.Endpoint,
   url: [host: "localhost"],
@@ -86,12 +70,6 @@ config :esbuild,
     ),
     cd: Path.expand("../apps/carrier_web/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ],
-  admin: [
-    args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../apps/carrier_admin/assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
 config :tailwind,
@@ -104,14 +82,6 @@ config :tailwind,
       --postcss
     ),
     cd: Path.expand("../apps/carrier_web/assets", __DIR__)
-  ],
-  admin: [
-    args: ~w(
-      --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
-    ),
-    cd: Path.expand("../apps/carrier_admin/assets", __DIR__)
   ]
 
 # Configures Elixir's Logger

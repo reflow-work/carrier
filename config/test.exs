@@ -33,13 +33,6 @@ config :carrier_web, CarrierWeb.Endpoint,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :carrier_admin, CarrierAdmin.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4202],
-  secret_key_base: "uVan/mnnjp5erqTxBNf7m8UvsMjKWNz7fNO9guEP8r8Z5Mci2Fg3RlbDpzEJcM3I",
-  server: false
-
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
 config :carrier_webhook, CarrierWebhook.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4302],
   secret_key_base: "mhUhV+0yOGWyoAdBunjwDM6Wm8piZ3QBBWDRrSE1OdaqzJA1oETzwDj6Gn3j6ma/",
