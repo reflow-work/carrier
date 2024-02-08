@@ -36,6 +36,7 @@ defmodule CarrierAdmin.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:carrier, in_umbrella: true},
       {:phoenix, "~> 1.7.7"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
