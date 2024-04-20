@@ -75,7 +75,6 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
           module={DataSourceNew}
           id="data_source_new"
           org={@org}
-          flash={@flash}
           onsuccess={fn data_source -> send_update(__MODULE__, id: @id, data_source: data_source) end}
         />
       </.modal>
