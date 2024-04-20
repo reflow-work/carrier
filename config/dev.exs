@@ -67,7 +67,12 @@ config :carrier_web, CarrierWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/carrier_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/carrier_web/(controllers|components)/.*(ex|heex)$"
+    ],
+    notify: [
+      live_view: [
+        ~r"lib/carrier_web/live/.*(ex|heex)$"
+      ]
     ]
   ]
 
