@@ -118,6 +118,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.DataSource do
         end
       end)
       |> hide_modal_from_server("new_data_source_modal")
+      |> hide_modal_from_server("edit_data_source_modal")
 
     {:ok, socket}
   end

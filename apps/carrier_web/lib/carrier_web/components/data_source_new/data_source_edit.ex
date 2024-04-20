@@ -43,13 +43,21 @@ defmodule CarrierWeb.Components.DataSourceEdit do
 
     form =
       Params.to_form(
-        struct(data_source_module),
-        %{
-          org_id: org_id,
-          name: name,
-          source: source,
-          conn_info: Map.from_struct(conn_info_struct)
-        },
+        struct(
+          data_source_module,
+          %{
+            org_id: org_id,
+            name: name,
+            source: source,
+            conn_info:
+              struct(
+                Module.concat(data_source_module, :ConnInfo),
+                conn_info_struct.info
+                |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
+              )
+          }
+        ),
+        %{},
         as: :data_source,
         validate: false
       )
