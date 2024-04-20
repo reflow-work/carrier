@@ -6,8 +6,8 @@ defmodule CarrierWeb.Components.DataSourceNew.Components do
 
   attr :source, :atom, required: true
   attr :form, :any, required: true
-  attr :uploads, :any, required: true
-  attr :file_name, :string, required: true
+  attr :uploads, :any
+  attr :file_name, :string
 
   def source_inputs(assigns) do
     case assigns.source do

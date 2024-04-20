@@ -66,6 +66,18 @@ defmodule Carrier.Integrations do
     end)
   end
 
+  def update_conn_info_of_data_source(data_source_id, %{info: info}) do
+    Repo.wrap_transaction(fn ->
+      with {:ok, %DataSource{source: source, conn_info: %ConnInfo{} = conn_info} = data_source} <-
+             fetch_data_source(data_source_id),
+           :ok <- ConnValidator.validate(source, info, :source),
+           {:ok, %ConnInfo{} = updated_conn_info} <-
+             do_update_info_of_conn_info(conn_info, %{info: info}) do
+        {:ok, %DataSource{data_source | conn_info: updated_conn_info}}
+      end
+    end)
+  end
+
   def update_conn_info_of_data_target(data_target_id, %{info: info}) do
     Repo.wrap_transaction(fn ->
       with {:ok, %DataTarget{conn_info: %ConnInfo{} = conn_info} = data_target} <-
