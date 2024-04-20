@@ -11,7 +11,7 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
       |> assign(:pending_subscription, nil)
       |> assign(:credit_card, nil)
       |> assign(:payments, [])
-      |> assign_concurrent(%{
+      |> AssignHelper.assign_concurrent(%{
         active_subscription: &load_active_subscription/0,
         pending_subscription: &load_pending_subscription/0,
         credit_card: &load_credit_card/0,

@@ -23,7 +23,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RedashDataTransformer do
     socket =
       socket
       |> assign(assigns)
-      |> assign_async(
+      |> AssignHelper.assign_async(
         :dashboards,
         fn -> data_source |> Redash.list_dashboards() end,
         __MODULE__

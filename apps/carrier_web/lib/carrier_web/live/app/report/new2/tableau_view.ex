@@ -23,7 +23,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauView do
       |> assign(assigns)
       |> Nillable.run_until(socket.assigns[:image_binary], fn socket ->
         socket
-        |> assign_async(
+        |> AssignHelper.assign_async(
           :image_binary,
           fn ->
             Tableau.get_view_preview_image_binary(

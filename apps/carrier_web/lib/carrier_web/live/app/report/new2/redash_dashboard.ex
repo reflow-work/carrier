@@ -23,7 +23,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RedashDashboard do
       |> assign(assigns)
       |> Nillable.run_until(socket.assigns[:image_binary], fn socket ->
         socket
-        |> assign_async(
+        |> AssignHelper.assign_async(
           :image_binary,
           fn -> Redash.get_dashboard_image_binary(data_source, dashboard_slug) end,
           __MODULE__

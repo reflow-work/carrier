@@ -24,7 +24,7 @@ defmodule CarrierWeb.App.ReportLive.New2.TableauDataTransformer do
     socket =
       socket
       |> assign(assigns)
-      |> assign_async(
+      |> AssignHelper.assign_async(
         :views,
         fn -> data_source |> Tableau.list_views() end,
         __MODULE__

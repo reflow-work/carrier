@@ -37,7 +37,7 @@ defmodule CarrierWeb.App.ReportLive.New2.AmplitudeDashboard do
             case Amplitude.validate_dashboard_url(dashboard_url) do
               true ->
                 socket
-                |> assign_async(
+                |> AssignHelper.assign_async(
                   :image_binary,
                   fn -> Amplitude.get_dashboard_image_binary(data_source, dashboard_url) end,
                   __MODULE__

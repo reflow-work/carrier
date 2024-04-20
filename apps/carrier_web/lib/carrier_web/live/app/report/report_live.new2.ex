@@ -354,7 +354,7 @@ defmodule CarrierWeb.App.ReportLive.New2 do
 
   @impl true
   def handle_info(message, socket) do
-    case handle_async_assigns(message, socket) do
+    case AssignHelper.handle_async_assigns(message, socket) do
       {:ok, socket} ->
         {:noreply, socket}
 

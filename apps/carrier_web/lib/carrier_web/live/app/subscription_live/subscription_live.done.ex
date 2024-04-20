@@ -11,7 +11,7 @@ defmodule CarrierWeb.App.SubscriptionLive.Done do
       |> assign(:subscription, nil)
       |> assign(:active_trial_subscription, nil)
       |> assign(:credit_card, nil)
-      |> assign_concurrent(%{
+      |> AssignHelper.assign_concurrent(%{
         subscription: fn -> load_subscription(subscription_id) end,
         active_trial_subscription: fn -> load_active_trial_subscription() end,
         credit_card: fn -> load_credit_card() end

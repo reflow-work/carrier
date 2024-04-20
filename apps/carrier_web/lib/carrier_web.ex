@@ -85,7 +85,7 @@ defmodule CarrierWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
-      import CarrierWeb.AssignHelper
+      alias CarrierWeb.AssignHelper
 
       import CarrierWeb.FlashHook, only: [push_flash: 3, push_flash: 4]
 
@@ -152,7 +152,7 @@ defmodule CarrierWeb do
 
   defp live_helpers() do
     quote do
-      import CarrierWeb.AssignHelper
+      alias CarrierWeb.AssignHelper
     end
   end
 

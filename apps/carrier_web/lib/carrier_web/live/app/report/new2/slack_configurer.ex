@@ -23,7 +23,7 @@ defmodule CarrierWeb.App.ReportLive.New2.SlackConfigurer do
     socket =
       socket
       |> assign(assigns)
-      |> assign_async(
+      |> AssignHelper.assign_async(
         :channels,
         fn ->
           credentials = data_target |> DataTarget.to_credentials()

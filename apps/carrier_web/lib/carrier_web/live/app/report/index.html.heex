@@ -77,7 +77,7 @@
       리포트를 정말로 삭제하시겠어요?
     </:title>
     <:actions>
-      <%= live_patch("취소", to: ~p"/app/reports", class: "btn btn-sm") %>
+      <.link class="btn btn-sm" patch={~p"/app/reports"}>취소</.link>
       <a class="btn btn-primary btn-sm" phx-click="delete_report">Yes</a>
     </:actions>
   </CarrierWeb.Components.Modal.confirm>
