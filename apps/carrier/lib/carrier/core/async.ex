@@ -12,7 +12,7 @@ defmodule Carrier.Core.Async do
     dictionary_for_copy = get_dictionary(dictionary_keys)
     metadata = Logger.metadata()
 
-    async_stream_opts = [timeout: :timer.minutes(5)] |> Keyword.merge(opts)
+    async_stream_opts = [timeout: :timer.minutes(10)] |> Keyword.merge(opts)
 
     Task.Supervisor.async_stream(
       TaskSupervisor,
