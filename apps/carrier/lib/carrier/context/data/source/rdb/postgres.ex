@@ -73,7 +73,9 @@ defmodule Carrier.Data.Source.RDB.Postgres do
     """
     SELECT #{table_name_field()}
       FROM information_schema.tables
-      WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+      WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+    UNION ALL
+    SELECT matviewname FROM pg_matviews;
     """
   end
 
@@ -85,11 +87,25 @@ defmodule Carrier.Data.Source.RDB.Postgres do
   @impl Carrier.Data.Source.RDB
   def columns_query() do
     """
-    SELECT #{column_name_field()}, #{data_type_field()}
-      FROM information_schema.columns
-      WHERE table_schema = 'public'
-        AND table_name = {{table_name}}
-      ORDER BY ordinal_position;
+    (
+      SELECT #{column_name_field()}, #{data_type_field()}, ordinal_position
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = {{table_name}}
+    )
+    UNION ALL
+    (
+      SELECT a.attname, t.typname, a.attnum
+        FROM pg_class c
+        JOIN pg_attribute a ON a.attrelid = c.oid
+        JOIN pg_type t ON a.atttypid = t.oid
+        WHERE
+          c.relkind = 'm'
+          AND c.relname = {{table_name}}
+          AND a.attnum > 0
+          AND NOT a.attisdropped
+    )
+    ORDER BY 3;
     """
   end
 
