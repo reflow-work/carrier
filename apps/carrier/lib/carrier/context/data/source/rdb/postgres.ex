@@ -71,12 +71,17 @@ defmodule Carrier.Data.Source.RDB.Postgres do
   @impl Carrier.Data.Source.RDB
   def tables_query() do
     """
-    SELECT #{table_name_field()}
+    SELECT #{table_schema_field()}, #{table_name_field()}
       FROM information_schema.tables
       WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
     UNION ALL
-    SELECT matviewname FROM pg_matviews;
+      SELECT schemaname, matviewname FROM pg_matviews;
     """
+  end
+
+  @impl Carrier.Data.Source.RDB
+  def table_schema_field() do
+    "table_schema"
   end
 
   @impl Carrier.Data.Source.RDB
@@ -90,17 +95,19 @@ defmodule Carrier.Data.Source.RDB.Postgres do
     (
       SELECT #{column_name_field()}, #{data_type_field()}, ordinal_position
         FROM information_schema.columns
-        WHERE table_schema = 'public'
+        WHERE table_schema = {{table_schema}}
           AND table_name = {{table_name}}
     )
     UNION ALL
     (
       SELECT a.attname, t.typname, a.attnum
         FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
         JOIN pg_attribute a ON a.attrelid = c.oid
         JOIN pg_type t ON a.atttypid = t.oid
         WHERE
           c.relkind = 'm'
+          AND n.nspname = {{table_schema}}
           AND c.relname = {{table_name}}
           AND a.attnum > 0
           AND NOT a.attisdropped

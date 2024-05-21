@@ -78,6 +78,11 @@ defmodule Carrier.Data.Source.RDB.PostgresDemo do
   end
 
   @impl Carrier.Data.Source.RDB
+  def table_schema_field() do
+    "table_schema"
+  end
+
+  @impl Carrier.Data.Source.RDB
   def columns_query() do
     "columns_query"
   end

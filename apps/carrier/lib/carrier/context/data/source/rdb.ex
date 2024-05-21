@@ -12,6 +12,7 @@ defmodule Carrier.Data.Source.RDB do
 
   # optional
   @callback tables_query() :: String.t()
+  @callback table_schema_field() :: String.t()
   @callback table_name_field() :: String.t()
   @callback columns_query() :: String.t()
   @callback column_name_field() :: String.t()
@@ -20,6 +21,7 @@ defmodule Carrier.Data.Source.RDB do
 
   @optional_callbacks [
     tables_query: 0,
+    table_schema_field: 0,
     table_name_field: 0,
     columns_query: 0,
     column_name_field: 0,

@@ -78,10 +78,16 @@ defmodule Carrier.Data.Source.RDB.MySQL do
   end
 
   @impl Carrier.Data.Source.RDB
+  def table_schema_field() do
+    "TABLE_SCHEMA"
+  end
+
+  @impl Carrier.Data.Source.RDB
   def columns_query() do
     """
     SELECT #{column_name_field()}, #{data_type_field()}
       FROM information_schema.columns
+      WHERE TABLE_SCHEMA = {{table_schema}}
       WHERE TABLE_NAME = {{table_name}}
       ORDER BY ORDINAL_POSITION;
     """

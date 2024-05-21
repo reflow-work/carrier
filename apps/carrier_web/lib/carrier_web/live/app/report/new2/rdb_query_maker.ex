@@ -18,7 +18,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQueryMaker do
     socket =
       socket
       |> assign(:data_source, nil)
-      |> assign(:table_names, [])
+      |> assign(:table_opts, [])
       |> assign(:date_columns, [])
       |> assign(:value_columns, [])
       |> assign(:aggregations, ["SUM", "AVG", "COUNT", "MAX", "MIN"])
@@ -31,7 +31,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQueryMaker do
     socket =
       socket
       |> assign(assigns)
-      |> load_table_names()
+      |> load_tables()
 
     {:ok, socket}
   end
@@ -52,7 +52,7 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQueryMaker do
           name="table"
           label="테이블"
           label_align={:left}
-          options={@table_names}
+          options={@table_opts}
           prompt="테이블을 선택해주세요"
           value=""
         />
@@ -99,10 +99,12 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQueryMaker do
   end
 
   @impl true
-  def handle_event("form_changed", %{"table" => table_name}, socket) do
+  def handle_event("form_changed", %{"table" => table}, socket) do
+    [table_schema, table_name] = table |> String.split(".")
+
     socket =
       socket
-      |> load_columns(table_name)
+      |> load_columns(table_schema, table_name)
 
     {:noreply, socket}
   end
@@ -134,24 +136,29 @@ defmodule CarrierWeb.App.ReportLive.New2.RDBQueryMaker do
     {:noreply, socket}
   end
 
-  defp load_table_names(socket) do
-    case QueryData.fetch_table_names(%{
+  defp load_tables(socket) do
+    case QueryData.fetch_tables(%{
            org_id: socket.assigns.data_source.org_id,
            data_source_id: socket.assigns.data_source.id
          }) do
-      {:ok, table_names} ->
+      {:ok, tables} ->
+        table_opts =
+          tables
+          |> Enum.map(&"#{&1.table_schema}.#{&1.table_name}")
+
         socket
-        |> assign(:table_names, table_names)
+        |> assign(:table_opts, table_opts)
 
       {:error, _} ->
         socket
     end
   end
 
-  defp load_columns(socket, table_name) do
+  defp load_columns(socket, table_schema, table_name) do
     case QueryData.fetch_columns(%{
            org_id: socket.assigns.data_source.org_id,
            data_source_id: socket.assigns.data_source.id,
+           table_schema: table_schema,
            table_name: table_name
          }) do
       {:ok, %{date_columns: date_columns, value_columns: value_columns}} ->

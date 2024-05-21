@@ -28,17 +28,22 @@ defmodule Carrier.Data.QueryData do
     |> Enum.reverse()
   end
 
-  def fetch_table_names(%{data_source_id: data_source_id} = params) do
+  def fetch_tables(%{data_source_id: data_source_id} = params) do
     with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
          source_module = Source.RDB.get_module(data_source),
          tables_query = source_module.tables_query(),
          {:ok, %{data: data}} <- Source.RDB.run_query(data_source, tables_query) do
-      table_names =
+      tables =
         data
-        |> Enum.map(&"#{&1[source_module.table_name_field()]}")
-        |> Enum.sort()
+        |> Enum.map(
+          &%{
+            table_schema: &1[source_module.table_schema_field()],
+            table_name: &1[source_module.table_name_field()]
+          }
+        )
+        |> Enum.sort_by(&{&1.table_schema, &1.table_name})
 
-      {:ok, table_names}
+      {:ok, tables}
     else
       {:error, reason} ->
         Logger.error(inspect({reason, params}))
@@ -47,12 +52,18 @@ defmodule Carrier.Data.QueryData do
     end
   end
 
-  def fetch_columns(%{data_source_id: data_source_id, table_name: table_name} = params) do
+  def fetch_columns(
+        %{data_source_id: data_source_id, table_schema: table_schema, table_name: table_name} =
+          params
+      ) do
     with {:ok, %DataSource{} = data_source} <- Integrations.fetch_data_source(data_source_id),
          source_module = Source.RDB.get_module(data_source),
          columns_query = source_module.columns_query(),
          {:ok, %{data: data}} <-
-           Source.RDB.run_query(data_source, columns_query, %{"table_name" => table_name}) do
+           Source.RDB.run_query(data_source, columns_query, %{
+             "table_schema" => table_schema,
+             "table_name" => table_name
+           }) do
       %{date_columns: date_columns, other_columns: other_columns} =
         data
         |> Enum.group_by(
