@@ -1,0 +1,45 @@
+<div class="max-w-xl min-h-svh mx-auto p-8 bg-white space-y-8">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">reflow 결제 영수증</h1>
+    <Icon.logo class="w-32 h-auto" />
+  </div>
+  <div>
+    <p>영수증 ID: <%= @payment.id |> Carrier.Core.Crypto.obfuscate() %></p>
+    <p>
+      결제일시: <%= @payment.confirmed_at
+      |> DateTime.shift_zone!("Asia/Seoul")
+      |> Timex.format!("{YYYY}-{0M}-{0D} {h24}:{m}") %>
+    </p>
+  </div>
+  <.card>
+    <h2 class="text-xl font-bold">요금 내역</h2>
+    <p><%= @payment.subscription.plan.name %></p>
+    <p>
+      <%= @payment.subscription.start_on
+      |> DateTime.shift_zone!("Asia/Seoul")
+      |> Timex.format!("{YYYY}-{0M}-{0D}") %> 부터 <%= @payment.subscription.end_on
+      |> DateTime.shift_zone!("Asia/Seoul")
+      |> Timex.format!("{YYYY}-{0M}-{0D}") %> 까지
+    </p>
+    <p>
+      <%= @payment.amount |> Carrier.Core.Cldr.Number.to_string!(format: "#,###") %> <%= @payment.currency %>
+    </p>
+  </.card>
+  <.card>
+    <h2 class="text-xl font-bold">결제</h2>
+    <p>
+      <%= @payment.credit_card.card_company %>
+      <%= @payment.credit_card.card_number
+      |> String.graphemes()
+      |> Enum.chunk_every(4)
+      |> Enum.map(&(&1 |> Enum.join()))
+      |> Enum.join("-") %>
+    </p>
+    <p>
+      <%= @payment.amount |> Carrier.Core.Cldr.Number.to_string!(format: "#,###") %> <%= @payment.currency %>
+    </p>
+    <.link href={@payment.payload["receipt"]["url"]} target="_blank" class="underline">
+      매출전표 확인하기
+    </.link>
+  </.card>
+</div>

@@ -3,6 +3,7 @@ defmodule Carrier.Payments.Payment do
 
   schema "payments" do
     belongs_to :credit_card, Carrier.Payments.CreditCard
+    has_one :subscription, Carrier.Billing.Subscription
 
     field :org_id, :id
     field :amount, :decimal

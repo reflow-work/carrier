@@ -95,7 +95,7 @@ defmodule Carrier.Payments do
     end
   end
 
-  defp fetch_payment(payment_id) do
+  def fetch_payment(payment_id) do
     Payment.fetch(payment_id)
     |> Repo.one()
     |> case do

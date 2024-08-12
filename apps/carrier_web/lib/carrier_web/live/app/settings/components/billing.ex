@@ -106,6 +106,13 @@ defmodule CarrierWeb.App.SettingsLive.Components.Billing do
               <%= format_money(payment.amount, payment.currency) %>
             </:col>
             <:col :let={payment} label="플랜"><%= payment.item %></:col>
+            <:action :let={payment}>
+              <.link href={~p"/app/invoices/#{payment}"} target="_blank">
+                <.button class="block">
+                  영수증 보기
+                </.button>
+              </.link>
+            </:action>
           </.table>
         </.card>
         <div :if={has_billing_payment_permission(@user)} class="text-right text-sm text-description">
